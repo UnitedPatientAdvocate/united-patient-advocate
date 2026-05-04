@@ -238,8 +238,8 @@ function Landing({ onStart, mode, toggleMode }) {
   return (
     <div style={{ fontFamily: "'Inter',sans-serif", background: "var(--bg)", minHeight: "100vh" }}>
       {showShare && <ShareModal onClose={() => setShowShare(false)} />}
-      <div style={{ background: "#8B0000", color: "#fff", textAlign: "center", padding: "10px 20px", fontSize: 13, fontWeight: 700 }}>
-        URGENT: Introductory price of <strong>$97</strong> expires in <strong>3 days</strong>  -  after that it goes back to $197 permanently
+      <div style={{ background: "#8B0000", color: "#fff", textAlign: "center", padding: "10px 20px", fontSize: 13, fontWeight: 600, letterSpacing: ".01em" }}>
+        Introductory price <strong style={{ color: "#86EFAC" }}>$97</strong>  -  due to high demand, this offer may not last. <span style={{ color: "#86EFAC", fontWeight: 700 }}>Lock in your rate today.</span>
       </div>
       <nav style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)", padding: "14px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, position: "sticky", top: 0, zIndex: 100 }}>
         <Logo size="md" />
@@ -369,6 +369,156 @@ function Landing({ onStart, mode, toggleMode }) {
         </div>
       </div>
 
+
+      {/* FULL CITATIONS GRID */}
+      <div style={{ background: "var(--navy)", padding: "56px 24px" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 36 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#86EFAC", textTransform: "uppercase", letterSpacing: "2px", marginBottom: 12 }}>
+              7 Independent Verified Sources - All 2023-2025
+            </div>
+            <h2 style={{ fontFamily: "'Inter',sans-serif", fontSize: "clamp(20px,3.5vw,32px)", fontWeight: 900, color: "#fff", lineHeight: 1.2, letterSpacing: "-.03em", marginBottom: 12 }}>
+              This Is Not Our Opinion.
+            </h2>
+            <p style={{ color: "rgba(255,255,255,.6)", fontSize: 15, maxWidth: 540, margin: "0 auto", lineHeight: 1.7 }}>
+              Every statistic on this page is drawn from published peer-reviewed research or official U.S. government data - all from 2023 or later.
+            </p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 14, marginBottom: 28 }}>
+            {[
+              { org: "Johns Hopkins Medicine", q: "Armstrong Institute + Harvard Risk Management Foundation", date: "July 2023 - BMJ Quality & Safety", stat: "An estimated 795,000 Americans die or are permanently disabled by diagnostic and medical errors annually - the first rigorous national estimate across all care settings.", init: "JH", color: "rgba(123,168,224,.2)", tc: "#7BA8E0" },
+              { org: "Harvard Medical School", q: "Published in Mayo Clinic Proceedings: Digital Health", date: "May 2023", stat: "Electronic records make it easy to bill for procedures that never occurred. A patient sat through a brief exam yet the bill documented a full comprehensive physical examination.", init: "HM", color: "rgba(123,168,224,.2)", tc: "#7BA8E0" },
+              { org: "The Commonwealth Fund", q: "Survey of 7,800+ Insured Americans", date: "August 2024", stat: "45% of insured Americans received unexpected bills for services they believed were covered. Of those who disputed, 38% had their bill reduced or eliminated.", init: "CF", color: "rgba(76,175,128,.2)", tc: "#4CAF80" },
+              { org: "U.S. CFPB", q: "Consumer Financial Protection Bureau", date: "2025 Report", stat: "Medical billing errors contribute to $88 billion in debt on credit reports. A January 2025 landmark rule removed medical bills from credit reports for 15 million Americans.", init: "US", color: "rgba(224,112,112,.2)", tc: "#E07070" },
+              { org: "CFPB Office for Older Americans", q: "Federal Government Research", date: "2023", stat: "Nearly 4 million adults ages 65+ reported unpaid medical bills - even though 98% had health insurance. Providers were billing for amounts not owed.", init: "OA", color: "rgba(212,160,64,.2)", tc: "#D4A040" },
+              { org: "CMS - Centers for Medicare & Medicaid", q: "U.S. Federal Government Annual Report", date: "FY 2024", stat: "Medicare alone recorded $31.7 billion in improper payments at a 7.66% error rate - confirming billing errors are systemic, not isolated incidents.", init: "CM", color: "rgba(123,168,224,.2)", tc: "#7BA8E0" },
+              { org: "AARP Public Policy Institute", q: "National Research on Aging Americans", date: "2025", stat: "Medical debt is the leading financial concern for Americans over 50. Millions are billed incorrectly every year and most never know they can dispute.", init: "AA", color: "rgba(212,160,64,.2)", tc: "#D4A040" }
+            ].map((c, i) => (
+              <div key={i} style={{ background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 14, padding: "18px 20px", display: "flex", gap: 14, alignItems: "flex-start" }}>
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: c.color, border: "1px solid rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: "'Inter',sans-serif", fontSize: 11, fontWeight: 900, color: c.tc }}>
+                  {c.init}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: 800, color: "#fff", lineHeight: 1.3, marginBottom: 3 }}>{c.org}</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,.45)", marginBottom: 8, lineHeight: 1.4 }}>{c.q} - {c.date}</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,.75)", lineHeight: 1.65 }}>{c.stat}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,.3)", lineHeight: 1.7 }}>
+            All institutions cited for informational and educational reference only. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any institution referenced above.
+          </div>
+        </div>
+      </div>
+
+      {/* LIFETIME VALUE + COMPETITOR COMPARISON */}
+      <div style={{ background: "var(--surface2)", padding: "56px 24px", borderBottom: "1px solid var(--border)" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto" }}>
+          {/* LIFETIME VALUE HERO BOX */}
+          <div style={{ background: "linear-gradient(135deg, #0E3020, #147A45)", borderRadius: 20, padding: "40px 36px", marginBottom: 36, textAlign: "center", border: "1px solid rgba(76,175,128,.3)" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#86EFAC", textTransform: "uppercase", letterSpacing: "2px", marginBottom: 14 }}>
+              What You Are Actually Buying
+            </div>
+            <h2 style={{ fontFamily: "'Inter',sans-serif", fontSize: "clamp(22px,4vw,38px)", fontWeight: 900, color: "#fff", lineHeight: 1.15, letterSpacing: "-.03em", marginBottom: 16 }}>
+              One Payment. $97. <span style={{ color: "#86EFAC" }}>Yours For Life.</span>
+            </h2>
+            <p style={{ color: "rgba(255,255,255,.85)", fontSize: "clamp(15px,2vw,18px)", maxWidth: 640, margin: "0 auto 20px", lineHeight: 1.78, fontWeight: 500 }}>
+              Use it for <strong style={{ color: "#fff" }}>your bill today</strong>. Use it again for <strong style={{ color: "#fff" }}>your next bill next year</strong>. Share it with your <strong style={{ color: "#fff" }}>spouse, your parents, your children</strong>. Every medical bill you or your family ever faces - one payment covers all of it, forever.
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 14, maxWidth: 720, margin: "0 auto" }}>
+              {[
+                { icon: "∞", label: "Unlimited Uses", sub: "For you and everyone you share it with" },
+                { icon: "🏠", label: "Your Whole Family", sub: "Help a parent, spouse, or child fight their bill" },
+                { icon: "📅", label: "Every Future Bill", sub: "Prices change. Your access never expires." },
+                { icon: "💰", label: "Keep Every Dollar", sub: "We charge flat. Competitors take a cut of YOUR savings" }
+              ].map((item, i) => (
+                <div key={i} style={{ background: "rgba(255,255,255,.1)", borderRadius: 14, padding: "18px 14px", textAlign: "center", border: "1px solid rgba(255,255,255,.15)" }}>
+                  <div style={{ fontSize: 26, marginBottom: 8 }}>{item.icon}</div>
+                  <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, fontWeight: 800, color: "#fff", marginBottom: 5 }}>{item.label}</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,.65)", lineHeight: 1.55 }}>{item.sub}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* COMPETITOR COMPARISON */}
+          <div style={{ textAlign: "center", marginBottom: 28 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--red)", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: 10 }}>
+              The Real Cost of Every Alternative
+            </div>
+            <h2 style={{ fontFamily: "'Inter',sans-serif", fontSize: "clamp(20px,4vw,34px)", fontWeight: 900, color: "var(--ink)", lineHeight: 1.2, letterSpacing: "-.03em", marginBottom: 10 }}>
+              Every Competitor Takes a Cut. Over and Over Again.
+            </h2>
+            <p style={{ color: "var(--ink3)", fontSize: 16, maxWidth: 600, margin: "0 auto", lineHeight: 1.75 }}>
+              They charge you a percentage of what they save you - <strong style={{ color: "var(--ink)" }}>every single time</strong>. One hospital bill. Two hospital bills. Three. The fees never stop. We charge $97 once. That is it. Forever.
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 12, marginBottom: 24 }}>
+            {[
+              { n: "Goodbill", c: "20% of savings", sub: "Every single time", t: "4-8 weeks", bad: true },
+              { n: "CareRoute", c: "% + $1,000 cap", sub: "Every single time", t: "2 months", bad: true },
+              { n: "Rocket Money", c: "35-60% of savings", sub: "Every single time", t: "Weeks", bad: true },
+              { n: "Hire an Advocate", c: "$400-500/hr", sub: "Ongoing billing", t: "Months", bad: true },
+              { n: "United Patient Advocate", c: "$97", sub: "ONE TIME. FOREVER.", t: "Minutes", bad: false, featured: true }
+            ].map((item, i) => (
+              <div key={i} style={{
+                background: item.featured ? "var(--green)" : "var(--surface)",
+                border: item.featured ? "none" : "1px solid var(--border)",
+                borderRadius: 16, padding: "22px 16px", textAlign: "center",
+                transform: item.featured ? "scale(1.05)" : "none",
+                boxShadow: item.featured ? "0 12px 36px rgba(20,122,69,.45)" : "var(--shadow)",
+                position: "relative"
+              }}>
+                {item.featured && (
+                  <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "#86EFAC", color: "#0E3020", borderRadius: 20, padding: "3px 14px", fontSize: 10, fontWeight: 900, letterSpacing: "1px", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                    BEST VALUE
+                  </div>
+                )}
+                <div style={{ fontSize: 13, fontWeight: 700, color: item.featured ? "rgba(255,255,255,.85)" : "var(--ink3)", marginBottom: 10 }}>{item.n}</div>
+                <div style={{ fontFamily: "'Inter',sans-serif", fontSize: item.featured ? 28 : 20, fontWeight: 900, color: item.featured ? "#fff" : "var(--red)", lineHeight: 1, marginBottom: 6, letterSpacing: "-.03em" }}>{item.c}</div>
+                <div style={{ fontSize: 11, fontWeight: item.featured ? 800 : 500, color: item.featured ? "#86EFAC" : "var(--red)", marginBottom: 10, lineHeight: 1.4 }}>{item.sub}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: item.featured ? "rgba(255,255,255,.8)" : "var(--ink3)", background: item.featured ? "rgba(255,255,255,.15)" : "var(--surface2)", borderRadius: 20, padding: "4px 10px", display: "inline-block" }}>
+                  {item.t}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* LIFETIME VALUE MATH */}
+          <div style={{ background: "var(--surface)", borderRadius: 18, border: "1px solid var(--border)", padding: "28px 32px", boxShadow: "var(--shadow)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 24, alignItems: "center" }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--red)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>
+                  What competitors cost over a lifetime
+                </div>
+                {[
+                  { label: "1 bill disputed at Goodbill (20% of $2,000 savings)", cost: "$400" },
+                  { label: "3 bills over 5 years - same scenario", cost: "$1,200" },
+                  { label: "Family of 4, 10 bills over 10 years", cost: "$4,000+" }
+                ].map((row, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < 2 ? "1px solid var(--border)" : "none", gap: 12 }}>
+                    <span style={{ fontSize: 13, color: "var(--ink3)", lineHeight: 1.5, flex: 1 }}>{row.label}</span>
+                    <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 16, fontWeight: 900, color: "var(--red)", flexShrink: 0 }}>{row.cost}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ background: "var(--greenL)", border: "1px solid rgba(20,122,69,.2)", borderRadius: 14, padding: "24px", textAlign: "center" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--green)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>
+                  What United Patient Advocate costs
+                </div>
+                <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 52, fontWeight: 900, color: "var(--green)", letterSpacing: "-.04em", lineHeight: 1, marginBottom: 6 }}>$97</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: "var(--green)", marginBottom: 8 }}>One time. Forever.</div>
+                <div style={{ fontSize: 13, color: "var(--ink3)", lineHeight: 1.65 }}>
+                  For you. For your spouse.<br />For your parents. For your kids.<br />Every bill. Every year. Always.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "52px 24px" }}>
         <h2 style={{ fontFamily: "'Inter',sans-serif", fontSize: "clamp(20px,4vw,34px)", fontWeight: 900, color: "var(--ink)", textAlign: "center", marginBottom: 10, letterSpacing: "-.03em" }}>Does this sound familiar?</h2>
         <p style={{ textAlign: "center", color: "var(--ink3)", fontSize: 16, marginBottom: 32, lineHeight: 1.65 }}>Real patients. Real frustration. Every single day across America.</p>
@@ -424,20 +574,26 @@ function Landing({ onStart, mode, toggleMode }) {
             <span style={{ background: "linear-gradient(90deg,#86EFAC,#4CAF80)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Get your answers today.</span>
           </h2>
           <p style={{ color: "rgba(255,255,255,.65)", fontSize: 17, marginBottom: 32, lineHeight: 1.75 }}>Every American patient deserves a fair bill. United Patient Advocate is here to make sure you get one.</p>
-          <div style={{ background: "#8B000020", border: "1px solid #ff444444", borderRadius: 12, padding: "14px 20px", marginBottom: 20 }}>
-            <div style={{ color: "#FF8888", fontSize: 14, fontWeight: 700, marginBottom: 4 }}>⚠️ WARNING  -  Price increases in:</div>
-            <div style={{ color: "rgba(255,255,255,.7)", fontSize: 12 }}>After this timer hits zero, the price permanently returns to $197</div>
+          <div style={{ background: "rgba(134,239,172,.08)", border: "1px solid rgba(134,239,172,.2)", borderRadius: 16, padding: "24px 28px", marginBottom: 24 }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "#86EFAC", marginBottom: 10 }}>A note from our team:</div>
+            <p style={{ color: "rgba(255,255,255,.85)", fontSize: 15, lineHeight: 1.75, marginBottom: 12 }}>We launched United Patient Advocate at <strong style={{ color: "#fff" }}>$97</strong> to help as many American families as possible. As demand grows, we will need to raise our price.</p>
+            <p style={{ color: "rgba(255,255,255,.85)", fontSize: 15, lineHeight: 1.75 }}>We do not know exactly when that will happen. What we do know is that <strong style={{ color: "#86EFAC" }}>the people who act today will always have paid the lowest price we ever offered.</strong> Lock in your rate before demand forces our hand.</p>
           </div>
-          <Card style={{ padding: 26, marginBottom: 26 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--ink3)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 14 }}>Time Remaining at $97:</div>
-            <Countdown />
-            <div style={{ marginTop: 14, fontSize: 13, color: "var(--ink3)" }}>
-              <span style={{ textDecoration: "line-through", color: "var(--red)" }}>$197</span>
-              <span style={{ fontWeight: 900, color: "var(--green)", fontSize: 22, marginLeft: 10 }}>$97</span>
-              <span style={{ color: "var(--ink3)", marginLeft: 8 }}> -  Save $100 today</span>
+          <div style={{ background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 14, padding: "20px 24px", marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,.5)", textDecoration: "line-through", marginBottom: 2 }}>Regular price $197</div>
+              <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 52, fontWeight: 900, color: "#fff", letterSpacing: "-.04em", lineHeight: 1 }}>$97</div>
+              <div style={{ fontSize: 12, color: "#86EFAC", fontWeight: 700, marginTop: 4 }}>Save $100  -  introductory rate</div>
             </div>
-          </Card>
-          <GreenBtn onClick={onStart} full style={{ fontSize: 20, padding: "22px 48px", borderRadius: 16, marginBottom: 12 }}>Start My Free Analysis</GreenBtn>
+            <div style={{ width: 1, height: 60, background: "rgba(255,255,255,.15)" }} />
+            <div style={{ textAlign: "left", maxWidth: 200 }}>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,.9)", lineHeight: 1.8 }}>
+                <div style={{ marginBottom: 6 }}><span style={{ color: "#86EFAC", fontWeight: 700 }}>One payment.</span> Never again.</div>
+                <div style={{ marginBottom: 6 }}><span style={{ color: "#86EFAC", fontWeight: 700 }}>Every bill.</span> For life.</div>
+                <div><span style={{ color: "#86EFAC", fontWeight: 700 }}>Your whole family.</span> Covered.</div>
+              </div>
+            </div>
+          </div>
           <ShareBtn onClick={() => setShowShare(true)} style={{ width: "100%", fontSize: 15, padding: "14px", borderRadius: 12, marginBottom: 16 }}>Share With a Family Member</ShareBtn>
           <div style={{ color: "rgba(255,255,255,.3)", fontSize: 13 }}>Secure  -  Private  -  Instant digital delivery  -  No subscription</div>
         </div>
@@ -773,13 +929,17 @@ function Results({ results, userEmail, userName, onReset, mode, toggleMode }) {
             <h2 style={{ fontFamily: "'Inter',sans-serif", fontSize: 24, fontWeight: 900, color: "var(--ink)", marginBottom: 12, letterSpacing: "-.03em" }}>Get Your Complete Advocacy Package</h2>
             <p style={{ color: "var(--ink3)", fontSize: 15, maxWidth: 420, margin: "0 auto 10px", lineHeight: 1.75 }}>Your letter is written. Your script is ready. All you do is send one email.</p>
             <p style={{ color: "var(--ink3)", fontSize: 14, maxWidth: 420, margin: "0 auto 22px", lineHeight: 1.7 }}>Others charge $200 or more and take weeks. We charge $97 flat  -  one time, forever.</p>
-            <div style={{ background: "var(--goldL)", border: "1px solid rgba(138,92,0,.18)", borderRadius: 14, padding: "16px 20px", marginBottom: 22 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>Price Returns to $197 in:</div>
-              <Countdown />
-              <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
-                <span style={{ fontSize: 16, color: "var(--ink3)", textDecoration: "line-through" }}>$197</span>
-                <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 36, fontWeight: 900, color: "var(--green)", letterSpacing: "-.04em" }}>$97</span>
-                <span style={{ fontSize: 13, color: "var(--green)", fontWeight: 700 }}>Save $100</span>
+            <div style={{ background: "var(--greenL)", border: "1px solid rgba(20,122,69,.2)", borderRadius: 14, padding: "20px 22px", marginBottom: 22 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--green)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>
+                Introductory Rate - Due to High Demand, This May Not Last
+              </div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, flexWrap: "wrap", marginBottom: 12 }}>
+                <span style={{ fontSize: 15, color: "var(--ink3)", textDecoration: "line-through" }}>$197</span>
+                <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 40, fontWeight: 900, color: "var(--green)", letterSpacing: "-.04em", lineHeight: 1 }}>$97</span>
+                <span style={{ fontSize: 14, color: "var(--green)", fontWeight: 800 }}>Save $100</span>
+              </div>
+              <div style={{ fontSize: 13, color: "var(--ink2)", lineHeight: 1.7, textAlign: "center" }}>
+                We launched at $97 to reach as many families as possible. As demand grows we will need to raise our price. <strong style={{ color: "var(--ink)" }}>The people who act today lock in the lowest rate we will ever offer.</strong>
               </div>
             </div>
             <a href="https://gumroad.com/YOUR_LINK" target="_blank" rel="noopener noreferrer" style={{ display: "block", background: "linear-gradient(135deg,#16A04A,#147A45)", color: "#fff", textDecoration: "none", borderRadius: 14, padding: "18px 32px", fontSize: 19, fontWeight: 800, marginBottom: 10, boxShadow: "0 8px 28px rgba(20,122,69,.45)", maxWidth: 420, margin: "0 auto 10px", letterSpacing: "-.02em", fontFamily: "'Inter',sans-serif" }}>

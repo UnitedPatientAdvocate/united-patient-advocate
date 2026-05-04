@@ -1226,3 +1226,4 @@ Return exactly this JSON structure:
   if (screen === "results") return <Results results={results} userEmail={userEmail} userName={userName} onReset={() => { setScreen("landing"); setResults(null); setStep(1); setUserEmail(""); setUserName(""); }} {...shared} />;
   return null;
 }
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 function injectStyles() {
   if (document.getElementById("upa-styles")) return;

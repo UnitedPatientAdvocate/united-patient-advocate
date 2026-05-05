@@ -925,34 +925,58 @@ function Results({ results, userEmail, userName, onReset, mode, toggleMode }) {
         </Card>
 
         {!unlocked ? (
-          <Card style={{ padding: "40px 32px", textAlign: "center", borderTop: "3px solid var(--navy)", marginBottom: 28 }}>
-            <h2 style={{ fontFamily: "'Inter',sans-serif", fontSize: 24, fontWeight: 900, color: "var(--ink)", marginBottom: 12, letterSpacing: "-.03em" }}>Get Your Complete Advocacy Package</h2>
-            <p style={{ color: "var(--ink3)", fontSize: 15, maxWidth: 420, margin: "0 auto 10px", lineHeight: 1.75 }}>Your letter is written. Your script is ready. All you do is send one email.</p>
-            <p style={{ color: "var(--ink3)", fontSize: 14, maxWidth: 420, margin: "0 auto 22px", lineHeight: 1.7 }}>Others charge $200 or more and take weeks. We charge $97 flat  -  one time, forever.</p>
-            <div style={{ background: "var(--greenL)", border: "1px solid rgba(20,122,69,.2)", borderRadius: 14, padding: "20px 22px", marginBottom: 22 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--green)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 10 }}>
-                Introductory Rate - Due to High Demand, This May Not Last
+          <Card style={{ padding: "40px 32px", borderTop: "3px solid var(--navy)", marginBottom: 28 }}>
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <h2 style={{ fontFamily: "'Inter',sans-serif", fontSize: 24, fontWeight: 900, color: "var(--ink)", marginBottom: 10, letterSpacing: "-.03em" }}>Get Your Complete Advocacy Package</h2>
+              <p style={{ color: "var(--ink3)", fontSize: 15, maxWidth: 500, margin: "0 auto", lineHeight: 1.75 }}>Your letter, script and action plan are ready. Choose the plan that fits your situation below.</p>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
+              <div style={{ background: "var(--navyL)", border: "1.5px solid var(--border2)", borderRadius: 16, padding: "22px 18px" }}>
+                <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, fontWeight: 700, color: "var(--ink3)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 6 }}>Individual</div>
+                <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 30, fontWeight: 900, color: "var(--navy)", letterSpacing: "-.04em", lineHeight: 1, marginBottom: 2 }}>$97</div>
+                <div style={{ fontSize: 11, color: "var(--ink3)", textDecoration: "line-through", marginBottom: 10 }}>Was $197</div>
+                <div style={{ fontSize: 12, color: "var(--ink2)", lineHeight: 1.7, marginBottom: 14, padding: "10px 12px", background: "var(--surface2)", borderRadius: 10 }}>
+                  <strong style={{ color: "var(--ink)" }}>This one bill, for you.</strong> Each person who wants their own bill analyzed needs their own analysis.
+                </div>
+                {["Complete bill analysis","Personalized dispute letter","Word-for-word phone script","5-step action plan","Legal rights explained","Results emailed to you"].map((t, i) => (
+                  <div key={i} style={{ display: "flex", gap: 7, marginBottom: 6 }}>
+                    <span style={{ color: "var(--green)", fontWeight: 700, fontSize: 12, flexShrink: 0 }}>checkmark</span>
+                    <span style={{ fontSize: 12, color: "var(--ink3)" }}>{t}</span>
+                  </div>
+                ))}
+                <a href="https://gumroad.com/YOUR_LINK" target="_blank" rel="noopener noreferrer" style={{ display: "block", marginTop: 16, background: "var(--navy)", color: "#fff", textDecoration: "none", borderRadius: 11, padding: "13px 14px", fontSize: 14, fontWeight: 800, textAlign: "center", fontFamily: "'Inter',sans-serif" }}>
+                  Get Individual Plan
+                </a>
+                <div style={{ fontSize: 11, color: "var(--ink3)", marginTop: 7, textAlign: "center" }}>One-time payment - this bill only</div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, flexWrap: "wrap", marginBottom: 12 }}>
-                <span style={{ fontSize: 15, color: "var(--ink3)", textDecoration: "line-through" }}>$197</span>
-                <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 40, fontWeight: 900, color: "var(--green)", letterSpacing: "-.04em", lineHeight: 1 }}>$97</span>
-                <span style={{ fontSize: 14, color: "var(--green)", fontWeight: 800 }}>Save $100</span>
-              </div>
-              <div style={{ fontSize: 13, color: "var(--ink2)", lineHeight: 1.7, textAlign: "center" }}>
-                We launched at $97 to reach as many families as possible. As demand grows we will need to raise our price. <strong style={{ color: "var(--ink)" }}>The people who act today lock in the lowest rate we will ever offer.</strong>
+              <div style={{ background: "rgba(20,122,69,.06)", border: "2px solid var(--green)", borderRadius: 16, padding: "22px 18px", position: "relative" }}>
+                <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "var(--green)", color: "#fff", borderRadius: 20, padding: "4px 14px", fontSize: 10, fontWeight: 900, letterSpacing: "1px", textTransform: "uppercase", whiteSpace: "nowrap" }}>MOST POPULAR</div>
+                <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, fontWeight: 700, color: "var(--green)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 6 }}>Family Plan</div>
+                <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 26, fontWeight: 900, color: "var(--green)", letterSpacing: "-.04em", lineHeight: 1, marginBottom: 2 }}>$147<span style={{ fontSize: 13, fontWeight: 500 }}>/yr</span></div>
+                <div style={{ fontSize: 11, color: "var(--ink3)", textDecoration: "line-through", marginBottom: 10 }}>Was $297/yr</div>
+                <div style={{ fontSize: 12, color: "var(--ink2)", lineHeight: 1.7, marginBottom: 14, padding: "10px 12px", background: "rgba(20,122,69,.08)", borderRadius: 10 }}>
+                  <strong style={{ color: "var(--ink)" }}>Every bill. Every person. All year.</strong> Each family member gets their own personalized analysis for their own specific bill - unlimited times.
+                </div>
+                {[["Unlimited separate analyses",true],["Every family member covered",true],["Each person gets their own letter",true],["Results saved permanently",true],["Professional PDF letterhead",true],["Family billing newsletter",false]].map(([t, bold], i) => (
+                  <div key={i} style={{ display: "flex", gap: 7, marginBottom: 6 }}>
+                    <span style={{ color: "var(--green)", fontWeight: 700, fontSize: 12, flexShrink: 0 }}>checkmark</span>
+                    <span style={{ fontSize: 12, color: bold ? "var(--ink)" : "var(--ink3)", fontWeight: bold ? 600 : 400 }}>{t}</span>
+                  </div>
+                ))}
+                <a href="https://gumroad.com/YOUR_FAMILY_LINK" target="_blank" rel="noopener noreferrer" style={{ display: "block", marginTop: 16, background: "linear-gradient(135deg,#16A04A,#147A45)", color: "#fff", textDecoration: "none", borderRadius: 11, padding: "13px 14px", fontSize: 14, fontWeight: 800, textAlign: "center", fontFamily: "'Inter',sans-serif", boxShadow: "0 6px 20px rgba(20,122,69,.4)" }}>
+                  Get Family Plan - $147/yr
+                </a>
+                <div style={{ fontSize: 11, color: "var(--green)", marginTop: 7, textAlign: "center", fontWeight: 600 }}>Best value - unlimited use all year</div>
               </div>
             </div>
-            <a href="https://gumroad.com/YOUR_LINK" target="_blank" rel="noopener noreferrer" style={{ display: "block", background: "linear-gradient(135deg,#16A04A,#147A45)", color: "#fff", textDecoration: "none", borderRadius: 14, padding: "18px 32px", fontSize: 19, fontWeight: 800, marginBottom: 10, boxShadow: "0 8px 28px rgba(20,122,69,.45)", maxWidth: 420, margin: "0 auto 10px", letterSpacing: "-.02em", fontFamily: "'Inter',sans-serif" }}>
-              Unlock My Complete Package  -  $97
-            </a>
-            <div style={{ fontSize: 12, color: "var(--ink3)", marginTop: 10 }}>Instant access  -  Sent to your email  -  All sales are final due to instant digital delivery</div>
-            <div style={{ marginTop: 20 }}>
-              <button onClick={() => setUnlocked(true)} style={{ background: "none", border: "1px dashed var(--border2)", borderRadius: 8, padding: "7px 14px", color: "var(--ink3)", cursor: "pointer", fontSize: 12, fontFamily: "'Inter',sans-serif" }}>
-                Preview full results (demo)
-              </button>
+            <div style={{ background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: 12, padding: "12px 16px", marginBottom: 14, fontSize: 12, color: "var(--ink3)", lineHeight: 1.7, textAlign: "center" }}>
+              <strong style={{ color: "var(--ink)" }}>Not sure which plan?</strong> If anyone else in your household might need a bill analyzed this year - the Family Plan pays for itself on the second use.
+            </div>
+            <div style={{ fontSize: 11, color: "var(--ink3)", textAlign: "center", lineHeight: 1.7, marginBottom: 14 }}>Instant access after payment - Sent to your email - All sales are final due to instant digital delivery</div>
+            <div style={{ textAlign: "center" }}>
+              <button onClick={() => setUnlocked(true)} style={{ background: "none", border: "1px dashed var(--border2)", borderRadius: 8, padding: "6px 14px", color: "var(--ink3)", cursor: "pointer", fontSize: 11, fontFamily: "'Inter',sans-serif" }}>Preview full results (demo)</button>
             </div>
           </Card>
-        ) : (
           <div style={{ marginBottom: 28 }}>
             <div style={{ display: "flex", gap: 4, marginBottom: 20, background: "var(--surface2)", padding: "6px", borderRadius: 14, border: "1px solid var(--border)" }}>
               {[["letter","Dispute Letter"],["script","Phone Script"],["action","Action Plan"],["rights","Your Rights"]].map(([id,label]) => (
@@ -1038,51 +1062,6 @@ function Results({ results, userEmail, userName, onReset, mode, toggleMode }) {
                 <div style={{ color: "var(--ink3)", fontSize: 14, lineHeight: 1.7 }}>Everything was sent to <strong style={{ color: "var(--ink)" }}>{userEmail}</strong>. Close this page anytime  -  your complete advocacy package will be in your inbox forever.</div>
               </div>
             )}
-
-            <Card style={{ padding: "28px 26px", marginTop: 20 }}>
-              <h2 style={{ fontFamily: "'Inter',sans-serif", fontSize: 20, fontWeight: 900, color: "var(--ink)", marginBottom: 6, textAlign: "center" }}>Protect Your Whole Family</h2>
-              <p style={{ color: "var(--ink3)", fontSize: 14, lineHeight: 1.7, marginBottom: 22, textAlign: "center" }}>You are already protected with the Individual Plan. Here is what the Family Plan adds on top.</p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 18 }}>
-                <div style={{ background: "var(--navyL)", border: "1px solid var(--border2)", borderRadius: 16, padding: "20px 16px" }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: "var(--navy)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 4 }}>You Already Have</div>
-                  <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 16, fontWeight: 900, color: "var(--navy)", marginBottom: 14 }}>Individual Plan</div>
-                  {["1 bill analysis","Dispute letter","Phone script","5-step action plan","Results in inbox"].map((t,i) => (
-                    <div key={i} style={{ display: "flex", gap: 7, marginBottom: 7 }}>
-                      <span style={{ color: "var(--green)", fontWeight: 700, fontSize: 13 }}>✓</span>
-                      <span style={{ fontSize: 13, color: "var(--ink3)" }}>{t}</span>
-                    </div>
-                  ))}
-                  <div style={{ marginTop: 14 }}>
-                    <div style={{ fontSize: 11, color: "var(--ink3)", textDecoration: "line-through" }}>Was $197</div>
-                    <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 20, fontWeight: 900, color: "var(--navy)" }}>$97 one-time</div>
-                  </div>
-                </div>
-                <div style={{ background: "rgba(20,122,69,.06)", border: "1.5px solid rgba(20,122,69,.25)", borderRadius: 16, padding: "20px 16px", position: "relative" }}>
-                  <div style={{ position: "absolute", top: -11, left: "50%", transform: "translateX(-50%)", background: "var(--green)", color: "#fff", borderRadius: 20, padding: "3px 12px", fontSize: 10, fontWeight: 800, textTransform: "uppercase", whiteSpace: "nowrap" }}>Premium Upgrade</div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: "var(--green)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 4 }}>Everything above PLUS</div>
-                  <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 16, fontWeight: 900, color: "var(--green)", marginBottom: 14 }}>Family Plan</div>
-                  {[["Unlimited analyses  -  whole year",true],["Every family member covered",true],["Results saved permanently",true],["Professional PDF letterhead",false],["Monthly family billing newsletter",false]].map(([t,bold],i) => (
-                    <div key={i} style={{ display: "flex", gap: 7, marginBottom: 7 }}>
-                      <span style={{ color: "var(--green)", fontWeight: 700, fontSize: 13 }}>✓</span>
-                      <span style={{ fontSize: 13, color: bold ? "var(--ink)" : "var(--ink3)", fontWeight: bold ? 600 : 400 }}>{t}</span>
-                    </div>
-                  ))}
-                  <div style={{ marginTop: 14 }}>
-                    <div style={{ fontSize: 11, color: "var(--ink3)", textDecoration: "line-through" }}>Was $297 per year</div>
-                    <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 20, fontWeight: 900, color: "var(--green)" }}>$147 per year</div>
-                  </div>
-                </div>
-              </div>
-              {!familyAdded ? (
-                <a href="https://gumroad.com/YOUR_FAMILY_LINK" target="_blank" rel="noopener noreferrer" onClick={() => setFamilyAdded(true)} style={{ display: "block", background: "var(--navy)", color: "#fff", textDecoration: "none", borderRadius: 12, padding: "15px 24px", fontSize: 16, fontWeight: 800, textAlign: "center", fontFamily: "'Inter',sans-serif" }}>
-                  Add Family Protection Plan  -  $147/year
-                </a>
-              ) : (
-                <div style={{ background: "var(--greenL)", border: "1px solid rgba(20,122,69,.2)", borderRadius: 10, padding: "14px 18px", textAlign: "center" }}>
-                  <div style={{ fontWeight: 800, color: "var(--green)", fontSize: 15 }}>Family Plan added! Check your email for access.</div>
-                </div>
-              )}
-            </Card>
           </div>
         )}
 
@@ -1181,6 +1160,7 @@ Return exactly this JSON structure:
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": import.meta.env.VITE_ANTHROPIC_API_KEY,
           "anthropic-dangerous-direct-browser-access": "true"
         },
         body: JSON.stringify({
@@ -1226,4 +1206,3 @@ Return exactly this JSON structure:
   if (screen === "results") return <Results results={results} userEmail={userEmail} userName={userName} onReset={() => { setScreen("landing"); setResults(null); setStep(1); setUserEmail(""); setUserName(""); }} {...shared} />;
   return null;
 }
-

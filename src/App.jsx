@@ -977,6 +977,7 @@ function Results({ results, userEmail, userName, onReset, mode, toggleMode }) {
               <button onClick={() => setUnlocked(true)} style={{ background: "none", border: "1px dashed var(--border2)", borderRadius: 8, padding: "6px 14px", color: "var(--ink3)", cursor: "pointer", fontSize: 11, fontFamily: "'Inter',sans-serif" }}>Preview full results (demo)</button>
             </div>
           </Card>
+        ) : (
           <div style={{ marginBottom: 28 }}>
             <div style={{ display: "flex", gap: 4, marginBottom: 20, background: "var(--surface2)", padding: "6px", borderRadius: 14, border: "1px solid var(--border)" }}>
               {[["letter","Dispute Letter"],["script","Phone Script"],["action","Action Plan"],["rights","Your Rights"]].map(([id,label]) => (

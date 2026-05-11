@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 
 // ─── LOGO ────────────────────────────────────────────────────────────────────
 const LOGO_B64 = "/Transparent.png"; // served from public folder
-const LOGO_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 96'%3E%3Cpath d='M40 4 72 16v24c0 24-14 40-32 52C22 80 8 64 8 40V16L40 4Z' fill='%23F4F1EA' stroke='%231F3A68' stroke-width='5'/%3E%3Cpath d='M27 31v23c0 8 6 14 13 14s13-6 13-14V31' fill='none' stroke='%231F3A68' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M40 21v38' stroke='%231A7A8C' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M54 24c5 8 5 20 0 28' fill='none' stroke='%23C9A24A' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E";
+const LOGO_FALLBACK = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA5NiI+PHBhdGggZD0iTTQwIDQgNzIgMTZ2MjRjMCAyNC0xNCA0MC0zMiA1MkMyMiA4MCA4IDY0IDggNDBWMTZMNDAgNFoiIGZpbGw9IiNGNEYxRUEiIHN0cm9rZT0iIzFGM0E2OCIgc3Ryb2tlLXdpZHRoPSI1Ii8+PHBhdGggZD0iTTI3IDMxdjIzYzAgOCA2IDE0IDEzIDE0czEzLTYgMTMtMTRWMzEiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzFGM0E2OCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNNDAgMjF2MzgiIHN0cm9rZT0iIzFBN0E4QyIgc3Ryb2tlLXdpZHRoPSI1IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNNTQgMjRjNSA4IDUgMjAgMCAyOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRBIiBzdHJva2Utd2lkdGg9IjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==";
 const GUMROAD  = "https://upadvocate.gumroad.com/l/busfn?wanted=true";
 
 // ─── FONTS — injected immediately at module load (fixes race condition) ───────
@@ -3085,7 +3085,7 @@ function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode 
 
       <nav style={{ background:surface, borderBottom:`1px solid ${border}`, padding:"10px 24px", display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, zIndex:100 }}>
         <div style={{ display:"flex", alignItems:"center", gap:11 }}>
-          <img src={LOGO_B64} alt="UPA" style={{ height:60, width:"auto", flexShrink:0 }} />
+          <img src={LOGO_B64} alt="UPA" onError={(e)=>{ e.currentTarget.onerror=null; e.currentTarget.src=LOGO_FALLBACK; }} style={{ height:60, width:"auto", flexShrink:0 }} />
           <div style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
             <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"1.2rem", letterSpacing:"-0.025em", whiteSpace:"nowrap", lineHeight:1.05 }}>
               <span style={{ fontWeight:900, color:dark?"#fff":"#1F3A68" }}>United</span>
@@ -3240,7 +3240,7 @@ function Analyzing({ mode }) {
     <div className="analyzing-screen" style={{ background:bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:24,fontFamily:"'DM Sans',sans-serif" }}>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}} @media (max-width:520px){.analyzing-screen{padding:22px 18px!important;align-items:center!important}.analyzing-inner{max-width:390px!important}.analyzing-logo{height:76px!important;margin-bottom:18px!important}.analyzing-spinner{width:44px!important;height:44px!important;margin-bottom:20px!important}.analyzing-title{font-size:22px!important;line-height:1.12!important;margin-bottom:9px!important}.analyzing-sub{font-size:13.5px!important;line-height:1.65!important;margin-bottom:22px!important;max-width:340px!important;margin-left:auto!important;margin-right:auto!important}.analyzing-card{border-radius:16px!important;padding:18px 20px!important}.analyzing-row{gap:11px!important;padding:10px 0!important}.analyzing-step-text{font-size:13.5px!important;line-height:1.35!important;overflow-wrap:anywhere!important}}`}</style>
       <div className="analyzing-inner" style={{ textAlign:"center",maxWidth:440,width:"100%" }}>
-        <img className="analyzing-logo" src={LOGO_B64} alt="UPA" style={{ height:92,width:"auto",margin:"0 auto 24px",display:"block" }}/>
+        <img className="analyzing-logo" src={LOGO_B64} alt="UPA" onError={(e)=>{ e.currentTarget.onerror=null; e.currentTarget.src=LOGO_FALLBACK; }} style={{ height:92,width:"auto",margin:"0 auto 24px",display:"block" }}/>
         <div className="analyzing-spinner" style={{ width:52,height:52,border:"4px solid",borderColor:`transparent transparent ${dark?"#4A7BD4":"#1F3A68"} transparent`,borderRadius:"50%",animation:"spin 0.9s linear infinite",margin:"0 auto 24px" }}/>
         <h2 className="analyzing-title" style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:24,fontWeight:800,color:ink,marginBottom:8,letterSpacing:"-0.03em" }}>Preparing your billing review...</h2>
         <p className="analyzing-sub" style={{ color:ink3,fontSize:14,marginBottom:28,lineHeight:1.7 }}>Analyzing your bill against Medicare rates, federal billing guidelines, and coding standards.</p>
@@ -3310,7 +3310,7 @@ function Results({ results, userEmail, userName, mode, toggleMode }) {
       {showShare && <ShareModal onClose={()=>setShowShare(false)}/>}
       <nav style={{ background:surface,borderBottom:`1px solid ${border}`,padding:"10px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100 }}>
         <div style={{ display:"flex",alignItems:"center",gap:11 }}>
-          <img src={LOGO_B64} alt="UPA" style={{ height:60,width:"auto",flexShrink:0 }}/>
+          <img src={LOGO_B64} alt="UPA" onError={(e)=>{ e.currentTarget.onerror=null; e.currentTarget.src=LOGO_FALLBACK; }} style={{ height:60,width:"auto",flexShrink:0 }}/>
           <div style={{ display:"flex",flexDirection:"column",lineHeight:1 }}>
             <div style={{ fontFamily:"'DM Sans',sans-serif",fontSize:"1.1rem",letterSpacing:"-0.025em",whiteSpace:"nowrap",lineHeight:1.05 }}>
               <span style={{ fontWeight:900,color:dark?"#fff":navyC }}>United</span>
@@ -3368,7 +3368,7 @@ function Results({ results, userEmail, userName, mode, toggleMode }) {
         {/* PAYWALL */}
         {!unlocked ? (
           <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"36px 28px",borderTop:`4px solid ${navyC}`,marginBottom:28,textAlign:"center",boxShadow:"0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.07)" }}>
-            <img src={LOGO_B64} alt="UPA" style={{ height:82,width:"auto",margin:"0 auto 20px",display:"block" }}/>
+            <img src={LOGO_B64} alt="UPA" onError={(e)=>{ e.currentTarget.onerror=null; e.currentTarget.src=LOGO_FALLBACK; }} style={{ height:82,width:"auto",margin:"0 auto 20px",display:"block" }}/>
             <h2 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:22,fontWeight:800,color:ink,marginBottom:10,letterSpacing:"-0.03em" }}>Your Billing Review Is Ready</h2>
             <p style={{ color:ink3,fontSize:14,maxWidth:400,margin:"0 auto 24px",lineHeight:1.75 }}>Your dispute letter, phone script, and action plan have been prepared. Purchase to unlock your complete billing review package.</p>
             <div style={{ textAlign:"left",maxWidth:340,margin:"0 auto 24px",background:navyL,borderRadius:14,padding:"16px 18px" }}>
@@ -3384,9 +3384,9 @@ function Results({ results, userEmail, userName, mode, toggleMode }) {
               <span style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:40,fontWeight:800,color:navyC,letterSpacing:"-0.04em" }}>$97</span>
             </div>
             <div style={{ fontSize:12,color:ink3,marginBottom:22 }}>One-time payment · Instant digital delivery</div>
-            <a href={GUMROAD} target="_self" rel="noopener noreferrer" style={{ display:"block",background:"linear-gradient(135deg,#2F7A4F,#276644)",color:"#fff",textDecoration:"none",borderRadius:13,padding:"18px 28px",fontSize:17,fontWeight:800,marginBottom:10,boxShadow:"0 6px 24px rgba(47,122,79,0.4)",fontFamily:"'DM Sans',sans-serif",letterSpacing:"-0.01em" }}>
+            <button type="button" onClick={()=>window.open(GUMROAD, "_blank", "noopener,noreferrer")} style={{ display:"block",width:"100%",background:"linear-gradient(135deg,#2F7A4F,#276644)",color:"#fff",textDecoration:"none",border:"none",borderRadius:13,padding:"18px 28px",fontSize:17,fontWeight:800,marginBottom:10,boxShadow:"0 6px 24px rgba(47,122,79,0.4)",fontFamily:"'DM Sans',sans-serif",letterSpacing:"-0.01em",cursor:"pointer" }}>
               Unlock My Complete Package — $97
-            </a>
+            </button>
             <div style={{ fontSize:11,color:ink4,marginBottom:16,lineHeight:1.65 }}>Secure checkout · All sales are final due to instant digital delivery</div>
             <button onClick={()=>setUnlocked(true)} style={{ background:"none",border:`1px dashed ${border2}`,borderRadius:8,padding:"6px 14px",color:ink4,cursor:"pointer",fontSize:11,fontFamily:"inherit" }}>Preview full results (demo)</button>
           </div>
@@ -3460,9 +3460,9 @@ function Results({ results, userEmail, userName, mode, toggleMode }) {
             <div style={{ background:navyC,borderRadius:18,padding:"28px 26px",marginTop:24,textAlign:"center" }}>
               <h3 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:20,fontWeight:800,color:"#fff",marginBottom:10 }}>Get your personalized version</h3>
               <p style={{ color:"rgba(255,255,255,0.65)",fontSize:14,marginBottom:20,lineHeight:1.7 }}>This preview shows the structure. Purchase to access your complete personalized billing analysis.</p>
-              <a href={GUMROAD} target="_self" rel="noopener noreferrer" style={{ display:"block",background:"linear-gradient(135deg,#2F7A4F,#276644)",color:"#fff",textDecoration:"none",borderRadius:12,padding:"16px 28px",fontSize:16,fontWeight:800,boxShadow:"0 4px 20px rgba(47,122,79,0.45)",fontFamily:"inherit" }}>
+              <button type="button" onClick={()=>window.open(GUMROAD, "_blank", "noopener,noreferrer")} style={{ display:"block",width:"100%",background:"linear-gradient(135deg,#2F7A4F,#276644)",color:"#fff",textDecoration:"none",border:"none",borderRadius:12,padding:"16px 28px",fontSize:16,fontWeight:800,boxShadow:"0 4px 20px rgba(47,122,79,0.45)",fontFamily:"inherit",cursor:"pointer" }}>
                 Unlock Complete Package — $97
-              </a>
+              </button>
             </div>
           </div>
         )}

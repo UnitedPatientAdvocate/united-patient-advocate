@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 
 // ─── LOGO ────────────────────────────────────────────────────────────────────
 const LOGO_B64 = "/Transparent.png"; // served from public folder
+const LOGO_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 96'%3E%3Cpath d='M40 4 72 16v24c0 24-14 40-32 52C22 80 8 64 8 40V16L40 4Z' fill='%23F4F1EA' stroke='%231F3A68' stroke-width='5'/%3E%3Cpath d='M27 31v23c0 8 6 14 13 14s13-6 13-14V31' fill='none' stroke='%231F3A68' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M40 21v38' stroke='%231A7A8C' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M54 24c5 8 5 20 0 28' fill='none' stroke='%23C9A24A' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E";
 const GUMROAD  = "https://upadvocate.gumroad.com/l/busfn?wanted=true";
 
 // ─── FONTS — injected immediately at module load (fixes race condition) ───────
@@ -921,14 +922,56 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
 
 
 @media (max-width: 580px) {
-  .comparison-section { padding: 54px 16px 58px; }
+  .comparison-section { padding: 42px 16px 58px; }
+  .comparison-section .section-eyebrow {
+    font-size: 0.58rem;
+    line-height: 1.6;
+    letter-spacing: 0.18em;
+    margin-bottom: 18px;
+  }
+  .comparison-section .section-h {
+    font-size: clamp(2.05rem, 10vw, 2.55rem);
+    line-height: 1.06;
+    margin-bottom: 16px;
+  }
+  .comparison-section .section-h > span {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px !important;
+  }
+  .comparison-section .section-h > span > span {
+    font-size: 0.58em !important;
+    padding: 5px 12px !important;
+    border-radius: 7px !important;
+  }
+  .comparison-section .section-sub {
+    max-width: 340px;
+    margin: 0 auto 12px;
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+  .comparison-section [style*="position:relative"][style*="max-width:620px"] {
+    max-width: 100% !important;
+    margin: 0 auto !important;
+  }
+  .comparison-section [style*="top:-48px"] {
+    position: static !important;
+    width: auto !important;
+    margin: 14px auto 12px !important;
+  }
+  .comparison-section [style*="top:-48px"] > div {
+    font-size: 0.58rem !important;
+    letter-spacing: 0.18em !important;
+    padding: 7px 17px !important;
+  }
   .comparison-section .section-inner-wide { max-width: 390px; }
   .comp-table {
     width: 100%;
     max-width: 100%;
     border-radius: 16px;
     overflow: hidden;
-    margin-top: 16px;
+    margin-top: 8px;
   }
   .comp-header { display: none; }
   .mobile-row-label {
@@ -2871,7 +2914,7 @@ function Landing({ onStart, mode, toggleMode }) {
   const navHTML = `
   <nav style="background:var(--cream);border-bottom:1px solid var(--stone);padding:10px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:200;backdrop-filter:blur(10px);">
     <div style="display:flex;align-items:center;gap:11px;">
-      <img src="${LOGO_B64}" alt="United Patient Advocate" style="height:74px;width:auto;display:block;flex-shrink:0;" />
+      <img src="${LOGO_B64}" alt="United Patient Advocate" onerror="this.onerror=null;this.src='${LOGO_FALLBACK}';" style="height:74px;width:auto;display:block;flex-shrink:0;" />
       <div style="display:flex;flex-direction:column;line-height:1;">
         <div style="font-family:'DM Sans',sans-serif;font-size:1.32rem;letter-spacing:-0.025em;white-space:nowrap;line-height:1.05;">
           <span style="font-weight:900;color:var(--navy);">United</span>

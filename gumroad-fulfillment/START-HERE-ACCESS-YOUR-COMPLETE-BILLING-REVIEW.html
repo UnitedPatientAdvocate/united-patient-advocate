@@ -1,0 +1,119 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Start Here - Access Your Complete Billing Review</title>
+<style>
+  @page { size: Letter; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: 8.5in;
+    height: 11in;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #19313a;
+    background: #ffffff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page { position: relative; width: 8.5in; min-height: 11in; overflow: hidden; background: #fff; }
+  .header {
+    height: 1.62in;
+    background: #0e5961;
+    color: #fff;
+    position: relative;
+    padding: 0.26in 0.58in;
+    display: flex;
+    align-items: center;
+    gap: 0.26in;
+    border-bottom: 5px solid #6ed3ca;
+  }
+  .header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(104deg, rgba(255,255,255,0.06) 0, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 72px);
+    opacity: 0.75;
+  }
+  .brand-logo { position: relative; z-index: 1; width: 1.05in; height: 1.08in; object-fit: contain; display: block; flex: 0 0 auto; }
+  .brand-text { position: relative; z-index: 1; }
+  .brand-title { margin: 0 0 0.10in; color: #ffffff; font-size: 27px; line-height: 1.05; font-weight: 800; letter-spacing: -0.02em; }
+  .brand-subtitle { margin: 0; font-size: 14.5px; color: #73d3c7; font-weight: 650; }
+  .main { padding: 0.66in 0.72in 0; }
+  .card { border: 1px solid #bddbe2; border-radius: 14px; overflow: hidden; box-shadow: 5px 6px 0 rgba(20,91,102,0.12); background: #fff; }
+  .card-head { background: #e5f4f6; color: #157682; border-bottom: 1px solid #bddbe2; padding: 0.28in 0.36in; font-size: 13.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+  .card-body { padding: 0.38in 0.56in 0.26in; text-align: center; }
+  .status { width: 0.68in; height: 0.68in; border-radius: 50%; margin: 0 auto 0.16in; background: #e7f6f3; border: 2px solid #58c9bf; display: flex; align-items: center; justify-content: center; color: #0e5961; font-size: 30px; line-height: 1; font-weight: 800; }
+  h1 { margin: 0 0 0.13in; font-size: 27px; line-height: 1.12; letter-spacing: -0.025em; font-weight: 800; color: #18313a; }
+  .intro { margin: 0 auto 0.16in; max-width: 5.9in; font-size: 15.5px; line-height: 1.55; color: #385d68; font-weight: 520; }
+  .access-label { margin: 0.10in 0 0.06in; font-size: 17px; line-height: 1.35; color: #19313a; font-weight: 800; }
+  .url-box { border: 2px solid #58c9bf; background: #e9f7f8; border-radius: 10px; padding: 0.17in 0.22in; margin: 0 auto 0.28in; color: #0d5661; font-size: 21px; line-height: 1.16; font-weight: 800; letter-spacing: -0.015em; }
+  .includes-title { margin: 0 0 0.14in; color: #3e606a; font-size: 13.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+  .includes { display: grid; grid-template-columns: 1fr 1fr; gap: 0.11in 0.28in; text-align: left; margin: 0 auto 0.18in; max-width: 6.05in; }
+  .item { display: flex; align-items: flex-start; gap: 0.10in; font-size: 14px; line-height: 1.38; color: #355a65; font-weight: 540; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #5fcac0; margin-top: 5px; flex: 0 0 auto; }
+  .next { background: #f4fafb; border: 1px solid #c8dfe5; border-radius: 12px; padding: 0.18in 0.22in; text-align: left; margin-top: 0.12in; }
+  .next-title { color: #19313a; font-size: 13.5px; font-weight: 800; margin: 0 0 0.07in; }
+  .next p { margin: 0; color: #4a6d76; font-size: 13px; line-height: 1.55; }
+  .support { border-top: 1px solid #c8dfe5; margin-top: 0.16in; padding-top: 0.13in; color: #6a8991; font-size: 13.5px; line-height: 1.3; font-weight: 700; }
+  .support span { color: #0d5661; margin-left: 0.05in; }
+  .meta { margin-top: 0.28in; border: 1px solid #c8dfe5; background: #f4fafb; padding: 0.14in 0.24in; display: grid; grid-template-columns: 1.35in 1fr; gap: 0.08in 0.12in; font-size: 12.5px; line-height: 1.35; }
+  .meta-label { color: #6f929b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.01em; }
+  .meta-value { color: #19313a; font-weight: 800; }
+  .footer { position: absolute; left: 0; right: 0; bottom: 0; min-height: 0.56in; padding: 0.13in 0.55in 0.11in; border-top: 1px solid #c8dfe5; background: #eef7f9; text-align: center; color: #587d86; font-size: 10.3px; line-height: 1.5; }
+  .footer p { margin: 0 0 0.035in; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <img class="brand-logo" src="../public/Transparent.png" alt="United Patient Advocate logo" />
+      <div class="brand-text">
+        <h1 class="brand-title">United Patient Advocate</h1>
+        <p class="brand-subtitle">Consumer Billing Review &amp; Advocacy Platform</p>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="card">
+        <div class="card-head">Start Here - Access Information</div>
+        <div class="card-body">
+          <div class="status">OK</div>
+          <h1>Your Complete Billing Review Is Ready</h1>
+          <p class="intro">Thank you for your purchase. Use the secure access page below to continue into your United Patient Advocate review experience.</p>
+          <p class="access-label">Continue Here:</p>
+          <div class="url-box">https://unitedpatientadvocate.com/success</div>
+
+          <div class="includes-title">Your purchase includes access to:</div>
+          <div class="includes">
+            <div class="item"><span class="dot"></span><span>Complete Billing Review dashboard</span></div>
+            <div class="item"><span class="dot"></span><span>Upload center for bill documents</span></div>
+            <div class="item"><span class="dot"></span><span>Billing education tools</span></div>
+            <div class="item"><span class="dot"></span><span>Personalized billing workflow</span></div>
+          </div>
+
+          <div class="next">
+            <div class="next-title">What to do next</div>
+            <p>Open the link above on the same device and browser you used at checkout when possible. You can upload your bill, statement, explanation of benefits, or other supporting documents from the dashboard.</p>
+          </div>
+
+          <div class="support">Need help? Contact: <span>support@unitedpatientadvocate.com</span></div>
+        </div>
+      </section>
+
+      <section class="meta">
+        <div class="meta-label">Document Type:</div>
+        <div class="meta-value">Consumer Billing Review - Access &amp; Fulfillment Notice</div>
+        <div class="meta-label">Issued By:</div>
+        <div class="meta-value">United Patient Advocate | unitedpatientadvocate.com</div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Educational and informational billing review support only. Not legal, medical, insurance, or financial advice.</p>
+      <p>No outcomes are guaranteed. United Patient Advocate does not promise reductions, refunds, corrections, or specific results.</p>
+    </footer>
+  </div>
+</body>
+</html>

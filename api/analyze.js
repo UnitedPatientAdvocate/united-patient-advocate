@@ -1,4 +1,4 @@
-const DEFAULT_MODEL = (process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6').trim();
+const DEFAULT_MODEL = (process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514').trim();
 
 const PROMPT_CONFIGS = {
   free_preview: {
@@ -12,7 +12,7 @@ Framing rules:
 - Do not present legal representation or medical advice.
 - Do not provide full scripts, full letters, full tactics, escalation playbooks, or detailed solutions.
 - Keep the total response concise, generally under 600 words across all JSON string values.
-- Make the preview useful but intentionally incomplete, with thoughtful cliffhanger language that points toward the premium dossier.
+- Make the preview useful but intentionally incomplete, with thoughtful cliffhanger language that points toward the premium Complete Billing Review.
 
 Patient submission:
 ${formatIntake(intake)}
@@ -31,13 +31,13 @@ Return exactly this JSON structure with no markdown:
   "preview": {
     "screeningHeadline": "Short premium teaser headline",
     "teaserFinding": "One visible personalized teaser finding only.",
-    "cliffhanger": "Short sentence explaining that the deeper advocate dossier contains the rest of the personalized analysis.",
+    "cliffhanger": "Short sentence explaining that the deeper Complete Billing Review contains the rest of the personalized analysis.",
     "lockedModuleReferences": [
       "Provider-Specific Negotiation Brief",
       "Recovery Probability Score",
       "Escalation Hierarchy",
       "Personalized Scripts",
-      "30-Day Action Dossier"
+      "30-Day Action Review"
     ]
   },
   "paidDossier": null
@@ -45,15 +45,15 @@ Return exactly this JSON structure with no markdown:
   },
   paid_dossier: {
     maxTokens: 9000,
-    buildPrompt: intake => `You are the premium consumer-guidance AI engine behind United Patient Advocate. Create a full PAID ADVOCATE DOSSIER from the submitted billing information and return ONLY valid JSON.
+    buildPrompt: intake => `You are the premium consumer-guidance AI engine behind United Patient Advocate. Create a full PAID Complete Billing Review from the submitted billing information and return ONLY valid JSON.
 
 Framing rules:
 - Use observational, careful language.
 - Do not accuse providers, insurers, or staff.
 - Do not guarantee savings, corrections, negotiations, or outcomes.
 - Do not present legal representation, medical advice, or insurance adjudication.
-- Provide practical, professional consumer guidance in a premium dossier format.
-- Target roughly 1,800-3,500 words across the dossier content.
+- Provide practical, professional consumer guidance in a premium review format.
+- Target roughly 1,800-3,500 words across the review content.
 - Include deep but measured analysis, not sensational claims.
 
 Patient submission:
@@ -68,7 +68,7 @@ Return exactly this JSON structure with no markdown:
     "estimatedSavingsMin": "",
     "estimatedSavingsMax": "",
     "errorsFound": ["Observation 1", "Observation 2", "Observation 3"],
-    "keyFindings": "Concise premium overview of the strongest dossier themes."
+    "keyFindings": "Concise premium overview of the strongest review themes."
   },
   "paidDossier": {
     "executiveOverview": "Premium overview paragraph or two.",
@@ -109,6 +109,21 @@ Return exactly this JSON structure with no markdown:
 }`
   }
 };
+
+function getEnvValue(name) {
+  const direct = process.env[name];
+  if (typeof direct === 'string' && direct.trim()) return direct.trim().replace(/^['\"]|['\"]$/g, '');
+
+  const normalizedName = name.toUpperCase();
+  const match = Object.entries(process.env).find(([key, value]) => (
+    key.trim().toUpperCase() === normalizedName && typeof value === 'string' && value.trim()
+  ));
+  return match ? match[1].trim().replace(/^['\"]|['\"]$/g, '') : '';
+}
+
+function getAnthropicApiKey() {
+  return getEnvValue('ANTHROPIC_API_KEY');
+}
 
 function normalizeIntake(input = {}) {
   return {
@@ -151,51 +166,56 @@ function buildStructuredRequest(body = {}) {
   };
 }
 
+function normalizeMessages(messages = []) {
+  return messages.map(message => ({
+    role: message.role,
+    content: typeof message.content === 'string'
+      ? message.content
+      : Array.isArray(message.content)
+        ? message.content
+        : String(message.content ?? '')
+  }));
+}
+
+async function readBody(req) {
+  if (req.body && typeof req.body !== 'string') return req.body;
+  if (typeof req.body === 'string') return JSON.parse(req.body || '{}');
+
+  const chunks = [];
+  for await (const chunk of req) chunks.push(chunk);
+  const raw = Buffer.concat(chunks).toString('utf8');
+  return raw ? JSON.parse(raw) : {};
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const apiKey = (process.env.ANTHROPIC_API_KEY || '').trim();
+  const apiKey = getAnthropicApiKey();
   if (!apiKey) {
-    console.error('[api/analyze] Missing ANTHROPIC_API_KEY runtime environment variable');
+    console.error('[api/analyze] Missing ANTHROPIC_API_KEY runtime environment variable', {
+      hasAnthropicModel: Boolean(getEnvValue('ANTHROPIC_MODEL')),
+      envKeyDetected: Object.keys(process.env).some(key => key.trim().toUpperCase() === 'ANTHROPIC_API_KEY')
+    });
     return res.status(500).json({ error: 'Server API key is not configured' });
   }
 
-  let body = req.body;
-  if (typeof body === 'string') {
-    try {
-      body = JSON.parse(body);
-    } catch {
-      return res.status(400).json({ error: 'Invalid JSON request body' });
-    }
+  let body;
+  try {
+    body = await readBody(req);
+  } catch (error) {
+    return res.status(400).json({ error: 'Invalid JSON request body' });
   }
 
   const structuredRequest = buildStructuredRequest(body);
   const outbound = {
     model: (body?.model || DEFAULT_MODEL).trim(),
     max_tokens: structuredRequest?.maxTokens || Number(body?.max_tokens) || 4000,
-    messages: structuredRequest?.messages || (Array.isArray(body?.messages) ? body.messages : []),
+    messages: normalizeMessages(structuredRequest?.messages || (Array.isArray(body?.messages) ? body.messages : []))
   };
 
   if (!outbound.messages.length) {
     return res.status(400).json({ error: 'Missing messages array or structured generation input' });
-  const outbound = {
-    model: (process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6').trim(),
-    max_tokens: Number(body?.max_tokens) || 4000,
-    messages: Array.isArray(body?.messages) ? body.messages : [],
-  };
-
-  if (!outbound.messages.length) {
-    return res.status(400).json({ error: 'Missing messages array' });
   }
-
-  outbound.messages = outbound.messages.map(message => ({
-    role: message.role,
-    content: typeof message.content === 'string'
-      ? message.content
-      : Array.isArray(message.content)
-        ? message.content
-        : String(message.content ?? ''),
-  }));
 
   const sendToAnthropic = async requestBody => {
     console.log('[api/analyze] Anthropic request summary', {
@@ -205,10 +225,8 @@ export default async function handler(req, res) {
       messages: requestBody.messages.map(message => ({
         role: message.role,
         contentType: Array.isArray(message.content) ? 'blocks' : typeof message.content,
-        contentLength: Array.isArray(message.content)
-          ? message.content.length
-          : message.content.length,
-      })),
+        contentLength: Array.isArray(message.content) ? message.content.length : message.content.length
+      }))
     });
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -216,27 +234,24 @@ export default async function handler(req, res) {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+        'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify(requestBody)
     });
 
     const data = await response.json();
     return { response, data };
   };
 
-  const modelCandidates = process.env.ANTHROPIC_MODEL
+  const modelCandidates = getEnvValue('ANTHROPIC_MODEL')
     ? [outbound.model]
     : [...new Set([
         outbound.model,
-        'claude-haiku-4-5-20251001',
-        'claude-sonnet-4-5-20250929',
-        body?.model,
         'claude-sonnet-4-20250514',
         'claude-3-7-sonnet-20250219',
         'claude-3-5-sonnet-20241022',
         'claude-3-5-haiku-20241022',
-        'claude-3-haiku-20240307',
+        'claude-3-haiku-20240307'
       ].filter(Boolean))];
 
   let response;
@@ -248,23 +263,23 @@ export default async function handler(req, res) {
       && data?.error?.type === 'not_found_error'
       && /model/i.test(data?.error?.message || '');
 
-    if (!modelNotFound || process.env.ANTHROPIC_MODEL) break;
+    if (!modelNotFound || getEnvValue('ANTHROPIC_MODEL')) break;
 
     console.warn('[api/analyze] Model unavailable, trying next model', {
       model,
-      next: modelCandidates[modelCandidates.indexOf(model) + 1],
+      next: modelCandidates[modelCandidates.indexOf(model) + 1]
     });
   }
 
   if (!response.ok) {
     console.error('[api/analyze] Anthropic error', {
       status: response.status,
-      data,
+      data
     });
     return res.status(502).json({
       error: 'Anthropic request failed',
       upstreamStatus: response.status,
-      upstream: data,
+      upstream: data
     });
   }
 
@@ -273,8 +288,3 @@ export default async function handler(req, res) {
     generationMode: structuredRequest?.generationMode || 'legacy_messages'
   });
 }
-  res.status(response.status).json(data);
-}
-
-
-

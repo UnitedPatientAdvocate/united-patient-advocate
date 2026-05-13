@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import BillingEducation from "./BillingEducation.jsx";
 import { AnnotatedParagraph } from "./TermTooltip.jsx";
 
-// â”€â”€â”€ LOGO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 const LOGO_B64 = "/Transparent.png"; // served from public folder
 const LOGO_FALLBACK = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA5NiI+PHBhdGggZD0iTTQwIDQgNzIgMTZ2MjRjMCAyNC0xNCA0MC0zMiA1MkMyMiA4MCA4IDY0IDggNDBWMTZMNDAgNFoiIGZpbGw9IiNGNEYxRUEiIHN0cm9rZT0iIzFGM0E2OCIgc3Ryb2tlLXdpZHRoPSI1Ii8+PHBhdGggZD0iTTI3IDMxdjIzYzAgOCA2IDE0IDEzIDE0czEzLTYgMTMtMTRWMzEiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzFGM0E2OCIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNNDAgMjF2MzgiIHN0cm9rZT0iIzFBN0E4QyIgc3Ryb2tlLXdpZHRoPSI1IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNNTQgMjRjNSA4IDUgMjAgMCAyOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzlBMjRBIiBzdHJva2Utd2lkdGg9IjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==";
 const GUMROAD  = "https://upadvocate.gumroad.com/l/busfn?wanted=true";
@@ -105,7 +105,7 @@ function buildPaidDossierText(results) {
   return lines.filter(Boolean).join("\n");
 }
 
-// â”€â”€â”€ FONTS â€” injected immediately at module load (fixes race condition) â”€â”€â”€â”€â”€â”€â”€
+// Section
 (function injectFonts() {
   if (document.getElementById("upa-fonts")) return;
   const link = document.createElement("link");
@@ -115,36 +115,36 @@ function buildPaidDossierText(results) {
   document.head.prepend(link);
 })();
 
-// â”€â”€â”€ LANDING PAGE CSS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 const LANDING_CSS = `
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 18px; scroll-behavior: smooth; }
 :root {
-  /* â”€â”€ REFINED PALETTE â€” premium healthcare-financial â”€â”€ */
+  /* REFINED PALETTE ? premium healthcare-financial */
 
   /* Page surfaces */
-  --cream:  #F2F5F9;   /* page bg â€” refined blue-grey white */
-  --warm:   #E8EDF5;   /* section alt â€” deeper cool wash */
-  --stone:  #CBD5E1;   /* borders â€” slate */
+  --cream:  #F2F5F9;   /* page bg ? refined blue-grey white */
+  --warm:   #E8EDF5;   /* section alt ? deeper cool wash */
+  --stone:  #CBD5E1;   /* borders ? slate */
 
   /* Typography */
-  --ink:    #1E293B;   /* headings â€” deep slate navy */
-  --ink2:   #475569;   /* body â€” refined slate */
+  --ink:    #1E293B;   /* headings ? deep slate navy */
+  --ink2:   #475569;   /* body ? refined slate */
   --ink3:   #64748B;   /* secondary */
   --ink4:   #94A3B8;   /* metadata */
 
-  /* Brand â€” refined tones from reference image */
-  --navy:   #1F3A68;   /* primary navy â€” refined deeper blue */
+  /* Brand ? refined tones from reference image */
+  --navy:   #1F3A68;   /* primary navy ? refined deeper blue */
   --navyL:  #EBF0FA;   /* navy tint surface */
-  --green:  #2F7A4F;   /* primary green â€” richer, less bright */
+  --green:  #2F7A4F;   /* primary green ? richer, less bright */
   --greenL: #E8F5EE;   /* green tint surface */
   --green2: #276644;   /* green hover */
   --teal:   #1A7A8C;   /* teal accent */
   --tealL:  #E0F4F8;
   --amber:  #92400E;
   --amberL: #FFF8EC;
-  --red:    #C0392B;   /* red â€” more premium, less harsh */
+  --red:    #C0392B;   /* red ? more premium, less harsh */
   --redL:   #FEF2F0;
   --crimson: #8B1A1A;
 
@@ -161,7 +161,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* â”€â”€ URGENCY â”€â”€ */
+/* URGENCY */
 .urgency {
   background: #7C2D12;
   color: #fff;
@@ -173,7 +173,7 @@ body {
 }
 .urgency em { font-style: normal; color: #FCA5A5; }
 
-/* â”€â”€ NAV â”€â”€ */
+/* NAV */
 nav {
   background: rgba(250,250,247,0.96);
   border-bottom: 1px solid var(--border);
@@ -228,7 +228,7 @@ nav {
 }
 .nav-btn:hover { background: #276644; }
 
-/* â”€â”€ HERO â”€â”€ */
+/* HERO */
 .hero {
   padding: 76px 24px 64px;
   text-align: center;
@@ -293,7 +293,7 @@ nav {
 .hero-stat-src { font-size: 0.62rem; color: var(--ink4); margin-top: 3px; }
 .stat-divider { width: 1px; background: var(--stone); }
 
-/* â”€â”€ CREDIBILITY STRIP â”€â”€ */
+/* CREDIBILITY STRIP */
 .cred-strip {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -322,7 +322,7 @@ nav {
 .logo-humana { color: #00833E; }
 .cred-disc { font-size: 0.62rem; color: var(--ink4); margin-top: 16px; line-height: 1.6; }
 
-/* â”€â”€ SCROLL TRAP â”€â”€ */
+/* SCROLL TRAP */
 .scroll-trap { padding: 56px 24px 60px; background: var(--cream); }
 .scroll-trap-inner { max-width: 520px; margin: 0 auto; text-align: center; }
 .trap-step {
@@ -401,7 +401,7 @@ nav {
 .btn-continue-trap:hover { background: #19305A; transform: translateY(-1px); }
 .trap-fine { font-size: 0.7rem; color: var(--ink4); text-align: center; line-height: 1.6; }
 
-/* â”€â”€ SECTION COMMON â”€â”€ */
+/* SECTION COMMON */
 section { padding: 72px 24px; }
 .section-inner { max-width: 680px; margin: 0 auto; }
 .section-inner-wide { max-width: 760px; margin: 0 auto; }
@@ -421,7 +421,7 @@ section { padding: 72px 24px; }
 .em-green { color: var(--green); }
 .section-sub { font-size: 0.88rem; color: var(--ink3); text-align: center; line-height: 1.7; max-width: 460px; margin: 0 auto 48px; }
 
-/* â”€â”€ ANALYSIS PREVIEW SECTION â”€â”€ */
+/* ANALYSIS PREVIEW SECTION */
 .analysis-section { background: var(--warm); }
 
 .analysis-card {
@@ -582,7 +582,7 @@ section { padding: 72px 24px; }
 }
 .btn-unlock:hover { background: #142848; }
 
-/* â”€â”€ WHAT WE REVIEW â”€â”€ */
+/* WHAT WE REVIEW */
 .review-section { background: var(--cream); }
 .review-grid {
   display: grid;
@@ -606,7 +606,7 @@ section { padding: 72px 24px; }
 .review-title { font-size: 0.9rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
 .review-desc { font-size: 0.78rem; color: var(--ink3); line-height: 1.6; }
 
-/* â”€â”€ PROCESS â”€â”€ */
+/* PROCESS */
 .process-section { background: #1F3A68; padding: 72px 24px; }
 .process-section .section-h { color: #fff; }
 .process-section .section-sub { color: rgba(255,255,255,0.5); }
@@ -630,7 +630,7 @@ section { padding: 72px 24px; }
 .step-desc { font-size: 0.78rem; color: rgba(255,255,255,0.48); line-height: 1.6; }
 .step-time { display: inline-block; margin-top: 9px; background: rgba(134,239,172,0.1); color: #86EFAC; border-radius: 20px; padding: 3px 10px; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; }
 
-/* â”€â”€ COMPARISON â”€â”€ */
+/* COMPARISON */
 .comparison-section { background: var(--warm); padding: 72px 24px; }
 .comp-table {
   max-width: 620px; margin: 0 auto;
@@ -674,7 +674,7 @@ section { padding: 72px 24px; }
 .btn-comp-cta { background: #2F7A4F; color: #fff; border: none; border-radius: 9px; padding: 11px 22px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background 0.18s; flex-shrink: 0; }
 .btn-comp-cta:hover { background: #276644; }
 
-/* â”€â”€ TRUST STACK â”€â”€ */
+/* TRUST STACK */
 .trust-section { background: var(--warm); padding: 72px 24px; }
 .trust-items { display: flex; flex-direction: column; gap: 1px; border-radius: 18px; overflow: hidden; border: 1px solid var(--stone); box-shadow: var(--shadow-sm); }
 .trust-item { display: flex; align-items: center; gap: 18px; padding: 20px 22px; background: #fff; }
@@ -687,7 +687,7 @@ section { padding: 72px 24px; }
 .trust-desc { font-size: 0.78rem; color: var(--ink3); line-height: 1.6; }
 .trust-badge { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal); background: var(--tealL); border-radius: 20px; padding: 4px 11px; white-space: nowrap; flex-shrink: 0; }
 
-/* â”€â”€ CLOSING â”€â”€ */
+/* CLOSING */
 .close-section { padding: 80px 24px 88px; background: var(--cream); position: relative; overflow: hidden; }
 .close-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 280px; background: linear-gradient(180deg, var(--warm) 0%, transparent 100%); pointer-events: none; }
 .close-inner { max-width: 540px; margin: 0 auto; position: relative; text-align: center; }
@@ -748,7 +748,7 @@ section { padding: 72px 24px; }
 .reassurance-item { display: flex; align-items: center; gap: 6px; font-size: 0.73rem; color: var(--ink4); font-weight: 500; }
 .reassurance-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--stone); }
 
-/* â”€â”€ DISCLAIMER SECTION â”€â”€ */
+/* DISCLAIMER SECTION */
 .disclaimer-section {
   padding: 36px 24px 40px;
   background: var(--warm);
@@ -795,11 +795,11 @@ section { padding: 72px 24px; }
   border-top: 1px solid var(--stone);
 }
 
-/* â”€â”€ FOOTER â”€â”€ */
+/* FOOTER */
 footer { background: var(--ink); padding: 28px 24px; text-align: center; }
 footer p { font-size: 0.66rem; color: rgba(255,255,255,0.22); line-height: 1.8; max-width: 600px; margin: 0 auto; }
 
-/* â”€â”€ MOBILE â”€â”€ */
+/* MOBILE */
 @media (max-width: 520px) {
   section { padding: 48px 16px; }
   .hero { padding: 48px 16px 40px; }
@@ -856,16 +856,16 @@ footer p { font-size: 0.66rem; color: rgba(255,255,255,0.22); line-height: 1.8; 
   .trust-badge { display: none; }
 }
 
-/* â”€â”€ DARK MODE â”€â”€ */
+/* DARK MODE */
 body { transition: background 0.35s ease, color 0.35s ease; }
-/* â”€â”€ DARK MODE â€” Premium Charcoal/Navy-Black Palette â”€â”€ */
+/* DARK MODE ? Premium Charcoal/Navy-Black Palette */
 .dark-mode {
-  /* Dark mode â€” premium charcoal calibrated to refined palette */
-  --cream:   #141924;   /* deep navy-charcoal â€” refined */
+  /* Dark mode ? premium charcoal calibrated to refined palette */
+  --cream:   #141924;   /* deep navy-charcoal ? refined */
   --warm:    #1A2030;   /* card surface */
   --stone:   #2A3448;   /* borders */
   --ink:     #F0F4F8;   /* headings */
-  --ink2:    #CBD5E1;   /* body â€” matches #475569 lightened */
+  --ink2:    #CBD5E1;   /* body ? matches #475569 lightened */
   --ink3:    #94A3B8;   /* secondary */
   --ink4:    #64748B;   /* metadata */
   --border:  rgba(255,255,255,0.08);
@@ -885,7 +885,7 @@ body { transition: background 0.35s ease, color 0.35s ease; }
   transition-duration: 0.3s;
   transition-timing-function: ease;
 }
-/* Except transforms/opacity â€” let those stay instant */
+/* Except transforms/opacity ? let those stay instant */
 button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   transition: all 0.2s;
 }
@@ -897,15 +897,15 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   box-shadow: 0 1px 0 rgba(255,255,255,0.04);
 }
 
-/* Logo â€” ensure "United" text stays readable */
+/* Logo ? ensure "United" text stays readable */
 .dark-mode .nav-name .wn-united { color: #fff; }
 .dark-mode .nav-name .wn-patient { color: #3DBFBF; }
 .dark-mode .nav-sub { color: #70758A; }
 
-/* Urgency bar â€” keep crimson but soften */
+/* Urgency bar ? keep crimson but soften */
 .dark-mode .urgency { background: #6B1212; }
 
-/* Cards â€” consistent premium dark surface with subtle border glow */
+/* Cards ? consistent premium dark surface with subtle border glow */
 .dark-mode .upload-card,
 .dark-mode .analysis-card,
 .dark-mode .comp-table,
@@ -1000,7 +1000,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
 .dark-mode section[style*="background:var(--navy)"],
 .dark-mode [style*="background:var(--navy)"] { /* keep navy sections as-is */ }
 
-/* Mobile spacing â€” tighten on dark for efficiency */
+/* Mobile spacing ? tighten on dark for efficiency */
 @media (max-width: 640px) {
   .dark-mode section { padding-top: 52px !important; padding-bottom: 52px !important; }
   .dark-mode .upload-card { padding: 22px 18px 18px; }
@@ -1271,7 +1271,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   opacity: 0.92;
 }
 
-/* Dark mode hero â€” keep text visible */
+/* Dark mode hero ? keep text visible */
 .dark-mode .hero { background: linear-gradient(160deg, #141924 0%, #1A2340 50%, #131E1A 100%); }
 .dark-mode .hero h1 { color: #F0F4F8; }
 .dark-mode .hero-sub { color: #B8BEC9; }
@@ -1291,7 +1291,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
 .dark-mode .cred-logo { opacity: 0.55; filter: grayscale(100%) brightness(2); }
 .dark-mode .cred-disc { color: #5C6070; }
 
-/* Dark mode footer â€” high contrast compliance text */
+/* Dark mode footer ? high contrast compliance text */
 .dark-mode footer { background: #0C1220; border-top: 1px solid rgba(255,255,255,0.06); }
 .dark-mode footer p { color: #6B7280 !important; }
 
@@ -1309,7 +1309,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
 .dark-mode .trap-q { color: #F0F4F8; }
 .dark-mode .trap-sub { color: #898C91; }
 
-/* Dark mode â€” various sections text visibility */
+/* Dark mode ? various sections text visibility */
 .dark-mode .section-h { color: #F0F4F8; }
 .dark-mode .section-sub { color: #969BA7; }
 .dark-mode .section-eyebrow, .dark-mode .eyebrow-green { color: #3DAF6A; }
@@ -1317,62 +1317,62 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
 .dark-mode .eyebrow-teal { color: #38D4E8; }
 .dark-mode .eyebrow-amber { color: #FBBF24; }
 
-/* Dark mode â€” research/citations section already navy so fine */
-/* Dark mode â€” process section already navy so fine */
+/* Dark mode ? research/citations section already navy so fine */
+/* Dark mode ? process section already navy so fine */
 
-/* Dark mode â€” emotional bridge section */
+/* Dark mode ? emotional bridge section */
 .dark-mode .close-eyebrow { color: #72757B; }
 .dark-mode .close-eyebrow .eyebrow-line { background: rgba(255,255,255,0.1); }
 .dark-mode .close-h { color: #F0F4F8; }
 .dark-mode .close-h em { color: #93C5FD; }
 .dark-mode .close-body { color: #969BA7; }
 
-/* Dark mode â€” hero stats border */
+/* Dark mode ? hero stats border */
 .dark-mode .hero-stats { border-top-color: #262B35; }
 
-/* Dark mode â€” what we review section */
+/* Dark mode ? what we review section */
 .dark-mode .review-title { color: #F0F4F8; }
 .dark-mode .review-desc { color: #9C9EA3; }
 .dark-mode .review-section { background: #141924; }
 
-/* Dark mode â€” credibility numbers / microcopy */
+/* Dark mode ? credibility numbers / microcopy */
 .dark-mode .microcopy-item { color: #6D7077; }
 .dark-mode .microcopy-dot { background: rgba(255,255,255,0.15); }
 .dark-mode .hero-reassurance { color: #676C82; }
 
-/* Dark mode â€” scenario and proof cards inner text */
+/* Dark mode ? scenario and proof cards inner text */
 .dark-mode .review-item .review-title { color: #F0F4F8; }
 .dark-mode .review-item .review-desc { color: #969BA7; }
 
-/* Dark mode â€” trust items */
+/* Dark mode ? trust items */
 .dark-mode .trust-title { color: #F0F4F8; }
 .dark-mode .trust-desc { color: #969BA7; }
 .dark-mode .trust-badge { background: rgba(61,175,106,0.15); color: #3DAF6A; }
 .dark-mode .trust-items { border-color: #242933; }
 
-/* Dark mode â€” drop zone */
+/* Dark mode ? drop zone */
 .dark-mode .dz-title { color: #93C5FD; }
 .dark-mode .dz-sub { color: #838897; }
 .dark-mode .dz-fmt { color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
 .dark-mode .upload-card-title { color: #F0F4F8; }
 .dark-mode .upload-card-sub { color: #969BA7; }
 
-/* Dark mode â€” night toggle */
+/* Dark mode ? night toggle */
 .dark-mode .night-toggle { color: #A1A3A7; border-color: #A1A3A7; }
 .dark-mode .night-toggle:hover { border-color: #676C82; color: #fff; }
 
-/* Dark mode â€” skip link */
+/* Dark mode ? skip link */
 .dark-mode .skip-btn { color: #72757B; }
 .dark-mode .or-text { color: #676C82; }
 .dark-mode .or-line { background: rgba(255,255,255,0.08); }
 .dark-mode .privacy-text { color: #898C91; }
 .dark-mode .privacy-text strong { color: #B8BABD; }
 
-/* Dark mode â€” cta support */
+/* Dark mode ? cta support */
 .dark-mode .cta-support { color: #6D7077; }
 .dark-mode .sec-text { color: #38D4E8; }
 
-/* Dark mode â€” reassurance row */
+/* Dark mode ? reassurance row */
 .dark-mode .reassurance-item { color: #72757B; }
 .dark-mode .reassurance-dot { background: rgba(255,255,255,0.15); }
 
@@ -1381,9 +1381,9 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
 .dark-mode .hero-sub .green { color: #86EFAC; }
 
 
-/* â”€â”€ COMPREHENSIVE DARK MODE TEXT CONTRAST BOOST â”€â”€ */
+/* COMPREHENSIVE DARK MODE TEXT CONTRAST BOOST */
 
-/* Footer â€” much more visible */
+/* Footer ? much more visible */
 .dark-mode footer { background: #1A2035 !important; }
 .dark-mode footer p { color: #6B7280 !important; line-height: 1.85; }
 
@@ -1419,7 +1419,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
 .dark-mode .reassurance-item { color: #95979C !important; }
 .dark-mode .reassurance-dot { background: rgba(255,255,255,0.2) !important; }
 
-/* Hero h1 â€” also fix in dark mode explicitly */
+/* Hero h1 ? also fix in dark mode explicitly */
 .dark-mode .hero h1 { color: #F0F4F8 !important; }
 .dark-mode .hero h1 em { color: #86EFAC !important; }
 .dark-mode .hero-sub { color: #BDBEC1 !important; }
@@ -1438,7 +1438,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
 .dark-mode .hero-stat-src { color: #5F626A !important; }
 .dark-mode .hero-stats { border-top-color: #262B35 !important; }
 
-/* Credibility logos â€” bright enough to see clearly */
+/* Credibility logos ? bright enough to see clearly */
 .dark-mode .cred-logo { 
   opacity: 0.8 !important; 
   filter: grayscale(100%) brightness(5) !important;
@@ -1499,13 +1499,13 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
 .dark-mode .nav-brand .wn-advocate { color: #666970 !important; }
 
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   DARK MODE CONTRAST FINAL FIX â€” WCAG AA Compliant
+/* ===========================================================
+   DARK MODE CONTRAST FINAL FIX ? WCAG AA Compliant
    All values tested against dark bg #141924 / #1A2030
    Target: minimum 4.5:1 for body, 7:1 for headings
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+=========================================================== */
 
-/* â”€â”€ HERO â”€â”€ */
+/* HERO */
 .dark-mode .hero {
   background: linear-gradient(160deg, #141924 0%, #1A2340 50%, #131E1A 100%) !important;
 }
@@ -1513,10 +1513,10 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   color: #F1F5F9 !important;  /* contrast ~14:1 on #141924 */
 }
 .dark-mode .hero h1 em {
-  color: #6EE7B7 !important;  /* bright mint â€” contrast ~8:1 */
+  color: #6EE7B7 !important;  /* bright mint ? contrast ~8:1 */
 }
 .dark-mode .hero-sub {
-  color: #CBD5E1 !important;  /* contrast ~8.5:1 â€” was 0.72 opacity causing blending */
+  color: #CBD5E1 !important;  /* contrast ~8.5:1 ? was 0.72 opacity causing blending */
 }
 .dark-mode .hero-sub strong {
   color: #F1F5F9 !important;
@@ -1535,7 +1535,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   color: #94A3B8 !important;
 }
 .dark-mode .hero-stat-n {
-  color: #93C5FD !important;  /* bright blue â€” contrast ~8:1 */
+  color: #93C5FD !important;  /* bright blue ? contrast ~8:1 */
 }
 .dark-mode .hero-stat-l {
   color: #94A3B8 !important;  /* contrast ~5:1 */
@@ -1556,16 +1556,16 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   background: rgba(255,255,255,0.2) !important;
 }
 
-/* â”€â”€ SECTION HEADINGS â€” all sections â”€â”€ */
+/* SECTION HEADINGS ? all sections */
 .dark-mode .section-h {
   color: #F1F5F9 !important;
 }
 .dark-mode .section-sub {
-  color: #94A3B8 !important;  /* contrast ~5:1 â€” was too faded */
+  color: #94A3B8 !important;  /* contrast ~5:1 ? was too faded */
 }
 .dark-mode .section-eyebrow,
 .dark-mode .eyebrow-green {
-  color: #4ADE80 !important;  /* bright green â€” readable on dark */
+  color: #4ADE80 !important;  /* bright green ? readable on dark */
 }
 .dark-mode .eyebrow-navy {
   color: #93C5FD !important;
@@ -1577,7 +1577,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   color: #FCD34D !important;
 }
 
-/* â”€â”€ CLOSE / CTA SECTION â”€â”€ */
+/* CLOSE / CTA SECTION */
 .dark-mode .close-section {
   background: #1A2035 !important;
 }
@@ -1594,13 +1594,13 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   color: #64748B !important;
 }
 
-/* â”€â”€ FOOTER & DISCLAIMER â€” most faded area â”€â”€ */
+/* FOOTER & DISCLAIMER ? most faded area */
 .dark-mode footer {
   background: #0F1520 !important;
   border-top: 1px solid rgba(255,255,255,0.06) !important;
 }
 .dark-mode footer p {
-  color: #6B7280 !important;  /* contrast ~3.5:1 â€” appropriate for fine print */
+  color: #6B7280 !important;  /* contrast ~3.5:1 ? appropriate for fine print */
   line-height: 1.9 !important;
   font-size: 0.68rem !important;
 }
@@ -1626,7 +1626,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   background: rgba(255,255,255,0.15) !important;
 }
 
-/* â”€â”€ CARD TEXT â€” proof, scenarios, review â”€â”€ */
+/* CARD TEXT ? proof, scenarios, review */
 .dark-mode .review-title {
   color: #E2E8F0 !important;
 }
@@ -1644,7 +1644,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   background: rgba(74,222,128,0.1) !important;
 }
 
-/* â”€â”€ UPLOAD CARD â”€â”€ */
+/* UPLOAD CARD */
 .dark-mode .upload-card {
   background: #1E2540 !important;
   border-color: #292D37 !important;
@@ -1674,7 +1674,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   background: rgba(255,255,255,0.08) !important;
 }
 
-/* â”€â”€ REASSURANCE ROW â”€â”€ */
+/* REASSURANCE ROW */
 .dark-mode .reassurance-item {
   color: #64748B !important;
 }
@@ -1682,12 +1682,12 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   background: rgba(255,255,255,0.15) !important;
 }
 
-/* â”€â”€ INLINE TEAL "Private. Secure." LINE â”€â”€ */
+/* INLINE TEAL "Private. Secure." LINE */
 .dark-mode .sec-text {
   color: #22D3EE !important;
 }
 
-/* â”€â”€ CREDIBILITY STRIP â”€â”€ */
+/* CREDIBILITY STRIP */
 .dark-mode .cred-strip {
   background: #1A2035 !important;
   border-color: #1F242E !important;
@@ -1703,7 +1703,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   color: #475569 !important;
 }
 
-/* â”€â”€ NAV â”€â”€ */
+/* NAV */
 .dark-mode nav {
   background: rgba(20,25,36,0.97) !important;
   border-bottom-color: #242933 !important;
@@ -1717,7 +1717,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   border-color: #474B54 !important;
 }
 
-/* â”€â”€ WARMTH SECTIONS (alternate bg) â”€â”€ */
+/* WARMTH SECTIONS (alternate bg) */
 .dark-mode .trust-section,
 .dark-mode .comparison-section,
 .dark-mode .proof section,
@@ -1725,7 +1725,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   background: #1A2030 !important;
 }
 
-/* â”€â”€ SCROLL TRAP â”€â”€ */
+/* SCROLL TRAP */
 .dark-mode .trap-q {
   color: #F1F5F9 !important;
 }
@@ -1755,7 +1755,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   box-shadow: 0 4px 20px rgba(74,127,212,0.2), -3px 0 0 rgba(74,127,212,0.8) !important;
 }
 
-/* â”€â”€ INPUT METHOD CARDS â”€â”€ */
+/* INPUT METHOD CARDS */
 .dark-mode #card-upload,
 .dark-mode #card-photo,
 .dark-mode #card-manual {
@@ -1764,12 +1764,12 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
 }
 
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ============================================
    LIGHT MODE EXPLICIT CONTRAST FIXES
    Overrides any inherited/conflicting rules
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+============================================ */
 
-/* HERO â€” Image 2: "Understand Your Medical Bill." invisible */
+/* HERO ? Image 2: "Understand Your Medical Bill." invisible */
 .hero h1 {
   color: #1E293B !important;
 }
@@ -1783,7 +1783,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   color: #1E293B !important;
 }
 
-/* TRUST STACK â€” Image 5: titles faded */
+/* TRUST STACK ? Image 5: titles faded */
 .trust-title {
   color: #1E293B !important;
 }
@@ -1791,7 +1791,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   color: #475569 !important;
 }
 
-/* UPLOAD SECTION â€” Image 6: "How would you like to share your bill?" faded */
+/* UPLOAD SECTION ? Image 6: "How would you like to share your bill?" faded */
 .upload-card-title {
   color: #1E293B !important;
 }
@@ -1799,7 +1799,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   color: #475569 !important;
 }
 
-/* BILL RANGE SELECTOR â€” Image 3: faded text on cards */
+/* BILL RANGE SELECTOR ? Image 3: faded text on cards */
 .bill-range {
   color: #1E293B !important;
 }
@@ -1824,7 +1824,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   background: #EBF0FA !important;
 }
 
-/* CITATIONS â€” Image 4: "Commonwealth Fund (2024)" faded */
+/* CITATIONS ? Image 4: "Commonwealth Fund (2024)" faded */
 .hero-stat-n {
   color: #1F3A68 !important;
 }
@@ -1835,7 +1835,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   color: #94A3B8 !important;
 }
 
-/* FOOTER â€” Image 1: disclaimer nearly invisible */
+/* FOOTER ? Image 1: disclaimer nearly invisible */
 footer {
   background: #F2F5F9 !important;
 }
@@ -1844,7 +1844,7 @@ footer p {
   line-height: 1.85 !important;
 }
 
-/* SECTION TEXT â€” general */
+/* SECTION TEXT ? general */
 .section-h {
   color: #1E293B !important;
 }
@@ -1880,7 +1880,7 @@ footer p {
 /* App resets */
 *, *::before, *::after { box-sizing: border-box; }
 
-/* â”€â”€ SECTION BACKGROUND FIXES (Issues 5 & 7) â”€â”€ */
+/* SECTION BACKGROUND FIXES (Issues 5 & 7) */
 .stats-bar, .cred-strip {
   background: #F4F0E8 !important;
 }
@@ -1888,7 +1888,7 @@ footer p {
   background: #1A1E2A !important;
 }
 
-/* â”€â”€ STATS BAR NUMBERS â€” keep them readable on warm bg â”€â”€ */
+/* STATS BAR NUMBERS ? keep them readable on warm bg */
 .stats-bar .hero-stat-n { color: #1F3A68 !important; }
 .dark-mode .stats-bar .hero-stat-n { color: #93C5FD !important; }
 
@@ -1896,7 +1896,7 @@ footer p {
 body.dark-mode { background: #141924 !important; }
 `;
 
-// â”€â”€â”€ LANDING HTML SECTIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 const URGENCY_HTML  = `<!-- URGENCY BAR -->
 <div class="urgency">
   Introductory pricing &mdash; <em>this offer may not last. Lock in your rate today.</em>
@@ -1989,7 +1989,7 @@ const RESEARCH_HTML = `<!-- RESEARCH REFERENCES GRID -->
         What the data shows
       </h2>
       <p style="font-size:0.88rem;color:rgba(255,255,255,0.42);max-width:440px;margin:0 auto;line-height:1.65;">
-        Peer-reviewed publications, federal government reports, and independent research organizations â€” cited for informational reference only.
+        Peer-reviewed publications, federal government reports, and independent research organizations ? cited for informational reference only.
       </p>
     </div>
 
@@ -2058,7 +2058,7 @@ const RESEARCH_HTML = `<!-- RESEARCH REFERENCES GRID -->
             <div style="font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:800;color:#fff;margin-bottom:3px;line-height:1.3;">CFPB Office for Older Americans</div>
             <div style="font-size:0.65rem;color:rgba(255,255,255,0.38);line-height:1.5;margin-bottom:10px;">Federal Government Research &middot; 2023</div>
             <div style="font-family:'Playfair Display',Georgia,serif;font-size:2rem;font-weight:800;color:#fff;letter-spacing:-0.04em;line-height:1;margin-bottom:8px;">4 million</div>
-            <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:1.6;">Adults 65+ reporting unpaid medical bills â€” despite 98% holding health insurance.</div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:1.6;">Adults 65+ reporting unpaid medical bills ? despite 98% holding health insurance.</div>
           </div>
         </div>
       </div>
@@ -2160,7 +2160,7 @@ const ANALYSIS_HTML = `<!-- ANALYSIS PREVIEW -->
 
       <div class="analysis-rows">
 
-        <!-- Row 1: Procedure codes â€” visible -->
+        <!-- Row 1: Procedure codes ? visible -->
         <div class="analysis-row">
           <div class="ar-label">CPT Codes Identified</div>
           <div class="ar-value">
@@ -2172,7 +2172,7 @@ const ANALYSIS_HTML = `<!-- ANALYSIS PREVIEW -->
           <div class="ar-status"><span class="status-badge status-review">Reviewing</span></div>
         </div>
 
-        <!-- Row 2: ICD-10 â€” partial blur -->
+        <!-- Row 2: ICD-10 ? partial blur -->
         <div class="analysis-row">
           <div class="ar-label">ICD-10 Diagnoses</div>
           <div class="ar-value">
@@ -2183,7 +2183,7 @@ const ANALYSIS_HTML = `<!-- ANALYSIS PREVIEW -->
           <div class="ar-status"><span class="status-badge status-locked">Locked</span></div>
         </div>
 
-        <!-- Row 3: Medicare benchmark â€” flagged -->
+        <!-- Row 3: Medicare benchmark ? flagged -->
         <div class="analysis-row">
           <div class="ar-label">Medicare Benchmark</div>
           <div class="ar-value">
@@ -2192,7 +2192,7 @@ const ANALYSIS_HTML = `<!-- ANALYSIS PREVIEW -->
           <div class="ar-status"><span class="status-badge status-flag">Flagged</span></div>
         </div>
 
-        <!-- Row 4: Provider charge analysis â€” blurred -->
+        <!-- Row 4: Provider charge analysis ? blurred -->
         <div class="analysis-row">
           <div class="ar-label">Provider Charge Analysis</div>
           <div class="ar-value blurred">
@@ -2201,7 +2201,7 @@ const ANALYSIS_HTML = `<!-- ANALYSIS PREVIEW -->
           <div class="ar-status"><span class="status-badge status-locked">Locked</span></div>
         </div>
 
-        <!-- Row 5: Duplicate charge check â€” flagged visible -->
+        <!-- Row 5: Duplicate charge check ? flagged visible -->
         <div class="analysis-row">
           <div class="ar-label">Duplicate Charge Check</div>
           <div class="ar-value">
@@ -2211,7 +2211,7 @@ const ANALYSIS_HTML = `<!-- ANALYSIS PREVIEW -->
           <div class="ar-status"><span class="status-badge status-flag">Flagged</span></div>
         </div>
 
-        <!-- Row 6: Coding mismatch â€” blurred -->
+        <!-- Row 6: Coding mismatch ? blurred -->
         <div class="analysis-row">
           <div class="ar-label">Coding Mismatch</div>
           <div class="ar-value blurred">
@@ -2220,7 +2220,7 @@ const ANALYSIS_HTML = `<!-- ANALYSIS PREVIEW -->
           <div class="ar-status"><span class="status-badge status-locked">Locked</span></div>
         </div>
 
-        <!-- Row 7: Insurance billing analysis â€” blurred -->
+        <!-- Row 7: Insurance billing analysis ? blurred -->
         <div class="analysis-row">
           <div class="ar-label">Insurance Billing Analysis</div>
           <div class="ar-value blurred">
@@ -2229,7 +2229,7 @@ const ANALYSIS_HTML = `<!-- ANALYSIS PREVIEW -->
           <div class="ar-status"><span class="status-badge status-locked">Locked</span></div>
         </div>
 
-        <!-- Row 8: Dispute letter â€” fully blurred -->
+        <!-- Row 8: Dispute letter ? fully blurred -->
         <div class="analysis-row">
           <div class="ar-label">Dispute Letter</div>
           <div class="ar-value blurred">
@@ -2329,7 +2329,7 @@ const REVIEW_HTML   = `<!-- WHAT WE REVIEW -->
       <div class="step-item">
         <div class="step-num"><div class="step-num-inner">3</div></div>
         <div class="step-title">You receive your report</div>
-        <div class="step-desc">Dispute reference letter, structured phone script, action plan, and consumer billing rights overview â€” sent to your inbox.</div>
+        <div class="step-desc">Dispute reference letter, structured phone script, action plan, and consumer billing rights overview ? sent to your inbox.</div>
         <div class="step-time">Delivered in minutes</div>
       </div>
     </div>
@@ -2344,7 +2344,7 @@ const COMP_HTML     = `<!-- COMPARISON -->
     <h2 class="section-h">Navigating alone<br><span style="display:inline-flex;align-items:center;gap:12px;"><span style="display:inline-block;background:var(--navy);color:#fff;font-family:'DM Sans',sans-serif;font-size:0.7em;font-weight:900;letter-spacing:0.12em;border-radius:6px;padding:3px 10px;vertical-align:middle;font-style:normal;">VS</span><em class="em-navy" style="font-style:italic;">having documentation prepared</em></span></h2>
     <p class="section-sub">Four areas where having organized documentation may support a more informed billing review.</p>
     <div style="position:relative;max-width:620px;margin:0 auto;">
-      <!-- RECOMMENDED badge â€” positioned above the UPA column (right third) -->
+      <!-- RECOMMENDED badge ? positioned above the UPA column (right third) -->
       <div style="
         position:absolute;
         right:0;
@@ -2609,7 +2609,7 @@ const TRUST_HTML    = `<!-- TRUST STACK -->
         </div>
         <div class="trust-item" style="flex:1;background:transparent;border:none;padding:0;gap:0;flex-direction:column;align-items:flex-start">
           <div class="trust-title">Built for the U.S. billing system</div>
-          <div class="trust-desc">Our review process is built specifically for American healthcare billing â€” Medicare rates, federal law, and U.S. provider practices.</div>
+          <div class="trust-desc">Our review process is built specifically for American healthcare billing ? Medicare rates, federal law, and U.S. provider practices.</div>
         </div>
         <div class="trust-badge">U.S. focused</div>
       </div>
@@ -2648,10 +2648,10 @@ const BRIDGE_HTML   = `<!-- EMOTIONAL BRIDGE -->
     </h2>
     <div style="text-align:left;background:#fff;border:1px solid var(--stone);border-radius:20px;padding:28px 28px 24px;margin-bottom:0;">
       <p style="font-family:'DM Sans',sans-serif;font-size:0.92rem;color:var(--ink2);line-height:1.82;margin-bottom:14px;">
-        Many patients avoid reviewing their medical bills not because they do not care, but because billing statements are written in a language most people were never taught to read. CPT procedure codes, ICD-10 diagnosis references, explanation of benefits documents, and provider charge breakdowns can feel unfamiliar and overwhelming â€” even to educated, attentive adults.
+        Many patients avoid reviewing their medical bills not because they do not care, but because billing statements are written in a language most people were never taught to read. CPT procedure codes, ICD-10 diagnosis references, explanation of benefits documents, and provider charge breakdowns can feel unfamiliar and overwhelming ? even to educated, attentive adults.
       </p>
       <p style="font-family:'DM Sans',sans-serif;font-size:0.92rem;color:var(--ink2);line-height:1.82;margin-bottom:14px;">
-        According to published research from <strong style="color:var(--ink);">The Commonwealth Fund (2024)</strong>, 45% of insured Americans received unexpected bills for services they believed were covered â€” and most did not know where to begin when reviewing them.
+        According to published research from <strong style="color:var(--ink);">The Commonwealth Fund (2024)</strong>, 45% of insured Americans received unexpected bills for services they believed were covered ? and most did not know where to begin when reviewing them.
       </p>
       <p style="font-family:'DM Sans',sans-serif;font-size:0.92rem;color:var(--ink2);line-height:1.82;margin-bottom:0;">
         Reviewing a medical bill is a normal, reasonable, and often important step in managing your healthcare. You do not need a medical background or legal training. You need organized documentation, clear references, and a structured process. That is what we prepare for you.
@@ -2751,7 +2751,7 @@ const CLOSE_HTML    = `<!-- CLOSE / UPLOAD -->
 
       </div>
 
-      <!-- Manual entry form â€” hidden until card-manual tapped -->
+      <!-- Manual entry form ? hidden until card-manual tapped -->
       <div id="manual-form" style="display:none;background:var(--navyL);border:1px solid var(--border);border-radius:13px;padding:16px 18px;margin-bottom:14px;">
         <div style="font-size:0.68rem;font-weight:700;color:var(--navy);margin-bottom:12px;letter-spacing:0.1em;text-transform:uppercase;">Enter your bill details</div>
         <input placeholder="Hospital or doctor name (optional)" style="width:100%;padding:10px 14px;font-size:0.88rem;font-family:'DM Sans',sans-serif;border:1.5px solid var(--stone);border-radius:9px;background:#fff;color:var(--ink);margin-bottom:8px;outline:none;box-sizing:border-box;">
@@ -2900,7 +2900,7 @@ function toggleDark(){
 </script>
 `;
 
-// â”€â”€â”€ THEME â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 function useTheme() {
   const get = () => { try { return localStorage.getItem("upa-mode") || "light"; } catch { return "light"; } };
   const [mode, setMode] = useState(get);
@@ -2912,18 +2912,18 @@ function useTheme() {
       return n;
     });
   }, []);
-  // Apply on mount immediately â€” fixes font/color race condition
+  // Apply on mount immediately ? fixes font/color race condition
   useEffect(() => {
     document.body.classList.toggle("dark-mode", mode === "dark");
   }, []);
   return { mode, toggle };
 }
 
-// â”€â”€â”€ ICONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 const MoonIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>;
 const SunIcon  = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>;
 
-// â”€â”€â”€ SHARED COMPONENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 const GreenBtn = ({ children, onClick, style = {}, disabled }) => (
   <button onClick={onClick} disabled={disabled} style={{
     background: disabled ? "#94A3B8" : "linear-gradient(135deg,#2F7A4F,#276644)",
@@ -2944,7 +2944,7 @@ const NavyBtn = ({ children, onClick, style = {}, disabled }) => (
   }}>{children}</button>
 );
 
-// â”€â”€â”€ SHARE MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 const ShareModal = ({ onClose }) => {
   const url = "https://unitedpatientadvocate.com";
   return (
@@ -2962,7 +2962,7 @@ const ShareModal = ({ onClose }) => {
   );
 };
 
-// â”€â”€â”€ LANDING SCREEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 function Landing({ onStart, mode, toggleMode }) {
   const [showShare, setShowShare] = useState(false);
   const containerRef = useRef(null);
@@ -2987,14 +2987,14 @@ function Landing({ onStart, mode, toggleMode }) {
 
   // Wire all interactive elements after HTML renders
   useEffect(() => {
-    // â”€â”€ Dark mode toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // -- Dark mode toggle -------------------------------------------------
     window.toggleDark = toggleMode;
     const nightBtn = document.getElementById("night-toggle");
     if (nightBtn) {
       nightBtn.onclick = (e) => { e.stopPropagation(); toggleMode(); };
     }
 
-    // â”€â”€ selectBill for scroll trap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // -- selectBill for scroll trap ----------------------------------------
     window.selectBill = function(el, val) {
       document.querySelectorAll(".bill-option").forEach(o => o.classList.remove("selected"));
       if (el) el.classList.add("selected");
@@ -3011,7 +3011,7 @@ function Landing({ onStart, mode, toggleMode }) {
       if (contEl) contEl.style.display = "block";
     };
 
-    // â”€â”€ Upload Bill card â†’ file picker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // -- Upload Bill card ? file picker ------------------------------------
     const uploadCard = document.getElementById("card-upload");
     const fileInput  = document.getElementById("file-input");
     if (uploadCard && fileInput) {
@@ -3027,7 +3027,7 @@ function Landing({ onStart, mode, toggleMode }) {
       };
     }
 
-    // â”€â”€ Take Photo card â†’ camera â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // -- Take Photo card ? camera ------------------------------------------
     const photoCard = document.getElementById("card-photo");
     if (photoCard) {
       photoCard.onclick = (e) => {
@@ -3039,29 +3039,29 @@ function Landing({ onStart, mode, toggleMode }) {
       };
     }
 
-    // â”€â”€ Type It In card â†’ launch form directly â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // -- Type It In card ? launch form directly ----------------------------
     const manualCard = document.getElementById("card-manual");
     if (manualCard) {
       manualCard.onclick = (e) => { e.stopPropagation(); onStart(); };
     }
 
-    // â”€â”€ toggleManualForm (if referenced elsewhere) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // -- toggleManualForm (if referenced elsewhere) ------------------------
     window.toggleManualForm = () => onStart();
 
-    // â”€â”€ Share button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // -- Share button ------------------------------------------------------
     const shareBtn = document.getElementById("share-btn");
     if (shareBtn) shareBtn.onclick = (e) => { e.stopPropagation(); setShowShare(true); };
 
   }, [onStart, toggleMode]);
 
-  // â”€â”€ Event delegation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // Hero/nav CTAs â†’ scroll to upload section
-  // Upload section "Start My Review" â†’ launch form
+  // -- Event delegation ------------------------------------------------------
+  // Hero/nav CTAs ? scroll to upload section
+  // Upload section "Start My Review" ? launch form
   const handleClick = (e) => {
     // Let gumroad links through
     if (e.target.closest('a[href*="gumroad"]')) return;
 
-    // Upload/Photo/Manual cards handled by direct onclick above â€” don't re-intercept
+    // Upload/Photo/Manual cards handled by direct onclick above ? don't re-intercept
     if (e.target.closest("#card-upload, #card-photo, #card-manual")) return;
 
     // Night toggle handled above
@@ -3070,7 +3070,7 @@ function Landing({ onStart, mode, toggleMode }) {
     // Share button handled above
     if (e.target.closest("#share-btn")) return;
 
-    // "Start My Review" / close-btn / submit buttons â†’ launch form
+    // "Start My Review" / close-btn / submit buttons ? launch form
     const startBtn = e.target.closest(".close-btn, .btn-cta, #submit-btn, [data-start='true']");
     if (startBtn) {
       e.preventDefault();
@@ -3078,7 +3078,7 @@ function Landing({ onStart, mode, toggleMode }) {
       return;
     }
 
-    // Scroll trap continue button â†’ scroll to close section
+    // Scroll trap continue button ? scroll to close section
     const trapBtn = e.target.closest(".btn-continue-trap");
     if (trapBtn) {
       e.preventDefault();
@@ -3087,7 +3087,7 @@ function Landing({ onStart, mode, toggleMode }) {
       return;
     }
 
-    // Hero / nav CTAs â†’ scroll to close/upload section
+    // Hero / nav CTAs ? scroll to close/upload section
     const heroCta = e.target.closest(".btn-hero, .nav-btn, [data-cta='true']");
     if (heroCta) {
       e.preventDefault();
@@ -3101,12 +3101,11 @@ function Landing({ onStart, mode, toggleMode }) {
     }
   };
 
-  // â”€â”€ Build nav HTML (custom â€” not from HTML file) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- Build nav HTML (custom ? not from HTML file) --------------------------
   const navHTML = `
   <nav style="background:var(--cream);border-bottom:1px solid var(--stone);padding:10px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:200;backdrop-filter:blur(10px);">
     <div style="display:flex;align-items:center;gap:11px;">
-      <img src="${LOGO_B64}" alt="United Patient Advocate" onerror="this.onerror=null;this.src='${LOGO_FALLBACK}';" style="height:88px;width:auto;display:block;flex-shrink:0;" />
-      <img src="${LOGO_B64}" alt="United Patient Advocate" onerror="this.onerror=null;this.src='${LOGO_FALLBACK}';" style="height:74px;width:auto;display:block;flex-shrink:0;" />
+      <img src="${LOGO_B64}" alt="United Patient Advocate" onerror="this.onerror=null;this.src='${LOGO_FALLBACK}';" style="height:88px;width:auto;display:block;flex-shrink:0;" />
       <div style="display:flex;flex-direction:column;line-height:1;">
         <div style="font-family:'DM Sans',sans-serif;font-size:1.32rem;letter-spacing:-0.025em;white-space:nowrap;line-height:1.05;">
           <span style="font-weight:900;color:var(--navy);">United</span>
@@ -3143,7 +3142,7 @@ function Landing({ onStart, mode, toggleMode }) {
   );
 }
 
-// â”€â”€â”€ FORM SCREEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 const lS = { display:"block", fontSize:14, fontWeight:700, marginBottom:7 };
 
 function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode }) {
@@ -3199,8 +3198,8 @@ function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode 
           <button onClick={toggleMode} style={{ display:"flex",alignItems:"center",gap:7,padding:"8px 14px",borderRadius:40,border:`1.5px solid ${border2}`,background:"transparent",color:ink3,cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:"inherit" }}>
             {dark ? <SunIcon/> : <MoonIcon/>} {dark?"Day":"Night"}
           </button>
-          {/* Back to home â€” fixes Issue 22 */}
-          <button onClick={onBack} style={{ background:"none",border:"none",color:ink3,cursor:"pointer",fontSize:13,fontWeight:500,fontFamily:"inherit",textDecoration:"underline" }}>â† Home</button>
+          {/* Back to home ? fixes Issue 22 */}
+          <button onClick={onBack} style={{ background:"none",border:"none",color:ink3,cursor:"pointer",fontSize:13,fontWeight:500,fontFamily:"inherit",textDecoration:"underline" }}>? Home</button>
         </div>
       </nav>
 
@@ -3210,7 +3209,7 @@ function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode 
           {[1,2,3].map((n,i) => (
             <div key={n} style={{ display:"flex", alignItems:"center", flex:i<2?1:"none" }}>
               <div style={{ width:38,height:38,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:15,fontFamily:"inherit",background:step>=n?"#1F3A68":surface,border:`2px solid ${step>=n?"#1F3A68":border2}`,color:step>=n?"#fff":ink3,flexShrink:0 }}>
-                {step>n?"âœ“":n}
+                {step>n?"?":n}
               </div>
               {i<2 && <div style={{ flex:1,height:2,background:step>n?"#1F3A68":border2,margin:"0 6px" }}/>}
             </div>
@@ -3243,7 +3242,7 @@ function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode 
                 <div>
                   <label style={{...lS,color:ink}}>Type of Insurance</label>
                   <select value={form.insuranceType} onChange={e=>update("insuranceType",e.target.value)} style={{...inputStyle,cursor:"pointer"}}>
-                    <option value="medicare">Medicare â€” Government plan age 65+</option>
+                    <option value="medicare">Medicare ? Government plan age 65+</option>
                     <option value="medicaid">Medicaid</option>
                     <option value="private">Private / Employer Insurance</option>
                     <option value="marketplace">ACA Marketplace Plan</option>
@@ -3309,13 +3308,13 @@ function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode 
             {step>1 ? (
               <button onClick={()=>setStep(s=>s-1)} style={{ flex:1,padding:"14px",borderRadius:11,background:"transparent",border:`1.5px solid ${border2}`,color:ink3,fontFamily:"inherit",fontSize:15,fontWeight:600,cursor:"pointer" }}>Back</button>
             ) : (
-              <button onClick={onBack} style={{ flex:1,padding:"14px",borderRadius:11,background:"transparent",border:`1.5px solid ${border2}`,color:ink3,fontFamily:"inherit",fontSize:15,fontWeight:600,cursor:"pointer" }}>â† Back</button>
+              <button onClick={onBack} style={{ flex:1,padding:"14px",borderRadius:11,background:"transparent",border:`1.5px solid ${border2}`,color:ink3,fontFamily:"inherit",fontSize:15,fontWeight:600,cursor:"pointer" }}>? Back</button>
             )}
             {step<3 ? (
               <NavyBtn onClick={()=>setStep(s=>s+1)} disabled={(step===1&&!ok1)||(step===2&&!ok2)} style={{ flex:2,fontSize:16,borderRadius:11 }}>Continue</NavyBtn>
             ) : (
               <button onClick={onSubmit} style={{ flex:2,background:"linear-gradient(135deg,#2F7A4F,#276644)",color:"#fff",border:"none",borderRadius:11,padding:"15px",fontFamily:"inherit",fontSize:16,fontWeight:800,cursor:"pointer",boxShadow:"0 4px 16px rgba(47,122,79,0.4)" }}>
-                Analyze My Bill Now â†’
+                Analyze My Bill Now ?
               </button>
             )}
           </div>
@@ -3325,7 +3324,7 @@ function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode 
   );
 }
 
-// â”€â”€â”€ ANALYZING SCREEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 function Analyzing({ mode }) {
   const dark = mode === "dark";
   const steps = ["Reading your bill details","Cross-referencing Medicare rates","Checking your federal billing rights","Flagging potential discrepancies","Preparing your dispute documents"];
@@ -3349,7 +3348,7 @@ function Analyzing({ mode }) {
           {steps.map((s,i)=>(
             <div className="analyzing-row" key={i} style={{ display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:i<steps.length-1?`1px solid ${border}`:"none" }}>
               <div style={{ width:24,height:24,borderRadius:"50%",background:i<=active?"#2F7A4F":"transparent",border:`2px solid ${i<=active?"#2F7A4F":border}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .3s" }}>
-                {i<=active && <span style={{ color:"#fff",fontSize:13,fontWeight:700 }}>âœ“</span>}
+                {i<=active && <span style={{ color:"#fff",fontSize:13,fontWeight:700 }}>?</span>}
               </div>
               <span className="analyzing-step-text" style={{ fontSize:14,color:i<=active?ink:ink3,fontWeight:i===active?700:400,transition:"color .3s",animation:i===active?"pulse 1.5s infinite":"none" }}>{s}</span>
             </div>
@@ -3360,7 +3359,7 @@ function Analyzing({ mode }) {
   );
 }
 
-// â”€â”€â”€ EMAIL CAPTURE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 function EmailCapture({ onContinue, mode }) {
   const [email,setEmail]=useState(""); const [name,setName]=useState(""); const [done,setDone]=useState(false);
   const dark=mode==="dark";
@@ -3372,7 +3371,7 @@ function EmailCapture({ onContinue, mode }) {
   return (
     <div style={{ background:bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:24,fontFamily:"'DM Sans',sans-serif" }}>
       <div style={{ background:surface,border:`1px solid ${dark?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.08)"}`,borderRadius:18,padding:"40px 32px",maxWidth:460,width:"100%",textAlign:"center",boxShadow:"0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.07)" }}>
-        <div style={{ width:56,height:56,borderRadius:"50%",background:dark?"#0D2218":"#E8F5EE",border:"2px solid rgba(47,122,79,0.3)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",fontSize:24 }}>âœ“</div>
+        <div style={{ width:56,height:56,borderRadius:"50%",background:dark?"#0D2218":"#E8F5EE",border:"2px solid rgba(47,122,79,0.3)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",fontSize:24 }}>?</div>
         <h2 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:22,fontWeight:800,color:ink,marginBottom:8,letterSpacing:"-0.03em" }}>Your billing review is ready.</h2>
         <p style={{ color:ink3,fontSize:14,lineHeight:1.7,marginBottom:24 }}>Enter your email to access your results and receive your complete documentation package after purchase.</p>
         <input type="text"  placeholder="Your first name (optional)" value={name}  onChange={e=>setName(e.target.value)} style={iStyle} />
@@ -3380,7 +3379,7 @@ function EmailCapture({ onContinue, mode }) {
         {done ? (
           <div style={{ background:dark?"#0D2218":"#E8F5EE",borderRadius:12,padding:14,fontSize:15,color:dark?"#3DAF6A":"#2F7A4F",fontWeight:700 }}>Opening your results...</div>
         ) : (
-          <GreenBtn onClick={submit} disabled={!email} style={{ width:"100%",fontSize:16,padding:"16px",borderRadius:12 }}>View My Billing Review â†’</GreenBtn>
+          <GreenBtn onClick={submit} disabled={!email} style={{ width:"100%",fontSize:16,padding:"16px",borderRadius:12 }}>View My Billing Review ?</GreenBtn>
         )}
         <div style={{ fontSize:11,color:ink3,marginTop:12 }}>We do not send marketing emails. Your information is never sold.</div>
       </div>
@@ -3388,7 +3387,7 @@ function EmailCapture({ onContinue, mode }) {
   );
 }
 
-// â”€â”€â”€ RESULTS SCREEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 function DossierLockIcon({ color="#1F3A68" }) {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -3512,7 +3511,7 @@ function Results({ results, userEmail, userName, form, mode, toggleMode }) {
               <div style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:22,fontWeight:800,color:rColor }}>{summary.riskLevel}</div>
               {summary.estimatedSavingsMin && <>
                 <div style={{ fontSize:10,color:ink4,marginTop:6 }}>Est. dispute range</div>
-                <div style={{ fontSize:13,fontWeight:700,color:rColor }}>${summary.estimatedSavingsMin}â€“${summary.estimatedSavingsMax}</div>
+                <div style={{ fontSize:13,fontWeight:700,color:rColor }}>${summary.estimatedSavingsMin}?${summary.estimatedSavingsMax}</div>
               </>}
             </div>
           </div>
@@ -3521,7 +3520,7 @@ function Results({ results, userEmail, userName, form, mode, toggleMode }) {
               <div style={{ fontSize:12,fontWeight:700,color:ink3,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10 }}>Areas Flagged for Review</div>
               {summary.errorsFound.map((e,i)=>(
                 <div key={i} style={{ display:"flex",gap:10,marginBottom:8,alignItems:"flex-start" }}>
-                  <span style={{ color:rColor,fontWeight:700,fontSize:14,flexShrink:0 }}>â–¶</span>
+                  <span style={{ color:rColor,fontWeight:700,fontSize:14,flexShrink:0 }}>?</span>
                   <span style={{ fontSize:14,color:ink2,lineHeight:1.6 }}>{e}</span>
                 </div>
               ))}
@@ -3542,16 +3541,16 @@ function Results({ results, userEmail, userName, form, mode, toggleMode }) {
             <div style={{ textAlign:"left",maxWidth:340,margin:"0 auto 24px",background:navyL,borderRadius:14,padding:"16px 18px" }}>
               {["Complete billing analysis","Personalized dispute letter","Word-for-word phone script","5-step action plan","Consumer billing rights overview"].map((t,i)=>(
                 <div key={i} style={{ display:"flex",gap:10,marginBottom:8,alignItems:"flex-start" }}>
-                  <span style={{ color:greenC,fontWeight:700,fontSize:15,flexShrink:0,marginTop:1 }}>âœ“</span>
+                  <span style={{ color:greenC,fontWeight:700,fontSize:15,flexShrink:0,marginTop:1 }}>?</span>
                   <span style={{ fontSize:14,color:ink2,lineHeight:1.5 }}>{t}</span>
                 </div>
               ))}
             </div>
-            <div style={{ fontSize:12,color:ink3,marginBottom:22 }}>One-time payment Â· Instant digital delivery</div>
+            <div style={{ fontSize:12,color:ink3,marginBottom:22 }}>One-time payment ? Instant digital delivery</div>
             <button type="button" onClick={()=>window.open(GUMROAD, "_blank", "noopener,noreferrer")} style={{ display:"block",width:"100%",background:"linear-gradient(135deg,#2F7A4F,#276644)",color:"#fff",textDecoration:"none",border:"none",borderRadius:13,padding:"18px 28px",fontSize:17,fontWeight:800,marginBottom:10,boxShadow:"0 6px 24px rgba(47,122,79,0.4)",fontFamily:"'DM Sans',sans-serif",letterSpacing:"-0.01em",cursor:"pointer" }}>
-              Unlock My Complete Package â€” $97
+              Unlock My Complete Package ? $97
             </button>
-            <div style={{ fontSize:11,color:ink4,marginBottom:16,lineHeight:1.65 }}>Secure checkout Â· All sales are final due to instant digital delivery</div>
+            <div style={{ fontSize:11,color:ink4,marginBottom:16,lineHeight:1.65 }}>Secure checkout ? All sales are final due to instant digital delivery</div>
             <button onClick={()=>setUnlocked(true)} style={{ background:"none",border:`1px dashed ${border2}`,borderRadius:8,padding:"6px 14px",color:ink4,cursor:"pointer",fontSize:11,fontFamily:"inherit" }}>Preview full results (demo)</button>
           </div>
         ) : (
@@ -3907,7 +3906,7 @@ function SuccessPage({ mode, toggleMode }) {
       <div style={{ fontFamily:"'DM Sans',sans-serif",background:bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:24,color:ink }}>
         <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:20,padding:"36px 30px",maxWidth:560,width:"100%",textAlign:"center",boxShadow:"0 8px 28px rgba(15,23,42,0.08)" }}>
           <img src={LOGO_B64} alt="UPA" onError={(e)=>{ e.currentTarget.onerror=null; e.currentTarget.src=LOGO_FALLBACK; }} style={{ height:88,width:"auto",margin:"0 auto 18px",display:"block" }}/>
-          <h1 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:28,fontWeight:800,letterSpacing:"-0.03em",marginBottom:12 }}>We couldnâ€™t find your saved review session on this device.</h1>
+          <h1 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:28,fontWeight:800,letterSpacing:"-0.03em",marginBottom:12 }}>We couldn't find your saved review session on this device.</h1>
           <p style={{ fontSize:15,color:ink2,lineHeight:1.8,marginBottom:20 }}>Please return to the analyzer or contact support.</p>
           <button type="button" onClick={()=>{ window.location.href="/"; }} style={{ background:navyC,color:"#fff",border:"none",borderRadius:12,padding:"14px 18px",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"inherit" }}>Return to Analyzer</button>
         </div>
@@ -4096,7 +4095,7 @@ function ErrorScreen({ onRetry, onBack }) {
   return (
     <div style={{ fontFamily:"'DM Sans',sans-serif",background:"#F2F5F9",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:24 }}>
       <div style={{ background:"#fff",borderRadius:18,padding:"40px 32px",maxWidth:520,width:"100%",textAlign:"center",boxShadow:"0 4px 24px rgba(0,0,0,0.1)" }}>
-        <div style={{ fontSize:48,marginBottom:20 }}>âš ï¸</div>
+        <div style={{ fontSize:48,marginBottom:20 }}>Warning</div>
         <h2 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:22,fontWeight:800,color:"#1E293B",marginBottom:12 }}>Analysis could not be completed</h2>
         <p style={{ color:"#6B7280",fontSize:14,lineHeight:1.75,marginBottom:8 }}>
           The billing analysis failed to run.
@@ -4106,7 +4105,7 @@ function ErrorScreen({ onRetry, onBack }) {
           Server API key is not configured. Set <code>ANTHROPIC_API_KEY</code> in Vercel environment variables and redeploy.
         </div>
         <div style={{ display:"flex",gap:10 }}>
-          <button onClick={onBack} style={{ flex:1,padding:"13px",borderRadius:11,background:"transparent",border:"1.5px solid #CBD5E1",color:"#6B7280",fontFamily:"inherit",fontSize:14,fontWeight:600,cursor:"pointer" }}>â† Go Back</button>
+          <button onClick={onBack} style={{ flex:1,padding:"13px",borderRadius:11,background:"transparent",border:"1.5px solid #CBD5E1",color:"#6B7280",fontFamily:"inherit",fontSize:14,fontWeight:600,cursor:"pointer" }}>? Go Back</button>
           <button onClick={onRetry} style={{ flex:2,padding:"13px",borderRadius:11,background:"#1F3A68",color:"#fff",border:"none",fontFamily:"inherit",fontSize:14,fontWeight:700,cursor:"pointer" }}>Try Again</button>
         </div>
       </div>
@@ -4114,7 +4113,7 @@ function ErrorScreen({ onRetry, onBack }) {
   );
 }
 
-// â”€â”€â”€ MAIN APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 export default function App() {
   const { mode, toggle } = useTheme();
   const isSuccessPath = typeof window !== "undefined" && window.location.pathname === "/success";

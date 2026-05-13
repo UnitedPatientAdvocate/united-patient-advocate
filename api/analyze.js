@@ -1,4 +1,13 @@
-const DEFAULT_MODEL = (process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514').trim();
+const DEFAULT_MODEL = (process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest').trim();
+const PREFERRED_MODELS = [
+  'claude-3-5-sonnet-latest',
+  'claude-3-7-sonnet-latest',
+  'claude-3-5-haiku-latest',
+  'claude-sonnet-4-0',
+  'claude-3-5-sonnet-20241022',
+  'claude-3-5-haiku-20241022',
+  'claude-3-haiku-20240307'
+];
 
 const PROMPT_CONFIGS = {
   free_preview: {
@@ -187,6 +196,45 @@ async function readBody(req) {
   return raw ? JSON.parse(raw) : {};
 }
 
+async function listAvailableModels(apiKey) {
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/models', {
+      method: 'GET',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      }
+    });
+
+    if (!response.ok) {
+      console.warn('[api/analyze] Could not list Anthropic models', { status: response.status });
+      return [];
+    }
+
+    const data = await response.json();
+    return Array.isArray(data?.data) ? data.data.map(model => model.id).filter(Boolean) : [];
+  } catch (error) {
+    console.warn('[api/analyze] Model list request failed', { message: error?.message });
+    return [];
+  }
+}
+
+async function buildModelCandidates(apiKey, requestedModel) {
+  const configuredModel = getEnvValue('ANTHROPIC_MODEL');
+  if (configuredModel) return [configuredModel];
+
+  const availableModels = await listAvailableModels(apiKey);
+  const preferred = [...new Set([requestedModel, DEFAULT_MODEL, ...PREFERRED_MODELS].filter(Boolean))];
+
+  if (availableModels.length) {
+    const availableSet = new Set(availableModels);
+    const preferredAvailable = preferred.filter(model => availableSet.has(model));
+    return preferredAvailable.length ? preferredAvailable : availableModels;
+  }
+
+  return preferred;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -243,16 +291,7 @@ export default async function handler(req, res) {
     return { response, data };
   };
 
-  const modelCandidates = getEnvValue('ANTHROPIC_MODEL')
-    ? [outbound.model]
-    : [...new Set([
-        outbound.model,
-        'claude-sonnet-4-20250514',
-        'claude-3-7-sonnet-20250219',
-        'claude-3-5-sonnet-20241022',
-        'claude-3-5-haiku-20241022',
-        'claude-3-haiku-20240307'
-      ].filter(Boolean))];
+  const modelCandidates = await buildModelCandidates(apiKey, outbound.model);
 
   let response;
   let data;
@@ -272,12 +311,23 @@ export default async function handler(req, res) {
   }
 
   if (!response.ok) {
+    const modelUnavailable = response.status === 404
+      && data?.error?.type === 'not_found_error'
+      && /model/i.test(data?.error?.message || '');
+
     console.error('[api/analyze] Anthropic error', {
       status: response.status,
+      modelUnavailable,
+      modelTried: response.status === 404 ? modelCandidates : outbound.model,
       data
     });
+
     return res.status(502).json({
-      error: 'Anthropic request failed',
+      error: modelUnavailable ? 'Anthropic model unavailable' : 'Anthropic request failed',
+      code: modelUnavailable ? 'anthropic_model_unavailable' : 'anthropic_request_failed',
+      userMessage: modelUnavailable
+        ? 'The analysis model is temporarily unavailable for this Anthropic account. Please try again shortly.'
+        : 'The analysis request could not be completed. Please try again in a moment.',
       upstreamStatus: response.status,
       upstream: data
     });

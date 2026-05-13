@@ -45,7 +45,10 @@ async function fetchGeneration(generationMode, intake) {
   const data = await res.json();
   if (!res.ok) {
     console.error("Analysis API error:", data);
-    throw new Error("API " + res.status);
+    const error = new Error(data?.userMessage || data?.error || "API " + res.status);
+    error.status = res.status;
+    error.api = data;
+    throw error;
   }
   return normalizeGeneratedPayload(data, generationMode);
 }
@@ -4091,7 +4094,8 @@ function SuccessPage({ mode, toggleMode }) {
     </div>
   );
 }
-function ErrorScreen({ onRetry, onBack }) {
+function ErrorScreen({ onRetry, onBack, message }) {
+  const detail = message || "The analysis request could not be completed. Please try again in a moment.";
   return (
     <div style={{ fontFamily:"'DM Sans',sans-serif",background:"#F2F5F9",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:24 }}>
       <div style={{ background:"#fff",borderRadius:18,padding:"40px 32px",maxWidth:520,width:"100%",textAlign:"center",boxShadow:"0 4px 24px rgba(0,0,0,0.1)" }}>
@@ -4101,8 +4105,7 @@ function ErrorScreen({ onRetry, onBack }) {
           The billing analysis failed to run.
         </p>
         <div style={{ background:"#FEF2F0",borderRadius:10,padding:"14px 16px",fontSize:13,color:"#C0392B",marginBottom:24,textAlign:"left",lineHeight:1.7 }}>
-          The analysis request could not be completed. Please try again in a moment.<br/><br/>
-          Server API key is not configured. Set <code>ANTHROPIC_API_KEY</code> in Vercel environment variables and redeploy.
+          {detail}
         </div>
         <div style={{ display:"flex",gap:10 }}>
           <button onClick={onBack} style={{ flex:1,padding:"13px",borderRadius:11,background:"transparent",border:"1.5px solid #CBD5E1",color:"#6B7280",fontFamily:"inherit",fontSize:14,fontWeight:600,cursor:"pointer" }}>? Go Back</button>
@@ -4128,6 +4131,7 @@ export default function App() {
   const [results,   setResults]   = useState(null);
   const [userEmail, setUserEmail] = useState("");
   const [userName,  setUserName]  = useState("");
+  const [analysisError, setAnalysisError] = useState("");
 
   const update  = (f,v) => setForm(p=>({...p,[f]:v}));
   const goHome  = ()   => { setScreen("landing"); setStep(1); };
@@ -4139,11 +4143,13 @@ export default function App() {
     setScreen("analyzing");
 
     try {
+      setAnalysisError("");
       const previewResults = await requestGeneration(FREE_PREVIEW_MODE);
       setResults(previewResults);
       setScreen("email");
     } catch(err) {
       console.error("Analysis failed:", err);
+      setAnalysisError(err?.api?.userMessage || err?.message || "The analysis request could not be completed. Please try again in a moment.");
       setScreen("error");
     }
   };
@@ -4157,6 +4163,6 @@ export default function App() {
   if (screen==="analyzing") return <Analyzing {...shared}/>;
   if (screen==="email")     return <EmailCapture onContinue={(email,name)=>{ setUserEmail(email); setUserName(name); setScreen("results"); }} {...shared}/>;
   if (screen==="results")   return <Results results={results} userEmail={userEmail} userName={userName} form={form} {...shared}/>;
-  if (screen==="error")     return <ErrorScreen onRetry={()=>setScreen("form")} onBack={goHome}/>;
+  if (screen==="error")     return <ErrorScreen onRetry={()=>setScreen("form")} onBack={goHome} message={analysisError}/>;
 }
 

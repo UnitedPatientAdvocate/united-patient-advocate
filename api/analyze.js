@@ -11,43 +11,34 @@ const PREFERRED_MODELS = [
 
 const PROMPT_CONFIGS = {
   free_preview: {
-    maxTokens: 1800,
-    buildPrompt: intake => `You are the consumer-guidance AI engine behind United Patient Advocate. Create a concise FREE PREVIEW teaser for a billing review submission and return ONLY valid JSON.
+    maxTokens: 700,
+    buildPrompt: intake => `Return ONLY compact valid JSON for a FREE medical-bill preview. No markdown. No raw newlines inside strings. Keep all text short.
 
-Framing rules:
-- Use observational, careful language.
-- Do not accuse providers, insurers, or staff.
-- Do not guarantee savings, corrections, or outcomes.
-- Do not present legal representation or medical advice.
-- Do not provide full scripts, full letters, full tactics, escalation playbooks, or detailed solutions.
-- Keep the total response concise, generally under 600 words across all JSON string values.
-- Make the preview useful but intentionally incomplete, with thoughtful cliffhanger language that points toward the premium Complete Billing Review.
+Rules:
+- Careful consumer-guidance language only.
+- Do not accuse anyone or promise savings/outcomes.
+- Do not provide full scripts, letters, or tactics.
+- Output under 220 words total.
 
 Patient submission:
 ${formatIntake(intake)}
 
-Return exactly this JSON structure with no markdown:
+JSON schema:
 {
   "generationMode": "free_preview",
   "summary": {
     "riskLevel": "LOW | MEDIUM | HIGH",
-    "severityLabel": "Short screening label",
+    "severityLabel": "Short label",
     "estimatedSavingsMin": "",
     "estimatedSavingsMax": "",
-    "errorsFound": ["One carefully worded teaser finding only"],
-    "keyFindings": "2-3 concise sentences summarizing the initial screening without giving away full tactics."
+    "errorsFound": ["One cautious teaser finding"],
+    "keyFindings": "Two concise sentences."
   },
   "preview": {
-    "screeningHeadline": "Short premium teaser headline",
-    "teaserFinding": "One visible personalized teaser finding only.",
-    "cliffhanger": "Short sentence explaining that the deeper Complete Billing Review contains the rest of the personalized analysis.",
-    "lockedModuleReferences": [
-      "Provider-Specific Negotiation Brief",
-      "Recovery Probability Score",
-      "Escalation Hierarchy",
-      "Personalized Scripts",
-      "30-Day Action Review"
-    ]
+    "screeningHeadline": "Short headline",
+    "teaserFinding": "One visible personalized teaser finding.",
+    "cliffhanger": "One sentence about what unlocks.",
+    "lockedModuleReferences": ["CPT review","Benchmark comparison","Call script","Action plan"]
   },
   "paidDossier": null
 }`
@@ -59,11 +50,12 @@ Return exactly this JSON structure with no markdown:
 Framing rules:
 - Use observational, careful language.
 - Do not accuse providers, insurers, or staff.
-- Do not guarantee savings, corrections, negotiations, or outcomes.
+- Do not promise savings, corrections, negotiations, or outcomes.
 - Do not present legal representation, medical advice, or insurance adjudication.
 - Provide practical, professional consumer guidance in a premium review format.
 - Target roughly 1,800-3,500 words across the review content.
 - Include deep but measured analysis, not sensational claims.
+- JSON validity is critical: escape every quote inside string values, use \\n for line breaks inside long letters/scripts, do not include markdown fences, and do not put raw newline characters inside JSON strings.
 
 Patient submission:
 ${formatIntake(intake)}
@@ -87,7 +79,7 @@ Return exactly this JSON structure with no markdown:
     "escalationHierarchy": ["Step or channel 1", "Step or channel 2", "Step or channel 3"],
     "recoveryProbability": {
       "label": "LOW | MODERATE | STRONG",
-      "rationale": "Careful, non-guaranteeing rationale."
+      "rationale": "Careful, careful rationale."
     },
     "financialAssistanceContext": ["Relevant context 1", "Relevant context 2"],
     "communicationGuidance": ["Guidance 1", "Guidance 2", "Guidance 3"],
@@ -162,6 +154,33 @@ function formatIntake(intake) {
   ].join('\n');
 }
 
+function buildFallbackPreview(intake) {
+  const provider = intake.providerName && intake.providerName !== 'Unknown Hospital'
+    ? intake.providerName
+    : 'your provider';
+  const amount = intake.totalBilled ? `$${intake.totalBilled}` : 'the submitted bill';
+  const finding = `The ${amount} bill from ${provider} has enough detail to justify a closer itemized review before you rely on the balance as final.`;
+
+  return {
+    generationMode: 'free_preview',
+    summary: {
+      riskLevel: intake.totalBilled && Number(String(intake.totalBilled).replace(/[^0-9.]/g, '')) > 5000 ? 'HIGH' : 'MEDIUM',
+      severityLabel: 'Review recommended',
+      estimatedSavingsMin: '',
+      estimatedSavingsMax: '',
+      errorsFound: [finding],
+      keyFindings: 'Your intake suggests the bill should be reviewed against itemized charges, coverage context, and common billing documentation gaps. The full review unlocks the deeper workflow.'
+    },
+    preview: {
+      screeningHeadline: 'A closer billing review may be useful.',
+      teaserFinding: finding,
+      cliffhanger: 'The Complete Billing Review unlocks benchmark context, prepared questions, call guidance, and next steps.',
+      lockedModuleReferences: ['CPT review', 'Benchmark comparison', 'Call script', 'Action plan']
+    },
+    paidDossier: null
+  };
+}
+
 function buildStructuredRequest(body = {}) {
   const generationMode = body.generationMode || 'free_preview';
   const config = PROMPT_CONFIGS[generationMode];
@@ -170,6 +189,7 @@ function buildStructuredRequest(body = {}) {
   const intake = normalizeIntake(body.intake || {});
   return {
     generationMode,
+    intake,
     maxTokens: Number(body.max_tokens) || config.maxTokens,
     messages: [{ role: 'user', content: config.buildPrompt(intake) }]
   };
@@ -184,6 +204,43 @@ function normalizeMessages(messages = []) {
         ? message.content
         : String(message.content ?? '')
   }));
+}
+
+function getAnthropicText(data) {
+  return Array.isArray(data?.content) ? data.content.map(part => part?.text || '').join('') : '';
+}
+
+function debugPayload(label, value) {
+  try {
+    const text = typeof value === 'string' ? value : JSON.stringify(value);
+    console.log(label, {
+      length: text?.length || 0,
+      preview: text?.slice?.(0, 1200),
+      tail: text?.slice?.(-1200)
+    });
+  } catch {
+    console.log(label, value);
+  }
+}
+
+function isAnthropicOverloaded(response, data) {
+  return response?.status === 529
+    || data?.error?.type === 'overloaded_error'
+    || /overload|capacity|temporarily unavailable/i.test(data?.error?.message || '');
+}
+
+function sendFallbackPreview(res, intake, reason) {
+  const payload = buildFallbackPreview(intake);
+  console.warn('[api/analyze] UPA_DEBUG using local free_preview fallback', { reason });
+  return res.status(200).json({
+    id: 'upa-free-preview-fallback',
+    type: 'message',
+    role: 'assistant',
+    content: [{ type: 'text', text: JSON.stringify(payload) }],
+    generationMode: 'free_preview',
+    fallback: true,
+    fallbackReason: reason
+  });
 }
 
 async function readBody(req) {
@@ -288,15 +345,23 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
+    debugPayload('[api/analyze] UPA_DEBUG raw Anthropic response before client parsing', getAnthropicText(data));
     return { response, data };
   };
 
   const modelCandidates = await buildModelCandidates(apiKey, outbound.model);
+  const generationMode = structuredRequest?.generationMode || 'legacy_messages';
 
   let response;
   let data;
   for (const model of modelCandidates) {
-    ({ response, data } = await sendToAnthropic({ ...outbound, model }));
+    const attempts = generationMode === 'free_preview' ? 2 : 1;
+    for (let attempt = 1; attempt <= attempts; attempt += 1) {
+      ({ response, data } = await sendToAnthropic({ ...outbound, model }));
+      if (!isAnthropicOverloaded(response, data) || attempt === attempts) break;
+      console.warn('[api/analyze] Anthropic overloaded; retrying free_preview request', { model, attempt });
+      await new Promise(resolve => setTimeout(resolve, 450 * attempt));
+    }
 
     const modelNotFound = response.status === 404
       && data?.error?.type === 'not_found_error'
@@ -311,6 +376,10 @@ export default async function handler(req, res) {
   }
 
   if (!response.ok) {
+    if (generationMode === 'free_preview' && isAnthropicOverloaded(response, data)) {
+      return sendFallbackPreview(res, structuredRequest?.intake || normalizeIntake(body.intake || {}), 'anthropic_overloaded');
+    }
+
     const modelUnavailable = response.status === 404
       && data?.error?.type === 'not_found_error'
       && /model/i.test(data?.error?.message || '');

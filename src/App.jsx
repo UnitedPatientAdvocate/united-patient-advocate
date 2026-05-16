@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import BillingEducation from "./BillingEducation.jsx";
+import PreviewPaywall from "./PreviewPaywall.jsx";
+import WorkspaceEntry from "./WorkspaceEntry.jsx";
+import PremiumDashboard from "./PremiumDashboard.jsx";
 import { AnnotatedParagraph } from "./TermTooltip.jsx";
 
 // Section
@@ -13,12 +16,196 @@ const ANALYZE_MODES = {
 const FREE_PREVIEW_MODE = ANALYZE_MODES.publicAnalyze.generationMode;
 const PAID_REVIEW_MODE = ANALYZE_MODES.paidSuccess.generationMode;
 const CHECKOUT_SESSION_KEY = "upa.checkout.session.v2";
-function normalizeGeneratedPayload(data, generationMode) {
-  const raw = data?.content ? data.content.map(c=>c.text||"").join("") : "";
-  const s = raw.indexOf("{"), e = raw.lastIndexOf("}");
-  if (s===-1 || e===-1) throw new Error("No JSON");
+const CHECKOUT_SESSION_HANDOFF_KEY = "upa.checkout.session.handoff.v2";
+const PAID_RESULTS_KEY = "upa.paid.results.v2";
 
-  const parsed = JSON.parse(raw.substring(s, e+1));
+function getAnthropicText(data) {
+  return Array.isArray(data?.content) ? data.content.map(c=>c?.text || "").join("") : "";
+}
+
+function debugPayload(label, value) {
+  try {
+    const text = typeof value === "string" ? value : JSON.stringify(value);
+    console.debug(label, {
+      length: text?.length || 0,
+      preview: text?.slice?.(0, 1200),
+      tail: text?.slice?.(-1200)
+    });
+  } catch (error) {
+    console.debug(label, value);
+  }
+}
+
+function storageDebugContext() {
+  return {
+    origin: typeof window !== "undefined" ? window.location.origin : "server",
+    href: typeof window !== "undefined" ? window.location.href : "server",
+    hasLocalStorage: typeof localStorage !== "undefined",
+    hasSessionStorage: typeof sessionStorage !== "undefined",
+    windowNameLength: typeof window !== "undefined" && typeof window.name === "string" ? window.name.length : 0
+  };
+}
+
+function readWindowNameCheckoutSession() {
+  if (typeof window === "undefined" || !window.name) return null;
+  try {
+    const data = JSON.parse(window.name);
+    if (data?.key !== CHECKOUT_SESSION_HANDOFF_KEY || !data?.session) return null;
+    console.debug("UPA_DEBUG checkout session read from window.name handoff", {
+      ...storageDebugContext(),
+      savedAt: data.session?.savedAt,
+      provider: data.session?.provider
+    });
+    return data.session;
+  } catch {
+    return null;
+  }
+}
+
+function writeWindowNameCheckoutSession(session) {
+  if (typeof window === "undefined") return;
+  try {
+    window.name = JSON.stringify({
+      key: CHECKOUT_SESSION_HANDOFF_KEY,
+      savedAt: new Date().toISOString(),
+      session
+    });
+  } catch (error) {
+    console.warn("UPA_DEBUG checkout session window.name handoff write failed", error);
+  }
+}
+
+function extractJsonCandidate(raw) {
+  const withoutFence = String(raw || "")
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+  const start = withoutFence.indexOf("{");
+  if (start === -1) throw new Error("No JSON");
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < withoutFence.length; i += 1) {
+    const ch = withoutFence[i];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (ch === "\\") {
+        escaped = true;
+      } else if (ch === "\"") {
+        inString = false;
+      }
+      continue;
+    }
+    if (ch === "\"") inString = true;
+    if (ch === "{") depth += 1;
+    if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) return withoutFence.slice(start, i + 1);
+    }
+  }
+
+  const end = withoutFence.lastIndexOf("}");
+  if (end === -1 || end <= start) throw new Error("No JSON");
+  return withoutFence.slice(start, end + 1);
+}
+
+function sanitizeJsonCandidate(candidate) {
+  return String(candidate || "")
+    .replace(/[\u201C\u201D]/g, "\"")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/,\s*([}\]])/g, "$1")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, " ");
+}
+
+function repairJsonStringContent(candidate) {
+  const text = sanitizeJsonCandidate(candidate);
+  let output = "";
+  let inString = false;
+  let escaped = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+
+    if (!inString) {
+      output += ch;
+      if (ch === "\"") inString = true;
+      continue;
+    }
+
+    if (escaped) {
+      output += ch;
+      escaped = false;
+      continue;
+    }
+
+    if (ch === "\\") {
+      output += ch;
+      escaped = true;
+      continue;
+    }
+
+    if (ch === "\n") {
+      output += "\\n";
+      continue;
+    }
+
+    if (ch === "\r") {
+      continue;
+    }
+
+    if (ch === "\"") {
+      let j = i + 1;
+      while (j < text.length && /\s/.test(text[j])) j += 1;
+      const next = text[j];
+      if ([",", "}", "]", ":"].includes(next)) {
+        output += ch;
+        inString = false;
+      } else {
+        output += "\\\"";
+      }
+      continue;
+    }
+
+    output += ch;
+  }
+
+  return output;
+}
+
+function parseGeneratedJson(raw) {
+  const candidate = extractJsonCandidate(raw);
+  const attempts = [
+    candidate,
+    sanitizeJsonCandidate(candidate),
+    repairJsonStringContent(candidate)
+  ];
+
+  let lastError;
+  for (const attempt of attempts) {
+    try {
+      return JSON.parse(attempt);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  console.error("Generated JSON parse failed", {
+    message: lastError?.message,
+    candidateLength: candidate.length,
+    aroundError: (() => {
+      const position = Number(lastError?.message?.match(/position (\d+)/)?.[1]);
+      return Number.isFinite(position) ? candidate.slice(Math.max(0, position - 240), position + 240) : candidate.slice(0, 1200);
+    })()
+  });
+  throw lastError;
+}
+
+function normalizeGeneratedPayload(data, generationMode) {
+  const raw = getAnthropicText(data);
+  debugPayload("UPA_DEBUG raw AI response before parsing", raw);
+  const parsed = data?.normalizedPayload || parseGeneratedJson(raw);
   return {
     generationMode: parsed.generationMode || data.generationMode || generationMode,
     summary: parsed.summary || {},
@@ -43,6 +230,7 @@ async function fetchGeneration(generationMode, intake) {
     })
   });
   const data = await res.json();
+  debugPayload("UPA_DEBUG /api/analyze response before normalize", data);
   if (!res.ok) {
     console.error("Analysis API error:", data);
     const error = new Error(data?.userMessage || data?.error || "API " + res.status);
@@ -54,20 +242,119 @@ async function fetchGeneration(generationMode, intake) {
 }
 
 function readCheckoutSession() {
+  const debug = storageDebugContext();
   try {
     const raw = localStorage.getItem(CHECKOUT_SESSION_KEY);
-    return raw ? JSON.parse(raw) : null;
+    console.debug("UPA_DEBUG checkout session localStorage read", {
+      ...debug,
+      key: CHECKOUT_SESSION_KEY,
+      found: Boolean(raw),
+      rawLength: raw?.length || 0
+    });
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      debugPayload("UPA_DEBUG checkout session hydration payload from localStorage", parsed);
+      return parsed;
+    }
   } catch (error) {
     console.error("Checkout session read failed:", error);
-    return null;
   }
+
+  try {
+    const raw = sessionStorage.getItem(CHECKOUT_SESSION_KEY);
+    console.debug("UPA_DEBUG checkout session sessionStorage read", {
+      ...debug,
+      key: CHECKOUT_SESSION_KEY,
+      found: Boolean(raw),
+      rawLength: raw?.length || 0
+    });
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      debugPayload("UPA_DEBUG checkout session hydration payload from sessionStorage", parsed);
+      try { localStorage.setItem(CHECKOUT_SESSION_KEY, raw); } catch {}
+      return parsed;
+    }
+  } catch (error) {
+    console.error("Checkout session sessionStorage read failed:", error);
+  }
+
+  const handoff = readWindowNameCheckoutSession();
+  if (handoff) {
+    try {
+      const raw = JSON.stringify(handoff);
+      localStorage.setItem(CHECKOUT_SESSION_KEY, raw);
+      sessionStorage.setItem(CHECKOUT_SESSION_KEY, raw);
+      debugPayload("UPA_DEBUG checkout session restored from window.name handoff", handoff);
+    } catch (error) {
+      console.warn("UPA_DEBUG checkout session handoff restore could not persist", error);
+    }
+    return handoff;
+  }
+
+  console.warn("UPA_DEBUG checkout session missing after all reads", debug);
+  return null;
 }
 
 function writeCheckoutSession(session) {
   try {
-    localStorage.setItem(CHECKOUT_SESSION_KEY, JSON.stringify(session));
+    const raw = JSON.stringify(session);
+    localStorage.setItem(CHECKOUT_SESSION_KEY, raw);
+    sessionStorage.setItem(CHECKOUT_SESSION_KEY, raw);
+    writeWindowNameCheckoutSession(session);
+    localStorage.removeItem(PAID_RESULTS_KEY);
+    console.debug("UPA_DEBUG checkout session write success", {
+      ...storageDebugContext(),
+      key: CHECKOUT_SESSION_KEY,
+      rawLength: raw.length,
+      readBackLocal: localStorage.getItem(CHECKOUT_SESSION_KEY)?.length || 0,
+      readBackSession: sessionStorage.getItem(CHECKOUT_SESSION_KEY)?.length || 0,
+      savedAt: session?.savedAt,
+      provider: session?.provider,
+      gumroadUrl: GUMROAD
+    });
+    debugPayload("UPA_DEBUG checkout session saved payload", session);
   } catch (error) {
     console.error("Checkout session save failed:", error);
+  }
+}
+
+function readSavedPaidResults() {
+  const keys = [PAID_RESULTS_KEY];
+
+  for (const key of keys) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const saved = JSON.parse(raw);
+      const results = saved?.results || saved?.payload || saved;
+      if (!results || typeof results !== "object") continue;
+      debugPayload("UPA_DEBUG paid payload before dashboard hydration", saved);
+      return {
+        results,
+        session: saved?.session || saved?.checkoutSession || null,
+        savedAt: saved?.savedAt || null
+      };
+    } catch (error) {
+      console.error("Saved paid results read failed:", error);
+    }
+  }
+
+  return null;
+}
+
+function writeSavedPaidResults(results, session) {
+  try {
+    const payload = {
+      savedAt: new Date().toISOString(),
+      session,
+      results
+    };
+    debugPayload("UPA_DEBUG paid payload before save", payload);
+    localStorage.setItem(PAID_RESULTS_KEY, JSON.stringify({
+      ...payload
+    }));
+  } catch (error) {
+    console.error("Saved paid results save failed:", error);
   }
 }
 
@@ -2442,7 +2729,7 @@ const COMP_HTML     = `<!-- COMPARISON -->
         What a billing review<br><em style="font-style:italic;color:var(--navy);">may surface in your documents</em>
       </h2>
       <p style="font-size:0.85rem;color:var(--ink3);max-width:460px;margin:0 auto;line-height:1.7;">
-        These are illustrative examples of the categories our review process analyzes. They are not guarantees of specific findings or outcomes for your bill.
+        These are illustrative examples of the categories our review process analyzes. They are not predictions of specific findings or outcomes for your bill.
       </p>
     </div>
 
@@ -2487,7 +2774,7 @@ const COMP_HTML     = `<!-- COMPARISON -->
     </div>
 
     <div style="margin-top:18px;background:var(--navyL);border:1px solid rgba(26,53,96,0.12);border-radius:12px;padding:14px 18px;font-size:0.72rem;color:var(--ink3);line-height:1.7;text-align:center;">
-      Examples above are illustrative of the categories our review process may identify. They are not representations of guaranteed findings or outcomes. Individual billing reviews vary based on the information submitted. Not legal, medical, or financial advice.
+      Examples above are illustrative of the categories our review process may identify. They are not representations of specific findings or outcomes. Individual billing reviews vary based on the information submitted. Not legal, medical, or financial advice.
     </div>
   </div>
 </section>
@@ -2584,7 +2871,7 @@ const SCENARIO_HTML = `<!-- EXAMPLE SCENARIOS -->
     </div>
 
     <div style="margin-top:18px;background:var(--navyL);border:1px solid rgba(26,53,96,0.12);border-radius:12px;padding:14px 18px;font-size:0.72rem;color:var(--ink3);line-height:1.7;text-align:center;">
-      All scenarios above are anonymized and illustrative. They represent common billing review categories and do not represent guaranteed findings, specific outcomes, or individual patient results.
+      All scenarios above are anonymized and illustrative. They represent common billing review categories and do not represent specific findings, specific outcomes, or individual patient results.
     </div>
   </div>
 </section>
@@ -2925,6 +3212,7 @@ function useTheme() {
 // Section
 const MoonIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>;
 const SunIcon  = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>;
+const CheckIcon = ({ size = 14 }) => <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>;
 
 // Section
 const GreenBtn = ({ children, onClick, style = {}, disabled }) => (
@@ -3201,8 +3489,7 @@ function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode 
           <button onClick={toggleMode} style={{ display:"flex",alignItems:"center",gap:7,padding:"8px 14px",borderRadius:40,border:`1.5px solid ${border2}`,background:"transparent",color:ink3,cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:"inherit" }}>
             {dark ? <SunIcon/> : <MoonIcon/>} {dark?"Day":"Night"}
           </button>
-          {/* Back to home ? fixes Issue 22 */}
-          <button onClick={onBack} style={{ background:"none",border:"none",color:ink3,cursor:"pointer",fontSize:13,fontWeight:500,fontFamily:"inherit",textDecoration:"underline" }}>? Home</button>
+          <button onClick={onBack} style={{ background:"none",border:"none",color:ink3,cursor:"pointer",fontSize:13,fontWeight:500,fontFamily:"inherit",textDecoration:"underline" }}>Home</button>
         </div>
       </nav>
 
@@ -3212,7 +3499,7 @@ function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode 
           {[1,2,3].map((n,i) => (
             <div key={n} style={{ display:"flex", alignItems:"center", flex:i<2?1:"none" }}>
               <div style={{ width:38,height:38,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:15,fontFamily:"inherit",background:step>=n?"#1F3A68":surface,border:`2px solid ${step>=n?"#1F3A68":border2}`,color:step>=n?"#fff":ink3,flexShrink:0 }}>
-                {step>n?"?":n}
+                {step>n?<CheckIcon size={15}/>:n}
               </div>
               {i<2 && <div style={{ flex:1,height:2,background:step>n?"#1F3A68":border2,margin:"0 6px" }}/>}
             </div>
@@ -3245,7 +3532,7 @@ function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode 
                 <div>
                   <label style={{...lS,color:ink}}>Type of Insurance</label>
                   <select value={form.insuranceType} onChange={e=>update("insuranceType",e.target.value)} style={{...inputStyle,cursor:"pointer"}}>
-                    <option value="medicare">Medicare ? Government plan age 65+</option>
+                    <option value="medicare">Medicare - Government plan age 65+</option>
                     <option value="medicaid">Medicaid</option>
                     <option value="private">Private / Employer Insurance</option>
                     <option value="marketplace">ACA Marketplace Plan</option>
@@ -3302,7 +3589,7 @@ function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode 
                 ))}
               </div>
               <div style={{ background:dark?"#0D2218":"#E8F5EE",border:`1px solid rgba(47,122,79,0.2)`,borderRadius:10,padding:"12px 15px",fontSize:13,color:dark?"#3DAF6A":"#2F7A4F",marginTop:14,fontWeight:500 }}>
-                ðŸ”’ Your privacy is protected. We never store, share, or sell your information.
+                Your privacy is protected. We never store, share, or sell your information.
               </div>
             </div>
           )}
@@ -3311,13 +3598,13 @@ function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode 
             {step>1 ? (
               <button onClick={()=>setStep(s=>s-1)} style={{ flex:1,padding:"14px",borderRadius:11,background:"transparent",border:`1.5px solid ${border2}`,color:ink3,fontFamily:"inherit",fontSize:15,fontWeight:600,cursor:"pointer" }}>Back</button>
             ) : (
-              <button onClick={onBack} style={{ flex:1,padding:"14px",borderRadius:11,background:"transparent",border:`1.5px solid ${border2}`,color:ink3,fontFamily:"inherit",fontSize:15,fontWeight:600,cursor:"pointer" }}>? Back</button>
+              <button onClick={onBack} style={{ flex:1,padding:"14px",borderRadius:11,background:"transparent",border:`1.5px solid ${border2}`,color:ink3,fontFamily:"inherit",fontSize:15,fontWeight:600,cursor:"pointer" }}>Back</button>
             )}
             {step<3 ? (
               <NavyBtn onClick={()=>setStep(s=>s+1)} disabled={(step===1&&!ok1)||(step===2&&!ok2)} style={{ flex:2,fontSize:16,borderRadius:11 }}>Continue</NavyBtn>
             ) : (
               <button onClick={onSubmit} style={{ flex:2,background:"linear-gradient(135deg,#2F7A4F,#276644)",color:"#fff",border:"none",borderRadius:11,padding:"15px",fontFamily:"inherit",fontSize:16,fontWeight:800,cursor:"pointer",boxShadow:"0 4px 16px rgba(47,122,79,0.4)" }}>
-                Analyze My Bill Now ?
+                Analyze My Bill Now
               </button>
             )}
           </div>
@@ -3341,6 +3628,9 @@ function Analyzing({ mode }) {
   const border=dark?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.08)";
   return (
     <div className="analyzing-screen" style={{ background:bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:24,fontFamily:"'DM Sans',sans-serif" }}>
+      <div style={{ position:"fixed",top:8,left:8,zIndex:9999,background:"#111827",color:"#fff",border:"2px solid #93C5FD",borderRadius:6,padding:"6px 8px",fontSize:12,fontWeight:900,fontFamily:"monospace" }}>
+        ACTIVE_LOADING_COMPONENT: App.jsx Analyzing
+      </div>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}} @media (max-width:520px){.analyzing-screen{padding:22px 18px!important;align-items:center!important}.analyzing-inner{max-width:390px!important}.analyzing-logo{height:92px!important;margin-bottom:18px!important}.analyzing-spinner{width:44px!important;height:44px!important;margin-bottom:20px!important}.analyzing-title{font-size:22px!important;line-height:1.12!important;margin-bottom:9px!important}.analyzing-sub{font-size:13.5px!important;line-height:1.65!important;margin-bottom:22px!important;max-width:340px!important;margin-left:auto!important;margin-right:auto!important}.analyzing-card{border-radius:16px!important;padding:18px 20px!important}.analyzing-row{gap:11px!important;padding:10px 0!important}.analyzing-step-text{font-size:13.5px!important;line-height:1.35!important;overflow-wrap:anywhere!important}}`}</style>
       <div className="analyzing-inner" style={{ textAlign:"center",maxWidth:440,width:"100%" }}>
         <img className="analyzing-logo" src={LOGO_B64} alt="UPA" onError={(e)=>{ e.currentTarget.onerror=null; e.currentTarget.src=LOGO_FALLBACK; }} style={{ height:92,width:"auto",margin:"0 auto 24px",display:"block" }}/>
@@ -3351,7 +3641,7 @@ function Analyzing({ mode }) {
           {steps.map((s,i)=>(
             <div className="analyzing-row" key={i} style={{ display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:i<steps.length-1?`1px solid ${border}`:"none" }}>
               <div style={{ width:24,height:24,borderRadius:"50%",background:i<=active?"#2F7A4F":"transparent",border:`2px solid ${i<=active?"#2F7A4F":border}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .3s" }}>
-                {i<=active && <span style={{ color:"#fff",fontSize:13,fontWeight:700 }}>?</span>}
+                {i<=active && <span style={{ color:"#fff",display:"flex",alignItems:"center",justifyContent:"center" }}><CheckIcon size={13}/></span>}
               </div>
               <span className="analyzing-step-text" style={{ fontSize:14,color:i<=active?ink:ink3,fontWeight:i===active?700:400,transition:"color .3s",animation:i===active?"pulse 1.5s infinite":"none" }}>{s}</span>
             </div>
@@ -3373,8 +3663,16 @@ function EmailCapture({ onContinue, mode }) {
   const submit=()=>{ if(email){ setDone(true); setTimeout(()=>onContinue(email,name),1200); } };
   return (
     <div style={{ background:bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:24,fontFamily:"'DM Sans',sans-serif" }}>
+      <div style={{ position:"fixed",top:8,left:8,zIndex:9999,background:"#111827",color:"#fff",border:"2px solid #FCD34D",borderRadius:6,padding:"6px 8px",fontSize:12,fontWeight:900,fontFamily:"monospace" }}>
+        ACTIVE_EMAIL_COMPONENT: App.jsx EmailCapture
+      </div>
       <div style={{ background:surface,border:`1px solid ${dark?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.08)"}`,borderRadius:18,padding:"40px 32px",maxWidth:460,width:"100%",textAlign:"center",boxShadow:"0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.07)" }}>
-        <div style={{ width:56,height:56,borderRadius:"50%",background:dark?"#0D2218":"#E8F5EE",border:"2px solid rgba(47,122,79,0.3)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",fontSize:24 }}>?</div>
+        <div style={{ width:56,height:56,borderRadius:"50%",background:dark?"#0D2218":"#E8F5EE",border:"2px solid rgba(47,122,79,0.3)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",color:dark?"#3DAF6A":"#2F7A4F" }}>
+          <svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3 19 6v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3Z" />
+            <path d="m8.5 12 2.2 2.2 4.8-5" />
+          </svg>
+        </div>
         <h2 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:22,fontWeight:800,color:ink,marginBottom:8,letterSpacing:"-0.03em" }}>Your billing review is ready.</h2>
         <p style={{ color:ink3,fontSize:14,lineHeight:1.7,marginBottom:24 }}>Enter your email to access your results and receive your complete documentation package after purchase.</p>
         <input type="text"  placeholder="Your first name (optional)" value={name}  onChange={e=>setName(e.target.value)} style={iStyle} />
@@ -3382,7 +3680,7 @@ function EmailCapture({ onContinue, mode }) {
         {done ? (
           <div style={{ background:dark?"#0D2218":"#E8F5EE",borderRadius:12,padding:14,fontSize:15,color:dark?"#3DAF6A":"#2F7A4F",fontWeight:700 }}>Opening your results...</div>
         ) : (
-          <GreenBtn onClick={submit} disabled={!email} style={{ width:"100%",fontSize:16,padding:"16px",borderRadius:12 }}>View My Billing Review ?</GreenBtn>
+          <GreenBtn onClick={submit} disabled={!email} style={{ width:"100%",fontSize:16,padding:"16px",borderRadius:12 }}>View My Billing Review</GreenBtn>
         )}
         <div style={{ fontSize:11,color:ink3,marginTop:12 }}>We do not send marketing emails. Your information is never sold.</div>
       </div>
@@ -3401,42 +3699,12 @@ function DossierLockIcon({ color="#1F3A68" }) {
 }
 
 function Results({ results, userEmail, userName, form, mode, toggleMode }) {
-  const [unlocked,setUnlocked]=useState(false);
-  const [tab,setTab]=useState("letter");
-  const [copied,setCopied]=useState(null);
-  const [showShare,setShowShare]=useState(false);
   const [checkoutStatus,setCheckoutStatus]=useState("idle");
-  const dark=mode==="dark";
-  const { summary = {}, preview = {}, paidDossier = null, disputeLetter = "", phoneScript = "", actionPlan = [], yourRights = [] } = results || {};
-  const riskLevel = summary.riskLevel || "MEDIUM";
-  const rColor = riskLevel==="HIGH"?(dark?"#E07070":"#C0392B"):(dark?"#FCD34D":"#92400E");
-  const rBg    = riskLevel==="HIGH"?(dark?"rgba(224,112,112,0.12)":"#FEF2F0"):(dark?"rgba(252,211,77,0.12)":"#FFF8EC");
-  const cp=(text,id)=>{ navigator.clipboard.writeText(text); setCopied(id); setTimeout(()=>setCopied(null),2000); };
-
-  const bg=dark?"#141924":"#F2F5F9", surface=dark?"#1C2035":"#fff", surface2=dark?"#1A2030":"#EBF0F8";
-  const ink=dark?"#F0F4F8":"#1E293B", ink2=dark?"#CBD5E1":"#374151", ink3=dark?"#94A3B8":"#6B7280", ink4=dark?"#64748B":"#94A3B8";
-  const border=dark?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.08)", border2=dark?"rgba(255,255,255,0.14)":"rgba(0,0,0,0.14)";
-  const navyL=dark?"#1A2A45":"#EBF0FA", greenL=dark?"#0D2218":"#E8F5EE";
-  const navyC=dark?"#4A7BD4":"#1F3A68", greenC=dark?"#3DAF6A":"#2F7A4F";
-  const teaserFinding = preview.teaserFinding || summary.errorsFound?.[0] || summary.keyFindings || "Your initial screening found billing details that may deserve a deeper advocate review.";
-  const riskIndex = riskLevel==="HIGH" ? 3 : riskLevel==="MEDIUM" ? 2 : 1;
-  const premiumModules = [
-    "Provider-Specific Negotiation Brief",
-    "Recovery Probability Score",
-    "Escalation Hierarchy",
-    "Personalized Scripts",
-    "30-Day Action Billing Review"
-  ];
-  const lockedPreviewRows = [
-    "Provider billing posture mapped to your submission",
-    "Negotiation pathway and escalation timing prepared",
-    "Personalized recovery framing held in the Complete Billing Review"
-  ];
   const openCheckout = () => {
     writeCheckoutSession({
       savedAt: new Date().toISOString(),
       intake: form,
-      freePreviewSummary: summary,
+      freePreviewSummary: results?.summary || {},
       provider: form?.providerName || "",
       totalAmount: form?.totalBilled || "",
       insurance: form?.hasInsurance ? (form?.insuranceType || "") : "none",
@@ -3446,217 +3714,21 @@ function Results({ results, userEmail, userName, form, mode, toggleMode }) {
     window.setTimeout(() => { window.location.assign(GUMROAD); }, 180);
   };
 
-  const LockedModule = ({ title, index }) => (
-    <div style={{ position:"relative",background:surface,border:`1px solid ${border}`,borderRadius:16,padding:"18px 18px 20px",overflow:"hidden",minHeight:138,boxShadow:"0 1px 3px rgba(0,0,0,0.04)" }}>
-      <div style={{ display:"flex",alignItems:"center",gap:10,marginBottom:14 }}>
-        <div style={{ width:34,height:34,borderRadius:"50%",background:navyL,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
-          <DossierLockIcon color={navyC} />
-        </div>
-        <div>
-          <div style={{ fontSize:11,fontWeight:800,textTransform:"uppercase",letterSpacing:"0.12em",color:ink4,marginBottom:2 }}>Premium review module</div>
-          <div style={{ fontSize:15,fontWeight:800,color:ink,lineHeight:1.35 }}>{title}</div>
-        </div>
-      </div>
-      <div style={{ filter:"blur(4px)",opacity:.72,userSelect:"none",pointerEvents:"none" }}>
-        {lockedPreviewRows.map((row,rowIndex)=>(
-          <div key={`${index}-${rowIndex}`} style={{ display:"flex",gap:10,alignItems:"flex-start",marginBottom:8 }}>
-            <span style={{ width:8,height:8,borderRadius:"50%",background:greenC,marginTop:6,flexShrink:0 }} />
-            <span style={{ fontSize:13,color:ink2,lineHeight:1.55 }}>{row}</span>
-          </div>
-        ))}
-      </div>
-      <div style={{ position:"absolute",inset:0,background:`linear-gradient(180deg, ${dark?"rgba(28,32,53,0.08)":"rgba(255,255,255,0.10)"} 18%, ${dark?"rgba(28,32,53,0.88)":"rgba(255,255,255,0.92)"} 100%)`,display:"flex",alignItems:"flex-end",justifyContent:"center",padding:16 }}>
-        <div style={{ display:"inline-flex",alignItems:"center",gap:8,border:`1px solid ${border2}`,background:surface,borderRadius:999,padding:"8px 12px",fontSize:12,fontWeight:800,color:navyC,boxShadow:"0 6px 18px rgba(15,23,42,0.08)" }}>
-          <DossierLockIcon color={navyC} /> Locked until unlock
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <div style={{ fontFamily:"'DM Sans',sans-serif",background:bg,minHeight:"100vh",color:ink }}>
-
-      {showShare && <ShareModal onClose={()=>setShowShare(false)}/>}
-      <nav style={{ background:surface,borderBottom:`1px solid ${border}`,padding:"10px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100 }}>
-        <div style={{ display:"flex",alignItems:"center",gap:11 }}>
-          <img src={LOGO_B64} alt="UPA" onError={(e)=>{ e.currentTarget.onerror=null; e.currentTarget.src=LOGO_FALLBACK; }} style={{ height:70,width:"auto",flexShrink:0 }}/>
-          <div style={{ display:"flex",flexDirection:"column",lineHeight:1 }}>
-            <div style={{ fontFamily:"'DM Sans',sans-serif",fontSize:"1.1rem",letterSpacing:"-0.025em",whiteSpace:"nowrap",lineHeight:1.05 }}>
-              <span style={{ fontWeight:900,color:dark?"#fff":navyC }}>United</span>
-              <span style={{ fontWeight:500,color:"#1A7A8C" }}> Patient</span>
-            </div>
-            <div style={{ fontFamily:"'DM Sans',sans-serif",fontSize:"0.5rem",fontWeight:600,letterSpacing:"0.3em",textTransform:"uppercase",color:ink4,textAlign:"center",marginTop:3 }}>Advocate</div>
-          </div>
-        </div>
-        <div style={{ display:"flex",gap:10,alignItems:"center" }}>
-          <button onClick={toggleMode} style={{ display:"flex",alignItems:"center",gap:7,padding:"8px 14px",borderRadius:40,border:`1.5px solid ${border2}`,background:"transparent",color:ink3,cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:"inherit" }}>
-            {dark?<SunIcon/>:<MoonIcon/>} {dark?"Day":"Night"}
-          </button>
-          <button onClick={()=>setShowShare(true)} style={{ padding:"9px 16px",borderRadius:10,border:`1.5px solid ${border2}`,background:"transparent",color:ink3,fontFamily:"inherit",fontSize:13,fontWeight:600,cursor:"pointer" }}>Share</button>
-        </div>
-      </nav>
-
-      <div style={{ maxWidth:760,margin:"0 auto",padding:"28px 20px" }}>
-      <div style={{ maxWidth:680,margin:"0 auto",padding:"28px 20px" }}>
-
-        {/* SUMMARY */}
-        <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"26px",marginBottom:20,borderLeft:`4px solid ${rColor}`,boxShadow:"0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.07)" }}>
-          <div style={{ display:"flex",alignItems:"flex-start",gap:16,flexWrap:"wrap" }}>
-            <div style={{ flex:1 }}>
-              <div style={{ fontSize:11,fontWeight:700,color:ink4,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:6 }}>Billing Review Complete</div>
-              <h2 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:21,fontWeight:800,color:ink,marginBottom:10,letterSpacing:"-0.02em" }}>
-                {userName?`${userName}, your`:"Your"} review identified potential issues
-              </h2>
-              <p style={{ fontSize:14,color:ink2,lineHeight:1.75 }}>{summary.keyFindings}</p>
-            </div>
-            <div style={{ background:rBg,borderRadius:14,padding:"16px 18px",textAlign:"center",minWidth:110,flexShrink:0 }}>
-              <div style={{ fontSize:10,fontWeight:700,color:rColor,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4 }}>Risk Level</div>
-              <div style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:22,fontWeight:800,color:rColor }}>{summary.riskLevel}</div>
-              {summary.estimatedSavingsMin && <>
-                <div style={{ fontSize:10,color:ink4,marginTop:6 }}>Est. dispute range</div>
-                <div style={{ fontSize:13,fontWeight:700,color:rColor }}>${summary.estimatedSavingsMin}?${summary.estimatedSavingsMax}</div>
-              </>}
-            </div>
-          </div>
-          {summary.errorsFound?.length>0 && (
-            <div style={{ marginTop:18 }}>
-              <div style={{ fontSize:12,fontWeight:700,color:ink3,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10 }}>Areas Flagged for Review</div>
-              {summary.errorsFound.map((e,i)=>(
-                <div key={i} style={{ display:"flex",gap:10,marginBottom:8,alignItems:"flex-start" }}>
-                  <span style={{ color:rColor,fontWeight:700,fontSize:14,flexShrink:0 }}>?</span>
-                  <span style={{ fontSize:14,color:ink2,lineHeight:1.6 }}>{e}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div style={{ padding:"10px 14px",background:navyL,borderRadius:10,fontSize:11,color:ink4,lineHeight:1.7,marginBottom:20 }}>
-          Personalized billing review generated from the information you submitted.
-        </div>
-
-        {/* PAYWALL */}
-        {!unlocked ? (
-          <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"36px 28px",borderTop:`4px solid ${navyC}`,marginBottom:28,textAlign:"center",boxShadow:"0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.07)" }}>
-            <img src={LOGO_B64} alt="UPA" onError={(e)=>{ e.currentTarget.onerror=null; e.currentTarget.src=LOGO_FALLBACK; }} style={{ height:82,width:"auto",margin:"0 auto 20px",display:"block" }}/>
-            <h2 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:22,fontWeight:800,color:ink,marginBottom:10,letterSpacing:"-0.03em" }}>Your Billing Review Is Ready</h2>
-            <p style={{ color:ink3,fontSize:14,maxWidth:400,margin:"0 auto 24px",lineHeight:1.75 }}>Your dispute letter, phone script, and action plan have been prepared. Purchase to unlock your complete billing review package.</p>
-            <div style={{ textAlign:"left",maxWidth:340,margin:"0 auto 24px",background:navyL,borderRadius:14,padding:"16px 18px" }}>
-              {["Complete billing analysis","Personalized dispute letter","Word-for-word phone script","5-step action plan","Consumer billing rights overview"].map((t,i)=>(
-                <div key={i} style={{ display:"flex",gap:10,marginBottom:8,alignItems:"flex-start" }}>
-                  <span style={{ color:greenC,fontWeight:700,fontSize:15,flexShrink:0,marginTop:1 }}>?</span>
-                  <span style={{ fontSize:14,color:ink2,lineHeight:1.5 }}>{t}</span>
-                </div>
-              ))}
-            </div>
-            <div style={{ fontSize:12,color:ink3,marginBottom:22 }}>One-time payment ? Instant digital delivery</div>
-            <button type="button" onClick={()=>window.open(GUMROAD, "_blank", "noopener,noreferrer")} style={{ display:"block",width:"100%",background:"linear-gradient(135deg,#2F7A4F,#276644)",color:"#fff",textDecoration:"none",border:"none",borderRadius:13,padding:"18px 28px",fontSize:17,fontWeight:800,marginBottom:10,boxShadow:"0 6px 24px rgba(47,122,79,0.4)",fontFamily:"'DM Sans',sans-serif",letterSpacing:"-0.01em",cursor:"pointer" }}>
-              Unlock My Complete Package ? $97
-            </button>
-            <div style={{ fontSize:11,color:ink4,marginBottom:16,lineHeight:1.65 }}>Secure checkout ? All sales are final due to instant digital delivery</div>
-            <button onClick={()=>setUnlocked(true)} style={{ background:"none",border:`1px dashed ${border2}`,borderRadius:8,padding:"6px 14px",color:ink4,cursor:"pointer",fontSize:11,fontFamily:"inherit" }}>Preview full results (demo)</button>
-          </div>
-        ) : (
-          <div style={{ marginBottom:28 }}>
-            <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:20,padding:"24px 26px",marginBottom:18,borderLeft:`4px solid ${greenC}`,boxShadow:"0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.07)" }}>
-              <div style={{ fontSize:11,fontWeight:800,color:greenC,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:6 }}>Premium Complete Billing Review</div>
-              <h2 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:26,fontWeight:800,color:ink,marginBottom:10,letterSpacing:"-0.03em" }}>Complete Billing Review access unlocked</h2>
-              <p style={{ fontSize:14,color:ink2,lineHeight:1.75,marginBottom:16 }}>This is the differentiated paid experience: full personalized analysis, prepared scripts, dispute documentation, escalation guidance, and a structured action plan.</p>
-              <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:10 }}>
-                {["Deep analysis","Prepared documents","Action path"].map((label)=>(
-                  <div key={label} style={{ background:surface2,border:`1px solid ${border}`,borderRadius:12,padding:"11px 12px",fontSize:13,fontWeight:800,color:ink }}>{label}</div>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ display:"flex",gap:4,marginBottom:18,background:surface2,padding:"5px",borderRadius:14,border:`1px solid ${border}` }}>
-              {[["letter","Dispute Letter"],["script","Call Script"],["action","30-Day Plan"],["rights","Rights Brief"]].map(([id,label])=>(
-                <button key={id} onClick={()=>setTab(id)} style={{ flex:1,padding:"10px 8px",borderRadius:10,border:"none",fontFamily:"inherit",fontSize:13,fontWeight:tab===id?800:500,background:tab===id?surface:"transparent",color:tab===id?ink:ink3,cursor:"pointer",boxShadow:tab===id?"0 1px 3px rgba(0,0,0,0.06)":"none",transition:"all .15s" }}>{label}</button>
-              ))}
-            </div>
-
-            {tab==="letter" && (
-              <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,overflow:"hidden" }}>
-                <div style={{ background:navyC,padding:"15px 22px" }}>
-                  <div style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:16,fontWeight:800,color:"#fff" }}>Dispute Letter</div>
-                  <div style={{ fontSize:12,color:"rgba(255,255,255,0.55)",marginTop:2 }}>Prepared correspondence for the billing department</div>
-                </div>
-                <div style={{ padding:"12px 22px",borderBottom:`1px solid ${border}`,display:"flex",justifyContent:"space-between",alignItems:"center" }}>
-                  <span style={{ fontSize:14,color:ink3 }}>Your Personalized Dispute Letter</span>
-                  <button onClick={()=>cp(disputeLetter,"letter")} style={{ background:greenC,color:"#fff",border:"none",borderRadius:8,padding:"7px 14px",fontFamily:"inherit",fontSize:13,fontWeight:700,cursor:"pointer" }}>{copied==="letter"?"Copied!":"Copy"}</button>
-                </div>
-                <div style={{ padding:"24px 28px",whiteSpace:"pre-wrap",lineHeight:2,fontSize:14,color:ink2,maxHeight:400,overflowY:"auto" }}>{disputeLetter || "The paid dispute letter will render here after the Complete Billing Review generation flow is connected."}</div>
-              </div>
-            )}
-            {tab==="script" && (
-              <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,overflow:"hidden" }}>
-                <div style={{ background:navyC,padding:"15px 22px" }}>
-                  <div style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:16,fontWeight:800,color:"#fff" }}>Personalized Call Script</div>
-                  <div style={{ fontSize:12,color:"rgba(255,255,255,0.55)",marginTop:2 }}>Word-for-word conversation guidance</div>
-                </div>
-                <div style={{ padding:"12px 22px",borderBottom:`1px solid ${border}`,display:"flex",justifyContent:"space-between",alignItems:"center" }}>
-                  <span style={{ fontSize:14,color:ink3 }}>Your Billing Phone Script</span>
-                  <button onClick={()=>cp(phoneScript,"script")} style={{ background:greenC,color:"#fff",border:"none",borderRadius:8,padding:"7px 14px",fontFamily:"inherit",fontSize:13,fontWeight:700,cursor:"pointer" }}>{copied==="script"?"Copied!":"Copy"}</button>
-                </div>
-                <div style={{ padding:"24px 28px",whiteSpace:"pre-wrap",lineHeight:2,fontSize:14,color:ink2,maxHeight:400,overflowY:"auto" }}>{phoneScript || "The paid communication script will render here after the Complete Billing Review generation flow is connected."}</div>
-              </div>
-            )}
-            {tab==="action" && (
-              <div>
-                {actionPlan?.length ? actionPlan.map((s,i)=>(
-                  <div key={i} style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"22px",marginBottom:12,borderLeft:`4px solid ${navyC}` }}>
-                    <div style={{ display:"flex",gap:14,alignItems:"flex-start" }}>
-                      <div style={{ width:38,height:38,borderRadius:"50%",background:navyC,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Playfair Display',Georgia,serif",fontSize:16,fontWeight:800,flexShrink:0 }}>{s.step}</div>
-                      <div style={{ flex:1 }}>
-                        <div style={{ display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:6 }}>
-                          <div style={{ fontSize:15,fontWeight:800,color:ink }}>{s.title}</div>
-                          <div style={{ background:navyL,borderRadius:6,padding:"2px 10px",fontSize:11,fontWeight:700,color:navyC }}>{s.timeframe}</div>
-                        </div>
-                        <p style={{ fontSize:14,color:ink2,lineHeight:1.7,marginBottom:8 }}>{s.description}</p>
-                        {s.powerTip && <div style={{ background:greenL,borderRadius:8,padding:"9px 13px",fontSize:13,color:greenC,fontWeight:600 }}>{s.powerTip}</div>}
-                      </div>
-                    </div>
-                  </div>
-                )) : (
-                  <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"22px",fontSize:14,color:ink2,lineHeight:1.7 }}>
-                    The 30-day paid action plan will render here after the paid generation path is connected.
-                  </div>
-                )}
-              </div>
-            )}
-            {tab==="rights" && (
-              <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"24px 26px" }}>
-                <h3 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:18,fontWeight:800,color:ink,marginBottom:16,letterSpacing:"-0.02em" }}>Advocate Rights Brief</h3>
-                {yourRights?.length ? yourRights.map((r,i)=>{
-                  const parts=r.split(":");
-                  return (
-                    <div key={i} style={{ padding:"14px 0",borderBottom:i<yourRights.length-1?`1px solid ${border}`:"none" }}>
-                      <div style={{ fontWeight:700,fontSize:14,color:navyC,marginBottom:4 }}>{parts[0]}</div>
-                      {parts.slice(1).join(":").trim() && <div style={{ fontSize:14,color:ink2,lineHeight:1.65 }}>{parts.slice(1).join(":").trim()}</div>}
-                    </div>
-                  );
-                }) : (
-                  <div style={{ fontSize:14,color:ink2,lineHeight:1.7 }}>
-                    The paid rights and escalation brief will render here after the Complete Billing Review generation flow is connected.
-                  </div>
-                )}
-              </div>
-            )}
-            <div style={{ background:navyC,borderRadius:18,padding:"28px 26px",marginTop:24,textAlign:"center" }}>
-              <h3 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:20,fontWeight:800,color:"#fff",marginBottom:10 }}>Ready to continue your billing review</h3>
-              <p style={{ color:"rgba(255,255,255,0.65)",fontSize:14,marginBottom:20,lineHeight:1.7 }}>Your Complete Billing Review opens after checkout on the private success dashboard, with upload onboarding and clear next steps.</p>
-              <button type="button" onClick={openCheckout} disabled={checkoutStatus==="opening"} style={{ display:"block",width:"100%",background:"linear-gradient(135deg,#2F7A4F,#276644)",color:"#fff",textDecoration:"none",border:"none",borderRadius:12,padding:"16px 28px",fontSize:16,fontWeight:800,boxShadow:"0 4px 20px rgba(47,122,79,0.45)",fontFamily:"inherit",cursor:checkoutStatus==="opening"?"wait":"pointer" }}>
-                {checkoutStatus==="opening"?"Opening Secure Checkout...":"Continue to Billing Review - $97"}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
+    <PreviewPaywall
+      results={results}
+      form={form}
+      userEmail={userEmail}
+      userName={userName}
+      mode={mode}
+      toggleMode={toggleMode}
+      onCheckout={openCheckout}
+      checkoutStatus={checkoutStatus}
+      logoSrc={LOGO_B64}
+      logoFallback={LOGO_FALLBACK}
+    />
   );
 }
-
 
 function SecureUploadPanel({ dark, surface, surface2, ink, ink2, ink3, ink4, border, border2, navyC, navyL, greenC, greenL }) {
   const inputRef = useRef(null);
@@ -3855,19 +3927,64 @@ function SuccessFAQ({ surface, ink, ink2, ink3, border, navyC }) {
 }
 function SuccessPage({ mode, toggleMode }) {
   const dark = mode === "dark";
-  const [session] = useState(() => readCheckoutSession());
-  const [status, setStatus] = useState(session ? "loading" : "missing");
-  const [results, setResults] = useState(null);
+  const [initialSuccessState] = useState(() => {
+    const checkoutSession = readCheckoutSession();
+    const savedPaid = readSavedPaidResults();
+    const checkoutTime = checkoutSession?.savedAt ? Date.parse(checkoutSession.savedAt) : 0;
+    const paidTime = savedPaid?.savedAt ? Date.parse(savedPaid.savedAt) : 0;
+    const paidMatchesCheckout = !checkoutSession || !checkoutTime || (paidTime && paidTime >= checkoutTime);
+    const session = checkoutSession || savedPaid?.session || null;
+    const results = paidMatchesCheckout ? savedPaid?.results || null : null;
+
+    if (savedPaid?.results && !paidMatchesCheckout) {
+      console.warn("UPA_DEBUG ignored stale paid payload because checkout session is newer", {
+        checkoutSavedAt: checkoutSession?.savedAt,
+        paidSavedAt: savedPaid?.savedAt
+      });
+    }
+
+    console.debug("UPA_DEBUG success-page hydration reads", {
+      ...storageDebugContext(),
+      checkoutSessionFound: Boolean(checkoutSession),
+      checkoutSavedAt: checkoutSession?.savedAt || null,
+      checkoutProvider: checkoutSession?.provider || null,
+      checkoutHasIntake: Boolean(checkoutSession?.intake),
+      savedPaidFound: Boolean(savedPaid?.results),
+      savedPaidAt: savedPaid?.savedAt || null,
+      paidMatchesCheckout: Boolean(paidMatchesCheckout),
+      resolvedStatus: results ? "ready" : session ? "loading" : "missing"
+    });
+
+    return {
+      session,
+      results,
+      status: results ? "ready" : session ? "loading" : "missing"
+    };
+  });
+  const [session] = useState(() => initialSuccessState.session);
+  const [status, setStatus] = useState(() => initialSuccessState.status);
+  const [results, setResults] = useState(() => initialSuccessState.results);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
 
-  const bg=dark?"#141924":"#F2F5F9", surface=dark?"#1C2035":"#fff", surface2=dark?"#1A2030":"#EBF0F8";
-  const ink=dark?"#F0F4F8":"#1E293B", ink2=dark?"#CBD5E1":"#374151", ink3=dark?"#94A3B8":"#6B7280", ink4=dark?"#64748B":"#94A3B8";
-  const border=dark?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.08)", border2=dark?"rgba(255,255,255,0.14)":"rgba(0,0,0,0.14)";
-  const navyL=dark?"#1A2A45":"#EBF0FA", greenL=dark?"#0D2218":"#E8F5EE";
-  const navyC=dark?"#4A7BD4":"#1F3A68", greenC=dark?"#3DAF6A":"#2F7A4F";
+  const colors = {
+    bg: dark?"#141924":"#F2F5F9",
+    surface: dark?"#1C2035":"#fff",
+    surface2: dark?"#1A2030":"#EBF0F8",
+    ink: dark?"#F0F4F8":"#1E293B",
+    ink2: dark?"#CBD5E1":"#374151",
+    ink3: dark?"#94A3B8":"#6B7280",
+    ink4: dark?"#64748B":"#94A3B8",
+    border: dark?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.08)",
+    border2: dark?"rgba(255,255,255,0.14)":"rgba(0,0,0,0.14)",
+    navyL: dark?"#1A2A45":"#EBF0FA",
+    greenL: dark?"#0D2218":"#E8F5EE",
+    navyC: dark?"#4A7BD4":"#1F3A68",
+    greenC: dark?"#3DAF6A":"#2F7A4F"
+  };
 
   useEffect(() => {
+    if (results) return;
     if (!session?.intake) return;
     let active = true;
     setStatus("loading");
@@ -3875,16 +3992,17 @@ function SuccessPage({ mode, toggleMode }) {
       .then(payload => {
         if (!active) return;
         setResults(payload);
+        writeSavedPaidResults(payload, session);
         setStatus("ready");
       })
       .catch(err => {
         console.error("Complete Billing Review generation failed:", err);
         if (!active) return;
-        setError("We could not prepare the Complete Billing Review right now. Please try again in a moment.");
+        setError(err?.api?.userMessage || "We could not prepare the Complete Billing Review right now. Please try again in a moment.");
         setStatus("error");
       });
     return () => { active = false; };
-  }, [session]);
+  }, [results, session]);
 
   const dossierText = buildPaidDossierText(results);
   const copyDossier = async () => {
@@ -3893,207 +4011,58 @@ function SuccessPage({ mode, toggleMode }) {
     setCopied(true);
     setTimeout(()=>setCopied(false), 2000);
   };
-  const downloadDossier = () => {
-    if (!dossierText) return;
-    const blob = new Blob([dossierText], { type:"text/plain;charset=utf-8" });
+  const downloadReport = (html) => {
+    const blob = new Blob([html], { type:"text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "united-patient-advocate-billing-review.txt";
+    link.download = "united-patient-advocate-complete-billing-review.html";
     link.click();
     URL.revokeObjectURL(url);
   };
 
-  if (status === "missing") {
+  if (status === "ready" && results) {
     return (
-      <div style={{ fontFamily:"'DM Sans',sans-serif",background:bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:24,color:ink }}>
-        <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:20,padding:"36px 30px",maxWidth:560,width:"100%",textAlign:"center",boxShadow:"0 8px 28px rgba(15,23,42,0.08)" }}>
-          <img src={LOGO_B64} alt="UPA" onError={(e)=>{ e.currentTarget.onerror=null; e.currentTarget.src=LOGO_FALLBACK; }} style={{ height:88,width:"auto",margin:"0 auto 18px",display:"block" }}/>
-          <h1 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:28,fontWeight:800,letterSpacing:"-0.03em",marginBottom:12 }}>We couldn't find your saved review session on this device.</h1>
-          <p style={{ fontSize:15,color:ink2,lineHeight:1.8,marginBottom:20 }}>Please return to the analyzer or contact support.</p>
-          <button type="button" onClick={()=>{ window.location.href="/"; }} style={{ background:navyC,color:"#fff",border:"none",borderRadius:12,padding:"14px 18px",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"inherit" }}>Return to Analyzer</button>
+      <>
+        <div style={{ position:"fixed",top:42,left:8,zIndex:9999,background:"#111827",color:"#fff",border:"2px solid #86EFAC",borderRadius:6,padding:"6px 8px",fontSize:12,fontWeight:900,fontFamily:"monospace" }}>
+          ACTIVE_SUCCESS_COMPONENT: SuccessPage ready paid branch
         </div>
-      </div>
+        <PremiumDashboard
+          results={results}
+          session={session}
+          copied={copied}
+          onCopy={copyDossier}
+          onDownload={downloadReport}
+          logoSrc={LOGO_B64}
+          colors={colors}
+          mode={mode}
+          toggleMode={toggleMode}
+        />
+      </>
     );
   }
 
   return (
-    <div style={{ fontFamily:"'DM Sans',sans-serif",background:bg,minHeight:"100vh",color:ink }}>
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .success-card { box-sizing: border-box; }
-        @media (max-width: 720px) {
-          .success-grid, .success-split { grid-template-columns: 1fr !important; }
-          .success-card { padding: 18px !important; border-radius: 18px !important; }
-          .success-mobile-hero { padding: 24px 20px !important; border-radius: 20px !important; }
-          .success-mobile-title { font-size: 28px !important; }
-          .success-mobile-shell { padding: 22px 14px 34px !important; }
-          .success-mobile-nav { padding: 10px 14px !important; }
-        }
-      `}</style>
-      <nav className="success-mobile-nav" style={{ background:surface,borderBottom:`1px solid ${border}`,padding:"10px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100 }}>
-        <div style={{ display:"flex",alignItems:"center",gap:11 }}>
-          <img src={LOGO_B64} alt="UPA" onError={(e)=>{ e.currentTarget.onerror=null; e.currentTarget.src=LOGO_FALLBACK; }} style={{ height:70,width:"auto",flexShrink:0 }}/>
-          <div style={{ display:"flex",flexDirection:"column",lineHeight:1 }}>
-            <div style={{ fontFamily:"'DM Sans',sans-serif",fontSize:"1.1rem",letterSpacing:"-0.025em",whiteSpace:"nowrap",lineHeight:1.05 }}>
-              <span style={{ fontWeight:900,color:dark?"#fff":navyC }}>United</span>
-              <span style={{ fontWeight:500,color:"#1A7A8C" }}> Patient</span>
-            </div>
-            <div style={{ fontFamily:"'DM Sans',sans-serif",fontSize:"0.5rem",fontWeight:600,letterSpacing:"0.3em",textTransform:"uppercase",color:ink4,textAlign:"center",marginTop:3 }}>Advocate</div>
-          </div>
-        </div>
-        <button onClick={toggleMode} style={{ display:"flex",alignItems:"center",gap:7,padding:"8px 14px",borderRadius:40,border:`1.5px solid ${border2}`,background:"transparent",color:ink3,cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:"inherit" }}>
-          {dark?<SunIcon/>:<MoonIcon/>} {dark?"Day":"Night"}
-        </button>
-      </nav>
-
-      <div className="success-mobile-shell" style={{ maxWidth:960,margin:"0 auto",padding:"30px 20px 42px" }}>
-        <div className="success-mobile-hero" style={{ background:navyC,borderRadius:24,padding:"30px",color:"#fff",marginBottom:20,boxShadow:"0 12px 34px rgba(15,23,42,0.18)" }}>
-          <div style={{ fontSize:11,fontWeight:800,textTransform:"uppercase",letterSpacing:"0.14em",color:"rgba(255,255,255,0.68)",marginBottom:8 }}>Welcome to your private review dashboard</div>
-          <h1 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:34,fontWeight:800,letterSpacing:"-0.03em",lineHeight:1.12,marginBottom:12 }} className="success-mobile-title">Your Complete Billing Review Is Being Prepared</h1>
-          <p style={{ color:"rgba(255,255,255,0.8)",fontSize:15,lineHeight:1.8,maxWidth:700,marginBottom:18 }}>We found your saved review session for {session?.provider || "your provider"}. Your private dashboard is ready. The Complete Billing Review is being generated now from the same bill intake you submitted before checkout.</p>
-          <button type="button" onClick={()=>document.getElementById("document-upload")?.scrollIntoView({ behavior:"smooth", block:"start" })} style={{ background:"#fff",color:navyC,border:"none",borderRadius:13,padding:"14px 18px",fontSize:14,fontWeight:900,cursor:"pointer",fontFamily:"inherit",boxShadow:"0 8px 24px rgba(0,0,0,0.16)" }}>Continue to Billing Review</button>
-        </div>
-
-        <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:14,marginBottom:20 }}>
-          {[
-            ["Provider", session?.provider || "Saved review session"],
-            ["Total billed", session?.totalAmount ? `$${session.totalAmount}` : "Saved bill total"],
-            ["Insurance", session?.insurance || "Saved insurance profile"],
-            ["Patient", session?.patientName || "Customer session"]
-          ].map(([label,value])=>(
-            <div key={label} style={{ background:surface,border:`1px solid ${border}`,borderRadius:16,padding:"16px 18px" }}>
-              <div style={{ fontSize:11,fontWeight:800,textTransform:"uppercase",letterSpacing:"0.12em",color:ink4,marginBottom:6 }}>{label}</div>
-              <div style={{ fontSize:15,fontWeight:800,color:ink,lineHeight:1.45 }}>{value}</div>
-            </div>
-          ))}
-        </div>
-
-        <SuccessTimeline surface={surface} surface2={surface2} ink={ink} ink2={ink2} ink3={ink3} border={border} navyC={navyC} greenC={greenC} />
-
-        <SecureUploadPanel dark={dark} surface={surface} surface2={surface2} ink={ink} ink2={ink2} ink3={ink3} ink4={ink4} border={border} border2={border2} navyC={navyC} navyL={navyL} greenC={greenC} greenL={greenL} />
-
-        <BillingEducation dark={dark} surface={surface} surface2={surface2} ink={ink} ink2={ink2} ink3={ink3} border={border} navyC={navyC} greenC={greenC} />
-        {status === "loading" && (
-          <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:20,padding:"28px",marginBottom:20 }}>
-            <div style={{ display:"flex",alignItems:"center",gap:14,marginBottom:16 }}>
-              <div style={{ width:46,height:46,borderRadius:"50%",border:`4px solid ${navyL}`,borderTopColor:greenC,animation:"spin 1s linear infinite" }} />
-              <div>
-                <div style={{ fontSize:16,fontWeight:800,color:ink,marginBottom:3 }}>Preparing your Complete Billing Review</div>
-                <div style={{ fontSize:14,color:ink3,lineHeight:1.6 }}>Generating deep analysis, scripts, escalation context, and your 30-day plan.</div>
-              </div>
-            </div>
-            <div style={{ background:surface2,borderRadius:14,padding:"16px 18px",fontSize:14,color:ink2,lineHeight:1.7 }}>
-              Start Here is being assembled first so the finished Complete Billing Review opens with a clear path forward.
-            </div>
-          </div>
-        )}
-
-        {status === "error" && (
-          <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:20,padding:"24px",marginBottom:20 }}>
-            <div style={{ fontSize:16,fontWeight:800,color:ink,marginBottom:8 }}>We hit a preparation issue.</div>
-            <p style={{ fontSize:14,color:ink2,lineHeight:1.7,marginBottom:16 }}>{error}</p>
-            <button type="button" onClick={()=>window.location.reload()} style={{ background:navyC,color:"#fff",border:"none",borderRadius:12,padding:"13px 16px",fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:"inherit" }}>Try Again</button>
-          </div>
-        )}
-
-        {status === "ready" && results && (
-          <>
-            <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:20,padding:"24px 26px",marginBottom:18,borderLeft:`4px solid ${greenC}`,boxShadow:"0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.07)" }}>
-              <div style={{ display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:16,flexWrap:"wrap",marginBottom:18 }}>
-                <div>
-                  <div style={{ fontSize:11,fontWeight:800,color:greenC,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:6 }}>Start Here</div>
-                  <h2 style={{ fontFamily:"'Playfair Display',Georgia,serif",fontSize:28,fontWeight:800,color:ink,marginBottom:10,letterSpacing:"-0.03em" }}>Your Complete Billing Review path</h2>
-                  <div style={{ fontSize:14,color:ink2,lineHeight:1.75,maxWidth:620 }}><AnnotatedParagraph text={results.paidDossier?.executiveOverview || results.summary?.keyFindings} color={ink2} /></div>
-                </div>
-                <div style={{ display:"flex",gap:10,flexWrap:"wrap" }}>
-                  <button type="button" onClick={()=>window.print()} style={{ background:navyC,color:"#fff",border:"none",borderRadius:11,padding:"12px 14px",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit" }}>Print</button>
-                  <button type="button" onClick={downloadDossier} style={{ background:greenC,color:"#fff",border:"none",borderRadius:11,padding:"12px 14px",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit" }}>Download</button>
-                  <button type="button" onClick={copyDossier} style={{ background:surface2,color:ink,border:`1px solid ${border2}`,borderRadius:11,padding:"12px 14px",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit" }}>{copied?"Copied":"Copy"}</button>
-                </div>
-              </div>
-              <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:10 }}>
-                {["Deep analysis","Negotiation context","Escalation map","30-day plan"].map(label=>(
-                  <div key={label} style={{ background:surface2,border:`1px solid ${border}`,borderRadius:12,padding:"12px",fontSize:13,fontWeight:800,color:ink }}>{label}</div>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:16,marginBottom:18 }}>
-              {[
-                ["Billing Pattern Analysis", results.paidDossier?.billingPatternAnalysis],
-                ["Provider-Specific Observations", results.paidDossier?.providerSpecificObservations],
-                ["Negotiation Context", results.paidDossier?.negotiationContext],
-                ["Escalation Hierarchy", results.paidDossier?.escalationHierarchy],
-                ["Financial Assistance Context", results.paidDossier?.financialAssistanceContext],
-                ["Communication Guidance", results.paidDossier?.communicationGuidance]
-              ].map(([title,items])=>(
-                <div key={title} style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"20px 20px 18px" }}>
-                  <div style={{ fontSize:15,fontWeight:900,color:ink,marginBottom:10 }}>{title}</div>
-                  {(items || []).map((item,index)=>(
-                    <div key={index} style={{ display:"flex",gap:10,alignItems:"flex-start",marginBottom:8 }}>
-                      <span style={{ width:8,height:8,borderRadius:"50%",background:greenC,marginTop:6,flexShrink:0 }} />
-                      <div style={{ fontSize:14,color:ink2,lineHeight:1.7,flex:1 }}><AnnotatedParagraph text={item} color={ink2} style={{ margin:0,lineHeight:1.7 }} /></div>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-
-            <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"22px",marginBottom:18 }}>
-              <div style={{ fontSize:15,fontWeight:900,color:ink,marginBottom:10 }}>Recovery Probability</div>
-              <div style={{ background:greenL,borderRadius:14,padding:"16px",fontSize:14,color:ink2,lineHeight:1.75 }}>
-                <strong style={{ color:greenC }}>{results.paidDossier?.recoveryProbability?.label || "Prepared"}</strong>: <AnnotatedParagraph text={results.paidDossier?.recoveryProbability?.rationale || "Recovery framing will appear here when available from the Complete Billing Review generator."} color={ink2} style={{ display:"inline",margin:0,lineHeight:1.75 }} />
-              </div>
-            </div>
-
-            <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"22px",marginBottom:18 }}>
-              <div style={{ fontSize:15,fontWeight:900,color:ink,marginBottom:14 }}>30-Day Action Plan</div>
-              {results.actionPlan?.map((step,index)=>(
-                <div key={index} style={{ borderTop:index?`1px solid ${border}`:"none",paddingTop:index?14:0,marginTop:index?14:0 }}>
-                  <div style={{ fontSize:14,fontWeight:900,color:navyC,marginBottom:4 }}>{step.step}. {step.title} - {step.timeframe}</div>
-                  <div style={{ fontSize:14,color:ink2,lineHeight:1.7 }}><AnnotatedParagraph text={step.description} color={ink2} /></div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))",gap:16,marginBottom:18 }}>
-              <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"22px" }}>
-                <div style={{ fontSize:15,fontWeight:900,color:ink,marginBottom:12 }}>Dispute Letter</div>
-                <div style={{ fontSize:14,color:ink2,lineHeight:1.8,maxHeight:360,overflowY:"auto" }}><AnnotatedParagraph text={results.disputeLetter} color={ink2} /></div>
-              </div>
-              <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"22px" }}>
-                <div style={{ fontSize:15,fontWeight:900,color:ink,marginBottom:12 }}>Call Script</div>
-                <div style={{ fontSize:14,color:ink2,lineHeight:1.8,maxHeight:360,overflowY:"auto" }}><AnnotatedParagraph text={results.phoneScript} color={ink2} /></div>
-              </div>
-            </div>
-
-            <div style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"22px",marginBottom:18 }}>
-              <div style={{ fontSize:15,fontWeight:900,color:ink,marginBottom:12 }}>Rights Brief</div>
-              {(results.yourRights || []).map((item,index)=>(
-                <div key={index} style={{ borderTop:index?`1px solid ${border}`:"none",paddingTop:index?12:0,marginTop:index?12:0,fontSize:14,color:ink2,lineHeight:1.75 }}><AnnotatedParagraph text={item} color={ink2} /></div>
-              ))}
-            </div>
-
-            <PremiumReportTemplate surface={surface} surface2={surface2} ink={ink} ink2={ink2} ink3={ink3} border={border} navyC={navyC} greenC={greenC} />
-
-            <QuickScanLeadMagnet surface={surface} surface2={surface2} ink={ink} ink2={ink2} ink3={ink3} border={border} navyC={navyC} greenC={greenC} />
-
-            <SuccessFAQ surface={surface} ink={ink} ink2={ink2} ink3={ink3} border={border} navyC={navyC} />
-
-            <div className="success-card" style={{ background:surface,border:`1px solid ${border}`,borderRadius:18,padding:"20px 22px",marginBottom:18 }}>
-              <div style={{ fontSize:15,fontWeight:900,color:ink,marginBottom:8 }}>Need help with your review?</div>
-              <div style={{ fontSize:14,color:ink2,lineHeight:1.7 }}>Email support@unitedpatientadvocate.com with your name, provider, and the best way to reach you. Keep medical details out of the email unless requested through a secure intake workflow.</div>
-            </div>
-            <div style={{ background:navyL,borderRadius:16,padding:"16px 18px",fontSize:12,color:ink3,lineHeight:1.75 }}>
-              This AI-assisted billing review is educational consumer guidance. It is not medical, legal, insurance, or financial representation. Outcomes depend on provider policies, insurer determinations, available documentation, and the facts of each individual account.
-            </div>
-          </>
-        )}
+    <>
+      <div style={{ position:"fixed",top:8,left:8,zIndex:9999,background:"#111827",color:"#fff",border:"2px solid #F87171",borderRadius:6,padding:"6px 8px",fontSize:12,fontWeight:900,fontFamily:"monospace" }}>
+        ACTIVE_SUCCESS_COMPONENT: WorkspaceEntry fallback status={status}
       </div>
-    </div>
+      <WorkspaceEntry
+        mode={mode}
+        toggleMode={toggleMode}
+        session={session}
+        status={status}
+        error={error}
+        logoSrc={LOGO_B64}
+        logoFallback={LOGO_FALLBACK}
+        colors={colors}
+        uploadPanel={<SecureUploadPanel dark={dark} {...colors} />}
+        faq={<SuccessFAQ surface={colors.surface} ink={colors.ink} ink2={colors.ink2} ink3={colors.ink3} border={colors.border} navyC={colors.navyC} />}
+      />
+    </>
   );
 }
+
 function ErrorScreen({ onRetry, onBack, message }) {
   const detail = message || "The analysis request could not be completed. Please try again in a moment.";
   return (
@@ -4108,7 +4077,7 @@ function ErrorScreen({ onRetry, onBack, message }) {
           {detail}
         </div>
         <div style={{ display:"flex",gap:10 }}>
-          <button onClick={onBack} style={{ flex:1,padding:"13px",borderRadius:11,background:"transparent",border:"1.5px solid #CBD5E1",color:"#6B7280",fontFamily:"inherit",fontSize:14,fontWeight:600,cursor:"pointer" }}>? Go Back</button>
+          <button onClick={onBack} style={{ flex:1,padding:"13px",borderRadius:11,background:"transparent",border:"1.5px solid #CBD5E1",color:"#6B7280",fontFamily:"inherit",fontSize:14,fontWeight:600,cursor:"pointer" }}>Go Back</button>
           <button onClick={onRetry} style={{ flex:2,padding:"13px",borderRadius:11,background:"#1F3A68",color:"#fff",border:"none",fontFamily:"inherit",fontSize:14,fontWeight:700,cursor:"pointer" }}>Try Again</button>
         </div>
       </div>
@@ -4119,7 +4088,8 @@ function ErrorScreen({ onRetry, onBack, message }) {
 // Section
 export default function App() {
   const { mode, toggle } = useTheme();
-  const isSuccessPath = typeof window !== "undefined" && window.location.pathname === "/success";
+  const isSuccessPath = typeof window !== "undefined" && window.location.pathname.replace(/\/$/, "") === "/success";
+  const hasHydratedPaidResults = typeof window !== "undefined" && Boolean(readSavedPaidResults()?.results);
   const [screen, setScreen]   = useState("landing");
   const [step,   setStep]     = useState(1);
   const [form,   setForm]     = useState({
@@ -4132,12 +4102,26 @@ export default function App() {
   const [userEmail, setUserEmail] = useState("");
   const [userName,  setUserName]  = useState("");
   const [analysisError, setAnalysisError] = useState("");
+  const [checkoutStatus,setCheckoutStatus]=useState("idle");
 
   const update  = (f,v) => setForm(p=>({...p,[f]:v}));
   const goHome  = ()   => { setScreen("landing"); setStep(1); };
   const onStart = ()   => { setStep(1); setScreen("form"); };
 
   const requestGeneration = async (generationMode) => fetchGeneration(generationMode, form);
+  const openCheckout = () => {
+    writeCheckoutSession({
+      savedAt: new Date().toISOString(),
+      intake: form,
+      freePreviewSummary: results?.summary || {},
+      provider: form?.providerName || "",
+      totalAmount: form?.totalBilled || "",
+      insurance: form?.hasInsurance ? (form?.insuranceType || "") : "none",
+      patientName: userName || ""
+    });
+    setCheckoutStatus("opening");
+    window.setTimeout(() => { window.location.assign(GUMROAD); }, 180);
+  };
 
   const analyze = async () => {
     setScreen("analyzing");
@@ -4156,13 +4140,26 @@ export default function App() {
 
   const shared = { mode, toggleMode:toggle };
 
-  if (isSuccessPath) return <SuccessPage {...shared}/>;
+  if (isSuccessPath || (screen === "email" && hasHydratedPaidResults)) return <SuccessPage {...shared}/>;
 
   if (screen==="landing")   return <Landing  onStart={onStart} {...shared}/>;
   if (screen==="form")      return <Form step={step} setStep={setStep} form={form} update={update} onSubmit={analyze} onBack={goHome} {...shared}/>;
   if (screen==="analyzing") return <Analyzing {...shared}/>;
   if (screen==="email")     return <EmailCapture onContinue={(email,name)=>{ setUserEmail(email); setUserName(name); setScreen("results"); }} {...shared}/>;
-  if (screen==="results")   return <Results results={results} userEmail={userEmail} userName={userName} form={form} {...shared}/>;
+  if (screen==="results")   return (
+    <PreviewPaywall
+      results={results}
+      form={form}
+      userEmail={userEmail}
+      userName={userName}
+      onCheckout={openCheckout}
+      checkoutStatus={checkoutStatus}
+      logoSrc={LOGO_B64}
+      logoFallback={LOGO_FALLBACK}
+      {...shared}
+    />
+  );
   if (screen==="error")     return <ErrorScreen onRetry={()=>setScreen("form")} onBack={goHome} message={analysisError}/>;
 }
+
 

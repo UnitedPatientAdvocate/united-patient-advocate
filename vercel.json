@@ -5,6 +5,30 @@
       "dest": "/api/$1"
     },
     {
+      "src": "/",
+      "dest": "/UPA-Final/01_upa-landing.html"
+    },
+    {
+      "src": "/index\\.html",
+      "dest": "/UPA-Final/01_upa-landing.html"
+    },
+    {
+      "src": "/success/?",
+      "dest": "/UPA-Final/04_upa-dashboard.html"
+    },
+    {
+      "src": "/dashboard/?",
+      "dest": "/UPA-Final/04_upa-dashboard.html"
+    },
+    {
+      "src": "/upa-premium-v10\\.5\\.html",
+      "dest": "/UPA-Final/04_upa-dashboard.html"
+    },
+    {
+      "src": "/upa-preview\\.html",
+      "dest": "/UPA-Final/03_upa-preview.html"
+    },
+    {
       "handle": "filesystem"
     },
     {

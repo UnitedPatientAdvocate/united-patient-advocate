@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>United Patient Advocate — Your Review Is Ready</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1C2B48;--navy-deep:#0E1828;--navy-mid:#243058;
+  --teal:#1E6B5A;--green:#1EB87A;--green-dk:#158A5C;
+  --gold:#C9A84C;--gold-dk:#A8881A;
+  --crimson:#E03B3B;--cobalt:#3B6EE0;--amber:#D07000;
+  --on-dark:rgba(235,244,255,.94);--on-dark-2:rgba(235,244,255,.60);
+  --on-dark-3:rgba(235,244,255,.30);--on-dark-4:rgba(235,244,255,.13);
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'Plus Jakarta Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+  --pop:cubic-bezier(.16,1,.3,1);
+}
+html,body{min-height:100%;font-family:var(--sans);background:var(--navy-deep);-webkit-font-smoothing:antialiased}
+
+/* ── SCENE ── */
+.scene{min-height:100vh;position:relative;overflow-x:hidden}
+.scene::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.020;z-index:0;
+  background-image:linear-gradient(rgba(235,244,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(235,244,255,1) 1px,transparent 1px);
+  background-size:48px 48px}
+.vignette{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse 90% 90% at 50% 40%,transparent 45%,rgba(8,14,24,.70) 100%)}
+.orb{position:fixed;border-radius:50%;pointer-events:none;filter:blur(80px);z-index:0}
+.orb1{width:500px;height:300px;background:rgba(30,107,90,.12);top:5%;left:-8%;animation:o1 18s ease-in-out infinite alternate}
+.orb2{width:450px;height:340px;background:rgba(59,110,224,.09);bottom:10%;right:-6%;animation:o2 22s ease-in-out infinite alternate}
+.orb3{width:320px;height:200px;background:rgba(201,168,76,.07);top:55%;left:55%;animation:o3 16s ease-in-out infinite alternate}
+@keyframes o1{from{transform:translate(0,0)}to{transform:translate(36px,-24px)}}
+@keyframes o2{from{transform:translate(0,0)}to{transform:translate(-40px,18px)}}
+@keyframes o3{from{transform:translate(0,0)}to{transform:translate(-24px,-32px)}}
+
+/* ── NAV ── */
+.topnav{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(10,18,32,.94);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;padding:0 28px;z-index:30}
+.nav-brand{display:flex;align-items:center;gap:11px}
+.nav-logo{width:32px;height:32px}
+.nav-logo svg{width:100%;height:100%}
+.nav-name{font-family:var(--serif);font-size:.9375rem;font-weight:700;color:white;letter-spacing:-.01em;line-height:1.15}
+.nav-sub{display:block;font-size:.375rem;font-weight:700;letter-spacing:.20em;text-transform:uppercase;color:rgba(235,244,255,.28);margin-top:1px}
+.nav-spacer{flex:1}
+.nav-badge{display:flex;align-items:center;gap:6px;font-size:.5625rem;font-weight:700;color:var(--green);padding:5px 12px;background:rgba(30,184,122,.12);border:1px solid rgba(30,184,122,.25);border-radius:100px}
+.nav-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);animation:dp 2s ease-in-out infinite}
+@keyframes dp{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── CONTENT ── */
+.content{max-width:820px;margin:0 auto;padding:76px 20px 60px;position:relative;z-index:10}
+
+/* ── RESULTS HERO ── */
+.results-hero{text-align:center;margin-bottom:28px;animation:rise .8s var(--pop) both}
+@keyframes rise{from{opacity:0;transform:translateY(18px);filter:blur(3px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+.rh-eyebrow{font-size:.4375rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
+.rh-eyebrow::before,.rh-eyebrow::after{content:'';width:28px;height:1px;background:var(--gold);opacity:.45}
+.rh-title{font-family:var(--serif);font-size:2.25rem;font-weight:700;color:var(--on-dark);letter-spacing:-.025em;line-height:1.16;margin-bottom:8px}
+.rh-title span{color:var(--green);text-shadow:0 0 32px rgba(30,184,122,.45)}
+.rh-sub{font-size:.9375rem;color:var(--on-dark-2);line-height:1.70;max-width:500px;margin:0 auto}
+
+/* ── PROOF METRICS ── */
+.proof-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;animation:rise .8s var(--pop) .10s both}
+.pm{background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:22px 16px;text-align:center;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.20)}
+.pm::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.pm::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 140px 70px at 50% 0%,rgba(255,255,255,.04) 0%,transparent 70%);pointer-events:none}
+.pm-green::before{background:linear-gradient(90deg,var(--green-dk),var(--green))}
+.pm-crimson::before{background:linear-gradient(90deg,#A02020,var(--crimson))}
+.pm-gold::before{background:linear-gradient(90deg,var(--gold-dk),var(--gold))}
+.pm-icon{font-size:1.625rem;margin-bottom:8px;display:block}
+.pm-val{font-family:var(--serif);font-size:2.5rem;font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:6px}
+.pm-val.green{color:var(--green);text-shadow:0 0 32px rgba(30,184,122,.60)}
+.pm-val.crim{color:#FF8080;text-shadow:0 0 24px rgba(224,59,59,.45)}
+.pm-val.gold{color:var(--gold);text-shadow:0 0 24px rgba(201,168,76,.50)}
+.pm-label{font-size:.625rem;font-weight:700;color:var(--on-dark-2);line-height:1.4;margin-bottom:6px}
+.pm-badge{display:inline-flex;align-items:center;gap:4px;font-size:.375rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);padding:3px 9px;background:rgba(30,184,122,.14);border:1px solid rgba(30,184,122,.28);border-radius:100px}
+.pm-badge svg{width:9px;height:9px;stroke:var(--green);stroke-width:2.5;fill:none}
+
+/* ── FINDINGS TEASER — partially revealed ── */
+.findings-teaser{margin-bottom:24px;animation:rise .8s var(--pop) .16s both}
+.ft-label{font-size:.4375rem;font-weight:700;letter-spacing:.20em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.ft-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+.finding-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);border-radius:11px;padding:16px 18px;margin-bottom:8px;position:relative;overflow:hidden;transition:border-color .2s ease}
+.finding-card.revealed{border-color:rgba(224,59,59,.30)}
+.finding-card.revealed::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--crimson),rgba(224,59,59,.30))}
+.finding-card.blurred-card{border-color:rgba(255,255,255,.07)}
+.fc-row{display:flex;align-items:flex-start;gap:12px}
+.fc-icon-wrap{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fc-icon-wrap.red{background:rgba(224,59,59,.16);border:1px solid rgba(224,59,59,.30)}
+.fc-icon-wrap.cobalt{background:rgba(59,110,224,.16);border:1px solid rgba(59,110,224,.30)}
+.fc-icon-wrap.amber{background:rgba(208,112,0,.16);border:1px solid rgba(208,112,0,.30)}
+.fc-icon-wrap svg{width:15px;height:15px;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.fc-icon-wrap.red svg{stroke:var(--crimson)}
+.fc-icon-wrap.cobalt svg{stroke:#90B4FF}
+.fc-icon-wrap.amber svg{stroke:#F0A030}
+.fc-content{flex:1}
+.fc-top{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
+.fc-type{font-size:.375rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border-radius:100px;border:1px solid}
+.fct-r{color:#FF8080;border-color:rgba(224,59,59,.30);background:rgba(224,59,59,.10)}
+.fct-c{color:#90B4FF;border-color:rgba(59,110,224,.30);background:rgba(59,110,224,.10)}
+.fct-a{color:#F0A030;border-color:rgba(208,112,0,.30);background:rgba(208,112,0,.10)}
+.fc-confidence{font-family:var(--mono);font-size:.375rem;font-weight:700;color:var(--green);background:rgba(30,184,122,.12);border:1px solid rgba(30,184,122,.25);padding:2px 7px;border-radius:100px}
+.fc-amount{font-family:var(--serif);font-size:.9375rem;font-weight:900;color:var(--green);letter-spacing:-.02em;margin-left:auto;text-shadow:0 0 16px rgba(30,184,122,.35)}
+.fc-title{font-size:.875rem;font-weight:700;color:var(--on-dark);line-height:1.32;margin-bottom:5px}
+.fc-desc{font-size:.6875rem;color:var(--on-dark-2);line-height:1.65}
+.fc-meta{display:flex;align-items:center;gap:12px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)}
+.fc-meta-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.4375rem;color:var(--on-dark-3)}
+.fc-meta-item svg{width:10px;height:10px;stroke:var(--on-dark-3);stroke-width:1.8;fill:none}
+/* Blurred finding cards */
+.blur-wrap{position:relative}
+.blur-content{filter:blur(5px);user-select:none;pointer-events:none}
+.blur-lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(14,24,40,.55),rgba(14,24,40,.40))}
+.bl-pill{display:flex;align-items:center;gap:6px;font-size:.5625rem;font-weight:700;color:rgba(235,244,255,.50);background:rgba(14,24,40,.70);border:1px solid rgba(255,255,255,.14);padding:6px 14px;border-radius:100px;backdrop-filter:blur(8px)}
+.bl-pill svg{width:12px;height:12px;stroke:rgba(235,244,255,.40);stroke-width:2;fill:none}
+
+/* ── DASHBOARD TEASER ── */
+.dashboard-teaser{margin-bottom:24px;animation:rise .8s var(--pop) .22s both}
+.dt-label{font-size:.4375rem;font-weight:700;letter-spacing:.20em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.dt-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+.dt-frame{border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.12);box-shadow:0 8px 40px rgba(0,0,0,.40);position:relative;background:var(--navy)}
+/* DB top bar */
+.dt-topbar{background:#131F34;padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.07)}
+.dt-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:dp 2s ease-in-out infinite}
+.dt-topbar-name{font-family:var(--serif);font-size:.6875rem;font-weight:700;color:rgba(235,244,255,.75)}
+.dt-topbar-spacer{flex:1}
+.dt-pill{background:rgba(255,255,255,.07);padding:3px 9px;border-radius:100px;font-size:.375rem;font-weight:700;color:rgba(235,244,255,.45)}
+/* Case header — fully visible */
+.dt-case-hdr{background:linear-gradient(180deg,#1C2B48,#1A2A45);padding:14px 16px;position:relative}
+.dt-case-hdr::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold-dk),var(--gold) 40%,rgba(201,168,76,.10) 100%)}
+.dt-case-hdr::after{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.25),transparent);filter:blur(2px)}
+.dt-h1{font-family:var(--serif);font-size:1.125rem;font-weight:700;color:rgba(235,244,255,.94);letter-spacing:-.02em;margin-bottom:2px}
+.dt-h1-sub{font-family:var(--serif);font-size:.75rem;font-style:italic;color:rgba(240,165,0,.80);margin-bottom:10px}
+.dt-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}
+.dt-kpi{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:9px 10px;text-align:center}
+.dt-kpi-val{font-family:var(--serif);font-size:1.25rem;font-weight:900;line-height:1;margin-bottom:2px;letter-spacing:-.03em}
+.dt-kpi-val.g{color:var(--green);text-shadow:0 0 16px rgba(30,184,122,.50)}
+.dt-kpi-val.r{color:#FF8080}
+.dt-kpi-val.w{color:rgba(235,244,255,.80)}
+.dt-kpi-lbl{font-size:.375rem;color:rgba(235,244,255,.38);font-weight:600}
+/* Tabs — partially visible */
+.dt-tabs{background:rgba(0,0,0,.20);display:flex;gap:0;padding:0 14px;border-bottom:1px solid rgba(255,255,255,.07)}
+.dt-tab{padding:8px 10px;font-size:.4375rem;font-weight:700;color:rgba(235,244,255,.38);border-bottom:2px solid transparent;white-space:nowrap}
+.dt-tab.on{color:rgba(235,244,255,.90);border-bottom-color:var(--green)}
+.dt-tab-badge{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;font-size:.3125rem;font-weight:700;margin-left:3px;background:var(--crimson);color:white}
+/* Blurred body sections */
+.dt-body-vis{padding:12px 14px}
+.dt-kpi-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}
+.dt-ks{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:6px;padding:9px 10px}
+.dt-ks-val{font-family:var(--serif);font-size:.9375rem;font-weight:900;letter-spacing:-.03em;line-height:1;margin-bottom:2px}
+.dt-ks-val.g{color:var(--green)}.dt-ks-val.r{color:#FF8080}.dt-ks-val.w{color:rgba(235,244,255,.80)}
+.dt-ks-lbl{font-size:.375rem;color:rgba(235,244,255,.38)}
+/* Progressive blur */
+.dt-blur-zone{position:relative}
+.dt-blur-content{filter:blur(6px);user-select:none;pointer-events:none;padding:10px 14px 0}
+.dt-fade{position:absolute;left:0;right:0;bottom:0;height:130px;background:linear-gradient(0deg,rgba(14,24,40,1) 0%,rgba(14,24,40,.85) 40%,transparent 100%)}
+.dt-lock-row{padding:14px 16px;background:rgba(14,24,40,.95);display:flex;align-items:center;gap:10px;border-top:1px solid rgba(255,255,255,.06)}
+.dt-lock-icon{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dt-lock-icon svg{width:12px;height:12px;stroke:rgba(235,244,255,.35);stroke-width:2;fill:none}
+.dt-lock-txt{font-size:.625rem;color:rgba(235,244,255,.45);line-height:1.50}
+.dt-lock-txt strong{color:rgba(235,244,255,.65)}
+/* Fake rows in blurred area */
+.dt-fake-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.dt-fake-icon{width:22px;height:22px;border-radius:50%;flex-shrink:0}
+.dt-fake-icon.green{background:rgba(30,184,122,.22);border:1px solid rgba(30,184,122,.35)}
+.dt-fake-icon.crimson{background:rgba(224,59,59,.22);border:1px solid rgba(224,59,59,.35)}
+.dt-fake-icon.gold{background:rgba(201,168,76,.22);border:1px solid rgba(201,168,76,.35)}
+.dt-fake-title{height:7px;border-radius:4px;background:rgba(235,244,255,.18);flex:1}
+.dt-fake-badge{height:16px;width:56px;border-radius:100px;background:rgba(235,244,255,.08);flex-shrink:0}
+.dt-letters{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.dt-letter{background:rgba(255,255,255,.05);border-radius:6px;height:64px;border-top:2px solid}
+.dt-letter:nth-child(1){border-top-color:var(--green)}
+.dt-letter:nth-child(2){border-top-color:var(--crimson)}
+.dt-letter:nth-child(3){border-top-color:var(--cobalt)}
+
+/* ── LETTER TEASER ── */
+.letter-teaser{margin-bottom:24px;animation:rise .8s var(--pop) .28s both}
+.lt-label{font-size:.4375rem;font-weight:700;letter-spacing:.20em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.lt-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+.lt-frame{background:white;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.12);box-shadow:0 4px 24px rgba(0,0,0,.30)}
+.lt-doc-top{background:var(--navy);padding:8px 14px;display:flex;align-items:center;justify-content:space-between}
+.lt-doc-label{font-size:.375rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(235,244,255,.40)}
+.lt-doc-badge{font-size:.375rem;font-weight:700;padding:2px 8px;background:rgba(30,184,122,.20);border:1px solid rgba(30,184,122,.35);border-radius:100px;color:var(--green)}
+/* Visible part of letter */
+.lt-vis{padding:16px 18px 10px}
+.lt-from{margin-bottom:10px}
+.lt-from-name{font-family:var(--serif);font-size:.9375rem;font-weight:700;color:#1C2B48;line-height:1.2;margin-bottom:1px}
+.lt-from-sub{font-size:.4375rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(17,28,46,.40)}
+.lt-to{font-size:.5rem;color:rgba(17,28,46,.50);line-height:1.65;margin-bottom:10px}
+.lt-re{padding:6px 10px;background:rgba(30,107,90,.06);border-left:2px solid #1E6B5A;border-radius:3px;margin-bottom:10px;font-size:.5rem;color:rgba(17,28,46,.55);font-family:var(--mono)}
+.lt-body-vis{font-size:.625rem;color:rgba(17,28,46,.75);line-height:1.75;margin-bottom:4px}
+.lt-body-vis strong{color:#1C2B48;font-weight:700}
+.lt-highlight{background:rgba(255,218,0,.28);padding:2px 4px;border-radius:2px;font-weight:600;color:#1C2B48}
+/* Blurred rest */
+.lt-blur-wrap{position:relative}
+.lt-blur-content{filter:blur(5px);user-select:none;pointer-events:none;padding:0 18px 14px}
+.lt-blur-line{height:6px;background:rgba(17,28,46,.10);border-radius:3px;margin-bottom:6px}
+.lt-blur-line.med{width:75%}
+.lt-blur-line.short{width:55%}
+.lt-blur-line.hl{background:rgba(255,218,0,.22);width:85%}
+.lt-blur-cite{height:28px;background:rgba(30,107,90,.08);border:1px solid rgba(30,107,90,.14);border-left:2px solid #1E6B5A;border-radius:3px;margin-bottom:8px}
+.lt-fade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,rgba(255,255,255,.95) 55%,rgba(255,255,255,1) 100%)}
+.lt-unlock-teaser{padding:10px 18px 14px;text-align:center;display:flex;align-items:center;justify-content:space-between;gap:12px;background:white}
+.lt-unlock-txt{font-size:.5625rem;color:rgba(17,28,46,.45);line-height:1.5;text-align:left}
+.lt-unlock-txt strong{color:#1C2B48}
+.lt-unlock-btn{font-size:.5rem;font-weight:700;color:white;background:var(--green-dk);padding:6px 12px;border-radius:100px;white-space:nowrap;letter-spacing:.02em;flex-shrink:0}
+
+/* ── WHAT'S INCLUDED ── */
+.included-section{margin-bottom:24px;animation:rise .8s var(--pop) .34s both}
+.inc-label{font-size:.4375rem;font-weight:700;letter-spacing:.20em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.inc-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+.inc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.inc-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid}
+.inc-item.free{background:rgba(30,107,90,.08);border-color:rgba(30,184,122,.22)}
+.inc-item.locked{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.08)}
+.inc-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.inc-item.free .inc-icon{background:rgba(30,184,122,.18);border:1px solid rgba(30,184,122,.32)}
+.inc-item.locked .inc-icon{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+.inc-icon svg{width:12px;height:12px;fill:none;stroke-width:2.2}
+.inc-item.free .inc-icon svg{stroke:var(--green)}
+.inc-item.locked .inc-icon svg{stroke:rgba(235,244,255,.30)}
+.inc-text{}
+.inc-name{font-size:.75rem;font-weight:700;color:var(--on-dark);margin-bottom:2px;line-height:1.3}
+.inc-item.locked .inc-name{color:var(--on-dark-2)}
+.inc-desc{font-size:.5rem;color:var(--on-dark-3);line-height:1.55}
+.inc-status{font-size:.375rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;padding:2px 7px;border-radius:100px;margin-top:4px;display:inline-flex;align-items:center;gap:4px}
+.is-free{background:rgba(30,184,122,.14);color:var(--green);border:1px solid rgba(30,184,122,.25)}
+.is-locked{background:rgba(255,255,255,.05);color:rgba(235,244,255,.30);border:1px solid rgba(255,255,255,.10)}
+.is-locked svg{width:8px;height:8px;stroke:rgba(235,244,255,.28);stroke-width:2;fill:none}
+
+/* ── PDF TEASER ── */
+.pdf-teaser{margin-bottom:28px;animation:rise .8s var(--pop) .38s both}
+.pdf-t-label{font-size:.4375rem;font-weight:700;letter-spacing:.20em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.pdf-t-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+.pdf-fan{display:flex;align-items:flex-start;justify-content:center;gap:0;padding:8px 0 0;position:relative;height:160px}
+.pdf-page-t{position:absolute;background:white;border-radius:5px;box-shadow:0 2px 12px rgba(0,0,0,.25),0 6px 28px rgba(0,0,0,.18);overflow:hidden;width:100px}
+.pdf-page-t .ppt-top{height:2px;background:var(--gold)}
+.pdf-page-t.t2 .ppt-top{background:var(--crimson)}
+.pdf-page-t.t3 .ppt-top{background:var(--cobalt)}
+.pdf-page-t.t4 .ppt-top{background:var(--green)}
+.pdf-page-t.t5 .ppt-top{background:var(--amber)}
+.ppt-body{padding:7px 8px}
+.ppt-hl{height:7px;background:rgba(17,28,46,.14);border-radius:3px;margin-bottom:4px}
+.ppt-hl.short{width:65%}
+.ppt-row{height:4px;background:rgba(17,28,46,.08);border-radius:2px;margin-bottom:3px}
+.ppt-row.green{background:rgba(30,184,122,.35);width:80%}
+.ppt-row.crimson{background:rgba(224,59,59,.30);width:75%}
+.ppt-row.shorter{width:60%}
+.ppt-row.gold{background:rgba(201,168,76,.35);width:70%}
+.ppt-bar{height:12px;background:rgba(17,28,46,.06);border-radius:3px;margin-bottom:4px;display:flex;gap:2px;padding:2px;overflow:hidden}
+.ppt-bar-seg{border-radius:2px;height:100%}
+.ppt-bar-seg.navy{background:#2C3870;flex:4}.ppt-bar-seg.crimson{background:#C83232;flex:.5}.ppt-bar-seg.cobalt{background:#2850C0;flex:.6}.ppt-bar-seg.green{background:#1E8A60;flex:.4}
+.ppt-mini-bar{height:6px;background:rgba(17,28,46,.06);border-radius:3px;margin-bottom:3px;overflow:hidden}
+.ppt-mini-fill{height:100%;border-radius:3px}
+.ppt-stamp{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.3125rem;font-weight:700;color:rgba(30,107,90,.60);border:1px solid rgba(30,107,90,.30);margin:4px auto 0;text-align:center;line-height:1.2;padding:2px}
+.p1{top:8px;left:50%;transform:translateX(-50%) rotate(-6deg);z-index:1}
+.p2{top:4px;left:calc(50% + 70px);transform:rotate(4deg);z-index:2}
+.p3{top:12px;left:calc(50% - 130px);transform:rotate(-3deg);z-index:3}
+.p4{top:0;left:calc(50% + 130px);transform:rotate(8deg);z-index:2}
+.p5{top:6px;left:calc(50% - 70px);transform:rotate(2deg);z-index:5}
+.pdf-fan-lock{position:absolute;bottom:4px;left:0;right:0;display:flex;justify-content:center}
+.pdf-fan-pill{display:flex;align-items:center;gap:6px;font-size:.5rem;font-weight:700;color:rgba(235,244,255,.45);background:rgba(14,24,40,.90);border:1px solid rgba(255,255,255,.12);padding:6px 16px;border-radius:100px;backdrop-filter:blur(12px)}
+.pdf-fan-pill svg{width:11px;height:11px;stroke:rgba(235,244,255,.35);stroke-width:2;fill:none}
+
+/* ── URGENCY BANNER ── */
+.urgency-banner{background:linear-gradient(135deg,rgba(224,59,59,.12),rgba(208,112,0,.08));border:1px solid rgba(224,59,59,.24);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:24px;animation:rise .8s var(--pop) .42s both}
+.ub-icon{font-size:1.25rem;flex-shrink:0}
+.ub-text{}
+.ub-title{font-size:.8125rem;font-weight:800;color:var(--on-dark);margin-bottom:3px}
+.ub-sub{font-size:.625rem;color:var(--on-dark-2);line-height:1.60}
+
+/* ── CTA BLOCK ── */
+.cta-block{background:linear-gradient(145deg,rgba(30,107,90,.14),rgba(14,24,40,.05));border:1px solid rgba(30,184,122,.24);border-radius:16px;padding:28px 28px;text-align:center;animation:rise .8s var(--pop) .46s both;box-shadow:0 8px 40px rgba(30,184,122,.08),inset 0 1px 0 rgba(30,184,122,.10)}
+.cta-eyebrow{font-size:.4375rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.cta-title{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--on-dark);letter-spacing:-.02em;line-height:1.20;margin-bottom:8px}
+.cta-sub{font-size:.875rem;color:var(--on-dark-2);line-height:1.70;max-width:460px;margin:0 auto 20px}
+/* Feature grid */
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:22px;text-align:left}
+.feat{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px}
+.feat-check{width:18px;height:18px;border-radius:50%;background:rgba(30,184,122,.18);border:1px solid rgba(30,184,122,.32);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.feat-check svg{width:9px;height:9px;stroke:var(--green);stroke-width:2.5;fill:none}
+.feat-txt{font-size:.6875rem;font-weight:600;color:var(--on-dark-2);line-height:1.35}
+/* Price */
+.price-row{display:flex;align-items:baseline;justify-content:center;gap:10px;margin-bottom:5px}
+.cta-price{font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--green);letter-spacing:-.05em;line-height:1;text-shadow:0 0 32px rgba(30,184,122,.45)}
+.cta-price-label{font-size:.75rem;font-weight:600;color:var(--on-dark-3)}
+.price-anchor{font-size:.5625rem;color:var(--on-dark-3);margin-bottom:20px}
+.price-anchor del{color:rgba(235,244,255,.25)}
+.price-anchor strong{color:rgba(235,244,255,.50)}
+/* CTA button */
+.btn-unlock{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-size:1rem;font-weight:800;color:white;padding:16px 40px;border-radius:100px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--green-dk),var(--green));letter-spacing:.01em;box-shadow:0 4px 28px rgba(30,184,122,.52),0 8px 56px rgba(30,184,122,.26),0 0 0 1px rgba(30,184,122,.32);transition:all .22s var(--pop);animation:cglow 3s ease-in-out infinite;text-decoration:none;display:inline-flex}
+@keyframes cglow{0%,100%{box-shadow:0 4px 28px rgba(30,184,122,.52),0 8px 56px rgba(30,184,122,.26),0 0 0 1px rgba(30,184,122,.32)}50%{box-shadow:0 6px 40px rgba(30,184,122,.70),0 12px 72px rgba(30,184,122,.40),0 0 0 1px rgba(30,184,122,.55)}}
+.btn-unlock:hover{transform:translateY(-3px) scale(1.02)}
+.btn-unlock svg{width:18px;height:18px;stroke:white;stroke-width:2.5;fill:none}
+.btn-sub-txt{font-size:.4375rem;color:rgba(30,184,122,.45);letter-spacing:.08em;text-transform:uppercase;margin-top:8px}
+/* Guarantee */
+.guarantee-row{display:flex;justify-content:center;gap:18px;margin-top:18px;flex-wrap:wrap}
+.gr-item{display:flex;align-items:center;gap:4px;font-size:.5rem;font-weight:600;color:rgba(235,244,255,.30)}
+.gr-item svg{width:10px;height:10px;stroke:rgba(30,184,122,.45);stroke-width:2;fill:none}
+
+/* Legal footer */
+.legal-footer{padding:24px 0 8px;text-align:center}
+.legal-txt{font-size:.4375rem;color:rgba(235,244,255,.22);line-height:1.72;max-width:680px;margin:0 auto}
+@media (max-width:600px){
+html,body{max-width:100%;overflow-x:hidden}
+.content{padding:72px 18px 48px;max-width:100%}
+.topnav{padding:0 18px}
+.nav-badge{display:none}
+.proof-metrics,.dt-kpis,.dt-kpi-strip,.dt-letters,.inc-grid,.feature-grid{grid-template-columns:1fr}
+.fc-row{gap:10px}
+.fc-top{align-items:flex-start}
+.fc-amount{margin-left:0}
+.dt-tabs{flex-wrap:wrap;padding:6px 8px;gap:2px}
+.dt-tab{padding:6px 8px;font-size:.4375rem}
+.lt-unlock-teaser{flex-direction:column;align-items:stretch;text-align:center}
+.lt-unlock-txt{text-align:center}
+.lt-unlock-btn{align-self:center}
+.pdf-fan{height:150px;overflow:hidden}
+.pdf-page-t{width:88px}
+.p1{left:50%}
+.p2{left:calc(50% + 46px)}
+.p3{left:calc(50% - 112px)}
+.p4{left:calc(50% + 82px)}
+.p5{left:calc(50% - 60px)}
+.pdf-fan-pill{max-width:calc(100vw - 48px);white-space:normal;text-align:center;justify-content:center}
+.urgency-banner{align-items:flex-start}
+.btn-unlock{width:100%;justify-content:center;padding-left:18px;padding-right:18px}
+}
+</style>
+</head>
+<body>
+<!-- TODO: Replace Jane Smith demo values with individualized customer data during fulfillment. -->
+
+<div class="topnav">
+  <div class="nav-brand">
+    <div class="nav-logo">
+      <img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate">
+    </div>
+    <div><div class="nav-name">United Patient Advocate</div><span class="nav-sub">Patient First. Billing Second.</span></div>
+  </div>
+  <div class="nav-spacer"></div>
+  <div class="nav-badge">Review Complete — Jane Smith</div>
+</div>
+
+<div class="scene">
+  <div class="vignette"></div>
+  <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+
+  <div class="content">
+
+    <!-- Hero -->
+    <div class="results-hero">
+      <div class="rh-eyebrow">Analysis Complete</div>
+      <div class="rh-title">We found 3 issues.<br><span>$3,185 may not be owed.</span></div>
+      <div class="rh-sub">Your billing review is complete. We've prepared your dispute letters, benchmarked every charge, and built your full action plan. Here's what we found — and everything that's waiting for you inside.</div>
+    </div>
+
+    <!-- 3 Proof Metrics -->
+    <div class="proof-metrics">
+      <div class="pm pm-green">
+        <span class="pm-icon">💰</span>
+        <div class="pm-val green">$3,185</div>
+        <div class="pm-label">Charges Flagged for Review</div>
+        <div class="pm-badge"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Verified</div>
+      </div>
+      <div class="pm pm-crimson">
+        <span class="pm-icon">⚠️</span>
+        <div class="pm-val crim">3</div>
+        <div class="pm-label">Billing Issues Found</div>
+        <div class="pm-badge"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Confirmed</div>
+      </div>
+      <div class="pm pm-gold">
+        <span class="pm-icon">📋</span>
+        <div class="pm-val gold">3</div>
+        <div class="pm-label">Letters Written &amp; Ready</div>
+        <div class="pm-badge"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Ready to Send</div>
+      </div>
+    </div>
+
+    <!-- FINDINGS TEASER — 1 revealed fully, 2 blurred -->
+    <div class="findings-teaser">
+      <div class="ft-label">What We Found in Your Bill</div>
+
+      <!-- Finding 1 — FULLY VISIBLE -->
+      <div class="finding-card revealed">
+        <div class="fc-row">
+          <div class="fc-icon-wrap red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+          <div class="fc-content">
+            <div class="fc-top">
+              <span class="fc-type fct-r">Duplicate Charge</span>
+              <span class="fc-confidence">88% Confidence</span>
+              <span class="fc-amount">$1,240</span>
+            </div>
+            <div class="fc-title">CPT-99285 billed twice on the same date of service</div>
+            <div class="fc-desc">Emergency department visit code CPT-99285 appears on both Line 3 and Line 11 of your itemized statement for January 8, 2026. Billing the same procedure code twice on the same date of service for the same patient is a recognized billing discrepancy under CMS guidelines and may be disputed in writing.</div>
+            <div class="fc-meta">
+              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Jan 8, 2026</div>
+              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 0 2-2h11"/></svg>Lines 3 &amp; 11</div>
+              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Letter 1 prepared</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Finding 2 — BLURRED -->
+      <div class="finding-card blurred-card">
+        <div class="blur-wrap">
+          <div class="blur-content">
+            <div class="fc-row">
+              <div class="fc-icon-wrap cobalt"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+              <div class="fc-content">
+                <div class="fc-top"><span class="fc-type fct-c">Rate Discrepancy</span><span class="fc-confidence">62% Confidence</span><span class="fc-amount">$680</span></div>
+                <div class="fc-title">CPT-99215 billed above standard complexity level for documented visit type</div>
+                <div class="fc-desc">Office visit complexity code may not align with the documented service level. A benchmark comparison against the published Medicare allowable rate for this CPT code has been prepared and is included in your documentation package.</div>
+              </div>
+            </div>
+          </div>
+          <div class="blur-lock" onclick="goToGumroad()" style="cursor:pointer"><div class="bl-pill"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Unlock to view full finding</div></div>
+        </div>
+      </div>
+
+      <!-- Finding 3 — BLURRED -->
+      <div class="finding-card blurred-card">
+        <div class="blur-wrap">
+          <div class="blur-content">
+            <div class="fc-row">
+              <div class="fc-icon-wrap amber"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+              <div class="fc-content">
+                <div class="fc-top"><span class="fc-type fct-a">Out-of-Network Lab</span><span class="fc-confidence">74% Confidence</span><span class="fc-amount">$1,265</span></div>
+                <div class="fc-title">Quest Diagnostics lab charges billed at out-of-network rate during in-network facility visit</div>
+                <div class="fc-desc">Laboratory services performed during your in-network visit may have been billed at out-of-network rates. No Surprises Act protections may apply. Documentation and dispute letter prepared.</div>
+              </div>
+            </div>
+          </div>
+          <div class="blur-lock" onclick="goToGumroad()" style="cursor:pointer"><div class="bl-pill"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Unlock to view full finding</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD TEASER — more visible than before -->
+    <div class="dashboard-teaser">
+      <div class="dt-label">Your Full Review Dashboard</div>
+      <div class="dt-frame">
+        <!-- Top bar -->
+        <div class="dt-topbar">
+          <div class="dt-dot"></div>
+          <div class="dt-topbar-name">United Patient Advocate — Active Case: Memorial Regional Medical Center</div>
+          <div class="dt-topbar-spacer"></div>
+          <div class="dt-pill">REF: UPA-2026-04831</div>
+        </div>
+        <!-- Case header — fully visible -->
+        <div class="dt-case-hdr">
+          <div class="dt-h1">We reviewed your bill.</div>
+          <div class="dt-h1-sub">We found issues you may not have to pay for.</div>
+          <div class="dt-kpis">
+            <div class="dt-kpi"><div class="dt-kpi-val g">$3,185</div><div class="dt-kpi-lbl">You May Not Legally Owe</div></div>
+            <div class="dt-kpi"><div class="dt-kpi-val r">3 Issues</div><div class="dt-kpi-lbl">Requiring Attention</div></div>
+            <div class="dt-kpi"><div class="dt-kpi-val w">72 / 100</div><div class="dt-kpi-lbl">Recovery Score</div></div>
+          </div>
+        </div>
+        <!-- Tabs — fully visible -->
+        <div class="dt-tabs">
+          <div class="dt-tab on">Overview</div>
+          <div class="dt-tab">Financials <span class="dt-tab-badge" style="background:var(--green)">$</span></div>
+          <div class="dt-tab">Findings <span class="dt-tab-badge">3</span></div>
+          <div class="dt-tab">Documents <span class="dt-tab-badge" style="background:var(--cobalt)">3</span></div>
+          <div class="dt-tab">Action Plan</div>
+          <div class="dt-tab">Timeline</div>
+        </div>
+        <!-- Body — visible KPI strip then blurs -->
+        <div class="dt-body-vis">
+          <div class="dt-kpi-strip">
+            <div class="dt-ks"><div class="dt-ks-val g">$3,185</div><div class="dt-ks-lbl">You May Not Legally Owe</div></div>
+            <div class="dt-ks"><div class="dt-ks-val r">3 Issues</div><div class="dt-ks-lbl">Requiring Attention</div></div>
+            <div class="dt-ks"><div class="dt-ks-val w">3 Letters</div><div class="dt-ks-lbl">Ready to Send Today</div></div>
+          </div>
+        </div>
+        <!-- Progressive blur zone -->
+        <div class="dt-blur-zone">
+          <div class="dt-blur-content">
+            <div style="padding:0 14px">
+              <div class="dt-fake-row"><div class="dt-fake-icon crimson"></div><div class="dt-fake-title" style="max-width:55%"></div><div class="dt-fake-badge"></div></div>
+              <div class="dt-fake-row"><div class="dt-fake-icon cobalt"></div><div class="dt-fake-title" style="max-width:70%"></div><div class="dt-fake-badge"></div></div>
+              <div class="dt-fake-row"><div class="dt-fake-icon amber"></div><div class="dt-fake-title" style="max-width:60%"></div><div class="dt-fake-badge"></div></div>
+            </div>
+            <div class="dt-letters" style="padding:10px 14px 14px">
+              <div class="dt-letter"></div>
+              <div class="dt-letter"></div>
+              <div class="dt-letter"></div>
+            </div>
+          </div>
+          <div class="dt-fade"></div>
+        </div>
+        <!-- Lock row -->
+        <div class="dt-lock-row" onclick="goToGumroad()" style="cursor:pointer">
+          <div class="dt-lock-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div class="dt-lock-txt"><strong>6 tabs · 10 guide sections · Quick Calculator · Full Findings · Action Plan</strong><br>Unlock to access your complete billing review workspace</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LETTER TEASER — show opening of Letter 1 -->
+    <div class="letter-teaser">
+      <div class="lt-label">Your Dispute Letters — Written &amp; Ready</div>
+      <div class="lt-frame">
+        <div class="lt-doc-top">
+          <div class="lt-doc-label">Letter 1 of 3 — Request for Itemized Statement &amp; Duplicate Charge Review</div>
+          <div class="lt-doc-badge">Ready to Sign</div>
+        </div>
+        <!-- Visible portion -->
+        <div class="lt-vis">
+          <div class="lt-from">
+            <div class="lt-from-name">Jane Smith</div>
+            <div class="lt-from-sub">Patient · Medicare Beneficiary</div>
+          </div>
+          <div class="lt-to">
+            Memorial Regional Medical Center · Billing Department<br>
+            Account Reference: UPA-2026-04831 · Date of Service: January 8, 2026
+          </div>
+          <div class="lt-re">RE: Formal Request — Itemized Bill Review · CPT-99285 Duplicate Charge</div>
+          <div class="lt-body-vis">
+            Dear Billing Department,<br><br>
+            I am writing to formally request a detailed, itemized review of the billing statement issued for services rendered on <strong>January 8, 2026</strong>, at Memorial Regional Medical Center. Upon reviewing my statement, I have identified what appears to be a <span class="lt-highlight">duplicate charge for CPT-99285 (Emergency Department Visit, Level 5)</span>, appearing on both Line 3 and Line 11 of the itemized statement for the same date of service.
+          </div>
+        </div>
+        <!-- Blurred rest -->
+        <div class="lt-blur-wrap">
+          <div class="lt-blur-content">
+            <div class="lt-blur-line"></div>
+            <div class="lt-blur-line med"></div>
+            <div class="lt-blur-cite"></div>
+            <div class="lt-blur-line hl"></div>
+            <div class="lt-blur-line"></div>
+            <div class="lt-blur-line med"></div>
+            <div class="lt-blur-line short"></div>
+            <div class="lt-blur-cite"></div>
+            <div class="lt-blur-line"></div>
+            <div class="lt-blur-line med"></div>
+          </div>
+          <div class="lt-fade"></div>
+        </div>
+        <div class="lt-unlock-teaser">
+          <div class="lt-unlock-txt">
+            <strong>2 more letters ready:</strong> Medicare Benchmark Rate Dispute · No Surprises Act Lab Rate Review.<br>
+            Each letter includes federal citations, specific amounts, and your signature line.
+          </div>
+          <div class="lt-unlock-btn" onclick="goToGumroad()" style="cursor:pointer">Unlock All 3 Letters</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHAT'S INCLUDED -->
+    <div class="included-section">
+      <div class="inc-label">Everything Prepared for You</div>
+      <div class="inc-grid">
+        <div class="inc-item free"><div class="inc-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="inc-text"><div class="inc-name">Billing Summary &amp; 3 Issues</div><div class="inc-desc">Every finding documented with confidence scores, amounts, and CPT codes</div><div class="inc-status is-free"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Included</div></div></div>
+        <div class="inc-item free"><div class="inc-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="inc-text"><div class="inc-name">3 Dispute Letters — Ready</div><div class="inc-desc">Signed, cited, personalized — send today by mail or email</div><div class="inc-status is-free"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Included</div></div></div>
+        <div class="inc-item locked"><div class="inc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="inc-text"><div class="inc-name">Full Dashboard — 6 Tabs</div><div class="inc-desc">Financials, Findings, Documents, Action Plan, Timeline</div><div class="inc-status is-locked"><svg viewBox="0 0 12 12"><rect x="1" y="6" width="10" height="6" rx="1"/><path d="M3 6V4a3 3 0 0 1 6 0v2"/></svg>Locked</div></div></div>
+        <div class="inc-item locked"><div class="inc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="inc-text"><div class="inc-name">12-Page PDF Advocacy Packet</div><div class="inc-desc">Charts, timelines, rights guide, all letters — print and send</div><div class="inc-status is-locked"><svg viewBox="0 0 12 12"><rect x="1" y="6" width="10" height="6" rx="1"/><path d="M3 6V4a3 3 0 0 1 6 0v2"/></svg>Locked</div></div></div>
+        <div class="inc-item locked"><div class="inc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="inc-text"><div class="inc-name">Quick Financial Calculator</div><div class="inc-desc">Real-time savings estimator, payment plan tool, recovery gauge</div><div class="inc-status is-locked"><svg viewBox="0 0 12 12"><rect x="1" y="6" width="10" height="6" rx="1"/><path d="M3 6V4a3 3 0 0 1 6 0v2"/></svg>Locked</div></div></div>
+        <div class="inc-item locked"><div class="inc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="inc-text"><div class="inc-name">Call Scripts &amp; Escalation Guide</div><div class="inc-desc">Word-for-word scripts, 4-step escalation ladder, your rights</div><div class="inc-status is-locked"><svg viewBox="0 0 12 12"><rect x="1" y="6" width="10" height="6" rx="1"/><path d="M3 6V4a3 3 0 0 1 6 0v2"/></svg>Locked</div></div></div>
+      </div>
+    </div>
+
+    <!-- PDF PACKET TEASER -->
+    <div class="pdf-teaser">
+      <div class="pdf-t-label">12-Page Downloadable Advocacy Packet</div>
+      <div class="pdf-fan">
+        <div class="pdf-page-t t4 p3"><div class="ppt-top"></div><div class="ppt-body"><div class="ppt-hl"></div><div class="ppt-hl short"></div><div style="height:24px;background:rgba(30,184,122,.08);border-radius:3px;margin:4px 0"></div><div class="ppt-row green"></div><div class="ppt-row shorter"></div></div></div>
+        <div class="pdf-page-t p1"><div class="ppt-top"></div><div class="ppt-body"><div class="ppt-hl"></div><div class="ppt-bar"><div class="ppt-bar-seg navy"></div><div class="ppt-bar-seg crimson"></div><div class="ppt-bar-seg cobalt"></div><div class="ppt-bar-seg green"></div></div><div class="ppt-row"></div><div class="ppt-row shorter"></div><div class="ppt-row gold"></div></div></div>
+        <div class="pdf-page-t t5 p5"><div class="ppt-top"></div><div class="ppt-body"><div class="ppt-hl"></div><div class="ppt-mini-bar"><div class="ppt-mini-fill" style="width:88%;background:rgba(30,184,122,.55)"></div></div><div class="ppt-mini-bar"><div class="ppt-mini-fill" style="width:74%;background:rgba(59,110,224,.55)"></div></div><div class="ppt-mini-bar"><div class="ppt-mini-fill" style="width:62%;background:rgba(208,112,0,.55)"></div></div><div class="ppt-row shorter" style="margin-top:4px"></div></div></div>
+        <div class="pdf-page-t t2 p2"><div class="ppt-top"></div><div class="ppt-body"><div class="ppt-hl"></div><div class="ppt-row crimson"></div><div class="ppt-row"></div><div class="ppt-row shorter"></div><div class="ppt-stamp">FORMAL REVIEW</div></div></div>
+        <div class="pdf-page-t t3 p4"><div class="ppt-top"></div><div class="ppt-body"><div class="ppt-hl"></div><div class="ppt-row"></div><div class="ppt-row shorter"></div><div class="ppt-row gold"></div><div class="ppt-stamp">RIGHTS DOC</div></div></div>
+        <div class="pdf-fan-lock"><div class="pdf-fan-pill" onclick="goToGumroad()" style="cursor:pointer"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>12 pages · Print-ready · Unlock to download</div></div>
+      </div>
+    </div>
+
+    <!-- URGENCY BANNER -->
+    <div class="urgency-banner">
+      <div class="ub-icon">⚡</div>
+      <div class="ub-text">
+        <div class="ub-title">Your bill is unpaid. That is your strongest position.</div>
+        <div class="ub-sub">Every day you wait without documentation prepared, the hospital's leverage grows. Your dispute letters are written. Your rights are documented. Sending them costs nothing extra. Waiting costs you everything.</div>
+      </div>
+    </div>
+
+    <!-- CTA BLOCK -->
+    <div class="cta-block">
+      <div class="cta-eyebrow">Unlock Your Full Review</div>
+      <div class="cta-title">Everything you need to dispute this bill.<br>Done. Prepared. Ready.</div>
+      <div class="cta-sub">Your complete billing review dashboard, all 3 dispute letters, the 12-page PDF packet, financial calculator, call scripts, escalation guide, and your full recovery plan.</div>
+
+      <div class="feature-grid">
+        <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Full Dashboard with 6 Tabs &amp; 10 Guide Sections</div></div>
+        <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">3 Signed Dispute Letters — Send Today</div></div>
+        <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">12-Page Printable PDF Advocacy Packet</div></div>
+        <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Real-Time Financial Calculator &amp; Recovery Score</div></div>
+        <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Word-for-Word Call Scripts</div></div>
+        <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Patient Rights Guide &amp; Escalation Ladder</div></div>
+      </div>
+
+      <div class="price-row">
+        <div class="cta-price">$97</div>
+        <div class="cta-price-label">one-time · no subscription</div>
+      </div>
+      <div class="price-anchor"><del>$250–$400/hr</del> with a medical billing consultant &nbsp;·&nbsp; <strong>$97 total, one time</strong></div>
+
+      <a href="javascript:void(0)" onclick="goToGumroad()" class="btn-unlock">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Unlock My Full Review — $97
+        <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <div class="btn-sub-txt">Instant access · Secure checkout · Your information is never sold</div>
+
+      <div class="guarantee-row">
+        <div class="gr-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Instant Access After Payment</div>
+        <div class="gr-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>No Recurring Charges</div>
+        <div class="gr-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Never Sold or Shared</div>
+        <div class="gr-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>No Phone Calls Required</div>
+      </div>
+    </div>
+
+    <!-- Legal -->
+    <div class="legal-footer">
+      <div class="legal-txt">United Patient Advocate is an independent medical billing review and dispute documentation preparation service. Results identified during the review process represent potential billing discrepancies and do not constitute legal, medical, or financial advice. Dispute outcomes vary based on provider policies, insurer determinations, and individual circumstances. Due to the personalized nature of the review materials, guidance tools, and document preparation services provided through UPA, refunds are not provided once access has been granted. United Patient Advocate is not a law firm and does not provide legal representation.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════
+   GUMROAD PRODUCT URL
+   Replace the URL below with your actual Gumroad product link
+   Example: https://yourname.gumroad.com/l/your-product-id
+═══════════════════════════════════ */
+var GUMROAD_URL = 'https://upadvocate.gumroad.com/l/busfn?wanted=true';
+
+function goToGumroad(){
+  /* Optional: fade page out before redirect */
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(8,14,24,0);z-index:9999;pointer-events:none;transition:background .7s ease';
+  document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.style.background = 'rgba(8,14,24,1)'; });
+  setTimeout(function(){ window.location.href = GUMROAD_URL; }, 720);
+}
+</script>
+
+</body>
+</html>

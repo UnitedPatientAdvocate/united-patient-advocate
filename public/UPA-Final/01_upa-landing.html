@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>United Patient Advocate — Medical Billing Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1C2B48;--navy-deep:#0E1828;--navy-mid:#243058;
+  --teal:#1E6B5A;--teal-lt:#2A8B74;
+  --green:#1EB87A;--green-dk:#158A5C;
+  --gold:#C9A84C;--gold-dk:#A8881A;
+  --crimson:#E03B3B;--cobalt:#3B6EE0;--amber:#D07000;
+  --bg-lt:#EEF2F7;--bg-white:#FFFFFF;--bg-warm:#F7F9FC;
+  --ink:#1C2B48;--ink-2:#2E4060;--ink-3:#4A6480;--ink-4:#7A98B0;
+  --bdr:rgba(28,43,72,.09);
+  --on-dark:rgba(235,244,255,.94);--on-dark-2:rgba(235,244,255,.60);
+  --on-dark-3:rgba(235,244,255,.30);--on-dark-4:rgba(235,244,255,.13);
+  --serif:"Playfair Display",Georgia,serif;
+  --sans:"Plus Jakarta Sans",system-ui,sans-serif;
+  --mono:"DM Mono",monospace;
+  --pop:cubic-bezier(.16,1,.3,1);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(--bg-lt);color:var(--ink)}
+
+/* ═══════════════════════════════════
+   NAV
+═══════════════════════════════════ */
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--bdr);padding:0 40px;height:64px;display:flex;align-items:center;gap:0}
+.nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-shield{width:36px;height:36px}
+.nav-shield svg{width:100%;height:100%}
+.nav-name{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:-.01em;line-height:1.15}
+.nav-name-sub{font-size:.3125rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);display:block;margin-top:1px}
+.nav-spacer{flex:1}
+.nav-mode{display:flex;align-items:center;gap:6px;font-size:.625rem;font-weight:600;color:var(--ink-3);padding:7px 14px;border:1px solid var(--bdr);border-radius:100px;cursor:pointer;background:none;transition:all .2s ease}
+.nav-mode:hover{border-color:var(--ink-4);color:var(--ink-2)}
+.nav-mode svg{width:13px;height:13px;stroke:currentColor;stroke-width:1.8;fill:none}
+.btn-primary{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-size:.875rem;font-weight:700;color:white;background:var(--teal);padding:10px 22px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .2s var(--ease);box-shadow:0 3px 12px rgba(30,107,90,.25);margin-left:10px}
+.btn-primary:hover{background:var(--teal-lt);transform:translateY(-1px);box-shadow:0 5px 18px rgba(30,107,90,.35)}
+.btn-primary svg{width:14px;height:14px;stroke:white;stroke-width:2.2;fill:none}
+
+/* ═══════════════════════════════════
+   ANNOUNCEMENT BANNER
+═══════════════════════════════════ */
+.banner{background:linear-gradient(90deg,#7B3A1A,#9B4A20,#7B3A1A);padding:10px 20px;text-align:center;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.90);letter-spacing:.02em}
+.banner strong{color:white;font-weight:800}
+
+/* ═══════════════════════════════════
+   SHARED SECTION ATOMS
+═══════════════════════════════════ */
+.section{padding:80px 40px}
+.section-inner{max-width:860px;margin:0 auto}
+.section-inner.wide{max-width:1080px}
+.eyebrow{font-size:.4375rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--teal);margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px}
+.eyebrow::before,.eyebrow::after{content:"";width:20px;height:1px;background:var(--teal);opacity:.5}
+.section-hl{font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.20;margin-bottom:10px;text-align:center}
+.section-hl em{color:var(--teal);font-style:italic}
+.section-sub{font-size:.9375rem;color:var(--ink-3);line-height:1.72;text-align:center;max-width:560px;margin:0 auto 36px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--bdr),transparent);margin:0}
+
+/* ═══════════════════════════════════
+   HERO
+═══════════════════════════════════ */
+.hero{background:linear-gradient(180deg,#EEF2F7 0%,#F7F9FC 100%);padding:88px 40px 72px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 600px 300px at 50% 0%,rgba(30,107,90,.06) 0%,transparent 60%);pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--teal);background:rgba(30,107,90,.07);border:1px solid rgba(30,107,90,.18);border-radius:100px;padding:5px 14px;margin-bottom:22px}
+.hero-eyebrow::before{content:"•";color:var(--teal)}
+.hero-hl{font-family:var(--serif);font-size:3.25rem;font-weight:700;color:var(--navy);letter-spacing:-.035em;line-height:1.12;margin-bottom:14px;position:relative;z-index:1}
+.hero-hl em{font-style:italic;color:var(--teal)}
+.hero-sub{font-size:1rem;color:var(--ink-3);line-height:1.75;max-width:520px;margin:0 auto 32px;position:relative;z-index:1}
+.hero-cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-size:.9375rem;font-weight:700;color:white;background:var(--teal);padding:15px 32px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .22s var(--ease);box-shadow:0 4px 20px rgba(30,107,90,.35),0 8px 40px rgba(30,107,90,.15);position:relative;z-index:1}
+.hero-cta:hover{background:var(--teal-lt);transform:translateY(-2px);box-shadow:0 6px 28px rgba(30,107,90,.45)}
+.hero-cta svg{width:16px;height:16px;stroke:white;stroke-width:2.2;fill:none}
+.hero-microcopy{font-size:.5625rem;color:var(--ink-4);margin-top:10px;display:flex;align-items:center;justify-content:center;gap:14px;position:relative;z-index:1}
+.hero-microcopy span{display:flex;align-items:center;gap:5px}
+.hero-microcopy svg{width:11px;height:11px;stroke:var(--ink-4);stroke-width:1.8;fill:none}
+/* Stats row */
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);max-width:600px;margin:40px auto 0;border:1px solid var(--bdr);border-radius:12px;overflow:hidden;background:white;box-shadow:0 2px 12px rgba(28,43,72,.07)}
+.hero-stat{padding:18px 20px;text-align:center;border-right:1px solid var(--bdr)}
+.hero-stat:last-child{border-right:none}
+.hs-val{font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--teal);letter-spacing:-.03em;line-height:1;margin-bottom:4px}
+.hs-label{font-size:.5625rem;color:var(--ink-3);line-height:1.5;margin-bottom:2px}
+.hs-source{font-family:var(--mono);font-size:.375rem;color:var(--ink-4);letter-spacing:.04em}
+
+/* ═══════════════════════════════════
+   INSURANCE LOGOS
+═══════════════════════════════════ */
+.logos-strip{padding:28px 40px;background:var(--bg-warm);border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)}
+.logos-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);text-align:center;margin-bottom:16px}
+.logos-row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.logo-chip{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 16px;background:white;border:1px solid var(--bdr);border-radius:8px;min-width:80px;box-shadow:0 1px 4px rgba(28,43,72,.05)}
+.logo-abbr{font-family:var(--mono);font-size:.625rem;font-weight:700;color:var(--ink-3);letter-spacing:.06em}
+.logo-name{font-size:.3125rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)}
+.logos-disclaimer{font-size:.4375rem;color:var(--ink-4);text-align:center;max-width:640px;margin:12px auto 0;line-height:1.60}
+
+/* ═══════════════════════════════════
+   WHAT THE DATA SHOWS
+═══════════════════════════════════ */
+.data-section{background:var(--navy);padding:72px 40px}
+.data-section .eyebrow{color:rgba(201,168,76,.80)}
+.data-section .eyebrow::before,.data-section .eyebrow::after{background:rgba(201,168,76,.50)}
+.data-section .section-hl{color:var(--on-dark)}
+.data-section .section-sub{color:var(--on-dark-2)}
+.research-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.research-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:18px}
+.rc-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.rc-badge{width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.10);display:flex;align-items:center;justify-content:center;font-size:.5625rem;font-weight:800;color:rgba(235,244,255,.60);letter-spacing:.04em;flex-shrink:0}
+.rc-source{font-size:.5625rem;font-weight:700;color:var(--on-dark-2);line-height:1.35;margin-bottom:2px}
+.rc-citation{font-size:.4375rem;color:var(--on-dark-3);line-height:1.45}
+.rc-stat{font-family:var(--serif);font-size:1.625rem;font-weight:900;color:var(--green);letter-spacing:-.04em;line-height:1;margin-bottom:4px}
+.rc-stat.gold{color:var(--gold)}
+.rc-stat.amber{color:rgba(240,165,0,.90)}
+.rc-desc{font-size:.6875rem;color:var(--on-dark-2);line-height:1.65}
+.rc-pair{display:flex;gap:12px;margin-bottom:6px}
+.rc-pair-val{font-family:var(--serif);font-size:1.25rem;font-weight:900;letter-spacing:-.03em;line-height:1}
+.rc-pair-val.g{color:var(--green)}.rc-pair-val.amber{color:rgba(240,165,0,.90)}
+.rc-pair-sub{font-size:.5rem;color:var(--on-dark-3);margin-top:2px}
+.research-disclaimer{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px 16px;display:flex;align-items:flex-start;gap:8px;max-width:860px;margin:0 auto}
+.rd-icon svg{width:13px;height:13px;stroke:var(--on-dark-3);stroke-width:1.8;fill:none;flex-shrink:0;margin-top:1px}
+.rd-txt{font-size:.4375rem;color:var(--on-dark-3);line-height:1.65}
+.rd-txt strong{color:var(--on-dark-2)}
+
+/* ═══════════════════════════════════
+   QUICK QUESTION / BILL RANGE
+═══════════════════════════════════ */
+.quick-q{padding:72px 40px;background:var(--bg-warm)}
+.quick-q-inner{max-width:640px;margin:0 auto;text-align:center}
+.quick-q-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
+.quick-q-label::before,.quick-q-label::after{content:"";width:16px;height:1px;background:var(--ink-4);opacity:.4}
+.quick-q-hl{font-family:var(--serif);font-size:1.75rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.22;margin-bottom:6px}
+.quick-q-sub{font-size:.875rem;color:var(--ink-3);line-height:1.65;margin-bottom:24px}
+.range-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.range-opt{display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid var(--bdr);border-radius:10px;cursor:pointer;transition:all .2s var(--ease);text-align:left}
+.range-opt:hover{border-color:var(--teal);box-shadow:0 2px 10px rgba(30,107,90,.10)}
+.range-opt.sel{border-color:var(--teal);background:rgba(30,107,90,.04);box-shadow:0 0 0 3px rgba(30,107,90,.08)}
+.ro-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--bdr);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s ease}
+.range-opt.sel .ro-radio{border-color:var(--teal);background:var(--teal)}
+.ro-dot{width:7px;height:7px;border-radius:50%;background:white;opacity:0;transition:opacity .2s ease}
+.range-opt.sel .ro-dot{opacity:1}
+.ro-text{flex:1}
+.ro-name{font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:1px}
+.ro-desc{font-size:.5625rem;color:var(--ink-3)}
+
+/* Sample report */
+.sample-report{max-width:640px;margin:0 auto 32px}
+.sr-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);text-align:center;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px}
+.sr-label::before,.sr-label::after{content:"";flex:1;max-width:60px;height:1px;background:var(--bdr)}
+.sr-hl{font-family:var(--serif);font-size:1.75rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.20;margin-bottom:6px;text-align:center}
+.sr-hl em{color:var(--teal);font-style:italic}
+.sr-sub{font-size:.875rem;color:var(--ink-3);line-height:1.65;margin-bottom:20px;text-align:center}
+.report-table{background:white;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;box-shadow:0 2px 16px rgba(28,43,72,.08);font-size:.5625rem}
+.rt-header{background:var(--navy);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.rt-title{font-size:.625rem;font-weight:700;color:white;letter-spacing:.02em}
+.rt-badges{display:flex;gap:6px}
+.rt-badge{font-size:.375rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;padding:3px 8px;border-radius:100px}
+.rtb-review{background:rgba(255,255,255,.15);color:rgba(235,244,255,.75)}
+.rtb-flags{background:rgba(224,59,59,.25);color:#FF9090;border:1px solid rgba(224,59,59,.30)}
+.rt-row{display:flex;align-items:flex-start;gap:0;border-bottom:1px solid var(--bdr)}
+.rt-row:last-child{border-bottom:none}
+.rt-col-label{font-family:var(--mono);font-size:.4375rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);padding:10px 12px;width:140px;flex-shrink:0;border-right:1px solid var(--bdr);line-height:1.4}
+.rt-col-content{padding:10px 12px;flex:1;font-size:.5625rem;color:var(--ink-2);line-height:1.5}
+.rt-col-status{padding:10px 12px;width:80px;flex-shrink:0;text-align:right}
+.rt-chip{font-size:.375rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;padding:3px 7px;border-radius:100px}
+.rtc-reviewing{background:rgba(28,43,72,.06);color:var(--ink-3)}
+.rtc-flagged{background:rgba(224,59,59,.10);color:var(--crimson);border:1px solid rgba(224,59,59,.20)}
+.rt-cpt-tags{display:flex;gap:4px;flex-wrap:wrap}
+.rt-cpt{font-family:var(--mono);font-size:.5rem;font-weight:600;color:var(--cobalt);background:rgba(59,110,224,.08);padding:2px 6px;border-radius:4px}
+.rt-flag-txt{font-size:.5rem;color:var(--crimson);font-weight:600}
+.rt-blurred{filter:blur(3.5px);user-select:none;pointer-events:none}
+.rt-footer{padding:10px 14px;background:rgba(30,184,122,.06);border-top:1px solid rgba(30,184,122,.15);text-align:center}
+.rt-footer-badge{display:inline-flex;align-items:center;gap:5px;font-size:.5rem;font-weight:700;color:var(--green);letter-spacing:.04em}
+.rt-footer-badge svg{width:11px;height:11px;stroke:var(--green);stroke-width:2;fill:none}
+.rt-footer-sub{font-size:.4375rem;color:var(--ink-3);margin-top:4px}
+.see-btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:.875rem;font-weight:700;color:white;background:var(--navy);padding:13px 28px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .2s var(--ease);box-shadow:0 3px 12px rgba(28,43,72,.20);margin-top:16px}
+.see-btn:hover{background:var(--navy-mid);transform:translateY(-1px)}
+.see-btn svg{width:14px;height:14px;stroke:white;stroke-width:2.2;fill:none}
+
+/* ═══════════════════════════════════
+   WHAT WE EXAMINE
+═══════════════════════════════════ */
+.examine-section{padding:72px 40px;background:var(--bg-lt)}
+.examine-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:700px;margin:0 auto}
+.examine-card{background:white;border:1px solid var(--bdr);border-radius:10px;padding:18px;display:flex;align-items:flex-start;gap:13px;box-shadow:0 1px 4px rgba(28,43,72,.05);transition:box-shadow .2s ease,transform .2s ease}
+.examine-card:hover{box-shadow:0 4px 16px rgba(28,43,72,.10);transform:translateY(-1px)}
+.ec-icon{width:32px;height:32px;border-radius:7px;background:rgba(30,107,90,.08);border:1px solid rgba(30,107,90,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ec-icon svg{width:14px;height:14px;stroke:var(--teal);stroke-width:2;fill:none}
+.ec-icon.crimson{background:rgba(224,59,59,.08);border-color:rgba(224,59,59,.15)}
+.ec-icon.crimson svg{stroke:var(--crimson)}
+.ec-icon.cobalt{background:rgba(59,110,224,.08);border-color:rgba(59,110,224,.15)}
+.ec-icon.cobalt svg{stroke:var(--cobalt)}
+.ec-icon.amber{background:rgba(208,112,0,.08);border-color:rgba(208,112,0,.15)}
+.ec-icon.amber svg{stroke:var(--amber)}
+.ec-title{font-size:.8125rem;font-weight:700;color:var(--navy);margin-bottom:4px}
+.ec-desc{font-size:.625rem;color:var(--ink-3);line-height:1.60}
+
+/* ═══════════════════════════════════
+   HOW IT WORKS — THREE STEPS
+═══════════════════════════════════ */
+.steps-section{background:var(--navy);padding:72px 40px;position:relative;overflow:hidden}
+.steps-section::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 600px 300px at 30% 50%,rgba(30,107,90,.10) 0%,transparent 60%);pointer-events:none}
+.steps-section .section-hl,.steps-section .eyebrow-light{position:relative;z-index:1}
+.steps-section .section-hl{color:var(--on-dark)}
+.steps-section .section-hl em{color:var(--green);font-style:italic}
+.steps-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--on-dark-3);text-align:center;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+.steps-label::before,.steps-label::after{content:"";width:16px;height:1px;background:rgba(235,244,255,.20)}
+.steps-sub{font-size:.875rem;color:var(--on-dark-2);text-align:center;margin-bottom:40px;font-style:italic}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:780px;margin:0 auto;position:relative;z-index:1}
+.step-card{text-align:center}
+.sc-num{width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-family:var(--serif);font-size:1.125rem;font-weight:700;color:rgba(235,244,255,.80);position:relative}
+.sc-num::after{content:"";position:absolute;left:calc(50% + 22px);top:50%;transform:translateY(-50%);height:1px;width:calc((780px / 3) - 44px - 24px);background:rgba(255,255,255,.10)}
+.step-card:last-child .sc-num::after{display:none}
+.sc-title{font-family:var(--sans);font-size:.9375rem;font-weight:700;color:var(--on-dark);margin-bottom:6px}
+.sc-desc{font-size:.6875rem;color:var(--on-dark-2);line-height:1.65;margin-bottom:8px}
+.sc-tag{display:inline-flex;align-items:center;padding:3px 9px;background:rgba(30,184,122,.16);border:1px solid rgba(30,184,122,.28);border-radius:100px;font-size:.4375rem;font-weight:700;color:var(--green);letter-spacing:.08em;text-transform:uppercase}
+.sc-tag.cobalt{background:rgba(59,110,224,.16);border-color:rgba(59,110,224,.28);color:#90B4FF}
+.sc-tag.gold{background:rgba(201,168,76,.16);border-color:rgba(201,168,76,.28);color:var(--gold)}
+
+/* ═══════════════════════════════════
+   COMPARISON TABLE
+═══════════════════════════════════ */
+.comparison-section{padding:72px 40px;background:var(--bg-lt)}
+.comp-label{text-align:center;font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);margin-bottom:10px}
+.comp-table{max-width:680px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid var(--bdr);box-shadow:0 2px 16px rgba(28,43,72,.08)}
+.ct-head{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;background:white;border-bottom:2px solid var(--bdr)}
+.ct-head-cell{padding:12px 14px;font-size:.5rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-3);border-right:1px solid var(--bdr)}
+.ct-head-cell:last-child{background:var(--teal);color:rgba(255,255,255,.90);border-right:none;display:flex;flex-direction:column;justify-content:center}
+.ct-head-cell.upa-col{display:flex;align-items:center;justify-content:space-between}
+.ct-rec{display:inline-flex;align-items:center;gap:4px;font-size:.3125rem;font-weight:700;background:rgba(255,255,255,.18);padding:2px 7px;border-radius:100px}
+.ct-rec svg{width:8px;height:8px;stroke:white;stroke-width:2;fill:none}
+.ct-row{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;border-bottom:1px solid var(--bdr);background:white}
+.ct-row:last-of-type{border-bottom:none}
+.ct-cell{padding:12px 14px;border-right:1px solid var(--bdr);font-size:.5625rem;color:var(--ink-3);line-height:1.55}
+.ct-cell:first-child .ct-cell-title{font-size:.75rem;font-weight:700;color:var(--navy);margin-bottom:3px}
+.ct-cell:last-child{border-right:none;background:rgba(30,107,90,.03)}
+.ct-x{display:flex;align-items:flex-start;gap:5px;color:var(--ink-3)}
+.ct-x-icon{width:14px;height:14px;border-radius:50%;background:rgba(224,59,59,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ct-x-icon svg{width:8px;height:8px;stroke:var(--crimson);stroke-width:2.5;fill:none}
+.ct-check{display:flex;align-items:flex-start;gap:5px;color:var(--ink-2)}
+.ct-check-icon{width:14px;height:14px;border-radius:50%;background:rgba(30,107,90,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ct-check-icon svg{width:8px;height:8px;stroke:var(--teal);stroke-width:2.5;fill:none}
+.ct-outcome{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;background:var(--navy)}
+.cto-label{padding:10px 14px;font-size:.4375rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(235,244,255,.40)}
+.cto-bad{padding:10px 14px;font-size:.625rem;font-weight:700;color:rgba(235,244,255,.45);border-right:1px solid rgba(255,255,255,.08)}
+.cto-good{padding:10px 14px;font-size:.8125rem;font-weight:700;color:white;background:rgba(30,107,90,.40)}
+.comp-cta-box{max-width:680px;margin:0 auto;background:var(--navy);border-radius:10px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.ccb-text{}
+.ccb-title{font-size:.9375rem;font-weight:700;color:white;margin-bottom:4px;line-height:1.35}
+.ccb-sub{font-size:.625rem;color:rgba(235,244,255,.45);line-height:1.55}
+.ccb-btn{display:flex;align-items:center;gap:7px;background:var(--teal);color:white;font-size:.8125rem;font-weight:700;padding:11px 22px;border-radius:100px;border:none;cursor:pointer;white-space:nowrap;text-decoration:none;transition:all .2s var(--ease);flex-shrink:0;box-shadow:0 3px 12px rgba(30,107,90,.30)}
+.ccb-btn:hover{background:var(--teal-lt);transform:translateY(-1px)}
+.ccb-btn svg{width:13px;height:13px;stroke:white;stroke-width:2.2;fill:none}
+
+/* ═══════════════════════════════════
+   EXAMPLE FINDINGS
+═══════════════════════════════════ */
+.findings-section{padding:72px 40px;background:var(--bg-warm)}
+.finding-card{background:white;border:1px solid var(--bdr);border-radius:10px;padding:20px 22px;margin-bottom:10px;max-width:680px;margin-left:auto;margin-right:auto;box-shadow:0 1px 4px rgba(28,43,72,.05)}
+.fc-tag-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.fc-tag{font-size:.375rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:100px;border:1px solid}
+.fct-duplicate{color:var(--crimson);border-color:rgba(224,59,59,.25);background:rgba(224,59,59,.06)}
+.fct-benchmark{color:var(--cobalt);border-color:rgba(59,110,224,.25);background:rgba(59,110,224,.06)}
+.fct-coding{color:var(--amber);border-color:rgba(208,112,0,.25);background:rgba(208,112,0,.06)}
+.fc-illus{font-size:.4375rem;color:var(--ink-4);font-style:italic}
+.fc-title{font-size:.9375rem;font-weight:700;color:var(--navy);line-height:1.35;margin-bottom:6px}
+.fc-desc{font-size:.6875rem;color:var(--ink-3);line-height:1.68}
+.findings-disclaimer{max-width:680px;margin:16px auto 0;background:rgba(28,43,72,.04);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;font-size:.4375rem;color:var(--ink-4);text-align:center;line-height:1.65}
+
+/* ═══════════════════════════════════
+   PATIENT SCENARIOS
+═══════════════════════════════════ */
+.scenarios-section{padding:72px 40px;background:var(--bg-lt)}
+.scenarios-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:740px;margin:0 auto 14px}
+.scenario-card{background:white;border:1px solid var(--bdr);border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(28,43,72,.05)}
+.sc-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sc-avatar{width:28px;height:28px;border-radius:50%;background:rgba(28,43,72,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sc-avatar svg{width:14px;height:14px;stroke:var(--ink-3);stroke-width:1.8;fill:none}
+.sc-avatar.building{background:rgba(30,107,90,.10)}
+.sc-avatar.building svg{stroke:var(--teal)}
+.sc-name{font-size:.75rem;font-weight:700;color:var(--navy)}
+.sc-type{font-size:.4375rem;color:var(--ink-4)}
+.sc-story{font-size:.625rem;color:var(--ink-3);line-height:1.65;margin-bottom:10px}
+.sc-prepared{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:6px;padding:8px 10px}
+.sc-prepared-label{font-size:.375rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:3px}
+.sc-prepared-txt{font-size:.5rem;color:var(--ink-2);line-height:1.55;font-style:italic}
+.sc-prepared-txt.green{color:var(--teal)}
+.scenarios-disclaimer{max-width:740px;margin:0 auto;background:rgba(28,43,72,.03);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;font-size:.4375rem;color:var(--ink-4);text-align:center;line-height:1.65}
+
+/* ═══════════════════════════════════
+   WHAT YOU CAN EXPECT
+═══════════════════════════════════ */
+.expect-section{padding:72px 40px;background:var(--bg-warm)}
+.expect-list{max-width:640px;margin:0 auto;background:white;border:1px solid var(--bdr);border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(28,43,72,.07)}
+.expect-item{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;border-bottom:1px solid var(--bdr)}
+.expect-item:last-child{border-bottom:none}
+.ei-icon{width:30px;height:30px;border-radius:7px;background:rgba(30,107,90,.08);border:1px solid rgba(30,107,90,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ei-icon svg{width:13px;height:13px;stroke:var(--teal);stroke-width:2;fill:none}
+.ei-content{flex:1}
+.ei-title{font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:3px}
+.ei-desc{font-size:.5625rem;color:var(--ink-3);line-height:1.60}
+.ei-badge{font-size:.375rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;background:rgba(30,107,90,.08);color:var(--teal);border:1px solid rgba(30,107,90,.18);border-radius:100px;white-space:nowrap;flex-shrink:0;margin-top:3px}
+.ei-badge.us{background:rgba(59,110,224,.08);color:var(--cobalt);border-color:rgba(59,110,224,.18)}
+.ei-badge.pkg{background:rgba(201,168,76,.10);color:var(--gold-dk);border-color:rgba(201,168,76,.22)}
+.ei-badge.ins{background:rgba(208,112,0,.08);color:var(--amber);border-color:rgba(208,112,0,.18)}
+
+/* ═══════════════════════════════════
+   EDITORIAL — NOT YOUR FAULT
+═══════════════════════════════════ */
+.editorial-section{padding:72px 40px;background:var(--bg-lt)}
+.editorial-inner{max-width:600px;margin:0 auto}
+.ed-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);text-align:center;margin-bottom:12px}
+.ed-hl{font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.18;margin-bottom:6px;text-align:center}
+.ed-hl em{color:var(--teal);font-style:italic}
+.ed-body{background:white;border:1px solid var(--bdr);border-radius:12px;padding:24px 26px;box-shadow:0 2px 12px rgba(28,43,72,.07);margin-bottom:14px}
+.ed-p{font-size:.9375rem;color:var(--ink-2);line-height:1.78;margin-bottom:14px}
+.ed-p:last-child{margin-bottom:0}
+.ed-p strong{color:var(--navy);font-weight:700}
+.ed-chips{display:flex;gap:8px;flex-wrap:wrap}
+.ed-chip{padding:8px 14px;background:white;border:1px solid var(--bdr);border-radius:8px;box-shadow:0 1px 4px rgba(28,43,72,.05)}
+.ed-chip-title{font-size:.5625rem;font-weight:700;color:var(--navy);margin-bottom:2px}
+.ed-chip-desc{font-size:.4375rem;color:var(--ink-4)}
+
+/* ═══════════════════════════════════
+   INTAKE SECTION — dark, premium, embedded
+═══════════════════════════════════ */
+.intake-section{background:var(--navy-deep);padding:72px 40px;position:relative;overflow:hidden}
+/* Blueprint grid */
+.intake-section::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.020;z-index:0;
+  background-image:linear-gradient(rgba(235,244,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(235,244,255,1) 1px,transparent 1px);
+  background-size:48px 48px}
+/* Vignette */
+.is-vignette{position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:radial-gradient(ellipse 90% 90% at 50% 40%,transparent 45%,rgba(8,14,24,.68) 100%)}
+/* Orbs */
+.is-orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(80px);z-index:0}
+.is-orb1{width:500px;height:300px;background:rgba(30,107,90,.12);top:5%;left:-8%;animation:o1 18s ease-in-out infinite alternate}
+.is-orb2{width:450px;height:340px;background:rgba(59,110,224,.09);bottom:10%;right:-6%;animation:o2 22s ease-in-out infinite alternate}
+.is-orb3{width:320px;height:200px;background:rgba(201,168,76,.07);top:50%;left:52%;animation:o3 16s ease-in-out infinite alternate}
+@keyframes o1{from{transform:translate(0,0) scale(1)}to{transform:translate(36px,-24px) scale(1.12)}}
+@keyframes o2{from{transform:translate(0,0) scale(1)}to{transform:translate(-40px,18px) scale(1.09)}}
+@keyframes o3{from{transform:translate(0,0) scale(1)}to{transform:translate(-24px,-32px) scale(1.07)}}
+/* Particles */
+.is-particles{position:absolute;inset:0;pointer-events:none;z-index:0}
+.is-pt{position:absolute;border-radius:50%;animation:pt-drift var(--d,12s) ease-in-out var(--dl,0s) infinite;opacity:0}
+@keyframes pt-drift{0%,100%{opacity:0;transform:translateY(0)}15%,85%{opacity:var(--op,.28)}50%{transform:translateY(-18px)}}
+
+.intake-section-inner{position:relative;z-index:10;max-width:600px;margin:0 auto}
+.is-header{text-align:center;margin-bottom:28px;animation:is-rise .9s var(--pop) both}
+@keyframes is-rise{from{opacity:0;transform:translateY(20px);filter:blur(3px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+.is-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(235,244,255,.30);margin-bottom:8px;display:block}
+.is-hl{font-family:var(--serif);font-size:1.875rem;font-weight:700;color:var(--on-dark);letter-spacing:-.025em;line-height:1.20;margin-bottom:8px}
+.is-hl span{color:var(--green);text-shadow:0 0 24px rgba(30,184,122,.35)}
+.is-sub{font-size:.875rem;color:var(--on-dark-2);line-height:1.68}
+
+/* Step indicator */
+.step-indicator{margin-bottom:18px;text-align:center}
+.si-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(235,244,255,.26);margin-bottom:10px;display:block}
+.si-dots{display:flex;justify-content:center;align-items:center;gap:6px;margin-bottom:10px}
+.si-dot{width:28px;height:4px;border-radius:2px;background:rgba(255,255,255,.09);transition:all .5s var(--pop)}
+.si-dot.done{background:rgba(30,184,122,.50)}
+.si-dot.active{background:var(--gold);width:40px;box-shadow:0 0 10px rgba(201,168,76,.50)}
+.si-bar-wrap{position:relative;height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:visible;box-shadow:inset 0 1px 2px rgba(0,0,0,.20)}
+.si-bar-fill{height:100%;border-radius:1px;background:linear-gradient(90deg,var(--gold-dk),var(--gold) 60%,rgba(255,230,130,.90));transition:width .8s var(--pop);box-shadow:0 0 8px rgba(201,168,76,.55);position:relative;overflow:hidden}
+.si-bar-fill::before{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:shimmer 2.8s ease-in-out infinite}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+.si-bar-fill::after{content:"";position:absolute;right:-3px;top:-3.5px;width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px 4px rgba(201,168,76,.65)}
+
+/* Card */
+.card{background:linear-gradient(160deg,rgba(255,255,255,.044),rgba(255,255,255,.020));border:1px solid rgba(255,255,255,.10);border-radius:16px;backdrop-filter:blur(28px) saturate(1.4);box-shadow:0 0 0 1px rgba(255,255,255,.05),0 4px 12px rgba(0,0,0,.25),0 20px 60px rgba(0,0,0,.36),0 50px 120px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(0,0,0,.12);overflow:hidden;position:relative;animation:is-rise .9s var(--pop) .15s both}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:2.5px;z-index:2;background:linear-gradient(90deg,var(--gold-dk) 0%,var(--gold) 40%,rgba(201,168,76,.10) 100%)}
+.card::after{content:"";position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.36),transparent);filter:blur(2px)}
+
+/* Steps */
+.step{display:none;padding:28px 30px 22px;animation:step-in .42s var(--pop) both}
+.step.active{display:block}
+.step.exit{animation:step-out .26s ease both}
+@keyframes step-in{from{opacity:0;transform:translateX(14px);filter:blur(2px)}to{opacity:1;transform:translateX(0);filter:blur(0)}}
+@keyframes step-out{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-14px)}}
+.step-icon{font-size:1.875rem;margin-bottom:9px;display:block;line-height:1;animation:icon-settle .6s var(--pop) both}
+@keyframes icon-settle{from{opacity:0;transform:scale(.70)}to{opacity:1;transform:scale(1)}}
+.step-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.step-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(201,168,76,.30),transparent)}
+.step-title{font-family:var(--serif);font-size:1.375rem;font-weight:700;color:var(--on-dark);letter-spacing:-.025em;line-height:1.20;margin-bottom:5px}
+.step-sub{font-size:.8125rem;color:var(--on-dark-2);line-height:1.68;margin-bottom:20px}
+
+/* Options */
+.opt-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.opt-list{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.opt-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:20px}
+.opt{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.09);border-radius:11px;padding:12px 13px;cursor:pointer;text-align:left;transition:all .22s var(--pop);display:flex;align-items:center;gap:10px;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(8px)}
+.opt::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);pointer-events:none}
+.opt:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.20)}
+.opt.selected{background:rgba(30,107,90,.13);border-color:rgba(30,184,122,.42);box-shadow:0 0 0 1px rgba(30,184,122,.22),0 4px 20px rgba(30,184,122,.12),inset 0 1px 0 rgba(30,184,122,.08)}
+.opt.center{flex-direction:column;align-items:center;text-align:center;padding:14px 8px;gap:4px}
+.opt.list-item{padding:12px 14px}
+.opt-emoji{font-size:1.375rem;flex-shrink:0;line-height:1}
+.opt-center-emoji{font-size:1.125rem;line-height:1}
+.opt-name{font-size:.9375rem;font-weight:700;color:var(--on-dark-2);line-height:1.2;display:block;transition:color .2s ease}
+.opt.selected .opt-name{color:var(--on-dark)}
+.opt.center .opt-name{font-size:.75rem}
+.opt-desc{font-size:.5625rem;color:var(--on-dark-3);margin-top:2px;line-height:1.45;display:block;transition:color .2s ease}
+.opt.selected .opt-desc{color:rgba(235,244,255,.45)}
+.opt-check{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.5);transition:all .28s var(--pop);box-shadow:0 2px 8px rgba(30,184,122,.40)}
+.opt.selected .opt-check{opacity:1;transform:scale(1)}
+.opt-check svg{width:10px;height:10px;stroke:white;stroke-width:2.5;fill:none}
+
+/* Chips */
+.concern-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:20px}
+.chip{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.09);border-radius:10px;padding:11px 12px;cursor:pointer;transition:all .20s var(--pop);display:flex;align-items:flex-start;gap:9px;-webkit-tap-highlight-color:transparent;position:relative;overflow:hidden}
+.chip::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);pointer-events:none}
+.chip:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.17)}
+.chip.selected{background:rgba(30,107,90,.11);border-color:rgba(30,184,122,.38)}
+.chip-box{width:17px;height:17px;border-radius:4px;border:1.5px solid rgba(255,255,255,.18);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .22s var(--pop);background:rgba(255,255,255,.03)}
+.chip.selected .chip-box{background:var(--green);border-color:var(--green);box-shadow:0 2px 8px rgba(30,184,122,.35)}
+.chip-box svg{width:9px;height:9px;stroke:white;stroke-width:2.5;fill:none;opacity:0;transform:scale(.4);transition:all .22s var(--pop)}
+.chip.selected .chip-box svg{opacity:1;transform:scale(1)}
+.chip-name{font-size:.75rem;font-weight:600;color:var(--on-dark-2);line-height:1.35;transition:color .2s ease}
+.chip.selected .chip-name{color:var(--on-dark)}
+
+/* Form fields */
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:12px}
+.field-row.full{grid-template-columns:1fr}
+.field-label{font-size:.4375rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:6px;display:block}
+.field input,.field select{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.11);border-radius:10px;padding:13px 15px;font-family:var(--sans);font-size:.9375rem;font-weight:500;color:var(--on-dark);outline:none;transition:all .22s ease;-webkit-appearance:none;appearance:none;backdrop-filter:blur(8px)}
+.field input::placeholder{color:rgba(235,244,255,.20)}
+.field input:focus,.field select:focus{border-color:rgba(201,168,76,.55);background:rgba(255,255,255,.07);box-shadow:0 0 0 3px rgba(201,168,76,.12),0 2px 8px rgba(0,0,0,.14)}
+.field select option{background:#1C2B48;color:white}
+.field textarea{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.11);border-radius:10px;padding:13px 15px;font-family:var(--sans);font-size:.9375rem;color:var(--on-dark);outline:none;transition:all .22s ease;resize:vertical;min-height:84px;line-height:1.65;backdrop-filter:blur(8px)}
+.field textarea::placeholder{color:rgba(235,244,255,.20)}
+.field textarea:focus{border-color:rgba(201,168,76,.55);background:rgba(255,255,255,.07);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+.email-hint{font-size:.5rem;font-weight:600;color:rgba(224,59,59,.75);margin-top:4px;display:none}
+.email-hint.show{display:block}
+.optional-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;background:rgba(255,255,255,.06);font-size:.375rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--on-dark-3);margin-left:6px;vertical-align:middle}
+
+/* Upload */
+.upload-zone{border:2px dashed rgba(255,255,255,.13);border-radius:12px;padding:26px 18px;text-align:center;cursor:pointer;transition:all .28s var(--ease);margin-bottom:11px;position:relative;background:rgba(255,255,255,.02);backdrop-filter:blur(8px)}
+.upload-zone:hover,.upload-zone.drag{border-color:rgba(201,168,76,.45);background:rgba(201,168,76,.05);box-shadow:0 0 0 3px rgba(201,168,76,.08)}
+.upload-zone.has-file{border-color:rgba(30,184,122,.45);background:rgba(30,184,122,.06);border-style:solid;box-shadow:0 0 0 3px rgba(30,184,122,.08)}
+.uz-icon{font-size:1.75rem;margin-bottom:7px;display:block;line-height:1}
+.uz-title{font-size:.875rem;font-weight:700;color:var(--on-dark-2);margin-bottom:3px}
+.uz-sub{font-size:.5625rem;color:var(--on-dark-3);line-height:1.55}
+.uz-badge{display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:3px 10px;background:rgba(30,184,122,.12);border:1px solid rgba(30,184,122,.25);border-radius:100px;font-size:.4375rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--green)}
+.uz-badge svg{width:8px;height:8px;stroke:var(--green);stroke-width:2;fill:none}
+.uz-input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.uz-filename{font-family:var(--mono);font-size:.5rem;color:var(--green);margin-top:5px}
+
+/* Calm banner */
+.calm-banner{background:rgba(30,107,90,.08);border:1px solid rgba(30,184,122,.18);border-radius:10px;padding:13px 14px;display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;position:relative;overflow:hidden}
+.calm-banner::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 200px 80px at 0% 50%,rgba(30,184,122,.06) 0%,transparent 60%);pointer-events:none}
+.calm-icon{font-size:1.0625rem;flex-shrink:0;margin-top:1px;position:relative;z-index:1}
+.calm-text{font-size:.75rem;color:var(--on-dark-2);line-height:1.65;position:relative;z-index:1}
+.calm-text strong{color:var(--on-dark);font-weight:700}
+
+/* Summary */
+.summary{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:14px 16px;margin-bottom:16px;backdrop-filter:blur(12px)}
+.sum-row{display:flex;align-items:baseline;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.sum-row:last-child{border-bottom:none}
+.sum-label{font-size:.4375rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-3)}
+.sum-val{font-size:.75rem;font-weight:700;color:var(--on-dark-2);text-align:right;max-width:60%}
+.sum-val.green{color:var(--green)}
+
+/* Nav buttons */
+.nav-btns{display:flex;align-items:center;justify-content:space-between;padding:16px 30px 24px;border-top:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.08)}
+.btn-back{display:flex;align-items:center;gap:7px;font-family:var(--sans);font-size:.875rem;font-weight:600;color:var(--on-dark-3);background:none;border:none;cursor:pointer;padding:12px 0;transition:all .20s ease;-webkit-tap-highlight-color:transparent}
+.btn-back svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;transition:transform .2s ease}
+.btn-back:hover{color:var(--on-dark-2)}
+.btn-back:hover svg{transform:translateX(-3px)}
+.btn-next{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-size:.9375rem;font-weight:700;color:white;background:linear-gradient(135deg,var(--green-dk),var(--green));border:none;border-radius:100px;padding:12px 26px;cursor:pointer;letter-spacing:.01em;transition:all .22s var(--pop);box-shadow:0 4px 20px rgba(30,184,122,.40),0 0 0 1px rgba(30,184,122,.25);-webkit-tap-highlight-color:transparent}
+.btn-next:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 6px 28px rgba(30,184,122,.55)}
+.btn-next:disabled{background:rgba(255,255,255,.09);box-shadow:none;color:rgba(235,244,255,.28);cursor:not-allowed;transform:none}
+.btn-next svg{width:15px;height:15px;stroke:white;stroke-width:2.5;fill:none}
+.btn-submit{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font-family:var(--sans);font-size:1rem;font-weight:800;color:white;background:linear-gradient(135deg,var(--green-dk),var(--green) 60%);border:none;border-radius:100px;padding:15px 30px;cursor:pointer;letter-spacing:.01em;transition:all .22s var(--pop);box-shadow:0 4px 24px rgba(30,184,122,.45),0 8px 48px rgba(30,184,122,.22),0 0 0 1px rgba(30,184,122,.28);-webkit-tap-highlight-color:transparent;animation:sbglow 3s ease-in-out infinite;margin-top:4px}
+@keyframes sbglow{0%,100%{box-shadow:0 4px 24px rgba(30,184,122,.45),0 8px 48px rgba(30,184,122,.22),0 0 0 1px rgba(30,184,122,.28)}50%{box-shadow:0 6px 32px rgba(30,184,122,.65),0 12px 60px rgba(30,184,122,.32),0 0 0 1px rgba(30,184,122,.50)}}
+.btn-submit:hover{transform:translateY(-2px)}
+.btn-submit svg{width:17px;height:17px;stroke:white;stroke-width:2.5;fill:none}
+
+/* Tagline under intake */
+.is-tagline{margin-top:20px;text-align:center}
+.tg-txt{font-family:var(--serif);font-size:.8125rem;font-style:italic;color:rgba(235,244,255,.22);margin-bottom:7px;display:block}
+.tg-calm{font-size:.625rem;color:rgba(235,244,255,.26);line-height:1.70;max-width:420px;margin:0 auto 8px}
+.tg-dots{display:flex;justify-content:center;gap:5px}
+.tg-dots span{width:4px;height:4px;border-radius:50%;background:rgba(235,244,255,.13);transition:background .4s ease}
+.tg-dots span.on{background:var(--gold)}
+
+/* ═══════════════════════════════════
+   FOOTER
+═══════════════════════════════════ */
+.footer{background:white;border-top:1px solid var(--bdr);padding:28px 40px;text-align:center}
+.footer-inner{max-width:800px;margin:0 auto}
+.footer-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
+.footer-logo-shield{width:28px;height:28px}
+.footer-logo-shield svg{width:100%;height:100%}
+.footer-logo-name{font-family:var(--serif);font-size:.9375rem;font-weight:700;color:var(--navy)}
+.footer-logo-name sub{font-size:.4rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-4);display:block;margin-top:1px}
+.footer-disc{font-size:.4375rem;color:var(--ink-4);line-height:1.68;margin-bottom:8px}
+.footer-copy{font-size:.4375rem;color:var(--ink-4)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (max-width:600px){
+html,body{max-width:100%;overflow-x:hidden}
+.nav{height:auto;min-height:60px;padding:0 16px;gap:10px;flex-wrap:wrap}
+.btn-primary{margin-left:0;padding:9px 14px;font-size:.75rem}
+.banner{padding:9px 14px;font-size:.6875rem}
+.hero,.section,.data-section,.quick-q,.examine-section,.steps-section,.comparison-section,.findings-section,.scenarios-section,.expect-section,.editorial-section,.intake-section{padding-left:20px;padding-right:20px}
+.hero{padding-top:64px}
+.hero-hl{font-size:2.35rem}
+.hero-microcopy,.hero-stats{max-width:100%}
+.hero-stats{grid-template-columns:1fr}
+.hero-stat{border-right:none;border-bottom:1px solid var(--bdr)}
+.hero-stat:last-child{border-bottom:none}
+.research-grid{grid-template-columns:1fr;gap:10px}
+.research-card,.rc-header>div{min-width:0}
+.rc-source,.rc-citation,.rc-desc,.rd-txt{overflow-wrap:anywhere}
+.rc-pair{flex-wrap:wrap}
+.examine-grid,.steps-grid,.scenarios-grid,.concern-grid,.field-row,.opt-grid-2,.opt-grid-3{grid-template-columns:1fr}
+.sc-num::after{display:none}
+.comp-table{max-width:100%}
+.ct-head,.ct-row,.ct-outcome{grid-template-columns:1fr}
+.ct-head-cell,.ct-cell{border-right:none;border-bottom:1px solid var(--bdr)}
+.ct-head-cell:last-child,.ct-cell:last-child{border-bottom:none}
+.ct-rec{white-space:normal;text-align:right}
+.comp-cta-box{flex-direction:column;align-items:flex-start}
+.expect-item{flex-wrap:wrap}
+.ei-badge{margin-left:46px}
+.is-orb{display:none}
+.step{padding:24px 20px 20px}
+.nav-btns{padding:14px 20px 22px}
+}
+</style>
+</head>
+<body>
+
+<!-- ANNOUNCEMENT BANNER -->
+<div class="banner"><strong>Introductory pricing</strong> — this offer may not last. Lock in your rate today.</div>
+
+<!-- NAV -->
+<div class="nav">
+  <a href="javascript:void(0)" class="nav-brand">
+    <div class="nav-shield">
+      <img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate">
+    </div>
+    <div>
+      <div class="nav-name">United Patient<span style="display:block;font-size:.9rem">Advocate</span></div>
+    </div>
+  </a>
+  <div class="nav-spacer"></div>
+  <button class="nav-mode"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Night</button>
+  <a href="#begin-review" class="btn-primary">Review My Bill</a>
+</div>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-eyebrow">Independent Billing Review &amp; Dispute Documentation Service</div>
+  <div class="hero-hl">Understand Your Medical Bill.<br><em>We Prepare Your Review.</em></div>
+  <div class="hero-sub">Medical bills may contain discrepancies such as coding inconsistencies, duplicate line items, or charges that appear above published Medicare benchmarks. We prepare an independent billing review and dispute documentation package you may reference when reviewing charges with your provider or insurer.</div>
+  <a href="#begin-review" class="hero-cta">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg>
+    Begin My Billing Review
+  </a>
+  <div class="hero-microcopy">
+    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> No upfront cost</span>
+    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> About 60 seconds</span>
+    <span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 100% confidential</span>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hs-val">$88B</div><div class="hs-label">in billing errors on U.S. credit reports</div><div class="hs-source">CFPB · 2025</div></div>
+    <div class="hero-stat"><div class="hs-val">45%</div><div class="hs-label">of insured patients reported unexpected bills</div><div class="hs-source">Commonwealth Fund · 2024</div></div>
+    <div class="hero-stat"><div class="hs-val">3 min</div><div class="hs-label">to complete your review submission</div><div class="hs-source">United Patient Advocate</div></div>
+  </div>
+</div>
+
+<!-- INSURANCE LOGOS -->
+<div class="logos-strip">
+  <div class="logos-label">Experienced with Major U.S. Insurance Providers &amp; Hospital Systems</div>
+  <div class="logos-row">
+    <div class="logo-chip"><div class="logo-abbr">UHC</div><div class="logo-name">UnitedHealth</div></div>
+    <div class="logo-chip"><div class="logo-abbr">AETNA</div><div class="logo-name">Aetna</div></div>
+    <div class="logo-chip"><div class="logo-abbr">CIGNA</div><div class="logo-name">Cigna</div></div>
+    <div class="logo-chip"><div class="logo-abbr">BCBS</div><div class="logo-name">Blue Cross</div></div>
+    <div class="logo-chip"><div class="logo-abbr">HUM</div><div class="logo-name">Humana</div></div>
+  </div>
+  <div class="logos-disclaimer">All institutions listed are referenced solely for informational and research reference purposes. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any institution listed above. Referenced institutions include UnitedHealthcare, Aetna, Cigna, Blue Cross Blue Shield, and Humana.</div>
+</div>
+
+<!-- WHAT THE DATA SHOWS -->
+<div class="data-section">
+  <div class="section-inner wide">
+    <div class="eyebrow">Industry Research &amp; Public Reporting References</div>
+    <div class="section-hl" style="color:var(--on-dark)">What the data shows</div>
+    <div class="section-sub">Peer-reviewed publications, federal government reports, and independent research organizations cited for informational reference only.</div>
+    <div class="research-grid">
+      <div class="research-card"><div class="rc-header"><div class="rc-badge">JHM</div><div><div class="rc-source">Johns Hopkins Medicine</div><div class="rc-citation">Armstrong Institute &amp; Harvard Risk Management Foundation — BMJ Quality &amp; Safety · July 2023</div></div></div><div class="rc-stat">795,000</div><div class="rc-desc">Americans experience death or permanent disability from diagnostic and medical errors annually.</div></div>
+      <div class="research-card"><div class="rc-header"><div class="rc-badge">HMS</div><div><div class="rc-source">Harvard Medical School</div><div class="rc-citation">Dr. Edward P. Hoffer — Mayo Clinic Proceedings: Digital Health · May 2023</div></div></div><div class="rc-desc">Published research documents how electronic medical record systems may contribute to billing entries that do not reflect the services as actually rendered.</div></div>
+      <div class="research-card"><div class="rc-header"><div class="rc-badge" style="color:rgba(30,184,122,.80)">CF</div><div><div class="rc-source">The Commonwealth Fund</div><div class="rc-citation">Survey of 7,800+ Insured U.S. adults · August 2024</div></div></div><div class="rc-pair"><div><div class="rc-pair-val g">45%</div><div class="rc-pair-sub">unexpected bills</div></div><div><div class="rc-pair-val amber">38%</div><div class="rc-pair-sub">who disputed saw corrections</div></div></div><div class="rc-desc">Of 7,800+ insured U.S. adults surveyed.</div></div>
+      <div class="research-card"><div class="rc-header"><div class="rc-badge" style="font-size:.4rem">CFPB</div><div><div class="rc-source">U.S. Consumer Financial Protection Bureau</div><div class="rc-citation">Federal Government Report · 2025</div></div></div><div class="rc-stat">$88B</div><div class="rc-desc">In medical billing-related debt on consumer credit reports. A 2025 federal rule addressed this for an estimated 15 million Americans.</div></div>
+      <div class="research-card"><div class="rc-header"><div class="rc-badge" style="font-size:.4rem">OAm</div><div><div class="rc-source">CFPB Office for Older Americans</div><div class="rc-citation">Federal Government Research · 2023</div></div></div><div class="rc-stat gold">4 million</div><div class="rc-desc">Adults 65+ reporting unpaid medical bills — despite 98% holding health insurance.</div></div>
+      <div class="research-card"><div class="rc-header"><div class="rc-badge" style="font-size:.4rem">CMS</div><div><div class="rc-source">Centers for Medicare &amp; Medicaid Services</div><div class="rc-citation">U.S. Federal Government Annual Report · FY 2024</div></div></div><div class="rc-pair"><div><div class="rc-pair-val g">$31.7B</div><div class="rc-pair-sub">improper payments</div></div><div><div class="rc-pair-val amber">7.66%</div><div class="rc-pair-sub">error rate</div></div></div><div class="rc-desc">Medicare program, FY 2024 annual report.</div></div>
+      <div class="research-card"><div class="rc-header"><div class="rc-badge" style="font-size:.4rem;color:rgba(201,168,76,.80)">AARP</div><div><div class="rc-source">AARP Public Policy Institute</div><div class="rc-citation">National Policy Research · 2025</div></div></div><div class="rc-stat amber">#1 financial concern</div><div class="rc-desc">Medical debt identified as the leading financial concern for Americans over 50.</div></div>
+    </div>
+    <div class="research-disclaimer"><div class="rd-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="rd-txt"><strong>Research Reference Disclosure:</strong> Institutions and studies cited above are referenced solely for informational and research reference purposes. Statistics reflect the findings of the original publishing organizations and are not claims made by United Patient Advocate. United Patient Advocate is not affiliated with, endorsed by, or sponsored by Johns Hopkins Medicine, Harvard Medical School, The Commonwealth Fund, the Consumer Financial Protection Bureau, the Centers for Medicare &amp; Medicaid Services, AARP, or any other institution referenced. Individual billing outcomes vary and are not implied by any statistic cited above.</div></div>
+  </div>
+</div>
+
+<!-- QUICK QUESTION -->
+<div class="quick-q" id="bill-range">
+  <div class="quick-q-inner">
+    <div class="quick-q-label">Quick Question — 5 Seconds</div>
+    <div class="quick-q-hl">How much is your medical bill?</div>
+    <div class="quick-q-sub">Select the range that fits. We will explain what a review typically covers for your bill size.</div>
+    <div class="range-opts">
+      <div class="range-opt" onclick="selectRange(this)"><div class="ro-radio"><div class="ro-dot"></div></div><div class="ro-text"><div class="ro-name">Under $1,000</div><div class="ro-desc">Outpatient visits, minor procedures</div></div></div>
+      <div class="range-opt" onclick="selectRange(this)"><div class="ro-radio"><div class="ro-dot"></div></div><div class="ro-text"><div class="ro-name">$1,000 – $5,000</div><div class="ro-desc">ER visits, imaging, specialist care</div></div></div>
+      <div class="range-opt" onclick="selectRange(this)"><div class="ro-radio"><div class="ro-dot"></div></div><div class="ro-text"><div class="ro-name">Over $5,000</div><div class="ro-desc">Surgeries, hospital stays</div></div></div>
+    </div>
+
+    <div class="sr-label">Sample Billing Review</div>
+    <div class="sr-hl">This is what we prepare<br><em>for your bill</em></div>
+    <div class="sr-sub">CPT codes, ICD-10 references, Medicare benchmarks, duplicate charges, and coding indicators. Choose your review package to access your complete report.</div>
+    <div class="report-table">
+      <div class="rt-header"><div class="rt-title">United Patient Advocate — Billing Analysis Report</div><div class="rt-badges"><span class="rt-badge rtb-review">IN REVIEW</span><span class="rt-badge rtb-flags">3 FLAGS</span></div></div>
+      <div class="rt-row"><div class="rt-col-label">CPT Codes Identified</div><div class="rt-col-content"><div class="rt-cpt-tags"><span class="rt-cpt">99285</span><span class="rt-cpt">71046</span><span class="rt-cpt">93010</span><span style="font-size:.5rem;color:var(--ink-3);padding:2px 4px">+ 2 more</span></div></div><div class="rt-col-status"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
+      <div class="rt-row"><div class="rt-col-label">ICD-10 Diagnoses</div><div class="rt-col-content rt-blurred">M47.816 · S07.0xxA · T14</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
+      <div class="rt-row"><div class="rt-col-label">Medicare Benchmark</div><div class="rt-col-content"><div class="rt-flag-txt">CPT 99285: Charge above Medicare allowable</div></div><div class="rt-col-status"><span class="rt-chip rtc-flagged">Flagged</span></div></div>
+      <div class="rt-row"><div class="rt-col-label">Provider Charge Analysis</div><div class="rt-col-content rt-blurred">Billed $2,480 vs Medicare allowable $880. Variance +180%</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
+      <div class="rt-row"><div class="rt-col-label">Duplicate Charge Check</div><div class="rt-col-content"><div class="rt-flag-txt">Line items 3 &amp; 7 appear duplicated</div><div style="font-size:.4375rem;color:var(--ink-4);margin-top:2px">CPT 71046 ×2</div></div><div class="rt-col-status"><span class="rt-chip rtc-flagged">Flagged</span></div></div>
+      <div class="rt-row"><div class="rt-col-label">Coding Mismatch</div><div class="rt-col-content rt-blurred">Diagnosis code does not support billed procedure level. Specify indication present.</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
+      <div class="rt-row"><div class="rt-col-label">Insurance Billing Analysis</div><div class="rt-col-content rt-blurred">Out-of-network rate applied to in-network eligible procedure. No Surprises Act applicability.</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
+      <div class="rt-row"><div class="rt-col-label">Dispute Letter</div><div class="rt-col-content rt-blurred">Your Billing Department: Pursuant to federal billing regulations, we formally dispute...</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Ready</span></div></div>
+      <div class="rt-footer"><div class="rt-footer-badge"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Your review documentation has already been prepared.</div><div class="rt-footer-sub">Choose your review package to access your complete billing analysis, dispute reference letter, phone script, and action plan.</div></div>
+    </div>
+    <div style="text-align:center"><a href="#begin-review" class="see-btn"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg>See My Billing Review</a></div>
+  </div>
+</div>
+
+<!-- WHAT WE EXAMINE -->
+<div class="examine-section">
+  <div class="section-inner">
+    <div class="eyebrow" style="color:var(--teal)">Our Review Process</div>
+    <div class="section-hl">What we examine<br><em>in your bill</em></div>
+    <div class="section-sub">A structured review of seven categories that commonly contain errors in U.S. medical bills.</div>
+    <div class="examine-grid">
+      <div class="examine-card"><div class="ec-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg></div><div><div class="ec-title">CPT &amp; ICD-10 Coding Review</div><div class="ec-desc">Flags potential coding discrepancies and mismatched billing entries against standard coding guidelines.</div></div></div>
+      <div class="examine-card"><div class="ec-icon cobalt"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="ec-title">Medicare Benchmark Comparison</div><div class="ec-desc">Compares every charge against published Medicare allowable rates. Flags amounts that may exceed standard benchmarks.</div></div></div>
+      <div class="examine-card"><div class="ec-icon crimson"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div><div><div class="ec-title">Duplicate Charge Detection</div><div class="ec-desc">Identifies line items that appear more than once or may have been billed under multiple codes for the same service.</div></div></div>
+      <div class="examine-card"><div class="ec-icon amber"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="ec-title">Upcoding &amp; Unbundling Indicators</div><div class="ec-desc">Flags indicators where billing complexity codes may exceed standard guidelines, or where charges appear split unnecessarily.</div></div></div>
+      <div class="examine-card"><div class="ec-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div><div class="ec-title">Insurance Billing Analysis</div><div class="ec-desc">Reviews in-network rate applicability and flags potential No Surprises Act considerations relevant to your bill.</div></div></div>
+      <div class="examine-card"><div class="ec-icon cobalt"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><div class="ec-title">Dispute Documentation &amp; Phone Script</div><div class="ec-desc">Prepares a dispute reference letter citing applicable federal billing protections, plus a structured phone script for contacting your provider.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- THREE STEPS -->
+<div class="steps-section">
+  <div class="section-inner">
+    <div class="steps-label">How It Works</div>
+    <div class="section-hl" style="color:var(--on-dark);text-align:center;margin-bottom:6px">Three steps.<br><em>That is all.</em></div>
+    <div class="steps-sub">No legal training. No preparation. No medical knowledge required.</div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="sc-num">1</div><div class="sc-title">Upload or enter your bill</div><div class="sc-desc">Photo, PDF, or screenshot. Or type the key amounts manually. Either way works.</div><span class="sc-tag">Under 60 seconds</span></div>
+      <div class="step-card"><div class="sc-num">2</div><div class="sc-title">We prepare your review documentation</div><div class="sc-desc">CPT coding reference review, Medicare benchmark comparison, duplicate charge identification, and dispute documentation preparation.</div><span class="sc-tag cobalt">Automated document analysis</span></div>
+      <div class="step-card"><div class="sc-num">3</div><div class="sc-title">You receive your report</div><div class="sc-desc">Dispute reference letter, structured phone script, action plan, and consumer billing rights overview sent to your inbox.</div><span class="sc-tag gold">Results in under 60 seconds</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARISON TABLE -->
+<div class="comparison-section">
+  <div class="section-inner">
+    <div class="comp-label">An Independent Comparison</div>
+    <div class="section-hl" style="text-align:center;margin-bottom:6px">Navigating alone<br><em style="color:var(--teal)">vs having documentation prepared</em></div>
+    <div class="section-sub">Four areas where having organized documentation may support a more informed billing review.</div>
+    <div class="comp-table" style="margin-bottom:14px">
+      <div class="ct-head">
+        <div class="ct-head-cell">The Situation</div>
+        <div class="ct-head-cell">On Your Own</div>
+        <div class="ct-head-cell" style="background:var(--teal);color:rgba(255,255,255,.90);border-right:none;padding:12px 14px;display:flex;align-items:center;justify-content:space-between">United Patient Advocate <span class="ct-rec"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg> Recommended</span></div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell"><div class="ct-cell-title">Reaching billing</div><div style="font-size:.5rem;color:var(--ink-3)">Communicating with a provider's billing department</div></div>
+        <div class="ct-cell"><div class="ct-x"><div class="ct-x-icon"><svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg></div>Navigation can be time-consuming. Multiple transfers are common.</div></div>
+        <div class="ct-cell"><div class="ct-check"><div class="ct-check-icon"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Structured billing communication guide prepared.</div></div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell"><div class="ct-cell-title">Understanding the bill</div><div style="font-size:.5rem;color:var(--ink-3)">Interpreting procedure codes and itemized line items</div></div>
+        <div class="ct-cell"><div class="ct-x"><div class="ct-x-icon"><svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg></div>Billing codes can be difficult to interpret without reference tools.</div></div>
+        <div class="ct-cell"><div class="ct-check"><div class="ct-check-icon"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Billing codes cross-referenced and explained in plain language.</div></div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell"><div class="ct-cell-title">Dispute documentation</div><div style="font-size:.5rem;color:var(--ink-3)">Having organized references and documentation before contacting a provider</div></div>
+        <div class="ct-cell"><div class="ct-x"><div class="ct-x-icon"><svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg></div>No organized reference documentation. No benchmark comparisons available.</div></div>
+        <div class="ct-cell"><div class="ct-check"><div class="ct-check-icon"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Relevant federal billing protections referenced. Medicare benchmark comparisons included.</div></div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell"><div class="ct-cell-title">Likely outcome</div><div style="font-size:.5rem;color:var(--ink-3)">What many patients experience with billing review resources</div></div>
+        <div class="ct-cell"><div class="ct-x"><div class="ct-x-icon"><svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg></div>Many patients are unfamiliar with billing review resources.</div></div>
+        <div class="ct-cell"><div class="ct-check"><div class="ct-check-icon"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Organized billing review documentation prepared and ready to reference.</div></div>
+      </div>
+      <div class="ct-outcome">
+        <div class="cto-label">Outcome</div>
+        <div class="cto-bad">Typical Result<br><span style="font-size:.875rem;font-weight:700">Unprepared</span></div>
+        <div class="cto-good">Documentation prepared</div>
+      </div>
+    </div>
+    <div class="comp-cta-box">
+      <div class="ccb-text"><div class="ccb-title">Every patient has the right to understand their medical bill and access independent review resources.</div><div class="ccb-sub">Independent billing review and dispute documentation preparation service. No medical knowledge required.</div></div>
+      <a href="#begin-review" class="ccb-btn"><svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>Start My Billing Review</a>
+    </div>
+  </div>
+</div>
+
+<!-- EXAMPLE FINDINGS -->
+<div class="findings-section">
+  <div class="section-inner">
+    <div class="eyebrow" style="color:var(--teal)">Example Billing Review Findings</div>
+    <div class="section-hl">What a billing review<br><em>may surface in your documents</em></div>
+    <div class="section-sub">These are illustrative examples of the categories our review process analyzes. They are not predictions of specific findings or outcomes for your bill.</div>
+    <div class="finding-card"><div class="fc-tag-row"><span class="fc-tag fct-duplicate">Duplicate Charge Identified</span><span class="fc-illus">Illustrative example</span></div><div class="fc-title">CPT code billed on two separate line items for the same date of service</div><div class="fc-desc">Our review identified a procedure code that appeared on two separate line items within the same billing statement for the same date of service. The patient received documentation referencing this discrepancy and guidance on requesting an itemized review from the billing department.</div></div>
+    <div class="finding-card"><div class="fc-tag-row"><span class="fc-tag fct-benchmark">Benchmark Discrepancy Noted</span><span class="fc-illus">Illustrative example</span></div><div class="fc-title">Facility fee amount appeared above the published Medicare allowable rate for the same service category</div><div class="fc-desc">A comparison against published Medicare benchmark rates for the relevant CPT code indicated that the facility fee billed exceeded the standard Medicare allowable amount for that service category. A dispute reference letter was prepared citing this benchmark comparison for the patient's informational use.</div></div>
+    <div class="finding-card"><div class="fc-tag-row"><span class="fc-tag fct-coding">Coding Inconsistency Flagged</span><span class="fc-illus">Illustrative example</span></div><div class="fc-title">Billed service complexity level appeared inconsistent with standard coding guidelines for the documented visit type</div><div class="fc-desc">A review of the evaluation and management codes on the bill indicated that the complexity level billed may not align with standard coding guidelines for the documented service type. Our review prepared a structured documentation package referencing the relevant coding guidelines for the patient's use in discussing the bill with their provider.</div></div>
+    <div class="findings-disclaimer">Examples above are illustrative of the categories our review process may identify. They are not representations of specific findings or outcomes. Individual billing reviews vary based on the information submitted. Not legal, medical, or financial advice.</div>
+  </div>
+</div>
+
+<!-- PATIENT SCENARIOS -->
+<div class="scenarios-section">
+  <div class="section-inner">
+    <div class="eyebrow" style="color:var(--teal)">Example Billing Situations Reviewed</div>
+    <div class="section-hl">Patients in situations<br><em>just like yours</em></div>
+    <div class="section-sub">These anonymized scenarios illustrate the types of billing situations our review process is designed to help document and clarify.</div>
+    <div class="scenarios-grid">
+      <div class="scenario-card"><div class="sc-header"><div class="sc-avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sc-name">Retired Medicare Patient</div><div class="sc-type">Hospital outpatient visit</div></div></div><div class="sc-story">After receiving a hospital statement that included charges she did not recognize, a retired patient in her late 60s submitted her bill for review. She was unfamiliar with the CPT codes listed and unsure whether her Medicare coverage had been correctly applied.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">CPT code reference breakdown, Medicare benchmark comparison, insurance billing reference, and a structured dispute letter for her records.</div></div></div>
+      <div class="scenario-card"><div class="sc-header"><div class="sc-avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sc-name">Retired School Teacher</div><div class="sc-type">Emergency room balance</div></div></div><div class="sc-story">A retired teacher received an ER billing statement months after her visit. The balance was significantly higher than she expected given her insurance coverage. She was unsure which charges were her responsibility and whether the No Surprises Act applied to her situation.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">ER billing code reference review, No Surprises Act applicability analysis, insurance billing reference, and a structured communication guide for contacting the billing department.</div></div></div>
+      <div class="scenario-card"><div class="sc-header"><div class="sc-avatar building"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sc-name">Parent Reviewing Child's Bill</div><div class="sc-type">Outpatient procedure charges</div></div></div><div class="sc-story">A parent received an outpatient billing statement for her child's procedure that contained several unfamiliar line items. One procedure code appeared more than once on the itemized bill. She wanted to understand the charges before making any payment.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">Line-item CPT code reference analysis, duplicate charge identification, Medicare benchmark comparison for reference, and a dispute documentation package.</div></div></div>
+      <div class="scenario-card"><div class="sc-header"><div class="sc-avatar building"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><div><div class="sc-name">Insured Employee, Age 48</div><div class="sc-type">Post-insurance adjustment discrepancy</div></div></div><div class="sc-story">An insured employee received a bill from a specialist after insurance adjustments had been applied. The remaining balance did not match what his Explanation of Benefits document showed as his responsibility. He submitted the bill to understand the discrepancy.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">EOB vs billed amount cross-reference analysis, in-network rate applicability review, insurance billing reference analysis, and a structured letter for the billing department.</div></div></div>
+    </div>
+    <div class="scenarios-disclaimer">All scenarios above are anonymized and illustrative. They represent common billing review categories and do not represent specific findings, specific outcomes, or individual patient results.</div>
+  </div>
+</div>
+
+<!-- WHAT TO EXPECT -->
+<div class="expect-section">
+  <div class="section-inner">
+    <div class="eyebrow" style="color:var(--teal)">Why Patients Trust Us</div>
+    <div class="section-hl">What you can expect<br><em>working with us</em></div>
+    <div class="section-sub" style="margin-bottom:28px">.</div>
+    <div class="expect-list">
+      <div class="expect-item"><div class="ei-icon"><svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div><div class="ei-content"><div class="ei-title">Confidential document handling</div><div class="ei-desc">Your bill and personal information are handled with strict confidentiality. Documents are used solely to prepare your billing review and are not retained, shared, or sold.</div></div><span class="ei-badge">Private</span></div>
+      <div class="expect-item"><div class="ei-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="ei-content"><div class="ei-title">Built for the U.S. billing system</div><div class="ei-desc">Our review process is built specifically for American healthcare billing — Medicare rates, federal law, and U.S. provider practices.</div></div><span class="ei-badge us">U.S. Focused</span></div>
+      <div class="expect-item"><div class="ei-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><div class="ei-content"><div class="ei-title">Billing review and dispute documentation</div><div class="ei-desc">We prepare a dispute reference letter citing applicable federal billing protections, a structured phone communication guide, and a step-by-step action plan for your reference when contacting your provider's billing department.</div></div><span class="ei-badge pkg">Complete Package</span></div>
+      <div class="expect-item"><div class="ei-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><div class="ei-content"><div class="ei-title">Experienced with all major U.S. insurers</div><div class="ei-desc">Our billing review process covers all major insurance providers and hospital billing systems across the United States.</div></div><span class="ei-badge ins">All Major Insurers</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- EDITORIAL -->
+<div class="editorial-section">
+  <div class="editorial-inner">
+    <div class="ed-label">A Note Before You Begin</div>
+    <div class="ed-hl">Medical bills are confusing<br><em>by design. That is not your fault.</em></div>
+    <div style="margin-top:16px"></div>
+    <div class="ed-body">
+      <div class="ed-p">Many patients avoid reviewing their medical bills not because they do not care, but because billing statements are written in a language most people were never taught to read. CPT procedure codes, ICD-10 diagnosis references, explanation of benefits documents, and provider charge breakdowns can feel unfamiliar and overwhelming — even to educated, attentive adults.</div>
+      <div class="ed-p">According to published research from <strong>The Commonwealth Fund (2024)</strong>, 45% of insured Americans received unexpected bills for services they believed were covered — and most did not know where to begin when reviewing them.</div>
+      <div class="ed-p">Reviewing a medical bill is a normal, reasonable, and often important step in managing your healthcare. You do not need a medical background or legal training. You need organized documentation, clear references, and a structured process. That is what we prepare for you.</div>
+    </div>
+    <div class="ed-chips">
+      <div class="ed-chip"><div class="ed-chip-title">CPT codes explained</div><div class="ed-chip-desc">Plain-language billing code reference included</div></div>
+      <div class="ed-chip"><div class="ed-chip-title">Benchmark comparisons</div><div class="ed-chip-desc">Medicare-published rate comparisons provided</div></div>
+      <div class="ed-chip"><div class="ed-chip-title">Dispute guide prepared</div><div class="ed-chip-desc">Structured letter and communication guide ready</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     INTAKE SECTION — NEW PREMIUM FORM
+     replaces old "Upload Bill / Take Photo / Type it In"
+═══════════════════════════════════ -->
+<div class="intake-section" id="begin-review">
+  <div class="is-vignette"></div>
+  <div class="is-orb is-orb1"></div>
+  <div class="is-orb is-orb2"></div>
+  <div class="is-orb is-orb3"></div>
+  <div class="is-particles" id="is-particles"></div>
+
+  <div class="intake-section-inner">
+    <!-- Header -->
+    <div class="is-header">
+      <span class="is-label">Your Next Step</span>
+      <div class="is-hl">Every patient has the right<br>to <span>review their bill.</span></div>
+      <div class="is-sub">Medical bills in the United States may include coding inconsistencies, duplicate charges, or amounts that appear inconsistent with published Medicare benchmarks. We provide a structured, documented billing review to help you understand and respond to your charges.</div>
+    </div>
+
+    <!-- Step indicator -->
+    <div class="step-indicator">
+      <span class="si-label" id="si-label">Step 1 of 7</span>
+      <div class="si-dots" id="si-dots"></div>
+      <div class="si-bar-wrap"><div class="si-bar-fill" id="si-bar" style="width:14%"></div></div>
+    </div>
+
+    <!-- CARD with all 7 steps embedded -->
+    <!-- CARD -->
+    <div class="card">
+
+      <!-- ═══ STEP 1: BILL TYPE ═══ -->
+      <div class="step active" id="step-1">
+        <span class="step-icon">🏥</span>
+        <div class="step-label">Step 1 of 7</div>
+        <div class="step-title">What type of medical bill<br>are you reviewing?</div>
+        <div class="step-sub">Choose the option that best describes your situation. You can only have one bill type per review.</div>
+        <div class="opt-grid-2">
+          <button class="opt" data-val="hospital" onclick="selectOpt(this,'s1')">
+            <span class="opt-emoji">🏥</span>
+            <span class="opt-text"><span class="opt-name">Hospital Bill</span><span class="opt-desc">Inpatient stay, ER visit, or outpatient procedure</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt" data-val="er" onclick="selectOpt(this,'s1')">
+            <span class="opt-emoji">🚨</span>
+            <span class="opt-text"><span class="opt-name">Emergency Room</span><span class="opt-desc">ER visit billed separately from the hospital</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt" data-val="doctor" onclick="selectOpt(this,'s1')">
+            <span class="opt-emoji">👨‍⚕️</span>
+            <span class="opt-text"><span class="opt-name">Doctor's Office</span><span class="opt-desc">Primary care, specialist, or clinic visit</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt" data-val="lab" onclick="selectOpt(this,'s1')">
+            <span class="opt-emoji">🧪</span>
+            <span class="opt-text"><span class="opt-name">Lab or Diagnostic</span><span class="opt-desc">Blood work, imaging, X-ray, MRI, CT scan</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt" data-val="surgery" onclick="selectOpt(this,'s1')">
+            <span class="opt-emoji">🩺</span>
+            <span class="opt-text"><span class="opt-name">Surgery or Procedure</span><span class="opt-desc">Surgical center, outpatient or inpatient procedure</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt" data-val="ambulance" onclick="selectOpt(this,'s1')">
+            <span class="opt-emoji">🚑</span>
+            <span class="opt-text"><span class="opt-name">Ambulance</span><span class="opt-desc">Emergency or non-emergency medical transport</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt" data-val="mental" onclick="selectOpt(this,'s1')">
+            <span class="opt-emoji">🧠</span>
+            <span class="opt-text"><span class="opt-name">Mental Health</span><span class="opt-desc">Therapy, psychiatry, or behavioral health services</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt" data-val="pharmacy" onclick="selectOpt(this,'s1')">
+            <span class="opt-emoji">💊</span>
+            <span class="opt-text"><span class="opt-name">Pharmacy</span><span class="opt-desc">Prescription medication billing or co-pay dispute</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 2: INSURANCE ═══ -->
+      <div class="step" id="step-2">
+        <span class="step-icon">🛡️</span>
+        <div class="step-label">Step 2 of 7</div>
+        <div class="step-title">What is your primary<br>insurance coverage?</div>
+        <div class="step-sub">This helps us identify the specific billing rules and federal protections that apply to your situation.</div>
+        <div class="opt-list">
+          <button class="opt list-item" data-val="medicare" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">🏛️</span>
+            <span class="opt-text"><span class="opt-name">Medicare (Part A &amp; B)</span><span class="opt-desc">Federal program for adults 65+ and some disabilities</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="medicare-advantage" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">🏛️</span>
+            <span class="opt-text"><span class="opt-name">Medicare Advantage (Part C)</span><span class="opt-desc">Medicare plan run by a private insurance company</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="medigap" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">🏛️</span>
+            <span class="opt-text"><span class="opt-name">Medicare + Supplement (Medigap)</span><span class="opt-desc">Medicare with additional private supplemental coverage</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="medicaid" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">📋</span>
+            <span class="opt-text"><span class="opt-name">Medicaid</span><span class="opt-desc">State and federal program for lower-income individuals</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="dual" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">📋</span>
+            <span class="opt-text"><span class="opt-name">Medicare + Medicaid (Dual Eligible)</span><span class="opt-desc">Covered by both Medicare and Medicaid</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="employer" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">💼</span>
+            <span class="opt-text"><span class="opt-name">Employer / Group Insurance</span><span class="opt-desc">Private insurance through your job or a family member's job</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="marketplace" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">🏪</span>
+            <span class="opt-text"><span class="opt-name">Marketplace / ACA Plan</span><span class="opt-desc">Insurance purchased on healthcare.gov or a state exchange</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="tricare" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">🎖️</span>
+            <span class="opt-text"><span class="opt-name">TRICARE (Military)</span><span class="opt-desc">Health coverage for active duty, veterans, or military families</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="va" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">🎖️</span>
+            <span class="opt-text"><span class="opt-name">VA Benefits</span><span class="opt-desc">Veterans Affairs health coverage</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="chip" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">👶</span>
+            <span class="opt-text"><span class="opt-name">CHIP (Children's Health Insurance)</span><span class="opt-desc">State insurance program for children and some pregnant women</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="workers-comp" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">🏗️</span>
+            <span class="opt-text"><span class="opt-name">Workers' Compensation</span><span class="opt-desc">Injury or illness resulting from workplace accident</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="uninsured" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">📄</span>
+            <span class="opt-text"><span class="opt-name">No Insurance (Self-Pay)</span><span class="opt-desc">Paying out of pocket without any insurance coverage</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 3: BILL AMOUNT ═══ -->
+      <div class="step" id="step-3">
+        <span class="step-icon">💰</span>
+        <div class="step-label">Step 3 of 7</div>
+        <div class="step-title">Approximately how much<br>is your bill?</div>
+        <div class="step-sub">A rough estimate is fine. This helps us assess the urgency and scope of your review. Every amount deserves a second look.</div>
+        <div class="opt-grid-3">
+          <button class="opt center" data-val="under500" onclick="selectOpt(this,'s3')">
+            <span class="opt-center-emoji">💵</span>
+            <span class="opt-name">Under $500</span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt center" data-val="500-1k" onclick="selectOpt(this,'s3')">
+            <span class="opt-center-emoji">💵</span>
+            <span class="opt-name">$500 – $1,000</span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt center" data-val="1k-5k" onclick="selectOpt(this,'s3')">
+            <span class="opt-center-emoji">💴</span>
+            <span class="opt-name">$1,000 – $5,000</span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt center" data-val="5k-10k" onclick="selectOpt(this,'s3')">
+            <span class="opt-center-emoji">💶</span>
+            <span class="opt-name">$5,000 – $10,000</span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt center" data-val="10k-25k" onclick="selectOpt(this,'s3')">
+            <span class="opt-center-emoji">💷</span>
+            <span class="opt-name">$10,000 – $25,000</span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt center" data-val="25k-50k" onclick="selectOpt(this,'s3')">
+            <span class="opt-center-emoji">🏦</span>
+            <span class="opt-name">$25,000 – $50,000</span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt center" data-val="50k-100k" onclick="selectOpt(this,'s3')">
+            <span class="opt-center-emoji">🏦</span>
+            <span class="opt-name">$50,000 – $100,000</span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt center" data-val="over100k" onclick="selectOpt(this,'s3')">
+            <span class="opt-center-emoji">🚨</span>
+            <span class="opt-name">Over $100,000</span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt center" data-val="unknown" onclick="selectOpt(this,'s3')">
+            <span class="opt-center-emoji">❓</span>
+            <span class="opt-name">Not Sure</span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 4: PAYMENT STATUS ═══ -->
+      <div class="step" id="step-4">
+        <span class="step-icon">📋</span>
+        <div class="step-label">Step 4 of 7</div>
+        <div class="step-title">What is the current status<br>of this bill?</div>
+        <div class="step-sub">Your payment status affects which options are available and how urgently we recommend acting.</div>
+        <div class="calm-banner">
+          <span class="calm-icon">💡</span>
+          <div class="calm-text"><strong>Good news:</strong> If you haven't paid yet, you are in the strongest possible position. You have every right to review before paying anything.</div>
+        </div>
+        <div class="opt-list">
+          <button class="opt list-item" data-val="unpaid" onclick="selectOpt(this,'s4')">
+            <span class="opt-emoji">✅</span>
+            <span class="opt-text"><span class="opt-name">I haven't paid anything yet</span><span class="opt-desc">Best position to be in — full review and dispute options available</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="partial" onclick="selectOpt(this,'s4')">
+            <span class="opt-emoji">🔄</span>
+            <span class="opt-text"><span class="opt-name">I made a partial payment</span><span class="opt-desc">Review still possible for remaining balance and any overpayment</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="payment-plan" onclick="selectOpt(this,'s4')">
+            <span class="opt-emoji">📅</span>
+            <span class="opt-text"><span class="opt-name">I'm on a payment plan</span><span class="opt-desc">Review may help reduce your balance or monthly amount</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="paid" onclick="selectOpt(this,'s4')">
+            <span class="opt-emoji">💳</span>
+            <span class="opt-text"><span class="opt-name">I paid in full</span><span class="opt-desc">You may still be able to dispute or request reimbursement for incorrect billing charges.</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="collections" onclick="selectOpt(this,'s4')">
+            <span class="opt-emoji">⚠️</span>
+            <span class="opt-text"><span class="opt-name">It went to collections</span><span class="opt-desc">Dispute rights still apply — we'll help you navigate this</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+          <button class="opt list-item" data-val="insurance-dispute" onclick="selectOpt(this,'s4')">
+            <span class="opt-emoji">🔁</span>
+            <span class="opt-text"><span class="opt-name">My insurance denied or underpaid</span><span class="opt-desc">Claim denial or coverage dispute with your insurer</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 5: WHAT CONCERNS YOU ═══ -->
+      <div class="step" id="step-5">
+        <span class="step-icon">🔍</span>
+        <div class="step-label">Step 5 of 7</div>
+        <div class="step-title">What concerns you about<br>this bill?</div>
+        <div class="step-sub">Select everything that applies. You can choose more than one. This is what we'll focus on during your review.</div>
+        <div class="concern-grid" id="concern-grid">
+          <button class="chip" onclick="toggleChip(this)" data-val="too-high">
+            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <span class="chip-name">Charges seem too high or inflated</span>
+          </button>
+          <button class="chip" onclick="toggleChip(this)" data-val="duplicate">
+            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <span class="chip-name">I think I was charged twice for something</span>
+          </button>
+          <button class="chip" onclick="toggleChip(this)" data-val="not-received">
+            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <span class="chip-name">I was billed for services I didn't receive</span>
+          </button>
+          <button class="chip" onclick="toggleChip(this)" data-val="out-of-network">
+            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <span class="chip-name">Billed out-of-network during in-network visit</span>
+          </button>
+          <button class="chip" onclick="toggleChip(this)" data-val="lab-charges">
+            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <span class="chip-name">Unexpected lab or test charges</span>
+          </button>
+          <button class="chip" onclick="toggleChip(this)" data-val="coding">
+            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <span class="chip-name">I think the wrong billing code was used</span>
+          </button>
+          <button class="chip" onclick="toggleChip(this)" data-val="denied">
+            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <span class="chip-name">My insurance claim was denied</span>
+          </button>
+          <button class="chip" onclick="toggleChip(this)" data-val="confusing">
+            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <span class="chip-name">I just don't understand what I'm being charged for</span>
+          </button>
+          <button class="chip" onclick="toggleChip(this)" data-val="surprise-bill">
+            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <span class="chip-name">I received a surprise bill I wasn't expecting</span>
+          </button>
+          <button class="chip" onclick="toggleChip(this)" data-val="no-itemized">
+            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <span class="chip-name">I never received an itemized bill</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 6: YOUR INFORMATION ═══ -->
+      <div class="step" id="step-6">
+        <span class="step-icon">📝</span>
+        <div class="step-label">Step 6 of 7</div>
+        <div class="step-title">Tell us a little about<br>you and your bill</div>
+        <div class="step-sub">This information is used only to prepare your personalized review documents. Nothing is shared.</div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Your First Name</label>
+            <input type="text" id="f-first" placeholder="Jane" autocomplete="given-name"/>
+          </div>
+          <div class="field">
+            <label class="field-label">Last Name</label>
+            <input type="text" id="f-last" placeholder="Smith" autocomplete="family-name"/>
+          </div>
+        </div>
+        <div class="field-row full">
+          <div class="field">
+            <label class="field-label">Email Address</label>
+            <input type="email" id="f-email" placeholder="your@email.com" autocomplete="email" oninput="validateStep6()"/>
+            <div class="email-hint" id="email-hint">Please enter a valid email address (e.g. name@example.com)</div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Provider / Hospital Name</label>
+            <input type="text" id="f-provider" placeholder="Memorial Regional Medical Center"/>
+          </div>
+          <div class="field">
+            <label class="field-label">Date of Service</label>
+            <input type="date" id="f-dos"/>
+          </div>
+        </div>
+        <!-- Description textarea -->
+        <div class="field-row full">
+          <div class="field">
+            <label class="field-label">Describe your billing situation <span class="optional-badge">Optional</span></label>
+            <textarea id="f-desc" placeholder="In your own words, tell us what concerns you about this bill — anything unusual, confusing, or that doesn't seem right. The more detail you share, the more personalized your review will be."></textarea>
+          </div>
+        </div>
+        <!-- Upload zone -->
+        <div class="field-row full" style="margin-bottom:6px">
+          <div class="field">
+            <label class="field-label">Upload Your Bill <span class="optional-badge">Optional</span></label>
+            <div class="upload-zone" id="upload-zone">
+              <input type="file" class="uz-input" id="f-file" accept=".pdf,.jpg,.jpeg,.png,.heic" onchange="handleFile(this)"/>
+              <span class="uz-icon">📄</span>
+              <div class="uz-title">Tap to upload your bill</div>
+              <div class="uz-sub">Accepted: PDF, JPG, PNG · Max 20MB<br>No bill yet? No problem — you can upload later</div>
+              <div class="uz-badge"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Encrypted &amp; Secure</div>
+            </div>
+            <div id="uz-filename" class="uz-filename"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ STEP 7: REVIEW + SUBMIT ═══ -->
+      <div class="step" id="step-7">
+        <span class="step-icon">✅</span>
+        <div class="step-label">Step 7 of 7 — Ready</div>
+        <div class="step-title">Your review is ready<br>to begin.</div>
+        <div class="step-sub">Here is a summary of what you told us. Confirm and start your analysis — it takes about 60 seconds.</div>
+        <div class="summary" id="summary-panel">
+          <!-- Populated by JS -->
+        </div>
+        <div class="calm-banner">
+          <span class="calm-icon">🛡️</span>
+          <div class="calm-text">Our system will scan your bill for duplicate charges, coding issues, and out-of-network rate discrepancies. <strong>Your review is completely private</strong> and your information is never shared or sold.</div>
+        </div>
+        <button class="btn-submit" onclick="startAnalysis()">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Start My Free Review Now
+          <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+        <div style="text-align:center;margin-top:8px;font-size:.5rem;color:rgba(235,244,255,.28);letter-spacing:.06em;text-transform:uppercase">Results in under 60 seconds</div>
+      </div>
+
+
+      <!-- NAV BUTTONS (rendered per step) -->
+      <div class="nav-btns" id="nav-btns">
+        <button class="btn-back" id="btn-back" onclick="prevStep()" style="visibility:hidden">
+          <svg viewBox="0 0 24 24"><polyline points="19 12 5 12"/><polyline points="12 5 5 12 12 19"/></svg>
+          Back
+        </button>
+        <button class="btn-next" id="btn-next" onclick="nextStep()" disabled>
+          Continue
+          <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+
+
+    </div><!-- /card -->
+
+
+    </div><!-- /intake-section-inner -->
+
+  <!-- Tagline -->
+  <div class="is-tagline">
+    <div class="tg-txt">"You don't have to navigate this alone."</div>
+    <div class="tg-dots"><span class="on" id="td0"></span><span id="td1"></span><span id="td2"></span></div>
+  </div>
+
+</div><!-- /intake-section -->
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <div class="footer-logo-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
+      <div class="footer-logo-name">United Patient Advocate<sub>ADVOCATE</sub></div>
+    </div>
+    <div class="footer-disc">United Patient Advocate is an independent medical billing review and dispute preparation service. We provide educational billing analysis, Medicare benchmark comparisons, coding review references, and consumer dispute documentation tools. Results vary based on provider policies, insurer determinations, and individual circumstances. Nothing on this site constitutes legal, medical, or financial advice. Institutions referenced — including Harvard Medical School, Johns Hopkins Medicine, The Commonwealth Fund, CMS, CFPB, AARP, UnitedHealthcare, Aetna, Cigna, Blue Cross Blue Shield, and Humana — are cited solely for informational and research reference purposes. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any referenced institution. Due to the personalized nature of the review materials, guidance tools, and document preparation services provided through UPA, refunds are not provided once access has been granted.</div>
+    <div class="footer-copy">2026 United Patient Advocate — unitedpatientadvocate.com</div>
+  </div>
+</div>
+
+<script>
+var currentStep=1,totalSteps=7;
+
+/* State */
+var state={
+  s1:null,s2:null,s3:null,s4:null,
+  s5:[],
+  first:'',last:'',email:'',provider:'',dos:'',file:null
+};
+
+/* Labels for summary */
+var labels={
+  s1:{hospital:'Hospital Bill',er:'Emergency Room',doctor:"Doctor's Office",lab:'Lab / Diagnostic',surgery:'Surgery or Procedure',ambulance:'Ambulance',mental:'Mental Health',pharmacy:'Pharmacy'},
+  s2:{medicare:'Medicare (Part A & B)','medicare-advantage':'Medicare Advantage (Part C)',medigap:'Medicare + Supplement',medicaid:'Medicaid',dual:'Medicare + Medicaid (Dual)','employer':'Employer / Group Insurance','marketplace':'Marketplace / ACA Plan','tricare':'TRICARE (Military)',va:'VA Benefits','chip':'CHIP','workers-comp':"Workers' Compensation",'uninsured':'No Insurance (Self-Pay)'},
+  s3:{'under500':'Under $500','500-1k':'$500 – $1,000','1k-5k':'$1,000 – $5,000','5k-10k':'$5,000 – $10,000','10k-25k':'$10,000 – $25,000','25k-50k':'$25,000 – $50,000','50k-100k':'$50,000 – $100,000','over100k':'Over $100,000','unknown':'Not Sure'},
+  s4:{unpaid:'Not Paid Yet (Best Position)',partial:'Partial Payment','payment-plan':'On Payment Plan',paid:'Paid in Full',collections:'Sent to Collections','insurance-dispute':'Insurance Denied / Underpaid'}
+};
+
+/* Step dots */
+function buildDots(){
+  var d=document.getElementById('si-dots');d.innerHTML='';
+  for(var i=1;i<=totalSteps;i++){
+    var s=document.createElement('div');s.className='si-dot';
+    if(i<currentStep)s.classList.add('done');
+    if(i===currentStep)s.classList.add('active');
+    d.appendChild(s);
+  }
+  document.getElementById('si-label').textContent='Step '+currentStep+' of '+totalSteps;
+  document.getElementById('si-bar').style.width=Math.round((currentStep/totalSteps)*100)+'%';
+}
+
+/* Tagline dots */
+var tdx=0;
+setInterval(function(){
+  [0,1,2].forEach(function(i){document.getElementById('td'+i).classList.toggle('on',i===tdx);});
+  tdx=(tdx+1)%3;
+},1100);
+
+/* Select single-choice option */
+function selectOpt(btn,group){
+  var parent=btn.closest('.opt-list,.opt-grid-2,.opt-grid-3');
+  parent.querySelectorAll('.opt').forEach(function(b){b.classList.remove('selected')});
+  btn.classList.add('selected');
+  state[group]=btn.dataset.val;
+  document.getElementById('btn-next').disabled=false;
+  /* Selection confirmed — user clicks Continue to proceed */
+}
+
+/* Toggle multi-select chip */
+function toggleChip(chip){
+  chip.classList.toggle('selected');
+  var val=chip.dataset.val;
+  var idx=state.s5.indexOf(val);
+  if(idx>-1)state.s5.splice(idx,1);else state.s5.push(val);
+  document.getElementById('btn-next').disabled=state.s5.length===0;
+}
+
+/* File upload */
+function handleFile(input){
+  if(!input.files||!input.files[0])return;
+  var f=input.files[0];state.file=f;
+  var zone=document.getElementById('upload-zone');
+  zone.classList.add('has-file');
+  zone.querySelector('.uz-title').textContent='Bill uploaded';
+  zone.querySelector('.uz-sub').textContent=f.name;
+  document.getElementById('uz-filename').textContent=f.name+' ('+Math.round(f.size/1024)+' KB)';
+}
+/* Drag events */
+document.addEventListener('DOMContentLoaded',function(){
+  var zone=document.getElementById('upload-zone');
+  if(!zone)return;
+  zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('drag')});
+  zone.addEventListener('dragleave',function(){zone.classList.remove('drag')});
+  zone.addEventListener('drop',function(e){
+    e.preventDefault();zone.classList.remove('drag');
+    if(e.dataTransfer.files[0]){document.getElementById('f-file').files=e.dataTransfer.files;handleFile(document.getElementById('f-file'));}
+  });
+  buildDots();
+});
+
+/* Validate step 6 */
+var emailRx=/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+function validateStep6(){
+  var first=document.getElementById('f-first').value.trim();
+  var last=document.getElementById('f-last').value.trim();
+  var email=document.getElementById('f-email').value.trim();
+  var provider=document.getElementById('f-provider').value.trim();
+  var emailOk=emailRx.test(email);
+  var emailField=document.getElementById('f-email');
+  emailField.style.borderColor=email.length>0?(emailOk?'rgba(30,184,122,.55)':'rgba(224,59,59,.55)'):'';
+  var emailHint=document.getElementById('email-hint');
+  if(emailHint)emailHint.classList.toggle('show',email.length>4&&!emailOk);
+  document.getElementById('btn-next').disabled=!(first&&last&&emailOk&&provider);
+}
+document.addEventListener('input',function(e){
+  if(['f-first','f-last','f-email','f-provider','f-desc'].includes(e.target.id))validateStep6();
+});
+
+/* Build summary */
+function buildSummary(){
+  state.first=document.getElementById('f-first').value.trim();
+  state.last=document.getElementById('f-last').value.trim();
+  state.email=document.getElementById('f-email').value.trim();
+  state.provider=document.getElementById('f-provider').value.trim();
+  state.dos=document.getElementById('f-dos').value;
+
+  var rows=[
+    ['Patient Name',state.first+' '+state.last],
+    ['Bill Type',labels.s1[state.s1]||state.s1],
+    ['Insurance',labels.s2[state.s2]||state.s2],
+    ['Bill Amount',labels.s3[state.s3]||state.s3],
+    ['Payment Status',labels.s4[state.s4]||state.s4],
+    ['Provider',state.provider],
+    ['Date of Service',state.dos||'Not provided'],
+    ['Concerns',state.s5.length+' issue'+(state.s5.length!==1?'s':'')+' selected'],
+    ['Bill Uploaded',state.file?state.file.name:'Not uploaded (optional)']
+  ];
+  var p=document.getElementById('summary-panel');
+  p.innerHTML=rows.map(function(r){
+    return '<div class="sum-row"><span class="sum-label">'+r[0]+'</span><span class="sum-val'+(r[0]==='Patient Name'?' green':'')+'">'+r[1]+'</span></div>';
+  }).join('');
+}
+
+/* Navigation */
+function nextStep(){
+  if(currentStep===6){buildSummary();}
+  goTo(currentStep+1);
+}
+function prevStep(){goTo(currentStep-1);}
+function goTo(n){
+  if(n<1||n>totalSteps)return;
+  var cur=document.getElementById('step-'+currentStep);
+  cur.classList.add('exit');
+  setTimeout(function(){
+    cur.classList.remove('active','exit');
+    currentStep=n;
+    var next=document.getElementById('step-'+currentStep);
+    next.classList.add('active');
+    buildDots();
+    updateNav();
+    /* Scroll card into view, offset by sticky nav height */
+    var card=document.querySelector('#begin-review .card');
+    if(!card)card=document.querySelector('.card');
+    if(card){
+      var navH=64;
+      var nav=document.querySelector('.nav');
+      if(nav)navH=nav.offsetHeight;
+      var top=card.getBoundingClientRect().top+window.pageYOffset-navH-20;
+      window.scrollTo({top:top,behavior:'smooth'});
+    }
+  },260);
+}
+function updateNav(){
+  var back=document.getElementById('btn-back');
+  var next=document.getElementById('btn-next');
+  var navBtns=document.getElementById('nav-btns');
+  back.style.visibility=currentStep>1?'visible':'hidden';
+  /* Step-specific states */
+  if(currentStep===5){
+    next.disabled=state.s5.length===0;
+    next.textContent='Continue';next.innerHTML='Continue <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;stroke-width:2.5;fill:none"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>';
+  } else if(currentStep===6){
+    validateStep6();
+    next.textContent='Continue';next.innerHTML='Continue <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;stroke-width:2.5;fill:none"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>';
+  } else if(currentStep===7){
+    navBtns.querySelector('.btn-next').style.display='none';
+  } else {
+    next.style.display='flex';
+    var stateKey='s'+currentStep;
+    next.disabled=!state[stateKey];
+  }
+}
+
+/* Background lead capture */
+var FORMSPREE_ENDPOINT='https://formspree.io/f/mredbzgw';
+var FORMSPREE_SUBMIT_TIMEOUT_MS=5000;
+var formspreeLeadSent=false;
+function getFieldValue(id){
+  var el=document.getElementById(id);
+  return el?el.value.trim():'';
+}
+function selectedOptionLabel(group,value){
+  return labels[group]&&labels[group][value]?labels[group][value]:(value||'');
+}
+function selectedConcernLabels(){
+  return state.s5.map(function(val){
+    var chip=document.querySelector('.chip[data-val="'+val+'"] .chip-name');
+    return chip?chip.textContent.trim():val;
+  });
+}
+function buildLeadPayload(){
+  state.first=getFieldValue('f-first');
+  state.last=getFieldValue('f-last');
+  state.email=getFieldValue('f-email');
+  state.provider=getFieldValue('f-provider');
+  state.dos=getFieldValue('f-dos');
+  var phone=getFieldValue('f-phone');
+  var concerns=selectedConcernLabels();
+  return {
+    _subject:'New UPA intake lead',
+    source:'UPA-Final standalone intake',
+    submitted_at:new Date().toISOString(),
+    page_url:window.location.href,
+    name:(state.first+' '+state.last).trim(),
+    first_name:state.first,
+    last_name:state.last,
+    email:state.email,
+    phone:phone,
+    provider:state.provider,
+    balance:selectedOptionLabel('s3',state.s3),
+    bill_amount:selectedOptionLabel('s3',state.s3),
+    date_of_service:state.dos,
+    bill_type:selectedOptionLabel('s1',state.s1),
+    insurance:selectedOptionLabel('s2',state.s2),
+    payment_status:selectedOptionLabel('s4',state.s4),
+    concerns:concerns.join(', '),
+    concerns_raw:state.s5.join(', '),
+    description:getFieldValue('f-desc'),
+    uploaded_bill:state.file?state.file.name:'Not uploaded',
+    bill_type_raw:state.s1||'',
+    insurance_raw:state.s2||'',
+    bill_amount_raw:state.s3||'',
+    payment_status_raw:state.s4||''
+  };
+}
+function appendHiddenField(form,name,value){
+  var input=document.createElement('input');
+  input.type='hidden';
+  input.name=name;
+  input.value=value;
+  form.appendChild(input);
+}
+function submitLeadWithHiddenForm(payload){
+  return new Promise(function(resolve){
+    var frameName='upa_formspree_frame_'+Date.now();
+    var iframe=document.createElement('iframe');
+    var form=document.createElement('form');
+    var settled=false;
+    var submitted=false;
+    function settle(){
+      if(settled)return;
+      settled=true;
+      resolve();
+    }
+    iframe.name=frameName;
+    iframe.style.cssText='position:absolute;width:1px;height:1px;left:-9999px;top:-9999px;border:0;opacity:0;pointer-events:none';
+    iframe.setAttribute('aria-hidden','true');
+    iframe.addEventListener('load',function(){if(submitted)settle();});
+    form.method='POST';
+    form.action=FORMSPREE_ENDPOINT;
+    form.target=frameName;
+    form.enctype='application/x-www-form-urlencoded';
+    form.acceptCharset='UTF-8';
+    form.style.display='none';
+    form.setAttribute('aria-hidden','true');
+    Object.keys(payload).forEach(function(key){appendHiddenField(form,key,payload[key]);});
+    document.body.appendChild(iframe);
+    document.body.appendChild(form);
+    setTimeout(function(){
+      try{
+        submitted=true;
+        form.submit();
+      }catch(e){
+        settle();
+      }
+    },40);
+    setTimeout(settle,FORMSPREE_SUBMIT_TIMEOUT_MS);
+  });
+}
+function sendLeadBeacon(payload){
+  if(!navigator.sendBeacon)return false;
+  var body=new URLSearchParams();
+  Object.keys(payload).forEach(function(key){body.append(key,payload[key]);});
+  try{
+    var beaconBody=new Blob([body.toString()],{type:'application/x-www-form-urlencoded;charset=UTF-8'});
+    return navigator.sendBeacon(FORMSPREE_ENDPOINT,beaconBody);
+  }catch(e){
+    return false;
+  }
+}
+function submitLeadToFormspree(){
+  if(formspreeLeadSent)return Promise.resolve();
+  formspreeLeadSent=true;
+  var payload=buildLeadPayload();
+  return submitLeadWithHiddenForm(payload).then(function(){return true;}).catch(function(){
+    sendLeadBeacon(payload);
+    return false;
+  });
+}
+
+/* Start analysis */
+function startAnalysis(){
+  var btn=document.querySelector('.btn-submit');
+  btn.disabled=true;
+  btn.innerHTML='<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:white;stroke-width:2;fill:none;animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Starting Your Review...';
+  var startedAt=Date.now();
+  var navigated=false;
+  function continueToAnalysis(){
+    if(navigated)return;
+    navigated=true;
+    window.location.href='02_upa-analysis-screen.html';
+  }
+  function continueAfterMinimumDelay(){
+    var remaining=Math.max(0,900-(Date.now()-startedAt));
+    setTimeout(continueToAnalysis,remaining);
+  }
+  submitLeadToFormspree().then(continueAfterMinimumDelay);
+  /* Fade the whole page out before navigating */
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(8,14,24,0);z-index:9999;pointer-events:none;transition:background .85s ease';
+  document.body.appendChild(overlay);
+  requestAnimationFrame(function(){overlay.style.background='rgba(8,14,24,1)';});
+  setTimeout(continueToAnalysis,FORMSPREE_SUBMIT_TIMEOUT_MS+300);
+}
+</script>
+
+<script>
+// Spawn particles in dark intake section
+(function(){
+  var c=document.getElementById("is-particles");
+  if(!c)return;
+  var colors=["rgba(201,168,76,.45)","rgba(30,184,122,.38)","rgba(59,110,224,.28)","rgba(235,244,255,.14)"];
+  for(var i=0;i<16;i++){
+    var p=document.createElement("div");p.className="is-pt";
+    var s=Math.random()*2.5+1.5;
+    p.style.cssText="width:"+s+"px;height:"+s+"px;background:"+colors[Math.floor(Math.random()*4)]+";left:"+Math.random()*100+"%;top:"+Math.random()*100+"%;--d:"+(10+Math.random()*14)+"s;--dl:"+(Math.random()*10)+"s;--op:"+(0.16+Math.random()*0.32);
+    c.appendChild(p);
+  }
+})();
+
+// Bill range selector
+function selectRange(el){
+  document.querySelectorAll(".range-opt").forEach(function(r){r.classList.remove("sel")});
+  el.classList.add("sel");
+}
+
+// Tagline dots
+var tdx=0;
+setInterval(function(){
+  [0,1,2].forEach(function(i){var el=document.getElementById("td"+i);if(el)el.classList.toggle("on",i===tdx)});
+  tdx=(tdx+1)%3;
+},1100);
+</script>
+
+</body>
+</html>

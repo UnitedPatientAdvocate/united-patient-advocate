@@ -1190,6 +1190,13 @@ html,body{max-width:100%;overflow-x:hidden}
 </div>
 
 <script>
+if(window.location.hash==='#begin-review'){
+  history.replaceState(null,'',window.location.pathname+window.location.search);
+  window.scrollTo(0,0);
+}
+function upaFinalPath(file){
+  return window.location.protocol==='file:'?file:'/UPA-Final/'+file;
+}
 var currentStep=1,totalSteps=7;
 
 /* State */
@@ -1489,7 +1496,7 @@ function startAnalysis(){
   function continueToAnalysis(){
     if(navigated)return;
     navigated=true;
-    window.location.href='02_upa-analysis-screen.html';
+    window.location.href=upaFinalPath('02_upa-analysis-screen.html');
   }
   function continueAfterMinimumDelay(){
     var remaining=Math.max(0,900-(Date.now()-startedAt));

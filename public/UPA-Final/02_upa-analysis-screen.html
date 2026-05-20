@@ -130,7 +130,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);-webkit-font-smoot
 .mval.white{color:var(--on-dark)}
 .msub{font-size:.4375rem;color:var(--on-dark-3);margin-top:2px}
 
-/* ── CPT Scanner ── */
+/* ── Detail Scanner ── */
 .scanner{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 12px;font-family:var(--mono);opacity:0;transform:translateY(6px);filter:blur(2px);transition:opacity .45s var(--pop),transform .45s var(--pop),filter .35s ease}
 .scanner.appear{opacity:1;transform:translateY(0);filter:blur(0)}
 .scan-hdr{font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:7px;display:flex;align-items:center;gap:6px}
@@ -274,8 +274,6 @@ html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
 </style>
 </head>
 <body>
-<!-- TODO: Replace Jane Smith demo values with individualized customer data during fulfillment. -->
-
 <div class="topnav">
   <div class="nav-brand">
     <div class="nav-logo">
@@ -304,7 +302,7 @@ html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
       </div>
       <div class="hdr-stage" id="hdr-stage">Initializing Secure Review</div>
       <div class="hdr-title" id="hdr-title">Reviewing Your Bill</div>
-      <div class="hdr-sub" id="hdr-sub">Our system is carefully analyzing every line of your statement to identify discrepancies, benchmark your charges, and prepare your action plan.</div>
+      <div class="hdr-sub" id="hdr-sub">We are preparing your billing review using the details you provided and keeping guidance general where bill-level details are not available.</div>
     </div>
     <div class="prog-wrap">
       <div class="prog-hdr"><span class="prog-lbl">Review Progress</span><span class="prog-pct" id="prog-pct">0%</span></div>
@@ -312,8 +310,8 @@ html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
     </div>
     <div class="card-body" id="card-body"></div>
     <div class="pstrip">
-      <div class="ps-l"><div class="ps-dot"></div><div><div class="ps-lbl">Active Review</div><div class="ps-nm">Jane Smith · Memorial Regional Medical Center</div></div></div>
-      <div class="ps-r">REF: UPA-2026-04831</div>
+      <div class="ps-l"><div class="ps-dot"></div><div><div class="ps-lbl">Active Review</div><div class="ps-nm" id="active-review-name">Your billing review</div></div></div>
+      <div class="ps-r" id="active-review-ref">REF: Intake review</div>
     </div>
   </div>
 
@@ -407,104 +405,170 @@ setInterval(function(){
 },1100);
 
 /* ═══════════ MAIN ANALYSIS ═══════════ */
-async function run(){
+function getIntakeContext(){
+  try{
+    return JSON.parse(sessionStorage.getItem('upa.intake.context.v1')||localStorage.getItem('upa.intake.context.v1')||'{}');
+  }catch(e){return {};}
+}
+function cleanText(value,fallback){
+  var text=String(value||'').trim();
+  if(!text||text==='undefined'||text==='null'||text==='NaN')return fallback;
+  return text;
+}
+function escapeHtml(value){
+  return String(value||'').replace(/[&<>"']/g,function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+function getConcernCount(ctx){
+  return Array.isArray(ctx.concerns)?ctx.concerns.length:0;
+}
+function getBillSignal(ctx){
+  if(ctx.has_uploaded_bill||(ctx.uploaded_bill&&ctx.uploaded_bill!=='Not uploaded'))return 'Document uploaded';
+  if((ctx.description||'').trim().length>=25)return 'Typed details provided';
+  return 'General guidance';
+}
+function getAnalysisCase(){
+  var ctx=getIntakeContext();
+  var name=cleanText([ctx.first,ctx.last].filter(Boolean).join(' '),'Your billing review');
+  return {
+    ctx:ctx,
+    name:name,
+    provider:cleanText(ctx.provider,'Provider not provided'),
+    date:cleanText(ctx.date_of_service,'Date not provided'),
+    amount:cleanText(ctx.bill_amount,'Amount not provided'),
+    coverage:cleanText(ctx.insurance,'Coverage not selected'),
+    payment:cleanText(ctx.payment_status,'Payment status not selected'),
+    concernCount:getConcernCount(ctx),
+    concernText:getConcernCount(ctx)?getConcernCount(ctx)+' concern area'+(getConcernCount(ctx)!==1?'s':'')+' selected':'General billing guidance',
+    billSignal:getBillSignal(ctx),
+    depthLabel:getReviewDepthLabel()
+  };
+}
+function updateActiveReviewStrip(){
+  var info=getAnalysisCase();
+  var nameEl=document.getElementById('active-review-name');
+  var refEl=document.getElementById('active-review-ref');
+  if(nameEl)nameEl.textContent=info.name+(info.provider!=='Provider not provided'?' - '+info.provider:'');
+  if(refEl)refEl.textContent=info.date!=='Date not provided'?'DOS: '+info.date:'REF: Intake review';
+}
+function getReviewDepth(){
+  var ctx=getIntakeContext();
+  if(ctx.review_depth)return ctx.review_depth;
+  var desc=(ctx.description||'').trim();
+  var hasLineItems=/(cpt|hcpcs|line\s*\d|procedure code|diagnosis code|charge|\$\s*\d|\b\d{5}\b)/i.test(desc);
+  if(ctx.has_uploaded_bill||ctx.has_enough_bill_detail||(desc.length>=120&&hasLineItems))return 'full';
+  if(desc.length>=25||ctx.provider||ctx.bill_amount||ctx.insurance||ctx.payment_status)return 'guided';
+  return 'starter';
+}
+function getReviewDepthLabel(){
+  var depth=getReviewDepth();
+  return depth==='full'?'Full Review':(depth==='guided'?'Guided Estimate':'Starter Guidance');
+}
+async function runLimitedDetails(){
+  var label=getReviewDepthLabel();
+  setProg(100,700);
+  await wait(500);
+  setHdr(label,'We can still guide you','Uploading an itemized bill makes the review more accurate.');
+  await wait(900);
+  body.innerHTML='';
+  await ins('<div class="final"><div style="font-family:var(--serif);font-size:.9375rem;font-style:italic;color:rgba(235,244,255,.36);margin-bottom:16px;letter-spacing:.01em">'+label+'</div><div class="final-hl">We can still guide you.<br><span>More detail improves accuracy.</span></div><div class="final-sub">We can still guide you, but uploading an itemized bill makes the review more accurate. We will keep this review general until bill-level details are added.</div><button class="btn-go" onclick="reveal()">Continue to Guidance <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></button><div class="btn-sub">Next: preview guidance and itemized bill request options</div></div>');
+}
 
-  /* S1 — Verify (6s) */
+async function run(){
+  var info=getAnalysisCase();
+  updateActiveReviewStrip();
+  var amountProvided=info.amount!=='Amount not provided';
+  var providerProvided=info.provider!=='Provider not provided';
+  var dateProvided=info.date!=='Date not provided';
+  var coverageProvided=info.coverage!=='Coverage not selected';
+  var paymentProvided=info.payment!=='Payment status not selected';
+  var detailShort=info.billSignal==='Document uploaded'?'Uploaded':(info.billSignal==='Typed details provided'?'Typed':'General');
+  var codes=((info.ctx.description||'').match(/\b\d{5}\b/g)||[]).filter(function(v,i,a){return a.indexOf(v)===i;}).slice(0,4);
+
   setProg(6,800);
-  var s1=await ins('<div class="srow active"><div class="sicon">&#128272;</div><div class="scontent"><div class="stitle">Verifying secure access</div><div class="sdetail">Encrypted session · Patient record authenticated</div></div><span class="sbadge sb-a">Active</span></div>');
+  var s1=await ins('<div class="srow active"><div class="sicon">&#128272;</div><div class="scontent"><div class="stitle">Verifying secure access</div><div class="sdetail">Encrypted session &middot; Patient record authenticated</div></div><span class="sbadge sb-a">Active</span></div>');
   await wait(6000);
   s1.className='srow done appear';s1.querySelector('.sbadge').className='sbadge sb-d';s1.querySelector('.sbadge').textContent='Verified';s1.querySelector('.sicon').textContent='\u2713';
 
-  /* S2 — Retrieve statement (9s) */
   setProg(16,900);
   await wait(500);
-  setHdr('Retrieving Records','Pulling Your Billing Statement','Accessing your Memorial Regional Medical Center statement for services on January 8, 2026.');
-  var s2=await ins('<div class="srow active"><div class="sicon">&#128196;</div><div class="scontent"><div class="stitle">Retrieving billing statement</div><div class="sdetail">Memorial Regional · DOS Jan 8, 2026</div></div><span class="sbadge sb-a">Loading</span></div>');
+  setHdr('Preparing Intake','Reviewing Your Billing Details','Using only the provider, balance, coverage, and bill details entered during intake.');
+  var s2=await ins('<div class="srow active"><div class="sicon">&#128196;</div><div class="scontent"><div class="stitle">Preparing billing context</div><div class="sdetail">'+escapeHtml(providerProvided?info.provider:'Provider can be added later')+' &middot; '+escapeHtml(dateProvided?info.date:'Date not provided')+'</div></div><span class="sbadge sb-a">Loading</span></div>');
   await wait(1800);
-  var mr=await ins('<div class="mrow"><div class="mcard" style="transition-delay:0s"><div class="mlabel">Bill Amount</div><div class="mval white" id="m-bill">$0</div><div class="msub">Statement total</div></div><div class="mcard" style="transition-delay:.12s"><div class="mlabel">Line Items</div><div class="mval gold" id="m-lines">0</div><div class="msub">Charges listed</div></div><div class="mcard" style="transition-delay:.24s"><div class="mlabel">Coverage</div><div class="mval white" style="font-size:.8125rem;margin-top:4px">Medicare</div><div class="msub">Primary payer</div></div></div>');
-  countTo($('m-bill'),23452,4000,'$',0);
-  await wait(400);
-  countTo($('m-lines'),47,3000,'',0);
-  await wait(5000);
-  s2.className='srow done appear';s2.querySelector('.sbadge').className='sbadge sb-d';s2.querySelector('.sbadge').textContent='Retrieved';s2.querySelector('.sicon').textContent='\u2713';
+  var mr=await ins('<div class="mrow"><div class="mcard" style="transition-delay:0s"><div class="mlabel">Bill Amount</div><div class="mval white" id="m-bill" style="font-size:.9rem;margin-top:4px">'+escapeHtml(info.amount)+'</div><div class="msub">'+(amountProvided?'Entered during intake':'Can be added later')+'</div></div><div class="mcard" style="transition-delay:.12s"><div class="mlabel">Bill Details</div><div class="mval gold" id="m-lines" style="font-size:.9rem;margin-top:4px">'+escapeHtml(detailShort)+'</div><div class="msub">'+escapeHtml(info.depthLabel)+'</div></div><div class="mcard" style="transition-delay:.24s"><div class="mlabel">Coverage</div><div class="mval white" style="font-size:.8125rem;margin-top:4px">'+escapeHtml(info.coverage)+'</div><div class="msub">'+(coverageProvided?'Entered during intake':'Can be added later')+'</div></div></div>');
+  await wait(5400);
+  s2.className='srow done appear';s2.querySelector('.sbadge').className='sbadge sb-d';s2.querySelector('.sbadge').textContent='Prepared';s2.querySelector('.sicon').textContent='\u2713';
 
-  /* S3 — CPT scanner (12s) */
   setProg(32,1100);
   await wait(500);
-  setHdr('Scanning Charges','Reading Every Line, One by One','Our system examines each CPT code, date of service, and billed amount against standard billing guidelines.');
-  var s3=await ins('<div class="srow active"><div class="sicon">&#128270;</div><div class="scontent"><div class="stitle">Scanning line-by-line charges</div><div class="sdetail" id="scan-d">Reading CPT codes and billing entries...</div></div><span class="sbadge sb-a">Scanning</span></div>');
-  var scEl=await ins('<div class="scanner"><div class="scan-hdr">Live Charge Review</div><div class="scan-lines" id="scan-lines"></div></div>');
-  var cpts=[
-    {code:'CPT-71046',desc:'Chest X-Ray, 2 Views',amt:'$312',t:'ok'},
-    {code:'CPT-36415',desc:'Venipuncture',amt:'$18',t:'ok'},
-    {code:'CPT-93000',desc:'Electrocardiogram',amt:'$124',t:'ok'},
-    {code:'CPT-99285',desc:'ED Visit Level 5',amt:'$1,240',t:'ok'},
-    {code:'CPT-85025',desc:'Complete Blood Count',amt:'$48',t:'ok'},
-    {code:'CPT-80053',desc:'Comprehensive Metabolic',amt:'$62',t:'ok'},
-    {code:'CPT-99285',desc:'ED Visit Level 5 \u26a0',amt:'$1,240',t:'warn'}
+  setHdr('Organizing Details','Building the Right Review Path','We will keep the analysis tied to the information you provided and avoid specific findings until bill-level details support them.');
+  var s3=await ins('<div class="srow active"><div class="sicon">&#128270;</div><div class="scontent"><div class="stitle">Reviewing intake details</div><div class="sdetail" id="scan-d">Organizing submitted billing information...</div></div><span class="sbadge sb-a">Reviewing</span></div>');
+  var scEl=await ins('<div class="scanner"><div class="scan-hdr">Submitted Detail Review</div><div class="scan-lines" id="scan-lines"></div></div>');
+  var rows=[
+    {code:'Provider',desc:info.provider,amt:providerProvided?'Provided':'Optional'},
+    {code:'Service Date',desc:info.date,amt:dateProvided?'Provided':'Optional'},
+    {code:'Balance',desc:info.amount,amt:amountProvided?'Provided':'Optional'},
+    {code:'Coverage',desc:info.coverage,amt:coverageProvided?'Provided':'Optional'},
+    {code:'Payment',desc:info.payment,amt:paymentProvided?'Provided':'Optional'},
+    {code:'Details',desc:info.billSignal,amt:info.depthLabel}
   ];
+  codes.forEach(function(code){rows.push({code:'Entered Code',desc:code,amt:'User provided'});});
   var scanLines=$('scan-lines'),scanDetail=$('scan-d');
-  for(var i=0;i<cpts.length;i++){
-    var l=cpts[i];
-    scanDetail.textContent='Reading line '+(i+1)+' of '+cpts.length+'... '+l.code;
-    var lineEl=document.createElement('div');lineEl.className='sl '+l.t;
-    lineEl.innerHTML='<span class="sl-code">'+l.code+'</span><span class="sl-desc">'+l.desc+'</span><span class="sl-amt">'+l.amt+'</span><span class="sl-st '+(l.t==='ok'?'sl-ok':'sl-fl')+'">'+(l.t==='ok'?'OK':'FLAG')+'</span>';
+  for(var i=0;i<rows.length;i++){
+    var l=rows[i];
+    scanDetail.textContent='Reviewing item '+(i+1)+' of '+rows.length+'... '+l.code;
+    var lineEl=document.createElement('div');lineEl.className='sl ok';
+    lineEl.innerHTML='<span class="sl-code">'+escapeHtml(l.code)+'</span><span class="sl-desc">'+escapeHtml(l.desc)+'</span><span class="sl-amt">'+escapeHtml(l.amt)+'</span><span class="sl-st sl-ok">Added</span>';
     scanLines.appendChild(lineEl);
     await wait(30);lineEl.classList.add('appear');
-    await wait(l.t==='warn'?350:650);
+    await wait(500);
   }
   await wait(1200);
-  s3.className='srow done appear';s3.querySelector('.sbadge').className='sbadge sb-d';s3.querySelector('.sbadge').textContent='47 Lines Read';s3.querySelector('.sicon').textContent='\u2713';
+  s3.className='srow done appear';s3.querySelector('.sbadge').className='sbadge sb-d';s3.querySelector('.sbadge').textContent='Details Reviewed';s3.querySelector('.sicon').textContent='\u2713';
 
-  /* S4 — Duplicate detected (8s) */
   setProg(48,1000);
   await wait(700);
-  setHdr('Discrepancy Detected','Duplicate Billing Pattern Found','We identified a charge that appears twice on the same date of service — a billing pattern that qualifies for formal review.');
-  var s4=await ins('<div class="srow flagged"><div class="sicon">\u26a0</div><div class="scontent"><div class="stitle">Possible duplicate charge: CPT-99285</div><div class="sdetail">Lines 3 &amp; 11 · Same procedure · Same date · $1,240 flagged</div></div><span class="sbadge sb-f">Flagged</span></div>');
+  setHdr('Setting Review Depth','Matching Guidance to Your Detail Level','The workspace will show specific findings only when the bill details you entered support them.');
+  var s4=await ins('<div class="srow active"><div class="sicon">&#128737;</div><div class="scontent"><div class="stitle">'+escapeHtml(info.depthLabel)+' selected</div><div class="sdetail">'+escapeHtml(info.billSignal)+' &middot; '+escapeHtml(info.concernText)+'</div></div><span class="sbadge sb-a">Calibrating</span></div>');
   await wait(1200);
-  var s4b=await ins('<div class="srow active"><div class="sicon">&#128270;</div><div class="scontent"><div class="stitle">Checking for additional billing discrepancies</div><div class="sdetail">Coding complexity · Out-of-network lab · Rate benchmarking</div></div><span class="sbadge sb-a">Checking</span></div>');
+  var s4b=await ins('<div class="srow active"><div class="sicon">&#128270;</div><div class="scontent"><div class="stitle">Preparing review focus areas</div><div class="sdetail">Itemized bill request &middot; charge review guidance &middot; call scripts &middot; follow-up plan</div></div><span class="sbadge sb-a">Checking</span></div>');
   await wait(5500);
-  s4b.className='srow done appear';s4b.querySelector('.sbadge').className='sbadge sb-d';s4b.querySelector('.sbadge').textContent='3 Issues Found';s4b.querySelector('.sicon').textContent='\u2713';
+  s4.className='srow done appear';s4.querySelector('.sbadge').className='sbadge sb-d';s4.querySelector('.sbadge').textContent='Depth Set';s4.querySelector('.sicon').textContent='\u2713';
+  s4b.className='srow done appear';s4b.querySelector('.sbadge').className='sbadge sb-d';s4b.querySelector('.sbadge').textContent='Focus Ready';s4b.querySelector('.sicon').textContent='\u2713';
   var issCard=$('m-lines').closest('.mcard');
   issCard.style.transition='opacity .4s ease';issCard.style.opacity='0';
   await wait(700);
-  issCard.innerHTML='<div class="mlabel">Issues Found</div><div class="mval crim">3</div><div class="msub">Require review</div>';
+  issCard.innerHTML='<div class="mlabel">Review Depth</div><div class="mval gold" style="font-size:.9rem;margin-top:4px">'+escapeHtml(info.depthLabel)+'</div><div class="msub">'+escapeHtml(info.billSignal)+'</div>';
   issCard.style.opacity='1';
 
-  /* S5 — Benchmarks (8s) */
   setProg(62,1100);
   await wait(400);
-  setHdr('Benchmarking Rates','Comparing Charges to Medicare Standards','Benchmarking every charge against published CMS rates to identify where you may be above the standard billing threshold.');
-  var s5=await ins('<div class="srow active"><div class="sicon">&#128202;</div><div class="scontent"><div class="stitle">Comparing to Medicare benchmark rates</div><div class="sdetail">2026 CMS fee schedule · Florida pricing region</div></div><span class="sbadge sb-a">Benchmarking</span></div>');
-  var bEl=await ins('<div class="bench"><div class="bench-hdr">Medicare Benchmark Comparison</div><div class="bi"><div class="bi-hd"><span class="bi-nm">Emergency Visit: CPT 99285</span><span class="bi-dl">+82% above rate</span></div><div class="br-row"><span class="br-lbl">Billed</span><div class="br-track"><div class="br-fill br-b" id="bb1"></div></div><span class="br-val">$2,480</span></div><div class="br-row"><span class="br-lbl">Medicare</span><div class="br-track"><div class="br-fill br-m" id="bm1"></div></div><span class="br-val">$1,362</span></div></div><div class="bi"><div class="bi-hd"><span class="bi-nm">Office Visit L5: CPT 99215</span><span class="bi-dl">+56% above rate</span></div><div class="br-row"><span class="br-lbl">Billed</span><div class="br-track"><div class="br-fill br-b" id="bb2"></div></div><span class="br-val">$890</span></div><div class="br-row"><span class="br-lbl">Medicare</span><div class="br-track"><div class="br-fill br-m" id="bm2"></div></div><span class="br-val">$571</span></div></div></div>');
-  setTimeout(function(){$('bb1').style.width='92%';$('bm1').style.width='50%';},100);
-  setTimeout(function(){$('bb2').style.width='72%';$('bm2').style.width='46%';},450);
+  setHdr('Building Guidance','Preparing Your Review Checklist','Creating a practical path from the details you entered: what to request, what to compare, and what to do next.');
+  var s5=await ins('<div class="srow active"><div class="sicon">&#128202;</div><div class="scontent"><div class="stitle">Preparing review checkpoints</div><div class="sdetail">Itemized statement &middot; billing explanation &middot; dispute documentation &middot; follow-up timeline</div></div><span class="sbadge sb-a">Preparing</span></div>');
+  var bEl=await ins('<div class="bench"><div class="bench-hdr">Review Checklist</div><div class="bi"><div class="bi-hd"><span class="bi-nm">Information entered</span><span class="bi-dl">'+escapeHtml(info.depthLabel)+'</span></div><div class="br-row"><span class="br-lbl">Provider</span><div class="br-track"><div class="br-fill br-b" id="bb1"></div></div><span class="br-val">'+(providerProvided?'Ready':'Optional')+'</span></div><div class="br-row"><span class="br-lbl">Balance</span><div class="br-track"><div class="br-fill br-m" id="bm1"></div></div><span class="br-val">'+(amountProvided?'Ready':'Optional')+'</span></div></div><div class="bi"><div class="bi-hd"><span class="bi-nm">Next guidance</span><span class="bi-dl">Prepared</span></div><div class="br-row"><span class="br-lbl">Request</span><div class="br-track"><div class="br-fill br-b" id="bb2"></div></div><span class="br-val">Itemized bill</span></div><div class="br-row"><span class="br-lbl">Follow-up</span><div class="br-track"><div class="br-fill br-m" id="bm2"></div></div><span class="br-val">Call script</span></div></div></div>');
+  setTimeout(function(){$('bb1').style.width=providerProvided?'90%':'42%';$('bm1').style.width=amountProvided?'82%':'42%';},100);
+  setTimeout(function(){$('bb2').style.width='88%';$('bm2').style.width='78%';},450);
   await wait(6000);
   s5.className='srow done appear';s5.querySelector('.sbadge').className='sbadge sb-d';s5.querySelector('.sbadge').textContent='Complete';s5.querySelector('.sicon').textContent='\u2713';
 
-  /* S6 — Savings (9s) */
   setProg(76,1000);
   await wait(600);
-  setHdr('Calculating Savings','Finding Every Dollar You May Not Owe','Totaling disputable charges, applicable legal grounds, and estimating your recovery potential.');
+  setHdr('Preparing Guidance','Turning Your Intake Into Action Steps','Preparing general guidance now and keeping any specific findings tied to details you actually provided.');
   await removeEl(scEl,300);
   await removeEl(bEl,260);
-  var s6=await ins('<div class="srow active"><div class="sicon">&#128176;</div><div class="scontent"><div class="stitle">Calculating your savings potential</div><div class="sdetail">Duplicate + coding review + out-of-network rate adjustment</div></div><span class="sbadge sb-a">Calculating</span></div>');
-  var svEl=await ins('<div class="srev"><div class="srev-inner"><div class="srev-lbl">Amount You May Not Legally Owe</div><div class="srev-amt" id="srev-amt">$0</div><div class="srev-sub">Identified before you paid a single dollar</div><div class="score-row" style="margin-top:12px"><div class="score-arc"><svg viewBox="0 0 100 60" width="68" height="42"><defs><linearGradient id="sg"><stop offset="0%" stop-color="#158A5C"/><stop offset="100%" stop-color="#1EB87A"/></linearGradient><filter id="sf"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="M 10 52 A 40 40 0 0 1 90 52" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="8" stroke-linecap="round"/><path id="sarc" d="M 10 52 A 40 40 0 0 1 90 52" fill="none" stroke="url(#sg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="131" stroke-dashoffset="131" filter="url(#sf)" style="transition:stroke-dashoffset 2.0s cubic-bezier(.16,1,.3,1) .4s"/></svg></div><div><div class="score-num" id="snum">0</div><div class="score-lbl">Recovery Score</div><div class="score-sub" id="ssub">Calculating...</div></div></div></div></div>');
-  countTo($('srev-amt'),3185,6000,'$',0);
-  setTimeout(function(){
-    $('sarc').style.strokeDashoffset=131-(131*.72);
-    var n=0;var iv=setInterval(function(){n=Math.min(n+1.15,72);$('snum').textContent=Math.round(n);if(n>=72){clearInterval(iv);$('ssub').textContent='Strong Recovery Position';}},25);
-  },300);
+  var s6=await ins('<div class="srow active"><div class="sicon">&#128176;</div><div class="scontent"><div class="stitle">Preparing review guidance</div><div class="sdetail">'+escapeHtml(info.concernText)+' &middot; '+escapeHtml(info.billSignal)+'</div></div><span class="sbadge sb-a">Preparing</span></div>');
+  var svEl=await ins('<div class="srev"><div class="srev-inner"><div class="srev-lbl">Review Status</div><div class="srev-amt" id="srev-amt">Ready</div><div class="srev-sub">'+escapeHtml(info.depthLabel)+' based on intake details</div><div class="score-row" style="margin-top:12px"><div class="score-arc"><svg viewBox="0 0 100 60" width="68" height="42"><defs><linearGradient id="sg"><stop offset="0%" stop-color="#158A5C"/><stop offset="100%" stop-color="#1EB87A"/></linearGradient><filter id="sf"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="M 10 52 A 40 40 0 0 1 90 52" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="8" stroke-linecap="round"/><path id="sarc" d="M 10 52 A 40 40 0 0 1 90 52" fill="none" stroke="url(#sg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="131" stroke-dashoffset="131" filter="url(#sf)" style="transition:stroke-dashoffset 2.0s cubic-bezier(.16,1,.3,1) .4s"/></svg></div><div><div class="score-num" id="snum">OK</div><div class="score-lbl">Guidance Mode</div><div class="score-sub" id="ssub">No unsupported findings shown</div></div></div></div></div>');
+  setTimeout(function(){$('sarc').style.strokeDashoffset=131-(131*.70);},300);
   await wait(7000);
-  s6.className='srow done appear';s6.querySelector('.sbadge').className='sbadge sb-d';s6.querySelector('.sbadge').textContent='$3,185 Found';s6.querySelector('.sicon').textContent='\u2713';
+  s6.className='srow done appear';s6.querySelector('.sbadge').className='sbadge sb-d';s6.querySelector('.sbadge').textContent='Guidance Ready';s6.querySelector('.sicon').textContent='\u2713';
 
-  /* S7 — Letters (9s) */
   setProg(88,900);
   await wait(600);
-  setHdr('Preparing Documents','Writing Your Dispute Letters','Three formally prepared letters are being drafted, personalized to your case, legally cited, and ready to send.');
+  setHdr('Preparing Tools','Building Your Review Workspace','Preparing the itemized bill request path, call scripts, and action checklist for the information you entered.');
   await removeEl(svEl,280);
-  var s7=await ins('<div class="srow active"><div class="sicon">&#9993;</div><div class="scontent"><div class="stitle">Preparing 3 dispute letters</div><div class="sdetail">Federal citations · Personalized to your case · Ready to send</div></div><span class="sbadge sb-a">Writing</span></div>');
-  var lbEl=await ins('<div class="lbuild"><div class="lb-hdr">Document Preparation</div><div class="lb-row"><div class="lc" id="lc1"><div class="lc-top lc-t1"></div><div class="lc-body"><div class="lc-step">Letter 1</div><div class="lc-title">Request for Itemized Statement</div><div class="lc-lines"><div class="ll g1"></div><div class="ll g2"></div><div class="ll g3"></div></div><div class="lc-status ls-g"><div class="ls-dot d-g"></div><span id="ls1">Writing</span></div></div></div><div class="lc" id="lc2" style="opacity:0;transform:translateY(8px);transition:opacity .5s ease .65s,transform .5s ease .65s"><div class="lc-top lc-t2"></div><div class="lc-body"><div class="lc-step">Letter 2</div><div class="lc-title">Duplicate Charge Review</div><div class="lc-lines"><div class="ll r1"></div><div class="ll r2"></div><div class="ll r3"></div></div><div class="lc-status ls-r"><div class="ls-dot d-r"></div><span id="ls2">Writing</span></div></div></div><div class="lc" id="lc3" style="opacity:0;transform:translateY(8px);transition:opacity .5s ease 1.3s,transform .5s ease 1.3s"><div class="lc-top lc-t3"></div><div class="lc-body"><div class="lc-step">Letter 3</div><div class="lc-title">In-Network Rate Request</div><div class="lc-lines"><div class="ll b1"></div><div class="ll b2"></div><div class="ll b3"></div></div><div class="lc-status ls-b"><div class="ls-dot d-b"></div><span id="ls3">Writing</span></div></div></div></div></div>');
+  var s7=await ins('<div class="srow active"><div class="sicon">&#9993;</div><div class="scontent"><div class="stitle">Preparing guidance tools</div><div class="sdetail">Itemized request &middot; call scripts &middot; action checklist</div></div><span class="sbadge sb-a">Building</span></div>');
+  var lbEl=await ins('<div class="lbuild"><div class="lb-hdr">Workspace Preparation</div><div class="lb-row"><div class="lc" id="lc1"><div class="lc-top lc-t1"></div><div class="lc-body"><div class="lc-step">Tool 1</div><div class="lc-title">Itemized Bill Request</div><div class="lc-lines"><div class="ll g1"></div><div class="ll g2"></div><div class="ll g3"></div></div><div class="lc-status ls-g"><div class="ls-dot d-g"></div><span id="ls1">Preparing</span></div></div></div><div class="lc" id="lc2" style="opacity:0;transform:translateY(8px);transition:opacity .5s ease .65s,transform .5s ease .65s"><div class="lc-top lc-t2"></div><div class="lc-body"><div class="lc-step">Tool 2</div><div class="lc-title">Billing Call Script</div><div class="lc-lines"><div class="ll r1"></div><div class="ll r2"></div><div class="ll r3"></div></div><div class="lc-status ls-r"><div class="ls-dot d-r"></div><span id="ls2">Preparing</span></div></div></div><div class="lc" id="lc3" style="opacity:0;transform:translateY(8px);transition:opacity .5s ease 1.3s,transform .5s ease 1.3s"><div class="lc-top lc-t3"></div><div class="lc-body"><div class="lc-step">Tool 3</div><div class="lc-title">Action Checklist</div><div class="lc-lines"><div class="ll b1"></div><div class="ll b2"></div><div class="ll b3"></div></div><div class="lc-status ls-b"><div class="ls-dot d-b"></div><span id="ls3">Preparing</span></div></div></div></div></div>');
   await wait(800);
   $('lc2').style.opacity='1';$('lc2').style.transform='translateY(0)';
   await wait(1800);
@@ -512,24 +576,22 @@ async function run(){
   await wait(4000);
   ['ls1','ls2','ls3'].forEach(function(id){var el=$(id);if(el)el.textContent='Ready \u2713';});
   await wait(1800);
-  s7.className='srow done appear';s7.querySelector('.sbadge').className='sbadge sb-d';s7.querySelector('.sbadge').textContent='3 Ready';s7.querySelector('.sicon').textContent='\u2713';
+  s7.className='srow done appear';s7.querySelector('.sbadge').className='sbadge sb-d';s7.querySelector('.sbadge').textContent='Tools Ready';s7.querySelector('.sicon').textContent='\u2713';
 
-  /* S8 — Action plan (6s) */
   setProg(95,700);
   await wait(600);
-  setHdr('Finalizing','Building Your Personal Action Plan','Organizing your findings, recovery steps, call scripts, and patient rights guide into one complete workspace.');
+  setHdr('Finalizing','Building Your Personal Action Plan','Organizing your request path, call scripts, and next steps into one workspace.');
   await removeEl(lbEl,260);
-  var s8=await ins('<div class="srow active"><div class="sicon">&#128203;</div><div class="scontent"><div class="stitle">Building personalized action plan</div><div class="sdetail">Recovery roadmap · Call scripts · Patient rights guide</div></div><span class="sbadge sb-a">Finalizing</span></div>');
+  var s8=await ins('<div class="srow active"><div class="sicon">&#128203;</div><div class="scontent"><div class="stitle">Building personalized action plan</div><div class="sdetail">Request roadmap &middot; call scripts &middot; patient rights guide</div></div><span class="sbadge sb-a">Finalizing</span></div>');
   await wait(5000);
   s8.className='srow done appear';s8.querySelector('.sbadge').className='sbadge sb-d';s8.querySelector('.sbadge').textContent='Complete';s8.querySelector('.sicon').textContent='\u2713';
 
-  /* S9 — Final reveal */
   setProg(100,600);
   await wait(600);
-  setHdr('Review Complete','Your Billing Review Is Ready.','We found 3 issues. You may not owe $3,185 of this bill. Your letters are prepared and your action plan is ready.');
+  setHdr('Review Ready','Your Billing Review Workspace Is Ready.','Your intake details have been organized into a guided review workspace. Specific findings will stay tied to bill-level details you add.');
   await wait(1800);
   body.innerHTML='';
-  await ins('<div class="final"><div style="font-family:var(--serif);font-size:.9375rem;font-style:italic;color:rgba(235,244,255,.36);margin-bottom:16px;letter-spacing:.01em">Review complete for Jane Smith</div><div class="final-hl">We found 3 issues.<br><span>$3,185 may not be owed.</span></div><div class="final-sub">Your letters are written. Your rights are documented.<br>Your action plan is ready. It protects you now.</div><div class="final-metrics"><div class="fm"><div class="fm-val green">$3,185</div><div class="fm-lbl">Under Review</div></div><div class="fm-sep"></div><div class="fm"><div class="fm-val crim">3</div><div class="fm-lbl">Issues Found</div></div><div class="fm-sep"></div><div class="fm"><div class="fm-val gold">72</div><div class="fm-lbl">Recovery Score</div></div></div><button class="btn-go" onclick="reveal()">Open My Review <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></button><div class="btn-sub">Your complete billing review workspace awaits</div></div>');
+  await ins('<div class="final"><div style="font-family:var(--serif);font-size:.9375rem;font-style:italic;color:rgba(235,244,255,.36);margin-bottom:16px;letter-spacing:.01em">Review ready for '+escapeHtml(info.name)+'</div><div class="final-hl">Your review workspace is ready.<br><span>Guidance is based on your intake.</span></div><div class="final-sub">We used the details you provided and kept the review general wherever bill-level detail was not available.<br>You can add or upload more detail from the dashboard.</div><div class="final-metrics"><div class="fm"><div class="fm-val green" style="font-size:1.15rem">'+escapeHtml(detailShort)+'</div><div class="fm-lbl">Bill Detail</div></div><div class="fm-sep"></div><div class="fm"><div class="fm-val crim" style="font-size:1.15rem">'+escapeHtml(info.concernCount?String(info.concernCount):'General')+'</div><div class="fm-lbl">Concern Areas</div></div><div class="fm-sep"></div><div class="fm"><div class="fm-val gold" style="font-size:1.15rem">'+escapeHtml(info.depthLabel)+'</div><div class="fm-lbl">Review Depth</div></div></div><button class="btn-go" onclick="reveal()">Open My Review <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></button><div class="btn-sub">Your guided billing review workspace awaits</div></div>');
 }
 
 /* ── Cinematic reveal ── */
@@ -550,7 +612,7 @@ function reveal(){
   },1100);
 }
 
-window.addEventListener('load',function(){setTimeout(run,800);});
+window.addEventListener('load',function(){updateActiveReviewStrip();setTimeout(getReviewDepth()==='full'?run:runLimitedDetails,800);});
 </script>
 </body>
 </html>

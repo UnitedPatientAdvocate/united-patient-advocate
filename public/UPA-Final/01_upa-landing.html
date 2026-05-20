@@ -1082,11 +1082,11 @@ html,body{max-width:100%;overflow-x:hidden}
         <div class="field-row">
           <div class="field">
             <label class="field-label">Your First Name</label>
-            <input type="text" id="f-first" placeholder="Jane" autocomplete="given-name"/>
+            <input type="text" id="f-first" placeholder="First Name" autocomplete="given-name"/>
           </div>
           <div class="field">
             <label class="field-label">Last Name</label>
-            <input type="text" id="f-last" placeholder="Smith" autocomplete="family-name"/>
+            <input type="text" id="f-last" placeholder="Last Name" autocomplete="family-name"/>
           </div>
         </div>
         <div class="field-row full">
@@ -1144,7 +1144,7 @@ html,body{max-width:100%;overflow-x:hidden}
         </div>
         <button class="btn-submit" onclick="startAnalysis()">
           <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Start My Free Review Now
+          Start Secure Analysis
           <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
         <div style="text-align:center;margin-top:8px;font-size:.5rem;color:rgba(235,244,255,.28);letter-spacing:.06em;text-transform:uppercase">Results in under 60 seconds</div>
@@ -1295,27 +1295,45 @@ document.addEventListener('input',function(e){
 });
 
 /* Build summary */
+function escapeHtml(value){
+  return String(value||'').replace(/[&<>"']/g,function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+function cleanSummaryValue(value,fallback){
+  var text=String(value||'').trim();
+  if(!text||text==='undefined'||text==='null'||text==='NaN')return fallback;
+  return text;
+}
 function buildSummary(){
   state.first=document.getElementById('f-first').value.trim();
   state.last=document.getElementById('f-last').value.trim();
   state.email=document.getElementById('f-email').value.trim();
   state.provider=document.getElementById('f-provider').value.trim();
   state.dos=document.getElementById('f-dos').value;
+  var patientName=cleanSummaryValue((state.first+' '+state.last).trim(),'Name not provided');
+  var billType=cleanSummaryValue(labels.s1[state.s1]||state.s1,'Not selected yet');
+  var insurance=cleanSummaryValue(labels.s2[state.s2]||state.s2,'Not selected yet');
+  var billAmount=cleanSummaryValue(labels.s3[state.s3]||state.s3,'Not selected yet');
+  var paymentStatus=cleanSummaryValue(labels.s4[state.s4]||state.s4,'Not selected yet');
+  var provider=cleanSummaryValue(state.provider,'Provider not provided');
+  var dos=cleanSummaryValue(state.dos,'Not provided yet');
+  var concerns=state.s5.length?state.s5.length+' issue'+(state.s5.length!==1?'s':'')+' selected':'Not selected yet';
 
   var rows=[
-    ['Patient Name',state.first+' '+state.last],
-    ['Bill Type',labels.s1[state.s1]||state.s1],
-    ['Insurance',labels.s2[state.s2]||state.s2],
-    ['Bill Amount',labels.s3[state.s3]||state.s3],
-    ['Payment Status',labels.s4[state.s4]||state.s4],
-    ['Provider',state.provider],
-    ['Date of Service',state.dos||'Not provided'],
-    ['Concerns',state.s5.length+' issue'+(state.s5.length!==1?'s':'')+' selected'],
-    ['Bill Uploaded',state.file?state.file.name:'Not uploaded (optional)']
+    ['Patient Name',patientName],
+    ['Bill Type',billType],
+    ['Insurance',insurance],
+    ['Bill Amount',billAmount],
+    ['Payment Status',paymentStatus],
+    ['Provider',provider],
+    ['Date of Service',dos],
+    ['Concerns',concerns],
+    ['Bill Uploaded',state.file?state.file.name:'No bill uploaded yet']
   ];
   var p=document.getElementById('summary-panel');
   p.innerHTML=rows.map(function(r){
-    return '<div class="sum-row"><span class="sum-label">'+r[0]+'</span><span class="sum-val'+(r[0]==='Patient Name'?' green':'')+'">'+r[1]+'</span></div>';
+    return '<div class="sum-row"><span class="sum-label">'+escapeHtml(r[0])+'</span><span class="sum-val'+(r[0]==='Patient Name'?' green':'')+'">'+escapeHtml(r[1])+'</span></div>';
   }).join('');
 }
 
@@ -1421,6 +1439,36 @@ function buildLeadPayload(){
     payment_status_raw:state.s4||''
   };
 }
+function detectReviewDepth(desc){
+  var text=(desc||'').trim();
+  var hasLineItems=/(cpt|hcpcs|line\s*\d|procedure code|diagnosis code|charge|\$\s*\d|\b\d{5}\b)/i.test(text);
+  if(state.file||(text.length>=120&&hasLineItems))return 'full';
+  if(text.length>=25||state.provider||state.s1||state.s2||state.s3||state.s4||state.s5.length)return 'guided';
+  return 'starter';
+}
+function saveIntakeContext(){
+  var desc=getFieldValue('f-desc');
+  var depth=detectReviewDepth(desc);
+  var payload={
+    saved_at:new Date().toISOString(),
+    first:getFieldValue('f-first'),
+    last:getFieldValue('f-last'),
+    email:getFieldValue('f-email'),
+    provider:getFieldValue('f-provider'),
+    date_of_service:getFieldValue('f-dos'),
+    bill_amount:selectedOptionLabel('s3',state.s3),
+    payment_status:selectedOptionLabel('s4',state.s4),
+    concerns:selectedConcernLabels(),
+    description:desc,
+    description_length:desc.length,
+    uploaded_bill:state.file?state.file.name:'',
+    has_uploaded_bill:!!state.file,
+    has_enough_bill_detail:depth==='full',
+    review_depth:depth,
+    review_depth_label:depth==='full'?'Full Review':(depth==='guided'?'Guided Estimate':'Starter Guidance')
+  };
+  try{localStorage.setItem('upa.intake.context.v1',JSON.stringify(payload));}catch(e){}
+}
 function appendHiddenField(form,name,value){
   var input=document.createElement('input');
   input.type='hidden';
@@ -1488,6 +1536,7 @@ function submitLeadToFormspree(){
 
 /* Start analysis */
 function startAnalysis(){
+  saveIntakeContext();
   var btn=document.querySelector('.btn-submit');
   btn.disabled=true;
   btn.innerHTML='<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:white;stroke-width:2;fill:none;animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Starting Your Review...';

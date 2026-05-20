@@ -508,6 +508,15 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .fi-desc { font-size: 0.75rem; color: var(--ink-3); line-height: 1.65; margin-bottom: 8px; }
 .fi-desc strong { color: var(--ink); font-weight: 600; }
 .fi-code { display: inline-flex; font-family: var(--mono); font-size: 0.5625rem; color: var(--ink-4); background: var(--bg); border: 1px solid var(--bdr-md); padding: 2px 7px; border-radius: 3px; }
+.fi-toggle-hint { margin-top: 8px; font-size: 0.5625rem; font-weight: 700; color: var(--ink-4); letter-spacing: 0.02em; }
+.finding-detail { display: none; margin-top: 10px; padding: 12px; background: #F8FAFD; border: 1px solid var(--bdr); border-radius: 7px; }
+.finding-card.is-open .finding-detail { display: block; }
+.fd-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px 12px; }
+.fd-label { font-size: 0.375rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-5); margin-bottom: 3px; }
+.fd-text { font-size: 0.6875rem; line-height: 1.55; color: var(--ink-3); }
+.fd-next { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--bdr); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.fd-next-text { font-size: 0.6875rem; line-height: 1.5; color: var(--ink-3); }
+.fd-next-btn { flex-shrink: 0; font-family: var(--sans); font-size: 0.625rem; font-weight: 700; border: 1px solid var(--bdr-md); background: var(--white); color: var(--ink-2); border-radius: 5px; padding: 7px 10px; cursor: pointer; }
 .ev-panel { margin-top: 10px; background: linear-gradient(135deg,#F6F9FE,#F0F5FA); border: 1px solid var(--bdr-md); border-radius: 7px; overflow: hidden; }
 .ev-head { padding: 7px 12px; border-bottom: 1px solid var(--bdr); background: linear-gradient(180deg,#F3F7FD,#EEF3F9); display: flex; align-items: center; gap: 5px; }
 .ev-head-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--ink-5); }
@@ -1745,6 +1754,48 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 }
 .qc-disclaimer svg { width: 11px; height: 11px; stroke: var(--ink-5); stroke-width: 1.8; fill: none; flex-shrink: 0; }
 .qc-disclaimer-txt { font-size: 0.4rem; color: var(--ink-5); letter-spacing: 0.03em; }
+.mobile-start-panel{display:none}
+.mobile-next-actions{display:none}
+.trust-need-state{display:none}
+.trust-need-card{position:relative;overflow:hidden;margin:18px 20px 22px;background:radial-gradient(circle at 12% 8%,rgba(30,184,122,.20),transparent 31%),radial-gradient(circle at 92% 0%,rgba(240,165,0,.15),transparent 26%),linear-gradient(145deg,#121D30,#08101D);border:1px solid rgba(235,244,255,.15);border-radius:22px;box-shadow:0 26px 80px rgba(0,0,0,.28),0 0 0 1px rgba(30,184,122,.08),inset 0 1px 0 rgba(255,255,255,.08);padding:30px}
+.trust-need-card::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.05),transparent 44%,rgba(255,255,255,.035));pointer-events:none}
+.trust-need-inner{position:relative;z-index:1;display:grid;grid-template-columns:132px 1fr;gap:28px;align-items:center}
+.trust-need-symbol{width:122px;height:122px;border-radius:34px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,rgba(30,184,122,.20),rgba(255,255,255,.06));border:1px solid rgba(30,184,122,.30);box-shadow:0 22px 54px rgba(30,184,122,.16),inset 0 1px 0 rgba(255,255,255,.14)}
+.trust-need-symbol svg{width:70px;height:70px;stroke:var(--green);stroke-width:1.6;fill:none}
+.trust-need-label{font-size:.5rem;font-weight:900;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.trust-need-title{font-family:var(--serif);font-size:clamp(2.05rem,3.2vw,3.45rem);font-weight:800;color:var(--on-dark);letter-spacing:-.035em;line-height:1.02;margin-bottom:12px}
+.trust-need-copy{font-size:1rem;line-height:1.75;color:var(--on-dark-2);max-width:760px;margin-bottom:22px}
+.trust-need-list{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0 22px}
+.trust-need-item{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11);border-radius:15px;padding:15px 14px;font-size:.75rem;line-height:1.55;color:var(--on-dark-2);min-height:96px;display:flex;gap:12px;align-items:flex-start}
+.trust-need-step{width:34px;height:34px;border-radius:50%;background:rgba(30,184,122,.18);color:var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.75rem;font-weight:900;flex-shrink:0}
+.trust-need-item strong{display:block;color:var(--on-dark);font-size:.8125rem;margin-bottom:3px}
+.trust-need-actions{position:relative;z-index:1;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px}
+.trust-need-btn{font-family:var(--sans);font-size:.85rem;font-weight:900;border-radius:16px;padding:17px 18px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:var(--on-dark);cursor:pointer;min-height:68px;display:flex;align-items:center;justify-content:center;gap:9px;text-align:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.trust-need-btn.primary{font-size:1rem;background:linear-gradient(135deg,var(--green-dk),var(--green));border-color:rgba(30,184,122,.42);color:white;box-shadow:0 16px 46px rgba(30,184,122,.26),0 0 0 1px rgba(30,184,122,.18)}
+.trust-need-btn svg{width:22px;height:22px;stroke:currentColor;stroke-width:2.3;fill:none;flex-shrink:0}
+.trust-companion-note{position:relative;z-index:1;margin-top:18px;padding:13px 16px;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:rgba(255,255,255,.055);font-size:.75rem;line-height:1.6;color:var(--on-dark-3);text-align:center}
+.guided-walkthrough{background:var(--white);border-bottom:1px solid var(--bdr);padding:14px 20px;display:flex;flex-direction:column;gap:10px}
+.gw-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.gw-label{font-size:.4375rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:3px}
+.gw-title{font-family:var(--serif);font-size:1.0625rem;font-weight:700;color:var(--ink);letter-spacing:-.01em;line-height:1.25}
+.gw-sub{font-size:.6875rem;color:var(--ink-4);line-height:1.45;margin-top:2px}
+.gw-progress{font-family:var(--mono);font-size:.5625rem;font-weight:700;color:var(--green-dk);background:var(--green-lt);border:1px solid rgba(30,184,122,.22);border-radius:100px;padding:5px 10px;white-space:nowrap}
+.gw-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gw-step{display:flex;gap:8px;align-items:flex-start;text-align:left;background:#F8FAFD;border:1px solid var(--bdr);border-radius:8px;padding:10px;cursor:pointer;font-family:var(--sans)}
+.gw-step-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono);font-size:.625rem;font-weight:700;background:rgba(17,28,46,.06);color:var(--ink-4)}
+.gw-step-title{font-size:.75rem;font-weight:800;color:var(--ink);line-height:1.25}
+.gw-step-copy{font-size:.625rem;color:var(--ink-4);line-height:1.45;margin-top:2px}
+.gw-step.is-active{border-color:rgba(30,184,122,.34);background:#F1FBF7}
+.gw-step.is-active .gw-step-num{background:var(--green);color:white}
+.gw-step.is-done .gw-step-num{background:var(--green-lt);color:var(--green-dk)}
+.gw-step.is-done .gw-step-num::after{content:'✓'}
+.gw-step.is-done .gw-step-num span{display:none}
+.gw-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gw-primary,.gw-secondary{font-family:var(--sans);font-size:.75rem;font-weight:800;border-radius:7px;padding:9px 13px;cursor:pointer}
+.gw-primary{background:var(--green);border:1px solid rgba(30,184,122,.35);color:white}
+.gw-secondary{background:var(--white);border:1px solid var(--bdr-md);color:var(--ink-2)}
+.needs-bill-details .trust-need-state{display:block}
+.needs-bill-details .case-header{box-shadow:0 14px 46px rgba(0,0,0,.10)}
 @media (max-width:600px){
 html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
 body{display:block;background:var(--bg)}
@@ -1758,26 +1809,50 @@ body{display:block;background:var(--bg)}
 .nav-ref{display:none}
 .nav-right{margin-left:auto}
 .btn-nv{padding:5px 10px;font-size:.6875rem}
-.shell{display:block;overflow:visible}
-.sidebar{width:100%;max-height:none;display:block;border-right:none;border-bottom:1px solid rgba(255,255,255,.06);overflow:visible}
+.shell{display:flex;flex-direction:column;overflow:visible}
+.main{order:1}
+.sidebar{order:2;width:100%;max-height:none;display:block;border-right:none;border-bottom:1px solid rgba(255,255,255,.06);overflow:visible}
+.right-panel{order:3}
 .sb-case,.sb-kpis,.sb-score{padding-left:16px;padding-right:16px}
 .sb-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sb-div{display:none}
-.sb-nav{display:flex;flex-direction:row;overflow-x:auto;gap:6px;padding:10px 12px;scrollbar-width:none}
-.sb-nav::-webkit-scrollbar{display:none}
+.sb-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;gap:6px;padding:10px 12px;scrollbar-width:none}
 .sb-grp{display:none}
-.sb-item{flex:0 0 auto;min-width:136px;background:rgba(255,255,255,.04)}
+.sb-item{min-width:0;background:rgba(255,255,255,.04)}
+.sb-item-l{min-width:0}
+.sb-guide-sub{display:none}
 .sb-badge-pill{display:none}
-.sb-foot{padding:10px 12px 14px}
+.sb-foot{padding:10px 12px 14px;background:rgba(255,255,255,.02)}
+.btn-sb-dl{background:transparent;border:1px solid rgba(255,255,255,.12);box-shadow:none;color:var(--on-dark-2);padding:8px}
+.btn-sb-dl svg{stroke:currentColor}
 .main{display:block;min-height:auto;overflow:visible}
 .case-header{padding:20px 16px 0}
 .case-header::before{display:none}
 .ch-meta-top,.ch-pills{align-items:flex-start;gap:8px;flex-wrap:wrap}
 .ch-sep,.ch-ref{display:none}
 .ch-deck br{display:none}
+.mobile-start-panel{display:block;margin:12px 0 14px;padding:12px;border:1px solid rgba(30,184,122,.24);border-radius:10px;background:rgba(255,255,255,.06)}
+.mobile-start-label{font-size:.45rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.mobile-start-title{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--on-dark);line-height:1.25;margin-bottom:4px}
+.mobile-start-copy{font-size:.75rem;line-height:1.5;color:var(--on-dark-2)}
+.mobile-start-actions{display:grid;grid-template-columns:1fr;gap:7px;margin-top:10px}
+.mobile-start-primary,.mobile-start-secondary{font-family:var(--sans);font-size:.6875rem;font-weight:800;border-radius:7px;padding:9px 10px;cursor:pointer}
+.mobile-start-primary{background:var(--green);border:1px solid rgba(30,184,122,.4);color:white}
+.mobile-start-secondary{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--on-dark)}
+.mobile-next-actions{display:block;margin:0 0 14px;padding:11px;border:1px solid rgba(255,255,255,.10);border-radius:9px;background:rgba(255,255,255,.04)}
+.mobile-next-heading{font-size:.45rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:8px}
+.mobile-next-grid{display:grid;grid-template-columns:1fr;gap:6px}
+.mobile-next-step{display:flex;align-items:center;gap:8px;width:100%;text-align:left;font-family:var(--sans);font-size:.6875rem;font-weight:700;line-height:1.35;color:var(--on-dark);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:7px;padding:9px 10px;cursor:pointer}
+.mobile-next-num{display:flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;background:rgba(30,184,122,.16);color:var(--green);font-family:var(--mono);font-size:.5625rem;flex-shrink:0}
 .ch-metadata{grid-template-columns:1fr 1fr;gap:10px;padding:12px 0}
 .ch-meta-item{border-right:none;margin-right:0;padding-right:0}
-.tab-bar{padding:0 12px 10px;flex-wrap:wrap;align-items:stretch;gap:4px}
+.guided-walkthrough{padding:12px 14px}
+.gw-head{display:block}
+.gw-progress{display:inline-flex;margin-top:8px}
+.gw-steps{grid-template-columns:1fr}
+.gw-actions{display:grid;grid-template-columns:1fr}
+.tab-bar{padding:0 12px 10px;flex-wrap:wrap;align-items:stretch;gap:4px;overflow:visible}
+.tab-bar::before{content:'Review Sections';width:100%;font-size:.45rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--on-dark-3);padding:10px 2px 2px}
 .tab-btn{flex:1 1 calc(50% - 4px);justify-content:center;border-radius:7px;padding:9px 8px;margin-bottom:0;white-space:normal}
 .tab-content{display:block;overflow:visible}
 .tab-panel{overflow:visible}
@@ -1785,7 +1860,16 @@ body{display:block;background:var(--bg)}
 .kpi{border-bottom:1px solid var(--bdr)}
 .kpi + .kpi{border-left:none}
 .ov-grid,.fin-grid,.findings-grid,.letters-grid,.action-grid,.rights-grid,.guide-grid{padding:14px;gap:12px}
-.grid-2,.grid-3,.rc-grid,.intel-row,.fv-summary,.ev-grid,.doc-cards-row,.doc-grid,.gd-grid,.gd-two,.gd-three{grid-template-columns:1fr!important}
+.grid-2,.grid-3,.rc-grid,.intel-row,.fv-summary,.ev-grid,.fd-grid,.doc-cards-row,.doc-grid,.gd-grid,.gd-two,.gd-three{grid-template-columns:1fr!important}
+.trust-need-list{grid-template-columns:1fr}
+.trust-need-card{margin:14px 14px 18px;padding:22px 16px;border-radius:20px}
+.trust-need-inner{grid-template-columns:1fr;text-align:center;gap:18px}
+.trust-need-symbol{width:96px;height:96px;margin:0 auto}
+.trust-need-copy{font-size:.9375rem}
+.trust-need-actions{grid-template-columns:1fr}
+.trust-need-btn{min-height:72px}
+.fd-next{display:block}
+.fd-next-btn{width:100%;margin-top:8px}
 .nb-inner,.finding-inner,.fc-head,.dph-inner,.fin-total-row,.rpc-main{grid-template-columns:1fr;display:block}
 .fv-row{align-items:flex-start;gap:8px;flex-wrap:wrap}
 .fv-row-label,.fv-row-amount{width:100%;text-align:left}
@@ -1807,7 +1891,7 @@ body{display:block;background:var(--bg)}
 </style>
 </head>
 <body>
-<!-- TODO: Replace Jane Smith demo values with individualized customer data during fulfillment. -->
+<!-- TODO: Replace First Name Last Name demo values with individualized customer data during fulfillment. -->
 <!-- Completion toast -->
 <div class="completion-toast" id="completion-toast">
   <div class="toast-icon"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
@@ -1848,7 +1932,7 @@ body{display:block;background:var(--bg)}
       <!-- Current balance (editable) -->
       <div class="qc-bal-row">
         <span class="qc-bal-label">Current Balance</span>
-        <input class="qc-bal-input" id="qc-balance" type="text" value="$23,452.00" oninput="formatBalanceInput(this)" onblur="calcUpdate()"/>
+        <input class="qc-bal-input" id="qc-balance" type="text" value="" oninput="formatBalanceInput(this)" onblur="calcUpdate()"/>
       </div>
 
       <!-- Reduction presets -->
@@ -1934,8 +2018,8 @@ body{display:block;background:var(--bg)}
           </div>
         </div>
         <div id="split-result" style="background:#F8FAFD;border:1px solid var(--bdr);border-radius:9px;padding:14px 16px">
-          <div style="font-size:.5625rem;font-weight:700;color:var(--ink-4);margin-bottom:8px">If you split $23,452.00 into 2 equal payments:</div>
-          <div style="font-family:var(--serif);font-size:1.875rem;font-weight:900;color:var(--ink);letter-spacing:-.03em" id="split-amount">$11,726.00</div>
+          <div style="font-size:.5625rem;font-weight:700;color:var(--ink-4);margin-bottom:8px">Enter a bill amount to estimate split payments:</div>
+          <div style="font-family:var(--serif);font-size:1.875rem;font-weight:900;color:var(--ink);letter-spacing:-.03em" id="split-amount">$0.00</div>
           <div style="font-size:.5625rem;color:var(--ink-5);margin-top:3px">per payment</div>
           <div style="margin-top:12px;display:flex;flex-direction:column;gap:4px" id="split-bars"></div>
         </div>
@@ -1988,7 +2072,7 @@ body{display:block;background:var(--bg)}
 
 <!-- ═══════════ NAV ═══════════ -->
 <div class="topnav">
-  <a class="nav-brand" href="#">
+  <a class="nav-brand" href="javascript:void(0)" onclick="showTab('overview');window.scrollTo({top:0,behavior:'smooth'});return false;">
     <div class="nav-shield">
       <img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate">
     </div>
@@ -2168,8 +2252,8 @@ body{display:block;background:var(--bg)}
     </a>
   </nav>
   <div class="sb-foot">
-    <button class="btn-sb-dl" onclick="window.open('05_upa-packet.html','_blank')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download All Documents</button>
-    <div class="sb-util-row"><button class="btn-util">Print</button><button class="btn-util">Share</button></div>
+    <button class="btn-sb-dl" onclick="openPacket()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Open Printable Packet</button>
+    <div class="sb-util-row"><button class="btn-util" onclick="printDashboard()">Print</button><button class="btn-util" onclick="shareDashboard()">Share</button></div>
     <div class="sb-secure">Secure · Private · Confidential</div>
   </div>
 </aside>
@@ -2189,13 +2273,32 @@ body{display:block;background:var(--bg)}
         <div class="ch-sep"></div>
         <span class="ch-ref">REF: UPA-2026-04831 &nbsp;|&nbsp; Case Opened: May 16, 2026</span>
       </div>
-      <h1 class="ch-headline">We reviewed your bill.</h1>
-      <div class="ch-subline">We found issues you should not have to pay for.</div>
-      <p class="ch-deck">Our review identified bill <u>discrepancies</u> and <u>disputable</u> charges.<br>Below is what we found and exactly what we do, step by step.</p>
+      <h1 class="ch-headline">Your Billing Review Is Open.</h1>
+      <div class="ch-subline">Start here in the dashboard. PDF and email copies are backups.</div>
+      <p class="ch-deck">Our review identified bill <u>discrepancies</u> and <u>disputable</u> charges.<br>Below is what we found and exactly what to do, step by step.</p>
+      <div class="mobile-start-panel">
+        <div class="mobile-start-label">Start Here / Next Step</div>
+        <div class="mobile-start-title">Request a Fully Itemized Statement Before Paying Anything</div>
+        <div class="mobile-start-copy">Federal law entitles you to a complete line-by-line itemized bill. We've written the letter. This single step is the foundation for every dispute that follows.</div>
+        <div class="mobile-start-actions">
+          <button class="mobile-start-primary" onclick="openDocument('doc-letter-1','Request letter opened','Letter 1 is the itemized statement request. Open the printable packet if you want the full page version.')">Open Request Letter</button>
+          <button class="mobile-start-secondary" onclick="showGuide('starthere')">Start Here Guide</button>
+        </div>
+      </div>
+      <div class="mobile-next-actions">
+        <div class="mobile-next-heading">Next Actions</div>
+        <div class="mobile-next-grid">
+          <button class="mobile-next-step" onclick="openDocument('doc-letter-1','Request letter opened','Letter 1 is the itemized statement request. Open the printable packet if you want the full page version.')"><span class="mobile-next-num">1</span><span>Open the itemized statement request</span></button>
+          <button class="mobile-next-step" onclick="openDashboardSection('findings','Findings opened','Review each flagged charge before sending your packet.')"><span class="mobile-next-num">2</span><span>Review the flagged billing findings</span></button>
+          <button class="mobile-next-step" onclick="showGuide('callscripts')"><span class="mobile-next-num">3</span><span>Open the call scripts before contacting billing</span></button>
+          <button class="mobile-next-step" onclick="openActionPlan()"><span class="mobile-next-num">4</span><span>See the step-by-step action plan</span></button>
+          <button class="mobile-next-step" onclick="openPacket()"><span class="mobile-next-num">5</span><span>Open the printable dispute packet</span></button>
+        </div>
+      </div>
       <div class="ch-pills">
         <div class="ch-pill dark-pill">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Prepared for Jane Smith
+          Prepared for First Name Last Name
         </div>
         <div class="ch-pill dark-pill">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -2222,6 +2325,73 @@ body{display:block;background:var(--bg)}
     </div>
   </div>
 
+  <div class="trust-need-state" id="trust-need-state">
+    <div class="trust-need-card">
+      <div class="trust-need-inner">
+        <div class="trust-need-symbol" aria-hidden="true">
+          <svg viewBox="0 0 64 64">
+            <path d="M32 6l20 8v15c0 14-8.5 24.5-20 29-11.5-4.5-20-15-20-29V14l20-8z"/>
+            <path d="M22 33l7 7 15-17"/>
+          </svg>
+        </div>
+        <div>
+          <div class="trust-need-label" id="trust-review-depth-label">Guided Estimate</div>
+          <div class="trust-need-title" id="trust-review-depth-title">Let's build your case together.</div>
+          <div class="trust-need-copy" id="trust-review-depth-copy">Your AI advocate is here with you. We will organize what you know, guide the proof request, and move one calm step at a time inside this workspace.</div>
+        </div>
+      </div>
+      <div class="trust-need-list">
+        <div class="trust-need-item"><span class="trust-need-step">1</span><div><strong>Build the case file</strong> Start with the details you already entered. Nothing has to be perfect.</div></div>
+        <div class="trust-need-item"><span class="trust-need-step">2</span><div><strong>Request the proof</strong> Ask for the itemized bill and written explanation using guided language.</div></div>
+        <div class="trust-need-item"><span class="trust-need-step">3</span><div><strong>Move forward</strong> Use scripts, documents, and follow-up steps without leaving the app.</div></div>
+      </div>
+      <div class="trust-need-actions">
+        <button class="trust-need-btn primary" onclick="focusGuidedWalkthrough()">
+          <svg viewBox="0 0 24 24"><path d="M12 3l8 4v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V7l8-4z"/><path d="M8 12l3 3 6-7"/></svg>
+          Start Building My Case
+        </button>
+        <button class="trust-need-btn" onclick="showItemizedRequestInfo()">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+          Open Proof Request
+        </button>
+        <button class="trust-need-btn" onclick="showGuide('callscripts')">
+          <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/></svg>
+          Practice the Call
+        </button>
+      </div>
+      <div class="trust-companion-note">You are still progressing. UPA will keep this review honest and useful now, then sharpen it when bill-level detail arrives.</div>
+    </div>
+  </div>
+
+  <section class="guided-walkthrough" id="guided-walkthrough" aria-label="Guided review walkthrough">
+    <div class="gw-head">
+      <div>
+        <div class="gw-label">Guided Review Path</div>
+        <div class="gw-title" id="gw-title">Start with Step 1. We’ll guide you through the rest.</div>
+        <div class="gw-sub" id="gw-sub">Follow the steps in order so you know exactly what to open, review, and send next.</div>
+      </div>
+      <div class="gw-progress" id="gw-progress">Step 1 of 3</div>
+    </div>
+    <div class="gw-steps">
+      <button class="gw-step" data-guided-step="1" onclick="runGuidedStep(1)">
+        <span class="gw-step-num"><span>1</span></span>
+        <span><span class="gw-step-title">Open the request letter</span><span class="gw-step-copy">Get the itemized bill path started before paying.</span></span>
+      </button>
+      <button class="gw-step" data-guided-step="2" onclick="runGuidedStep(2)">
+        <span class="gw-step-num"><span>2</span></span>
+        <span><span class="gw-step-title">Review the findings</span><span class="gw-step-copy">Understand each flagged charge before sending disputes.</span></span>
+      </button>
+      <button class="gw-step" data-guided-step="3" onclick="runGuidedStep(3)">
+        <span class="gw-step-num"><span>3</span></span>
+        <span><span class="gw-step-title">Use the action plan</span><span class="gw-step-copy">Send documents, use scripts, and track follow-up.</span></span>
+      </button>
+    </div>
+    <div class="gw-actions">
+      <button class="gw-primary" id="gw-continue" onclick="continueGuidedStep()">Continue Step 1</button>
+      <button class="gw-secondary" onclick="showGuide('starthere')">Open Start Here Guide</button>
+    </div>
+  </section>
+
   <!-- KPI strip -->
   <div class="kpi-strip">
     <div class="kpi kpi-hl">
@@ -2237,7 +2407,7 @@ body{display:block;background:var(--bg)}
     <div class="kpi">
       <div class="kpi-label">Letters Ready to Send Today</div>
       <div class="kpi-val">3 Prepared</div>
-      <div class="kpi-ctx">No lawyer needed. Download, sign, and send</div>
+      <div class="kpi-ctx">No lawyer needed. Open, sign, and send</div>
     </div>
   </div>
 
@@ -2294,8 +2464,8 @@ body{display:block;background:var(--bg)}
               <div class="nb-tags"><span class="nb-tag nbt-g">No cost</span><span class="nb-tag nbt-d">5 minutes to send</span></div>
             </div>
             <div>
-              <button class="btn-nb">Open Request Letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></button>
-              <button class="btn-nb-skip">I already have an itemized bill →</button>
+              <button class="btn-nb" onclick="openDocument('doc-letter-1','Request letter opened','Letter 1 is the itemized statement request. Open the printable packet if you want the full page version.')">Open Request Letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+              <button class="btn-nb-skip" onclick="openActionPlan()">I already have an itemized bill →</button>
             </div>
           </div>
         </div>
@@ -2360,7 +2530,7 @@ body{display:block;background:var(--bg)}
     <!-- ═══ FINDINGS ═══ -->
     <div class="tab-panel" id="tab-findings">
       <div class="findings-grid">
-        <div class="finding-card">
+        <div class="finding-card" onclick="toggleFinding(this)" onkeydown="handleFindingKey(event,this)" tabindex="0" role="button" aria-expanded="false" aria-label="Expand duplicate charge finding">
           <div class="fc-rail r-crimson"></div>
           <div class="finding-inner">
             <div class="fi-left">
@@ -2368,6 +2538,16 @@ body{display:block;background:var(--bg)}
               <div class="fi-title">Emergency Visit Billed Twice, Same Date of Service</div>
               <div class="fi-desc">CPT 99285 appears on two separate line items for January 8, 2026. <strong>Billing the same procedure twice for one visit is a billing error hospitals must correct upon written request.</strong></div>
               <div class="fi-code">CPT-99285 · Lines 3 &amp; 11 · DOS Jan 8, 2026</div>
+              <div class="fi-toggle-hint">Tap/click for explanation</div>
+              <div class="finding-detail" aria-hidden="true">
+                <div class="fd-grid">
+                  <div><div class="fd-label">What It Means</div><div class="fd-text">The same emergency visit code appears twice for the same date of service, which can make one visit look like two billable events.</div></div>
+                  <div><div class="fd-label">Why It Was Flagged</div><div class="fd-text">Lines 3 and 11 both show CPT 99285 for January 8, while the Medicare benchmark supports one emergency visit charge.</div></div>
+                  <div><div class="fd-label">Why It Matters</div><div class="fd-text">A duplicate line can inflate the patient balance and should be challenged in writing before the disputed amount is paid.</div></div>
+                  <div><div class="fd-label">What To Do Next</div><div class="fd-text">Use the prepared dispute letter and attach the itemized statement with both duplicate lines marked.</div></div>
+                </div>
+                <div class="fd-next"><div class="fd-next-text">Open the formal dispute letter for this finding.</div><button class="fd-next-btn" onclick="event.stopPropagation();openDocument('doc-letter-2','Dispute letter opened','Letter 2 is the duplicate-charge dispute letter.')">Open Dispute Letter</button></div>
+              </div>
               <div class="ev-panel">
                 <div class="ev-head"><div class="ev-head-dot"></div><span class="ev-head-lbl">Supporting Evidence &amp; Case Intelligence</span></div>
                 <div class="ev-grid">
@@ -2378,12 +2558,12 @@ body{display:block;background:var(--bg)}
                 </div>
                 <div class="ev-str"><span class="ev-str-lbl">Case Strength</span><div class="ev-str-track"><div class="ev-str-fill high" style="width:88%"></div></div><span class="ev-str-pct">88%</span></div>
               </div>
-              <a class="fi-link lc" href="#">Open dispute letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+              <a class="fi-link lc" href="javascript:void(0)" onclick="event.stopPropagation();openDocument('doc-letter-2','Dispute letter opened','Letter 2 is the duplicate-charge dispute letter.')">Open dispute letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
             </div>
             <div class="fi-right"><div class="fi-amount fa-crimson">$1,240</div><div class="fi-amount-lbl">Disputable</div></div>
           </div>
         </div>
-        <div class="finding-card">
+        <div class="finding-card" onclick="toggleFinding(this)" onkeydown="handleFindingKey(event,this)" tabindex="0" role="button" aria-expanded="false" aria-label="Expand coding mismatch finding">
           <div class="fc-rail r-amber"></div>
           <div class="finding-inner">
             <div class="fi-left">
@@ -2391,6 +2571,16 @@ body{display:block;background:var(--bg)}
               <div class="fi-title">Highest Complexity Code Billed: Visit Record May Not Support This</div>
               <div class="fi-desc">CPT 99215 billed for what records describe as a routine follow-up. <strong>You have the right to request the supporting clinical documentation before paying.</strong></div>
               <div class="fi-code">CPT-99215 · Dr. Holt · Feb 3, 2026</div>
+              <div class="fi-toggle-hint">Tap/click for explanation</div>
+              <div class="finding-detail" aria-hidden="true">
+                <div class="fd-grid">
+                  <div><div class="fd-label">What It Means</div><div class="fd-text">The bill uses a highest-complexity office visit code, which should be supported by detailed clinical documentation.</div></div>
+                  <div><div class="fd-label">Why It Was Flagged</div><div class="fd-text">The visit description reads like a routine follow-up, while CPT 99215 generally requires high-complexity medical decision making.</div></div>
+                  <div><div class="fd-label">Why It Matters</div><div class="fd-text">If the record does not support the billed level, the charge may be reduced after documentation review.</div></div>
+                  <div><div class="fd-label">What To Do Next</div><div class="fd-text">Request the itemized documentation and clinical notes before accepting or paying this charge.</div></div>
+                </div>
+                <div class="fd-next"><div class="fd-next-text">Open the documentation request connected to this review item.</div><button class="fd-next-btn" onclick="event.stopPropagation();openDocument('doc-letter-1','Documentation request opened','Letter 1 requests the full itemized documentation you need before disputing specific charges.')">Open Documentation Request</button></div>
+              </div>
               <div class="ev-panel">
                 <div class="ev-head"><div class="ev-head-dot"></div><span class="ev-head-lbl">Supporting Evidence &amp; Case Intelligence</span></div>
                 <div class="ev-grid">
@@ -2401,12 +2591,12 @@ body{display:block;background:var(--bg)}
                 </div>
                 <div class="ev-str"><span class="ev-str-lbl">Case Strength</span><div class="ev-str-track"><div class="ev-str-fill medium" style="width:62%"></div></div><span class="ev-str-pct">62%</span></div>
               </div>
-              <a class="fi-link la" href="#">Open documentation request <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+              <a class="fi-link la" href="javascript:void(0)" onclick="event.stopPropagation();openDocument('doc-letter-1','Documentation request opened','Letter 1 requests the full itemized documentation you need before disputing specific charges.')">Open documentation request <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
             </div>
             <div class="fi-right"><div class="fi-amount fa-amber">$680</div><div class="fi-amount-lbl">In Question</div></div>
           </div>
         </div>
-        <div class="finding-card">
+        <div class="finding-card" onclick="toggleFinding(this)" onkeydown="handleFindingKey(event,this)" tabindex="0" role="button" aria-expanded="false" aria-label="Expand out-of-network lab finding">
           <div class="fc-rail r-cobalt"></div>
           <div class="finding-inner">
             <div class="fi-left">
@@ -2414,6 +2604,16 @@ body{display:block;background:var(--bg)}
               <div class="fi-title">Out-of-Network Lab Fees: Rate Reduction Request Prepared</div>
               <div class="fi-desc">Lab work processed out-of-network added $1,265. <strong>Patients submitting written in-network rate requests frequently receive a full reduction.</strong></div>
               <div class="fi-code">Quest Diagnostics · LAB-4430-B · Out-of-network</div>
+              <div class="fi-toggle-hint">Tap/click for explanation</div>
+              <div class="finding-detail" aria-hidden="true">
+                <div class="fd-grid">
+                  <div><div class="fd-label">What It Means</div><div class="fd-text">The lab portion of the bill was processed as out-of-network, which can leave the patient with a much higher balance.</div></div>
+                  <div><div class="fd-label">Why It Was Flagged</div><div class="fd-text">The out-of-network lab charge is $1,265, while the expected in-network or Medicare-range amount is much lower.</div></div>
+                  <div><div class="fd-label">Why It Matters</div><div class="fd-text">A written rate request creates a paper trail and gives the provider or plan a clear path to adjust the charge.</div></div>
+                  <div><div class="fd-label">What To Do Next</div><div class="fd-text">Send the prepared rate request asking for in-network review, reprocessing, or written explanation of the charge.</div></div>
+                </div>
+                <div class="fd-next"><div class="fd-next-text">Open the prepared rate request for this lab charge.</div><button class="fd-next-btn" onclick="event.stopPropagation();openDocument('doc-letter-3','Rate request opened','Letter 3 is the in-network rate adjustment request.')">Open Rate Request</button></div>
+              </div>
               <div class="ev-panel">
                 <div class="ev-head"><div class="ev-head-dot"></div><span class="ev-head-lbl">Supporting Evidence &amp; Case Intelligence</span></div>
                 <div class="ev-grid">
@@ -2424,7 +2624,7 @@ body{display:block;background:var(--bg)}
                 </div>
                 <div class="ev-str"><span class="ev-str-lbl">Case Strength</span><div class="ev-str-track"><div class="ev-str-fill mod" style="width:74%"></div></div><span class="ev-str-pct">74%</span></div>
               </div>
-              <a class="fi-link lb" href="#">Open rate request <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+              <a class="fi-link lb" href="javascript:void(0)" onclick="event.stopPropagation();openDocument('doc-letter-3','Rate request opened','Letter 3 is the in-network rate adjustment request.')">Open rate request <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
             </div>
             <div class="fi-right"><div class="fi-amount fa-cobalt">$1,265</div><div class="fi-amount-lbl">Negotiable</div></div>
           </div>
@@ -2474,7 +2674,7 @@ body{display:block;background:var(--bg)}
         <div class="doc-cards-row">
 
           <!-- Letter 1 -->
-          <div class="doc-preview-card">
+          <div class="doc-preview-card" id="doc-letter-1">
             <div class="dpc-top">
               <span class="dpc-step">Step 1</span>
               <span class="dpc-ready">READY</span>
@@ -2488,13 +2688,13 @@ body{display:block;background:var(--bg)}
               <div class="mini-lh">
                 <div class="mini-lh-left">
                   <div class="mini-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-                  <div><div class="mini-org">Jane Smith</div><span class="mini-org-sub">Patient · Medicare Beneficiary</span></div>
+                  <div><div class="mini-org">First Name Last Name</div><span class="mini-org-sub">Patient · Medicare Beneficiary</span></div>
                 </div>
                 <div><div class="mini-date">May 16, 2026</div><span class="mini-ref">Account: #2026-01-08</span></div>
               </div>
               <div class="mini-body">
                 <div class="mini-to">Memorial Regional Medical Center<br>Patient Financial Services<br>123 Medical Center Drive<br>Hollywood, FL 33021</div>
-                <div class="mini-re green-re">RE: Request for Fully Itemized Statement<br>Patient: Jane Smith · Account: #2026-01-08</div>
+                <div class="mini-re green-re">RE: Request for Fully Itemized Statement<br>Patient: First Name Last Name · Account: #2026-01-08</div>
                 <div class="mini-salut">Dear Billing Department,</div>
                 <div class="mini-text">I am formally requesting a complete itemized statement for all services rendered on January 8, 2026, including all CPT codes, HCPCS codes, dates of service, and unit charges.</div>
                 <span class="mini-highlight">We are formally requesting a complete line-by-line itemized statement for all services rendered on January 8, 2026, including all CPT codes, HCPCS codes, dates of service, and unit charges.</span>
@@ -2502,7 +2702,7 @@ body{display:block;background:var(--bg)}
                 <div class="mini-sig">
                   <div class="mini-sig-left">
                     <div class="mini-sig-close">Sincerely,</div>
-                    <div class="mini-sig-name">Jane Smith</div>
+                    <div class="mini-sig-name">First Name Last Name</div>
                     <span class="mini-sig-sub">Patient / Medicare Beneficiary</span>
                   </div>
                 </div>
@@ -2524,14 +2724,14 @@ body{display:block;background:var(--bg)}
             <div class="dpc-footer">
               <span class="dpc-prepared">Prepared: May 16, 2026, 10:42 AM</span>
               <div class="dpc-actions">
-                <button class="btn-dpc-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
-                <button class="btn-dpc-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="btn-dpc-icon" onclick="openPacket()" aria-label="Open printable packet"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+                <button class="btn-dpc-icon" onclick="openDocument('doc-letter-1','Document preview is open','Use Open Printable Packet for the full printable version.')" aria-label="Show document preview"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
               </div>
             </div>
           </div>
 
           <!-- Letter 2 -->
-          <div class="doc-preview-card">
+          <div class="doc-preview-card" id="doc-letter-2">
             <div class="dpc-top">
               <span class="dpc-step">Step 2</span>
               <span class="dpc-ready">READY</span>
@@ -2544,7 +2744,7 @@ body{display:block;background:var(--bg)}
               <div class="mini-lh">
                 <div class="mini-lh-left">
                   <div class="mini-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-                  <div><div class="mini-org">Jane Smith</div><span class="mini-org-sub">Patient · Medicare Beneficiary</span></div>
+                  <div><div class="mini-org">First Name Last Name</div><span class="mini-org-sub">Patient · Medicare Beneficiary</span></div>
                 </div>
                 <div><div class="mini-date">May 16, 2026</div><span class="mini-ref">Account: #2026-01-08</span></div>
               </div>
@@ -2558,7 +2758,7 @@ body{display:block;background:var(--bg)}
                 <div class="mini-sig">
                   <div class="mini-sig-left">
                     <div class="mini-sig-close">Sincerely,</div>
-                    <div class="mini-sig-name">Jane Smith</div>
+                    <div class="mini-sig-name">First Name Last Name</div>
                     <span class="mini-sig-sub">Patient / Medicare Beneficiary</span>
                   </div>
                 </div>
@@ -2580,14 +2780,14 @@ body{display:block;background:var(--bg)}
             <div class="dpc-footer">
               <span class="dpc-prepared">Prepared: May 16, 2026, 10:42 AM</span>
               <div class="dpc-actions">
-                <button class="btn-dpc-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
-                <button class="btn-dpc-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="btn-dpc-icon" onclick="openPacket()" aria-label="Open printable packet"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+                <button class="btn-dpc-icon" onclick="openDocument('doc-letter-2','Document preview is open','Use Open Printable Packet for the full printable version.')" aria-label="Show document preview"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
               </div>
             </div>
           </div>
 
           <!-- Letter 3 -->
-          <div class="doc-preview-card">
+          <div class="doc-preview-card" id="doc-letter-3">
             <div class="dpc-top">
               <span class="dpc-step">Step 3</span>
               <span class="dpc-ready">READY</span>
@@ -2600,13 +2800,13 @@ body{display:block;background:var(--bg)}
               <div class="mini-lh">
                 <div class="mini-lh-left">
                   <div class="mini-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-                  <div><div class="mini-org">Jane Smith</div><span class="mini-org-sub">Patient · Medicare Beneficiary</span></div>
+                  <div><div class="mini-org">First Name Last Name</div><span class="mini-org-sub">Patient · Medicare Beneficiary</span></div>
                 </div>
                 <div><div class="mini-date">May 16, 2026</div><span class="mini-ref">Account: #2026-01-08</span></div>
               </div>
               <div class="mini-body">
                 <div class="mini-to">Memorial Regional Medical Center<br>Patient Financial Services<br>123 Medical Center Drive<br>Hollywood, FL 33021</div>
-                <div class="mini-re cobalt-re">RE: Request for In-Network Rate Adjustment<br>Patient: Jane Smith · Account: #2026-01-08</div>
+                <div class="mini-re cobalt-re">RE: Request for In-Network Rate Adjustment<br>Patient: First Name Last Name · Account: #2026-01-08</div>
                 <div class="mini-salut">To Whom It May Concern,</div>
                 <div class="mini-text">I am requesting an adjustment to the in-network allowable rate in accordance with my Medicare plan benefits and the provider's contracted agreement.</div>
                 <span class="mini-highlight">I am requesting an adjustment to the in-network allowable rate in accordance with my Medicare plan benefits and the provider's contracted agreement.</span>
@@ -2614,7 +2814,7 @@ body{display:block;background:var(--bg)}
                 <div class="mini-sig">
                   <div class="mini-sig-left">
                     <div class="mini-sig-close">Sincerely,</div>
-                    <div class="mini-sig-name">Jane Smith</div>
+                    <div class="mini-sig-name">First Name Last Name</div>
                     <span class="mini-sig-sub">Patient / Medicare Beneficiary</span>
                   </div>
                 </div>
@@ -2636,8 +2836,8 @@ body{display:block;background:var(--bg)}
             <div class="dpc-footer">
               <span class="dpc-prepared">Prepared: May 16, 2026, 10:42 AM</span>
               <div class="dpc-actions">
-                <button class="btn-dpc-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
-                <button class="btn-dpc-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="btn-dpc-icon" onclick="openPacket()" aria-label="Open printable packet"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+                <button class="btn-dpc-icon" onclick="openDocument('doc-letter-3','Document preview is open','Use Open Printable Packet for the full printable version.')" aria-label="Show document preview"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
               </div>
             </div>
           </div>
@@ -2650,10 +2850,10 @@ body{display:block;background:var(--bg)}
     <!-- ═══ ACTION PLAN ═══ -->
     <div class="tab-panel" id="tab-actionplan">
       <div class="action-grid">
-        <div class="action-step"><div class="as-rail r1"></div><div class="as-body"><div class="as-head"><span class="as-num">01</span><div class="as-title">Request Fully Itemized Statement</div><span class="as-status ass-now">Do Now</span></div><div class="as-desc">Send the prepared letter requesting a complete line-by-line itemized bill from Memorial Regional. This establishes the formal basis for all disputes that follow. Time needed: 5 minutes. Cost: Free.</div></div></div>
-        <div class="action-step"><div class="as-rail r2"></div><div class="as-body"><div class="as-head"><span class="as-num">02</span><div class="as-title">Submit Duplicate Charge Dispute</div><span class="as-status ass-next">Next</span></div><div class="as-desc">Once you have the itemized statement, send the CPT 99285 dispute letter citing lines 3 and 11. Reference CMS Chapter 1 §80.7. Request written confirmation of correction within 30 days.</div></div></div>
-        <div class="action-step"><div class="as-rail r3"></div><div class="as-body"><div class="as-head"><span class="as-num">03</span><div class="as-title">Submit In-Network Rate Request</div><span class="as-status ass-next">Next</span></div><div class="as-desc">Send the in-network rate request for the Quest Diagnostics lab charges simultaneously with or after the dispute letter. Include your insurance plan documentation and EOB.</div></div></div>
-        <div class="action-step"><div class="as-rail r4"></div><div class="as-body"><div class="as-head"><span class="as-num">04</span><div class="as-title">Follow Up if No Response in 30 Days</div><span class="as-status ass-pending">Pending</span></div><div class="as-desc">If you have not received written confirmation within 30 days, escalate to the hospital's patient advocate office and your state's insurance commissioner. We have escalation templates ready.</div></div></div>
+        <div class="action-step" onclick="openDocument('doc-letter-1','Itemized statement request opened','Start by sending Letter 1 before paying or disputing specific charges.')" role="button" tabindex="0" onkeydown="handleActionKey(event,this)"><div class="as-rail r1"></div><div class="as-body"><div class="as-head"><span class="as-num">01</span><div class="as-title">Request Fully Itemized Statement</div><span class="as-status ass-now">Do Now</span></div><div class="as-desc">Send the prepared letter requesting a complete line-by-line itemized bill from Memorial Regional. This establishes the formal basis for all disputes that follow. Time needed: 5 minutes. Cost: Free.</div></div></div>
+        <div class="action-step" onclick="openDocument('doc-letter-2','Dispute letter opened','Use this after you have the itemized bill and can mark the duplicate charge lines.')" role="button" tabindex="0" onkeydown="handleActionKey(event,this)"><div class="as-rail r2"></div><div class="as-body"><div class="as-head"><span class="as-num">02</span><div class="as-title">Submit Duplicate Charge Dispute</div><span class="as-status ass-next">Next</span></div><div class="as-desc">Once you have the itemized statement, send the CPT 99285 dispute letter citing lines 3 and 11. Reference CMS Chapter 1 §80.7. Request written confirmation of correction within 30 days.</div></div></div>
+        <div class="action-step" onclick="openDocument('doc-letter-3','Rate request opened','Use this to ask for in-network review or written explanation of the lab charge.')" role="button" tabindex="0" onkeydown="handleActionKey(event,this)"><div class="as-rail r3"></div><div class="as-body"><div class="as-head"><span class="as-num">03</span><div class="as-title">Submit In-Network Rate Request</div><span class="as-status ass-next">Next</span></div><div class="as-desc">Send the in-network rate request for the Quest Diagnostics lab charges simultaneously with or after the dispute letter. Include your insurance plan documentation and EOB.</div></div></div>
+        <div class="action-step" onclick="showGuide('escalation')" role="button" tabindex="0" onkeydown="handleActionKey(event,this)"><div class="as-rail r4"></div><div class="as-body"><div class="as-head"><span class="as-num">04</span><div class="as-title">Follow Up if No Response in 30 Days</div><span class="as-status ass-pending">Pending</span></div><div class="as-desc">If you have not received written confirmation within 30 days, escalate to the hospital's patient advocate office and your state's insurance commissioner. We have escalation templates ready.</div></div></div>
       </div>
     </div>
 
@@ -2834,7 +3034,7 @@ body{display:block;background:var(--bg)}
       <div class="rp-next-title">Send Your Dispute Packet While You Still Have the Advantage</div>
     </div>
     <div class="rp-next-desc">Your bill has not been paid. That is your strongest position. Every day you wait, the hospital's leverage grows. Send the prepared letters now. It takes 5 minutes and costs nothing.</div>
-    <button class="btn-rp-cta">Send My Dispute Packet</button>
+    <button class="btn-rp-cta" onclick="openPacket()">Send My Dispute Packet</button>
   </div>
 
 </aside>
@@ -2860,8 +3060,8 @@ function showTab(name) {
 const GC = {
   starthere: {
     title:'Start Here', sub:'New? Read this first.',
-    html:`<div class="gd-calm-banner"><span class="gcb-icon">🤝</span><div class="gcb-text"><div class="gcb-title">You're in a good position. Don't panic.</div><div class="gcb-body">Your bill hasn't been paid yet. That means you have every right to question it, request documentation, and dispute errors before you pay a single dollar. We've prepared everything for you.</div></div></div>
-    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">1</div><div class="gd-card-title">Download your first letter. It costs nothing to send</div></div><div class="gd-card-body"><p class="gd-card-text">Go to the <strong>Documents tab</strong>. Your first letter (Request for Itemized Statement) is ready. Print it, sign it, and mail or email it to the hospital billing department. This is your legal right. No lawyer required.</p></div></div>
+    html:`<div class="gd-calm-banner"><span class="gcb-icon">🤝</span><div class="gcb-text"><div class="gcb-title">You're in the right place. This dashboard is your billing review.</div><div class="gcb-body">Your bill hasn't been paid yet. Start here in the app: review your findings, open your letters, and use the PDF packet or receipt email only as backup copies if you want to save or print later.</div></div></div>
+    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">1</div><div class="gd-card-title">Open your first letter. It costs nothing to send</div></div><div class="gd-card-body"><p class="gd-card-text">Go to the <strong>Documents tab</strong>. Your first letter (Request for Itemized Statement) is ready. Print it, sign it, and mail or email it to the hospital billing department. This is your legal right. No lawyer required.</p></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">2</div><div class="gd-card-title">Don't pay the bill while your request is under review</div></div><div class="gd-card-body"><p class="gd-card-text">Once you've submitted a dispute or itemization request, the hospital must respond before you're obligated to pay the disputed amount. <strong>Paying early can hurt your leverage.</strong> Hold payment on the disputed portions only.</p></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">3</div><div class="gd-card-title">Use the Call Scripts if you prefer to call</div></div><div class="gd-card-body"><p class="gd-card-text">Some people prefer speaking to someone. Go to <strong>Call Scripts</strong> in this menu. We've written out exactly what to say, word for word, in plain conversational English. You can read it right off the screen.</p></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">4</div><div class="gd-card-title">Be patient. This typically takes 30 to 60 days</div></div><div class="gd-card-body"><p class="gd-card-text">Hospital billing departments are slow. A 30-day wait is normal. If you haven't heard back in 30 days, follow up. Keep copies of everything you send.</p></div></div>`
@@ -2870,7 +3070,7 @@ const GC = {
     title:'What To Do Next', sub:'Your step-by-step action checklist',
     html:`<div class="gd-calm-banner"><span class="gcb-icon">✅</span><div class="gcb-text"><div class="gcb-title">Check these off as you go.</div><div class="gcb-body">You don't have to do everything at once. Start with step one, then come back when you're ready.</div></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">Today</div><div class="gd-card-title">First actions: takes about 15 minutes total</div></div><div class="gd-card-body">
-    <div class="gd-check-item"><div class="gdc-box" onclick="toggleCheck(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Download your Itemized Statement Request letter</strong> from the Documents tab. Sign it with your name.</div></div>
+    <div class="gd-check-item"><div class="gdc-box" onclick="toggleCheck(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Open your Itemized Statement Request letter</strong> from the Documents tab. Sign it with your name.</div></div>
     <div class="gd-check-item"><div class="gdc-box" onclick="toggleCheck(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Find the hospital's billing department contact.</strong> It's usually on the back of your bill, or call the main number and ask for "Patient Financial Services."</div></div>
     <div class="gd-check-item"><div class="gdc-box" onclick="toggleCheck(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Send the letter.</strong> Email is fine. If mailing, use certified mail so you have proof it was received.</div></div>
     <div class="gd-check-item"><div class="gdc-box" onclick="toggleCheck(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Write down the date you sent it.</strong> The hospital has 30 days to respond by law.</div></div>
@@ -2886,13 +3086,26 @@ const GC = {
     </div></div>`
   },
   callscripts: {
-    title:'Call Scripts', sub:'What to say when you call, word for word',
+    title:'Call Scripts', sub:'Choose the version that fits the moment',
     html:`<div class="gd-calm-banner"><span class="gcb-icon">📞</span><div class="gcb-text"><div class="gcb-title">It's okay to read this right off the screen.</div><div class="gcb-body">These scripts are written the way real people talk. Take a breath, be friendly, and read naturally. The billing department hears from patients every day. This is a completely normal call.</div></div></div>
+
+    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">How to use these</div><div class="gd-card-title">Pick the goal before you call</div></div><div class="gd-card-body">
+      <p class="gd-card-text"><strong>Request call:</strong> get the itemized bill and pause collections while it is being prepared. <strong>Dispute call:</strong> get the specific charge reviewed and corrected in writing. <strong>Follow-up call:</strong> get a status, a date, and a named person responsible for the next step.</p>
+      <div class="gd-check-item"><div class="gdc-box checked"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text">Before calling, write down your account number, date of service, bill amount, and the outcome you want.</div></div>
+      <div class="gd-check-item"><div class="gdc-box checked"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text">After calling, save the representative's name, reference number, promised follow-up date, and exact next step.</div></div>
+    </div></div>
 
     <div class="script-card">
       <div class="sc-header"><div class="sc-header-left"><div class="sc-when">Call 1: Do This First</div><div class="sc-title">Requesting Your Itemized Statement</div><div class="sc-goal">Goal: Get a complete line-by-line bill with all CPT codes before disputing anything.</div></div><div class="sc-actions"><button class="btn-sc-dl dl-navy" onclick="printScript('sc1')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Print</button></div></div>
       <div class="sc-coaching"><span class="sc-coaching-icon">💡</span><div class="sc-coaching-text"><strong>Before you call:</strong> Have your bill in front of you. Ask for "Patient Financial Services" when the main line picks up. Best times: Tuesday–Thursday, 10am–2pm.</div></div>
       <div class="sc-body" id="sc1">
+        <div class="sc-beat"><div class="sc-beat-label">Quick version</div><div class="sc-line"><div class="sc-line-inner">"Hi, my name is [your name]. I'm calling about account [account number]. Before I make any payment, I need a fully itemized bill showing each charge, date of service, CPT or procedure code, insurance payment, adjustment, and patient responsibility. What is the fastest way to receive that?"</div></div></div>
+        <div class="sc-divider"></div>
+        <div class="sc-beat"><div class="sc-beat-label">Detailed version</div><div class="sc-line"><div class="sc-line-inner">"I received a billing statement, but it does not give me enough detail to understand what I am being charged for. I am requesting the line-by-line itemized statement for the full account. Please include CPT or HCPCS codes, units, service dates, provider names, charge amounts, insurance payments, contractual adjustments, and the remaining patient balance. Please also note the account that I am requesting this before payment or further collection activity."</div></div></div>
+        <div class="sc-divider"></div>
+        <div class="sc-beat"><div class="sc-beat-label">Escalation version</div><div class="sc-line"><div class="sc-line-inner">"I understand if you cannot generate it from your screen. Could you transfer me to a supervisor or Patient Financial Advocate who can confirm the itemized bill request and place a note that the account should not be advanced while I am waiting for the documentation? I am trying to resolve this correctly, and I need the complete bill to do that."</div></div></div>
+        <div class="sc-pushback"><div><div class="sc-pushback-label">Before hanging up</div><div class="sc-pushback-text">Get the representative's name, a reference number, the delivery method, and the date you should expect the itemized bill. If they cannot give a date, ask who owns the request next.</div></div></div>
+        <div class="sc-divider"></div>
         <div class="sc-beat"><div class="sc-beat-label">When they answer</div><div class="sc-line"><div class="sc-line-inner">"Hi, my name is [your name] and I'm calling about a bill I received. My account number is [your account number]. I'd like to speak with someone in Patient Financial Services, please."</div></div></div>
         <div class="sc-divider"></div>
         <div class="sc-beat"><div class="sc-beat-label">Your request</div><div class="sc-line"><div class="sc-line-inner">"I received a billing statement and before I make any payment, I'd like to request a <span class="sc-hl">fully itemized statement</span>. A line-by-line breakdown with the CPT codes, the date of each service, and the charge for each item. I understand this is something I have a right to request, and I want to fully understand what I'm being charged for before I pay."</div></div></div>
@@ -2907,6 +3120,13 @@ const GC = {
       <div class="sc-header"><div class="sc-header-left"><div class="sc-when">Call 2: After You Have the Itemized Bill</div><div class="sc-title">Disputing the Duplicate Charge</div><div class="sc-goal">Goal: Get the duplicate CPT 99285 charge removed and receive written confirmation.</div></div><div class="sc-actions"><button class="btn-sc-dl dl-navy" onclick="printScript('sc2')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Print</button></div></div>
       <div class="sc-coaching"><span class="sc-coaching-icon">💡</span><div class="sc-coaching-text"><strong>Before you call:</strong> Have the itemized bill with the duplicate lines visible. Be calm and matter-of-fact. You're pointing out an error, not accusing anyone. Billing errors happen all the time and most departments handle corrections routinely.</div></div>
       <div class="sc-body" id="sc2">
+        <div class="sc-beat"><div class="sc-beat-label">Quick version</div><div class="sc-line"><div class="sc-line-inner">"Hi, I'm calling about account [account number]. On my itemized bill, CPT 99285 appears twice for the same date of service. I need this reviewed as a possible duplicate charge and I would like the corrected balance sent to me in writing."</div></div></div>
+        <div class="sc-divider"></div>
+        <div class="sc-beat"><div class="sc-beat-label">Detailed version</div><div class="sc-line"><div class="sc-line-inner">"I am looking at the itemized statement now. I see CPT 99285 listed on line [line number] and again on line [line number], both tied to the same date of service. If those are meant to represent the same visit, one appears duplicative. I am asking for a billing review, removal of any duplicate charge, and a written corrected statement before I make payment on the disputed portion."</div></div></div>
+        <div class="sc-divider"></div>
+        <div class="sc-beat"><div class="sc-beat-label">Escalation version</div><div class="sc-line"><div class="sc-line-inner">"If this cannot be reviewed by billing today, I would like this routed to a supervisor or Patient Financial Advocate. I am not refusing to resolve the account. I am asking for a documented review of a specific duplicate charge before the disputed amount is treated as due."</div></div></div>
+        <div class="sc-pushback"><div><div class="sc-pushback-label">Outcome you want</div><div class="sc-pushback-text">Ask for one of three clear results: correction, written explanation, or formal dispute case number. Do not end the call with only "someone will look at it."</div></div></div>
+        <div class="sc-divider"></div>
         <div class="sc-beat"><div class="sc-beat-label">Opening: after you reach Patient Financial Services</div><div class="sc-line"><div class="sc-line-inner">"Hi, my name is [your name] and I'm calling about account number [your account number]. I received my itemized statement and I wanted to go over one thing I noticed. I think there may be a billing error I'd like to get corrected."</div></div></div>
         <div class="sc-divider"></div>
         <div class="sc-beat"><div class="sc-beat-label">Explaining the issue: keep it simple and calm</div><div class="sc-line"><div class="sc-line-inner">"I'm looking at my itemized bill, and I can see that <span class="sc-hl">CPT code 99285, the emergency department visit, appears twice</span>, on line 3 and again on line 11, both for the same date of service, January 8th. It looks like it may have been entered twice by mistake. I just wanted to bring it to your attention so we can get it sorted out."</div></div></div>
@@ -2922,6 +3142,13 @@ const GC = {
       <div class="sc-header"><div class="sc-header-left"><div class="sc-when">Call 3: If No Response After 30 Days</div><div class="sc-title">Following Up on Your Dispute</div><div class="sc-goal">Goal: Get a status update and a clear timeline for resolution.</div></div><div class="sc-actions"><button class="btn-sc-dl dl-navy" onclick="printScript('sc3')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Print</button></div></div>
       <div class="sc-coaching"><span class="sc-coaching-icon">💡</span><div class="sc-coaching-text"><strong>Tone for this call:</strong> Friendly but firm. You've been patient. You're not angry. You're organized and following up on a legitimate request. Mention your previous call and the date.</div></div>
       <div class="sc-body" id="sc3">
+        <div class="sc-beat"><div class="sc-beat-label">Quick version</div><div class="sc-line"><div class="sc-line-inner">"Hi, I'm following up on a billing dispute for account [account number]. I submitted it on [date]. I need the current status, the person or department assigned to it, and the date I should expect a written response."</div></div></div>
+        <div class="sc-divider"></div>
+        <div class="sc-beat"><div class="sc-beat-label">Detailed version</div><div class="sc-line"><div class="sc-line-inner">"I sent a written dispute on [date] and have not received written confirmation or a corrected statement. I need to confirm the dispute is active, that the account is not being advanced to collections while it is under review, and that I have a specific follow-up date."</div></div></div>
+        <div class="sc-divider"></div>
+        <div class="sc-beat"><div class="sc-beat-label">Escalation version</div><div class="sc-line"><div class="sc-line-inner">"I have made the request in writing and followed up by phone, but I still do not have a response. I would like this escalated to the Patient Financial Advocate or a billing supervisor today. My goal is not to create conflict; I am trying to get a clear written review before the account moves any further."</div></div></div>
+        <div class="sc-pushback"><div><div class="sc-pushback-label">Outcome you want</div><div class="sc-pushback-text">Leave with the advocate or supervisor's name, direct number if available, reference number, and exact date for written response. If no one owns it, ask for the next escalation path.</div></div></div>
+        <div class="sc-divider"></div>
         <div class="sc-beat"><div class="sc-beat-label">Opening</div><div class="sc-line"><div class="sc-line-inner">"Hi, I'm following up on a billing dispute I submitted about 30 days ago. My name is [your name], account number [account number]. I have a reference number from my previous call: [reference number]. I just wanted to check on the status and make sure nothing fell through the cracks."</div></div></div>
         <div class="sc-divider"></div>
         <div class="sc-beat"><div class="sc-beat-label">If they say they have no record of your dispute</div><div class="sc-line"><div class="sc-line-inner">"No problem, let me give you the details again. On [date], I submitted a dispute about a duplicate charge for CPT code 99285, which appears twice on my itemized statement for my January 8th visit. I also sent this in writing. Is there a supervisor or patient advocate I could speak with to get this moving forward?"</div></div></div>
@@ -2952,7 +3179,7 @@ const GC = {
     <div class="gd-right-item"><span class="gdr-icon">📋</span><div><div class="gdr-law">CMS Claims Processing Manual, Ch. 1 §80.7</div><div class="gdr-title">Right to Dispute Duplicate Charges</div><div class="gdr-body">Medicare rules prohibit billing the same procedure twice for the same date of service. A duplicate CPT code on one encounter is disputable as an improper billing practice. The hospital must correct it upon receiving a written dispute.</div></div></div>
     <div class="gd-right-item"><span class="gdr-icon">🏥</span><div><div class="gdr-law">No Surprises Act, Public Law 116-260 (2022)</div><div class="gdr-title">Right to In-Network Rates for Emergency Care</div><div class="gdr-body">You cannot be balance-billed at out-of-network rates for services during an in-network emergency encounter, including lab work ordered by in-network providers, without prior written notice and your consent.</div></div></div>
     <div class="gd-right-item"><span class="gdr-icon">⏸️</span><div><div class="gdr-law">Fair Debt Collection Practices Act</div><div class="gdr-title">Right to Hold Collections During a Dispute</div><div class="gdr-body">Collection activity on a disputed amount must pause while the dispute is under review. Request this explicitly in your dispute letter. If a bill goes to collections, you have 30 days to formally dispute it, which also pauses credit reporting.</div></div></div>
-    <div class="gd-right-item"><span class="gdr-icon">👤</span><div><div class="gdr-law">Federal requirement: all accredited hospitals</div><div class="gdr-title">Right to Speak with a Patient Advocate</div><div class="gdr-body">Every accredited hospital must have a Patient Advocate. This person is there specifically to help resolve billing disputes. If your dispute isn't moving, ask to be connected to this person directly.</div></div></div>
+    <div class="gd-right-item"><span class="gdr-icon">👤</span><div><div class="gdr-law">Federal requirement: all accredited hospitals</div><div class="gdr-title">Right to Speak with a Patient Advocate</div><div class="gdr-body">Every accredited hospital must have a Patient Advocate or Patient Representative path. Use this when billing cannot give a clear answer. Ask for one person to confirm receipt, explain the review process, pause collections while the dispute is active, and give you a written response date.</div></div></div>
     </div></div>`
   },
   recovery: {
@@ -3032,7 +3259,7 @@ const GC = {
     <p style="font-size:.6875rem;color:#6E8898;line-height:1.6;margin-top:6px"><strong>Almost all disputes resolve at Step 1 or Step 2.</strong> Just mentioning you are prepared to contact the state insurance commissioner is often enough to move things forward at Step 1.</p>
     </div></div>
 
-    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">1</div><div class="gd-card-title">Hospital Patient Advocate (Step 2)</div></div><div class="gd-card-body"><p class="gd-card-text">Every accredited hospital is required to have a Patient Financial Advocate. Ask by name: <strong>"I'd like to speak with the Patient Financial Advocate or Patient Representative, please."</strong></p><div style="background:#F0F7F3;border:1px solid rgba(30,184,122,0.20);border-radius:6px;padding:10px 12px;margin-top:10px;font-size:.6875rem;color:#2A4050;line-height:1.6"><strong>What to say:</strong> "I submitted a written dispute 30 days ago and have not received a response. I would like to escalate through the Patient Advocate office and get a formal timeline for resolution."</div></div></div>
+    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">1</div><div class="gd-card-title">Hospital Patient Advocate (Step 2)</div></div><div class="gd-card-body"><p class="gd-card-text">Every accredited hospital is required to have a Patient Financial Advocate. Use this step when billing cannot give a clear status, refuses to review a specific issue, or keeps transferring you without ownership.</p><div style="background:#F0F7F3;border:1px solid rgba(30,184,122,0.20);border-radius:6px;padding:10px 12px;margin-top:10px;font-size:.6875rem;color:#2A4050;line-height:1.6"><strong>Quick ask:</strong> "I'd like to speak with the Patient Financial Advocate or Patient Representative about an unresolved billing dispute."</div><div style="background:#F8FAFD;border:1px solid #E1E8F0;border-radius:6px;padding:10px 12px;margin-top:8px;font-size:.6875rem;color:#2A4050;line-height:1.6"><strong>Detailed ask:</strong> "I submitted a written dispute on [date], and I need one person assigned to help confirm receipt, pause collections while it is under review, and give me a written response date."</div><div style="background:#FFF7EA;border:1px solid rgba(240,128,0,0.22);border-radius:6px;padding:10px 12px;margin-top:8px;font-size:.6875rem;color:#2A4050;line-height:1.6"><strong>Escalation ask:</strong> "If the hospital cannot provide a written review timeline, please tell me the next internal complaint step and the name of the department leader responsible for patient billing disputes."</div></div></div>
 
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">2</div><div class="gd-card-title">State Insurance Commissioner (Step 3)</div></div><div class="gd-card-body"><p class="gd-card-text">Every U.S. state has an Insurance Commissioner's office that handles consumer billing complaints. Filing is free and takes about 15 minutes online. Hospitals must respond formally. <strong>Search "Florida Insurance Commissioner complaint" (replace with your state) to find the form.</strong> Attach copies of your letters and any responses.</p></div></div>
 
@@ -3060,7 +3287,7 @@ const GC = {
 
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">Phase 1</div><div class="gd-card-title">Request Documentation</div></div><div class="gd-card-body">
     <div class="gd-check-item"><div class="gdc-box checked" onclick="toggleCheck(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Bill review completed.</strong> We identified $3,185 in disputable or negotiable charges across 3 findings.</div></div>
-    <div class="gd-check-item"><div class="gdc-box" onclick="updateChecklist(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Downloaded and sent the Itemized Statement Request letter.</strong> Go to Documents tab, download Letter 1, sign it, and send to Memorial Regional Patient Financial Services.</div></div>
+    <div class="gd-check-item"><div class="gdc-box" onclick="updateChecklist(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Opened and sent the Itemized Statement Request letter.</strong> Go to Documents tab, open Letter 1, sign it, and send to Memorial Regional Patient Financial Services.</div></div>
     <div class="gd-check-item"><div class="gdc-box" onclick="updateChecklist(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Recorded the date sent and who received it.</strong> Keep a copy for your records.</div></div>
     </div></div>
 
@@ -3098,8 +3325,44 @@ const GC = {
   }
 };
 
+function getDynamicGuideData(section) {
+  const p = window.upaDashboardProfile || buildDashboardProfile();
+  const provider = escapeDashHtml(p.provider === 'Provider not provided' ? 'the provider' : p.provider);
+  const amount = escapeDashHtml(p.hasAmount ? p.amount : 'the current balance');
+  const possibleAreas = escapeDashHtml(p.findingLabel);
+  if (section === 'recovery') {
+    return {
+      title: 'Recovery Guidance',
+      sub: 'Estimate carefully before assuming savings',
+      html: '<div class="gd-calm-banner"><span class="gcb-icon">!</span><div class="gcb-text"><div class="gcb-title">No recovery amount is confirmed yet.</div><div class="gcb-body">This dashboard keeps the review general until bill-level details support a specific charge dispute, reimbursement request, or correction.</div></div></div>' +
+      '<div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">1</div><div class="gd-card-title">What you can do now</div></div><div class="gd-card-body"><p class="gd-card-text">Use the itemized statement request for ' + provider + '. If the bill amount entered was ' + amount + ', treat it as context only until each line item is confirmed.</p><button class="trust-need-btn primary" onclick="openDocument(\'doc-letter-1\',\'Request letter opened\',\'Start with the itemized statement request.\')">Open Request Letter</button></div></div>' +
+      '<div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">2</div><div class="gd-card-title">What to verify next</div></div><div class="gd-card-body"><p class="gd-card-text">Review areas shown: ' + possibleAreas + '. Compare the itemized bill, EOB, provider explanations, dates of service, codes, units, payments, and adjustments before sending a specific dispute.</p></div></div>' +
+      '<div class="gd-card"><div class="gd-card-head"><div class="gd-card-num amber-num">3</div><div class="gd-card-title">When to estimate savings</div></div><div class="gd-card-body"><p class="gd-card-text">Use the calculator only after you know which charges are actually being reduced, removed, reprocessed, or placed on a payment plan. Until then, avoid treating any number as a likely recovery.</p></div></div>'
+    };
+  }
+  if (section === 'nextsteps') {
+    return {
+      title: 'What To Do Next',
+      sub: 'Your step-by-step action checklist',
+      html: '<div class="gd-calm-banner"><span class="gcb-icon">!</span><div class="gcb-text"><div class="gcb-title">Start with the next useful action, not a fixed dispute claim.</div><div class="gcb-body">The dashboard will stay specific only where your intake supports it. Everything else should be confirmed in writing.</div></div></div>' +
+      '<div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">Today</div><div class="gd-card-title">Documentation path</div></div><div class="gd-card-body"><div class="gd-check-item"><div class="gdc-box" onclick="toggleCheck(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Open your Itemized Statement Request letter.</strong> Ask for line items, codes, dates, payments, adjustments, and patient responsibility.</div></div><div class="gd-check-item"><div class="gdc-box" onclick="toggleCheck(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Write down where and when it was sent.</strong> Keep a copy of the message or mailing receipt.</div></div></div></div>' +
+      '<div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">After details arrive</div><div class="gd-card-title">Review before disputing</div></div><div class="gd-card-body"><div class="gd-check-item"><div class="gdc-box" onclick="toggleCheck(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Compare the itemized bill with your EOB.</strong> Confirm dates, units, codes, coverage, adjustments, and patient balance.</div></div><div class="gd-check-item"><div class="gdc-box" onclick="toggleCheck(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Open each possible finding.</strong> Only send a specific dispute when the bill supports it.</div></div></div></div>'
+    };
+  }
+  if (section === 'callscripts') {
+    return {
+      title: 'Call Scripts',
+      sub: 'Choose the version that fits the moment',
+      html: '<div class="gd-calm-banner"><span class="gcb-icon">!</span><div class="gcb-text"><div class="gcb-title">These scripts are intentionally general until the bill confirms specifics.</div><div class="gcb-body">Use them to get documentation, written explanations, and a clear follow-up path without making unsupported claims.</div></div></div>' +
+      '<div class="script-card"><div class="sc-header"><div class="sc-header-left"><div class="sc-when">Call 1: First Contact</div><div class="sc-title">Requesting the Itemized Statement</div><div class="sc-goal">Goal: get complete bill detail before payment or dispute decisions.</div></div><div class="sc-actions"><button class="btn-sc-dl dl-navy" onclick="printScript(\'sc1-dynamic\')">Print</button></div></div><div class="sc-body" id="sc1-dynamic"><div class="sc-beat"><div class="sc-beat-label">Quick version</div><div class="sc-line"><div class="sc-line-inner">"Hi, my name is [your name]. I am calling about my bill with ' + provider + '. Before I make any payment decision, I need a fully itemized statement with codes, dates, charges, insurance payments, adjustments, and patient responsibility. What is the fastest way to receive that?"</div></div></div><div class="sc-divider"></div><div class="sc-beat"><div class="sc-beat-label">Detailed version</div><div class="sc-line"><div class="sc-line-inner">"The summary bill does not give me enough detail to understand the balance. Please send the complete line-by-line itemized bill and note that I am requesting this before payment or further collection activity."</div></div></div><div class="sc-divider"></div><div class="sc-beat"><div class="sc-beat-label">Escalation version</div><div class="sc-line"><div class="sc-line-inner">"If this cannot be generated from your screen, could you transfer me to a supervisor or patient financial advocate who can confirm the request and give me a reference number?"</div></div></div></div></div>' +
+      '<div class="script-card"><div class="sc-header"><div class="sc-header-left"><div class="sc-when">Call 2: After Details Arrive</div><div class="sc-title">Requesting a Written Explanation</div><div class="sc-goal">Goal: get the provider to explain or correct a confirmed concern.</div></div><div class="sc-actions"><button class="btn-sc-dl dl-navy" onclick="printScript(\'sc2-dynamic\')">Print</button></div></div><div class="sc-body" id="sc2-dynamic"><div class="sc-beat"><div class="sc-beat-label">Quick version</div><div class="sc-line"><div class="sc-line-inner">"I am reviewing the itemized bill and EOB. I need a written explanation of [specific line item or concern] before I treat that portion as due."</div></div></div><div class="sc-divider"></div><div class="sc-beat"><div class="sc-beat-label">Escalation version</div><div class="sc-line"><div class="sc-line-inner">"If billing cannot explain or correct this today, please route it to a supervisor or patient financial advocate and give me the case/reference number."</div></div></div></div></div>'
+    };
+  }
+  return GC[section];
+}
+
 function showGuide(section) {
-  const data = GC[section];
+  const data = getDynamicGuideData(section);
   if (!data) return;
   document.querySelectorAll('.sb-guide-item').forEach(el => el.classList.remove('sg-active'));
   // handle scripts alias
@@ -3130,12 +3393,470 @@ function showToast(title, sub) {
   t._timeout = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
+const GUIDED_STEP_KEY = 'upa.dashboard.guided.step.v1';
+
+function getGuidedStep() {
+  let raw = '1';
+  try { raw = localStorage.getItem(GUIDED_STEP_KEY) || '1'; } catch (e) {}
+  const saved = parseInt(raw, 10);
+  if (!Number.isFinite(saved)) return 1;
+  return Math.min(Math.max(saved, 1), 4);
+}
+
+function setGuidedStep(step) {
+  const next = Math.min(Math.max(step, 1), 4);
+  try { localStorage.setItem(GUIDED_STEP_KEY, String(next)); } catch (e) {}
+  renderGuidedWalkthrough();
+}
+
+function renderGuidedWalkthrough() {
+  const step = getGuidedStep();
+  const progress = document.getElementById('gw-progress');
+  const title = document.getElementById('gw-title');
+  const sub = document.getElementById('gw-sub');
+  const btn = document.getElementById('gw-continue');
+  document.querySelectorAll('.gw-step').forEach(el => {
+    const n = parseInt(el.dataset.guidedStep || '0', 10);
+    el.classList.toggle('is-done', step > n);
+    el.classList.toggle('is-active', step === n);
+  });
+  const limitedReview = getReviewDepth() !== 'full';
+  const labels = limitedReview ? {
+    1: ['Step 1 of 3', 'Start by requesting or adding the itemized bill.', 'We can guide you now, but the itemized bill is what unlocks accurate findings and charges.', 'Continue Step 1'],
+    2: ['Step 2 of 3', 'Next, learn what to review when details arrive.', 'Use the guidance sections to understand what to ask for and what to compare.', 'Continue Step 2'],
+    3: ['Step 3 of 3', 'Now prepare your call script and follow-up path.', 'Use the scripts and request language so the next contact with billing is clear.', 'Continue Step 3'],
+    4: ['Guide complete', 'Guided path complete. Add bill detail when you have it.', 'You can upload the itemized bill, paste line items, or keep using the request path.', 'Add Bill Details']
+  } : {
+    1: ['Step 1 of 3', 'Start with Step 1. Open the request letter first.', 'This begins the itemized bill/documentation path before any payment decision.', 'Continue Step 1'],
+    2: ['Step 2 of 3', 'Next, review the findings before sending disputes.', 'Each finding explains what was flagged, why it matters, and what document to use.', 'Continue Step 2'],
+    3: ['Step 3 of 3', 'Now use the action plan to send and track everything.', 'The action plan, scripts, and packet keep the follow-up sequence organized.', 'Continue Step 3'],
+    4: ['Guide complete', 'Guided path complete. Keep the packet and timeline handy.', 'You can reopen any step, print the packet, or keep tracking follow-up from the timeline.', 'Open Printable Packet']
+  };
+  const copy = labels[step] || labels[1];
+  if (progress) progress.textContent = copy[0];
+  if (title) title.textContent = copy[1];
+  if (sub) sub.textContent = copy[2];
+  if (btn) btn.textContent = copy[3];
+}
+
+function runGuidedStep(step) {
+  if (getReviewDepth() !== 'full') {
+    if (step === 1) {
+      showItemizedRequestInfo();
+      showToast('Step 1 opened', 'Request or add the itemized bill before relying on individualized findings.');
+      setGuidedStep(2);
+    } else if (step === 2) {
+      showGuide('starthere');
+      showToast('Step 2 opened', 'Review what details to gather and how to use them.');
+      setGuidedStep(3);
+    } else if (step === 3) {
+      showGuide('callscripts');
+      showToast('Step 3 opened', 'Use the billing call script while you request the itemized statement.');
+      setGuidedStep(4);
+    } else {
+      goToIntakeForDetails();
+    }
+    return;
+  }
+  if (step === 1) {
+    openDocument('doc-letter-1','Step 1 opened','Send the itemized statement request first, then return for Step 2.');
+    setGuidedStep(2);
+  } else if (step === 2) {
+    openDashboardSection('findings','Step 2 opened','Tap each finding to understand what was flagged and what to do next.');
+    setGuidedStep(3);
+  } else if (step === 3) {
+    openDashboardSection('actionplan','Step 3 opened','Use the action plan to send documents, call if needed, and track follow-up.');
+    setGuidedStep(4);
+  } else {
+    openPacket();
+  }
+}
+
+function continueGuidedStep() {
+  runGuidedStep(getGuidedStep());
+}
+
+function upaFinalPath(file) {
+  return window.location.protocol === 'file:' ? file : '/UPA-Final/' + file;
+}
+
+function getIntakeContext() {
+  try { return JSON.parse(sessionStorage.getItem('upa.intake.context.v1') || localStorage.getItem('upa.intake.context.v1') || '{}'); } catch (e) { return {}; }
+}
+
+function getReviewDepth() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('needDetails')) return 'starter';
+  const ctx = getIntakeContext();
+  if (ctx.review_depth) return ctx.review_depth;
+  const desc = (ctx.description || '').trim();
+  const hasLineItems = /(cpt|hcpcs|line\s*\d|procedure code|diagnosis code|charge|\$\s*\d|\b\d{5}\b)/i.test(desc);
+  if (ctx.has_uploaded_bill || ctx.has_enough_bill_detail || (desc.length >= 120 && hasLineItems)) return 'full';
+  if (desc.length >= 25 || ctx.provider || ctx.bill_amount || ctx.insurance || ctx.payment_status) return 'guided';
+  return 'starter';
+}
+
+function getReviewDepthLabel() {
+  const depth = getReviewDepth();
+  return depth === 'full' ? 'Full Review' : (depth === 'guided' ? 'Guided Estimate' : 'Starter Guidance');
+}
+
+function escapeDashHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, function(ch) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+
+function cleanDashText(value, fallback) {
+  const text = String(value || '').trim();
+  return text ? text : fallback;
+}
+
+function getDashboardNumericBillAmount() {
+  const ctx = getIntakeContext();
+  const raw = String(ctx.bill_amount || ctx.balance || '').replace(/,/g, '');
+  if (/under|over|not sure|unknown|[-–—]/i.test(raw)) return 0;
+  const match = raw.match(/\$?\s*(\d+(?:\.\d+)?)/);
+  return match ? parseFloat(match[1]) : 0;
+}
+
+function getDashboardConcerns(ctx) {
+  if (Array.isArray(ctx.concerns)) return ctx.concerns.filter(Boolean).map(String);
+  if (ctx.concerns) return String(ctx.concerns).split(',').map(s => s.trim()).filter(Boolean);
+  return [];
+}
+
+function buildDashboardProfile() {
+  const ctx = getIntakeContext();
+  const depth = getReviewDepth();
+  const concerns = getDashboardConcerns(ctx);
+  const concernText = (concerns.join(' ') + ' ' + (ctx.description || '')).toLowerCase();
+  const findings = [];
+  const addFinding = function(key, title, type, why, next, tone) {
+    if (findings.some(f => f.key === key)) return;
+    findings.push({ key, title, type, why, next, tone });
+  };
+
+  if (/itemized|statement|confus|understand|detail|missing|documentation|explain/.test(concernText)) {
+    addFinding('documentation', 'Start with an itemized bill or written explanation', 'Proof Request', 'The intake points to a proof-building step rather than a confirmed billing error.', 'Request the fully itemized statement and compare it with the EOB before paying disputed portions.', 'cobalt');
+  }
+  if (/twice|duplicate|same charge|double/.test(concernText)) {
+    addFinding('duplicate', 'Possible duplicate charge to confirm on the itemized statement', 'Possible Duplicate', 'You mentioned a charge that may appear more than once. This should be verified line by line.', 'Mark the matching date, code, and amount on the itemized bill before sending a dispute.', 'crimson');
+  }
+  if (/network|out.?of.?network|surprise|lab|test|quest|balance bill/.test(concernText)) {
+    addFinding('coverage', 'Coverage or network status needs written review', 'Coverage Review', 'The concern suggests a possible network, lab, or surprise-billing question.', 'Ask the provider and insurer for a written explanation of how the patient responsibility was calculated.', 'cobalt');
+  }
+  if (/code|coding|cpt|hcpcs|wrong procedure|level/.test(concernText)) {
+    addFinding('coding', 'Procedure or coding level needs documentation support', 'Coding Review', 'The intake references codes or billing level concerns that should be matched against records.', 'Request the documentation supporting the billed code before challenging the charge.', 'amber');
+  }
+  if (/denied|insurance|eob|adjustment|covered|claim/.test(concernText)) {
+    addFinding('insurance', 'Insurance/EOB comparison should happen before payment', 'Insurance Review', 'The concern appears tied to coverage, adjustments, or claim handling.', 'Compare the provider bill with the EOB and request correction of any mismatch in writing.', 'green');
+  }
+  if (/high|expensive|too much|overcharg|inflated|cost|price|balance|\$/.test(concernText)) {
+    addFinding('charge', 'Charge amount needs itemized review before assuming it is owed', 'Charge Review', 'The intake raises cost concerns, but the exact line items still need verification.', 'Use the calculator only as an estimate, then request line-level charges and discounts in writing.', 'amber');
+  }
+
+  let visibleFindings = depth === 'starter' ? [] : findings;
+  if (depth === 'guided') visibleFindings = visibleFindings.slice(0, 2);
+
+  const provider = cleanDashText(ctx.provider, 'Provider not provided');
+  const amount = cleanDashText(ctx.bill_amount || ctx.balance, 'Amount not provided');
+  const hasAmount = /\d/.test(amount);
+  const hasDocument = !!(ctx.has_uploaded_bill || (ctx.uploaded_bill && ctx.uploaded_bill !== 'Not uploaded'));
+  const detail = hasDocument ? 'Document uploaded' : ((ctx.description || '').trim().length >= 25 ? 'Typed details' : 'General guidance');
+  const label = depth === 'full' ? 'Full Review' : (depth === 'guided' ? 'Guided Estimate' : 'Starter Guidance');
+  const findingLabel = visibleFindings.length === 0 ? '0 yet' : (visibleFindings.length === 1 ? '1 possible' : visibleFindings.length + ' possible');
+  const primaryAction = visibleFindings.length ? 'Review possible concern areas' : 'Request itemized bill first';
+  return {
+    ctx, depth, label, concerns, findings: visibleFindings, provider, amount, hasAmount, detail,
+    name: cleanDashText(((ctx.first || '') + ' ' + (ctx.last || '')).trim(), 'First Name Last Name'),
+    date: cleanDashText(ctx.date_of_service, 'Date not provided'),
+    coverage: cleanDashText(ctx.insurance || ctx.bill_type, 'Coverage not provided'),
+    payment: cleanDashText(ctx.payment_status, 'Payment status not provided'),
+    findingLabel, primaryAction,
+    progressWidth: depth === 'full' ? (visibleFindings.length ? '68%' : '52%') : (depth === 'guided' ? '38%' : '24%')
+  };
+}
+
+function setDashText(selector, text) {
+  const el = document.querySelector(selector);
+  if (el) el.textContent = text;
+}
+
+function buildDashFindingCard(finding, index) {
+  const rail = finding.tone === 'crimson' ? 'r-crimson' : (finding.tone === 'amber' ? 'r-amber' : 'r-cobalt');
+  const sev = finding.tone === 'crimson' ? 's-crimson' : (finding.tone === 'amber' ? 's-amber' : 's-cobalt');
+  const title = escapeDashHtml(finding.title);
+  const type = escapeDashHtml(finding.type);
+  const why = escapeDashHtml(finding.why);
+  const next = escapeDashHtml(finding.next);
+  return '<div class="finding-card" onclick="toggleFinding(this)" onkeydown="handleFindingKey(event,this)" tabindex="0" role="button" aria-expanded="false" aria-label="Expand possible finding">' +
+    '<div class="fc-rail ' + rail + '"></div><div class="finding-inner"><div class="fi-left">' +
+    '<div class="fi-meta"><span class="fi-sev ' + sev + '">Possible</span><span class="fi-type">' + type + '</span><span class="fi-res">Needs confirmation</span></div>' +
+    '<div class="fi-title">' + title + '</div>' +
+    '<div class="fi-desc">' + why + '</div>' +
+    '<div class="fi-code">Based on intake detail level and selected concern areas</div>' +
+    '<div class="fi-toggle-hint">Tap/click for explanation</div>' +
+    '<div class="finding-detail" aria-hidden="true"><div class="fd-grid">' +
+    '<div><div class="fd-label">What It Means</div><div class="fd-text">This is a possible review area, not a confirmed billing error yet.</div></div>' +
+    '<div><div class="fd-label">Why It Was Flagged</div><div class="fd-text">' + why + '</div></div>' +
+    '<div><div class="fd-label">Why It Matters</div><div class="fd-text">Resolving this before payment can prevent confusion and preserve your written record.</div></div>' +
+    '<div><div class="fd-label">What To Do Next</div><div class="fd-text">' + next + '</div></div>' +
+    '</div><div class="fd-next"><div class="fd-next-text">Open the document path that supports this step.</div><button class="fd-next-btn" onclick="event.stopPropagation();openDocument(\'doc-letter-1\',\'Request path opened\',\'Start with the itemized bill request before making specific claims.\')">Open Request Letter</button></div></div>' +
+    '<a class="fi-link lc" href="javascript:void(0)" onclick="event.stopPropagation();openDocument(\'doc-letter-1\',\'Request path opened\',\'Start with the itemized statement request.\')">Open request letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>' +
+    '</div><div class="fi-right"><div class="fi-amount fa-cobalt">Review</div><div class="fi-amount-lbl">No estimate yet</div></div></div></div>';
+}
+
+function applyDynamicDashboardState() {
+  const p = buildDashboardProfile();
+  window.upaDashboardProfile = p;
+  const providerDisplay = p.provider === 'Provider not provided' ? 'Billing Review' : p.provider;
+  const amountDisplay = p.hasAmount ? p.amount : 'Not provided';
+  const concernCopy = p.concerns.length ? p.concerns.join(', ') : 'No specific concerns selected';
+  const findingCopy = p.findings.length === 0 ? 'No specific findings yet' : p.findingLabel + ' review area' + (p.findings.length === 1 ? '' : 's');
+
+  setDashText('.ncp-text', 'Active Case: ' + providerDisplay);
+  setDashText('.nav-ref', p.label + ' | Intake saved');
+  setDashText('.sb-hospital', providerDisplay);
+  setDashText('.sb-sub', p.detail + ' | ' + p.payment);
+  const sbVals = document.querySelectorAll('.sb-kpi-val');
+  if (sbVals[0]) sbVals[0].textContent = amountDisplay;
+  if (sbVals[1]) sbVals[1].textContent = p.findingLabel;
+  const sbSubs = document.querySelectorAll('.sb-kpi-sub');
+  if (sbSubs[0]) sbSubs[0].textContent = p.coverage;
+  if (sbSubs[1]) sbSubs[1].textContent = p.primaryAction;
+  setDashText('.sb-score-lbl', 'Review Depth');
+  setDashText('.sb-score-num', p.label);
+  document.querySelectorAll('.sb-score-zone').forEach((el, idx) => {
+    el.classList.toggle('active', (p.depth === 'starter' && idx === 0) || (p.depth === 'guided' && idx === 1) || (p.depth === 'full' && idx === 2));
+    if (idx === 0) el.textContent = 'Starter';
+    if (idx === 1) el.textContent = 'Guided';
+    if (idx === 2) el.textContent = 'Full';
+  });
+  const sbBadge = document.querySelector('.sb-badge-pill');
+  if (sbBadge) sbBadge.textContent = p.findings.length ? String(p.findings.length) : '0';
+
+  const caseIndicator = document.querySelector('.ch-case-indicator');
+  if (caseIndicator) caseIndicator.innerHTML = '<span class="chi-dot"></span>Active Case: ' + escapeDashHtml(providerDisplay);
+  setDashText('.ch-ref', p.label + ' | Intake-based workspace');
+  setDashText('.ch-headline', p.findings.length ? 'Your Billing Review Is Open.' : 'Your Guided Billing Review Is Open.');
+  setDashText('.ch-subline', p.findings.length ? 'Review the possible concern areas, then confirm them with documentation.' : 'Start with the documentation request path before assuming specific errors.');
+  const deck = document.querySelector('.ch-deck');
+  if (deck) deck.innerHTML = 'This workspace is based on your intake details. We avoid fixed scores, CPT codes, and recovery estimates until the bill supports them.';
+  const mobileTitle = document.querySelector('.mobile-start-title');
+  const mobileCopy = document.querySelector('.mobile-start-copy');
+  if (mobileTitle) mobileTitle.textContent = p.primaryAction;
+  if (mobileCopy) mobileCopy.textContent = p.findings.length ? 'Open each possible concern, then use the request letter to confirm the bill details before sending disputes.' : 'Request a complete itemized bill first. That gives you the detail needed for specific findings.';
+  const mobileSteps = document.querySelectorAll('.mobile-next-step span:last-child');
+  if (mobileSteps[1]) mobileSteps[1].textContent = p.findings.length ? 'Review possible concern areas' : 'Request itemized documentation first';
+
+  const pills = document.querySelector('.ch-pills');
+  if (pills) pills.innerHTML = '<div class="ch-pill dark-pill">Prepared for ' + escapeDashHtml(p.name) + '</div><div class="ch-pill dark-pill">' + escapeDashHtml(p.label) + '</div><div class="ch-pill amber-pill">' + escapeDashHtml(p.detail).toUpperCase() + '</div>';
+  const metaVals = document.querySelectorAll('.ch-meta-val');
+  if (metaVals[0]) metaVals[0].textContent = p.provider;
+  if (metaVals[1]) metaVals[1].textContent = p.date;
+  if (metaVals[2]) metaVals[2].textContent = p.coverage;
+  if (metaVals[3]) metaVals[3].textContent = p.findingLabel + ' areas';
+
+  const tabPips = document.querySelectorAll('.tab-pip');
+  if (tabPips[0]) tabPips[0].textContent = p.hasAmount ? 'Estimate' : 'No amount';
+  if (tabPips[1]) tabPips[1].textContent = p.findingLabel;
+  if (tabPips[2]) tabPips[2].textContent = 'Guides';
+
+  const kpis = document.querySelector('.kpi-strip');
+  if (kpis) kpis.innerHTML =
+    '<div class="kpi kpi-hl"><div class="kpi-label">Review Depth</div><div class="kpi-val kv-green">' + escapeDashHtml(p.label) + '</div><div class="kpi-ctx">' + escapeDashHtml(p.detail) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Possible Review Areas</div><div class="kpi-val kv-amber">' + escapeDashHtml(p.findingLabel) + '</div><div class="kpi-ctx">' + escapeDashHtml(concernCopy) + '</div></div>' +
+    '<div class="kpi"><div class="kpi-label">Bill Amount Entered</div><div class="kpi-val">' + escapeDashHtml(amountDisplay) + '</div><div class="kpi-ctx">Used only as context, not a recovery estimate</div></div>';
+
+  const overview = document.getElementById('tab-overview');
+  if (overview) overview.innerHTML = '<div class="ov-grid">' +
+    '<div class="card"><div class="card-head"><div class="card-overline">What This Means for You</div><span class="card-tag">' + escapeDashHtml(p.label) + '</span></div><div class="card-body"><p class="card-text">' + (p.findings.length ? 'Your intake points to <strong>' + escapeDashHtml(p.findingLabel) + ' possible review area' + (p.findings.length === 1 ? '' : 's') + '</strong>. These are not final billing-error claims yet. Use the documents and action plan to confirm them against the itemized statement and EOB.' : 'Your intake does not support a specific billing-error claim yet. That is okay. Start by requesting a complete itemized statement so the next review can be based on bill-level detail instead of assumptions.') + '</p></div></div>' +
+    '<div class="card"><div class="card-head"><div class="card-overline">Review Basis</div></div><div class="card-body"><div class="bb-label">Current information available</div><div class="bb-legend"><div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">Provider: ' + escapeDashHtml(p.provider) + '</span></div><div class="legend-i"><div class="legend-dot ld-dup"></div><span class="legend-text">Bill amount: ' + escapeDashHtml(amountDisplay) + '</span></div><div class="legend-i"><div class="legend-dot ld-que"></div><span class="legend-text">Detail level: ' + escapeDashHtml(p.detail) + '</span></div><div class="legend-i"><div class="legend-dot ld-neg"></div><span class="legend-text">Concerns: ' + escapeDashHtml(concernCopy) + '</span></div></div></div></div>' +
+    '<div class="next-banner"><div class="nb-inner"><div><div class="nb-overline"><div class="nb-num-badge">1</div>Your Recommended First Step</div><div class="nb-title">' + escapeDashHtml(p.primaryAction) + '</div><div class="nb-desc">Keep the review honest: confirm the itemized bill, EOB, and provider response before treating any issue as resolved or owed.</div><div class="nb-tags"><span class="nb-tag nbt-g">No fake scoring</span><span class="nb-tag nbt-d">Bill detail first</span></div></div><div><button class="btn-nb" onclick="openDocument(\'doc-letter-1\',\'Request letter opened\',\'Start with the itemized statement request.\')">Open Request Letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></button><button class="btn-nb-skip" onclick="showGuide(\'callscripts\')">Use call script -></button></div></div></div>' +
+    '</div>';
+
+  const financials = document.getElementById('tab-financials');
+  if (financials) financials.innerHTML = '<div class="fin-grid"><div class="forensic-card"><div class="fc-head"><div><div class="fc-overline">Financial Context</div><div class="fc-title">Estimate-only billing workspace</div><div class="fc-sub">' + escapeDashHtml(providerDisplay) + ' | ' + escapeDashHtml(amountDisplay) + ' | ' + escapeDashHtml(p.label) + '</div></div><div class="fc-badge-g">No fake recovery score</div></div><div class="fc-body"><div class="fv-summary"><div class="fvs-item"><div class="fvs-label">Bill Amount Entered</div><div class="fvs-val fvsv-white">' + escapeDashHtml(amountDisplay) + '</div><div class="fvs-sub">From intake</div></div><div class="fvs-item"><div class="fvs-label">Possible Areas</div><div class="fvs-val fvsv-gold">' + escapeDashHtml(p.findingLabel) + '</div><div class="fvs-sub">Needs confirmation</div></div><div class="fvs-item"><div class="fvs-label">Current Priority</div><div class="fvs-val fvsv-green">' + escapeDashHtml(p.primaryAction) + '</div><div class="fvs-sub">Next practical step</div></div></div></div></div><div class="fin-table-wrap"><table class="fin-table"><thead><tr><th>Area</th><th>Why It Appears</th><th>Status</th><th style="text-align:right">Next Step</th></tr></thead><tbody>' + (p.findings.length ? p.findings.map(f => '<tr><td><span class="ft-code">' + escapeDashHtml(f.type) + '</span></td><td><div class="ft-strong">' + escapeDashHtml(f.title) + '</div><div class="ft-sub">' + escapeDashHtml(f.why) + '</div></td><td><span class="ft-badge ftb-review">Possible</span></td><td style="text-align:right;font-size:.6875rem;color:var(--ink-4);font-weight:600">' + escapeDashHtml(f.next) + '</td></tr>').join('') : '<tr><td><span class="ft-code">Documentation</span></td><td><div class="ft-strong">No specific findings yet</div><div class="ft-sub">The intake does not provide enough bill-level detail for charge claims.</div></td><td><span class="ft-badge ftb-advisory">General</span></td><td style="text-align:right;font-size:.6875rem;color:var(--ink-4);font-weight:600">Request itemized bill</td></tr>') + '</tbody></table><div class="fin-total-row"><span class="ftr-label">Current review stance</span><div class="ftr-right"><span class="ftr-ctx">No guaranteed savings or fixed recovery amount</span><span class="ftr-amt">' + escapeDashHtml(p.label) + '</span></div></div></div></div>';
+
+  const findingsPanel = document.getElementById('tab-findings');
+  if (findingsPanel) findingsPanel.innerHTML = '<div class="findings-grid">' + (p.findings.length ? p.findings.map(buildDashFindingCard).join('') : '<div class="card"><div class="card-head"><div class="card-overline">Findings</div><span class="card-tag">0 specific findings yet</span></div><div class="card-body"><p class="card-text">Nothing in the current intake supports a specific billing-error finding yet. Start with the itemized statement request, then return with line items, codes, dates, and amounts for a more precise review.</p><button class="btn-nb" onclick="openDocument(\'doc-letter-1\',\'Request letter opened\',\'Start with the itemized statement request.\')">Open Itemized Bill Request</button></div></div>') + '</div>';
+
+  const documents = document.getElementById('tab-documents');
+  if (documents) documents.innerHTML = '<div class="doc-tab-wrap"><div class="doc-cards-row"><div class="doc-preview-card" id="doc-letter-1"><div class="dpc-top"><span class="dpc-step">Step 1</span><span class="dpc-ready">READY</span></div><div class="dpc-title-area"><div class="dpc-title">Itemized Statement Request</div><div class="dpc-type">Use this first when bill details are limited or need confirmation.</div></div><div class="dpc-paper pc-green"><div class="mini-body"><div class="mini-salut">To Patient Financial Services,</div><div class="mini-text">Please provide a complete itemized statement for this account, including dates of service, procedure codes, units, charges, insurance payments, adjustments, and remaining patient responsibility.</div><span class="mini-highlight">This request helps confirm the bill before payment or dispute decisions are made.</span><div class="mini-text-2">Provider: ' + escapeDashHtml(providerDisplay) + '<br>Patient: ' + escapeDashHtml(p.name) + '</div></div></div><div class="dpc-footer"><span class="dpc-prepared">' + escapeDashHtml(p.label) + '</span><div class="dpc-actions"><button class="btn-dpc-icon" onclick="openPacket()" aria-label="Open printable packet"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button></div></div></div><div class="doc-preview-card" id="doc-letter-2"><div class="dpc-top"><span class="dpc-step">Step 2</span><span class="dpc-ready">USE AFTER CONFIRMATION</span></div><div class="dpc-title-area"><div class="dpc-title">Billing Explanation / Dispute Request</div><div class="dpc-type">Use only after the itemized bill confirms a specific concern.</div></div><div class="dpc-paper pc-crimson"><div class="mini-body"><div class="mini-text">I am requesting written review of the specific billing concern identified on the itemized statement. Please explain, correct, or document the charge before treating the disputed portion as due.</div><span class="mini-highlight">Attach the itemized bill and mark the relevant line items before sending.</span></div></div></div><div class="doc-preview-card" id="doc-letter-3"><div class="dpc-top"><span class="dpc-step">Step 3</span><span class="dpc-ready">OPTIONAL</span></div><div class="dpc-title-area"><div class="dpc-title">Insurance / EOB Review Request</div><div class="dpc-type">Use for coverage, network, adjustment, or EOB mismatch concerns.</div></div><div class="dpc-paper pc-cobalt"><div class="mini-body"><div class="mini-text">Please provide a written explanation showing how insurance payments, adjustments, and patient responsibility were calculated for this account.</div></div></div></div></div><div class="doc-footer-note">Documents are guidance tools. Add bill-level detail before making specific dispute claims.</div></div>';
+
+  const actionPlan = document.getElementById('tab-actionplan');
+  if (actionPlan) actionPlan.innerHTML = '<div class="action-grid"><div class="action-step" onclick="openDocument(\'doc-letter-1\',\'Itemized statement request opened\',\'Start here before relying on specific findings.\')" role="button" tabindex="0" onkeydown="handleActionKey(event,this)"><div class="as-rail r1"></div><div class="as-body"><div class="as-head"><span class="as-num">01</span><div class="as-title">Request or confirm the itemized bill</div><span class="as-status ass-now">Do Now</span></div><div class="as-desc">Get line items, dates, procedure codes, insurance payments, adjustments, and patient responsibility in writing.</div></div></div><div class="action-step" onclick="openDashboardSection(\'findings\',\'Review areas opened\',\'Open each possible area and match it to your bill details.\')" role="button" tabindex="0" onkeydown="handleActionKey(event,this)"><div class="as-rail r2"></div><div class="as-body"><div class="as-head"><span class="as-num">02</span><div class="as-title">Match possible concerns to bill details</div><span class="as-status ass-next">Next</span></div><div class="as-desc">Do not assume an issue is confirmed until the itemized bill or EOB supports it.</div></div></div><div class="action-step" onclick="showGuide(\'callscripts\')" role="button" tabindex="0" onkeydown="handleActionKey(event,this)"><div class="as-rail r3"></div><div class="as-body"><div class="as-head"><span class="as-num">03</span><div class="as-title">Use the call script for clarification</div><span class="as-status ass-next">Next</span></div><div class="as-desc">Ask for written explanations, names, reference numbers, and dates for follow-up.</div></div></div><div class="action-step" onclick="showGuide(\'escalation\')" role="button" tabindex="0" onkeydown="handleActionKey(event,this)"><div class="as-rail r4"></div><div class="as-body"><div class="as-head"><span class="as-num">04</span><div class="as-title">Escalate only if the provider does not respond</div><span class="as-status ass-pending">Pending</span></div><div class="as-desc">Escalate to patient advocacy or insurance review after a reasonable written follow-up window.</div></div></div></div>';
+
+  const timeline = document.getElementById('tab-timeline');
+  if (timeline) timeline.innerHTML = '<div class="timeline-grid"><div class="tl-item"><div class="tl-date"><div class="tl-date-main">Now</div><div class="tl-date-sub">Today</div></div><div class="tl-line"><div class="tl-dot d-green"></div><div class="tl-connector"></div></div><div class="tl-content"><div class="tl-ev-title">Intake saved</div><div class="tl-ev-desc">Your dashboard is using the details currently available: ' + escapeDashHtml(p.detail) + '.</div><span class="tl-ev-tag" style="background:var(--green-lt);color:var(--green-dk);border:1px solid rgba(30,184,122,.22)">Complete</span></div></div><div class="tl-item"><div class="tl-date"><div class="tl-date-main">Next</div><div class="tl-date-sub">Step 1</div></div><div class="tl-line"><div class="tl-dot d-gold"></div><div class="tl-connector"></div></div><div class="tl-content"><div class="tl-ev-title">Request itemized documentation</div><div class="tl-ev-desc">Use the request letter before making charge-specific assumptions.</div><span class="tl-ev-tag" style="background:var(--gold-lt);color:var(--gold-dk);border:1px solid rgba(240,165,0,.22)">Action Required</span></div></div><div class="tl-item"><div class="tl-date"><div class="tl-date-main">After</div><div class="tl-date-sub">Details arrive</div></div><div class="tl-line"><div class="tl-dot d-cobalt"></div><div class="tl-connector"></div></div><div class="tl-content"><div class="tl-ev-title">Review confirmed line items</div><div class="tl-ev-desc">Match codes, dates, amounts, EOB entries, and provider explanations before sending disputes.</div><span class="tl-ev-tag" style="background:var(--cobalt-lt);color:var(--cobalt);border:1px solid rgba(59,110,224,.22)">Review</span></div></div><div class="tl-item"><div class="tl-date"><div class="tl-date-main">Then</div><div class="tl-date-sub">Follow up</div></div><div class="tl-line"><div class="tl-dot d-gray"></div><div class="tl-connector"></div></div><div class="tl-content"><div class="tl-ev-title">Escalate if needed</div><div class="tl-ev-desc">If the provider does not respond, use the scripts and escalation path to request a written answer.</div><span class="tl-ev-tag" style="background:rgba(17,28,46,.06);color:var(--ink-5);border:1px solid var(--bdr-md)">Pending</span></div></div></div>';
+
+  const rightPanel = document.querySelector('.right-panel');
+  if (rightPanel) rightPanel.innerHTML = '<div class="rp-charges"><div class="rpc-label">Current Review Status</div><div class="rpc-main"><div><div class="rpc-amount">' + escapeDashHtml(p.label) + '</div><div class="rpc-sub">' + escapeDashHtml(p.primaryAction) + '</div></div></div><div class="rpc-rows"><div class="rpc-row"><span class="rpc-row-label">Bill amount</span><span class="rpc-row-val">' + escapeDashHtml(amountDisplay) + '</span></div><div class="rpc-row"><span class="rpc-row-label">Possible areas</span><span class="rpc-row-val">' + escapeDashHtml(p.findingLabel) + '</span></div><div class="rpc-row"><span class="rpc-row-label">Detail level</span><span class="rpc-row-val check">' + escapeDashHtml(p.detail) + '</span></div></div></div><div class="rp-section"><div class="rps-head"><span class="rps-label">Why This Is Conservative</span></div><div class="rps-rows"><div class="rps-row"><span class="rps-row-lbl">No fake CPT codes</span><span class="rps-row-val green">Clean</span></div><div class="rps-row"><span class="rps-row-lbl">No fixed recovery score</span><span class="rps-row-val green">Clean</span></div><div class="rps-row"><span class="rps-row-lbl">Next step</span><span class="rps-row-val amber">' + escapeDashHtml(p.primaryAction) + '</span></div></div></div><div class="rp-next"><div class="rp-next-head"><div class="rp-next-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="rp-next-title">Keep the review grounded in the bill</div></div><div class="rp-next-desc">Use the request path first, then update the review with line-item details for a more specific result.</div><button class="btn-rp-cta" onclick="openDocument(\'doc-letter-1\',\'Request letter opened\',\'Start with the itemized statement request.\')">Open Request Letter</button></div>';
+
+  const qcBalance = document.getElementById('qc-balance');
+  const exactAmount = getDashboardNumericBillAmount();
+  if (qcBalance) qcBalance.value = exactAmount ? '$' + exactAmount.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 }) : '';
+}
+
+function hasEnoughBillDetail() {
+  return getReviewDepth() === 'full';
+}
+
+function goToIntakeForDetails() {
+  showItemizedRequestInfo();
+  showToast('Case builder opened', 'Stay here. We will build the case from this workspace.');
+}
+
+function focusGuidedWalkthrough() {
+  const el = document.getElementById('guided-walkthrough');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  showToast('Your guided path is ready', 'One step at a time. Start with the proof request, then keep moving.');
+}
+
+function showItemizedRequestInfo() {
+  document.getElementById('gd-title').textContent = 'Proof Request';
+  document.getElementById('gd-sub').textContent = 'Your advocate companion will guide the ask';
+  document.getElementById('gd-body').innerHTML = '<div class="gd-calm-banner"><span class="gcb-icon">!</span><div class="gcb-text"><div class="gcb-title">This is the first move in building your case.</div><div class="gcb-body">Ask the billing department for a complete line-by-line itemized bill with codes, dates, units, provider names, insurance payments, adjustments, and patient responsibility. This gives your review the proof it needs.</div></div></div><div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">1</div><div class="gd-card-title">Say this simply</div></div><div class="gd-card-body"><p class="gd-card-text">I need a complete itemized statement before I make a payment decision. Please include procedure codes, dates, units, insurance payments, adjustments, and the remaining patient balance.</p></div></div><div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">2</div><div class="gd-card-title">Then keep moving here</div></div><div class="gd-card-body"><p class="gd-card-text">After you request it, stay in this workspace. Use the guided steps, call scripts, and timeline to track what happens next.</p><button class="trust-need-btn primary" onclick="focusGuidedWalkthrough()">Continue Building My Case</button></div></div>';
+  document.getElementById('guide-drawer').classList.add('open');
+}
+
+function applyTrustState() {
+  const depth = getReviewDepth();
+  if (depth === 'full') return;
+  document.body.classList.add('needs-bill-details');
+  const label = getReviewDepthLabel();
+  const headline = document.querySelector('.ch-headline');
+  const subline = document.querySelector('.ch-subline');
+  const deck = document.querySelector('.ch-deck');
+  if (headline) headline.textContent = 'Your AI advocate is building your case.';
+  if (subline) subline.textContent = 'Stay here. We will guide the next step from inside your workspace.';
+  if (deck) deck.textContent = depth === 'guided'
+    ? 'You gave us enough to begin. UPA will organize your concerns, request the proof, and help you move forward one calm step at a time.'
+    : 'Even with limited details, you are not stuck. UPA will help build the case file, request records, and keep the process moving.';
+  const labelEl = document.getElementById('trust-review-depth-label');
+  const titleEl = document.getElementById('trust-review-depth-title');
+  const copyEl = document.getElementById('trust-review-depth-copy');
+  if (labelEl) labelEl.textContent = label;
+  if (titleEl) titleEl.textContent = depth === 'guided' ? 'Your AI advocate is building your case.' : 'Let us build your case together.';
+  if (copyEl) copyEl.textContent = depth === 'guided'
+    ? 'You gave us enough to begin. We will organize your concerns, guide the proof request, and keep you moving inside this secure workspace.'
+    : 'You do not need every document to start. UPA will guide the first move, help request the right records, and keep you supported.';
+}
+
+function openPacket() {
+  window.open(upaFinalPath('05_upa-packet.html'), '_blank');
+}
+
+function printDashboard() {
+  window.print();
+}
+
+function shareDashboard() {
+  const url = window.location.protocol === 'file:' ? window.location.href : window.location.origin + upaFinalPath('04_upa-dashboard.html');
+  if (navigator.share) {
+    navigator.share({ title: 'United Patient Advocate Billing Review', url: url }).catch(() => {});
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('Dashboard link copied', 'You can paste this link anywhere you need it.');
+    }).catch(() => {
+      showToast('Share link ready', url);
+    });
+    return;
+  }
+  showToast('Share link ready', url);
+}
+
+function openDocument(id, title, sub) {
+  showTab('documents');
+  closeGuide();
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (!el) {
+      showToast('Document not available yet', 'Open the printable packet for the full document set.');
+      return;
+    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    showToast(title || 'Document opened', sub || 'Review the document preview, then open the printable packet if needed.');
+  }, 80);
+}
+
+function openDashboardSection(name, title, sub) {
+  showTab(name);
+  closeGuide();
+  setTimeout(() => {
+    const panel = document.getElementById('tab-' + name);
+    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast(title || 'Section opened', sub || 'Use this section to continue your review.');
+  }, 80);
+}
+
+function toggleFinding(card) {
+  if (!card) return;
+  const isOpen = card.classList.toggle('is-open');
+  card.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  const detail = card.querySelector('.finding-detail');
+  if (detail) detail.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+  const hint = card.querySelector('.fi-toggle-hint');
+  if (hint) hint.textContent = isOpen ? 'Hide explanation' : 'Tap/click for explanation';
+}
+
+function handleFindingKey(event, card) {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  event.preventDefault();
+  toggleFinding(card);
+}
+
+function openActionPlan() {
+  showTab('actionplan');
+  closeGuide();
+  const panel = document.getElementById('tab-actionplan');
+  if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  showToast('Action plan opened', 'Use this section after you already have the itemized bill.');
+}
+
+function routeChecklistAction(el) {
+  const item = el && el.closest('.gd-check-item');
+  const text = item ? item.textContent.toLowerCase() : '';
+  setTimeout(() => {
+    if (text.includes('itemized statement request') || text.includes('send the letter')) {
+      openDocument('doc-letter-1','Itemized statement request opened','Send Letter 1 first, then record when and how it was sent.');
+    } else if (text.includes('hospital') && text.includes('contact')) {
+      showGuide('callscripts');
+      showToast('Call scripts opened','Use the first script to ask billing where to send the request.');
+    } else if (text.includes('recorded the date') || text.includes('write down the date') || text.includes('30-day follow-up')) {
+      openDashboardSection('timeline','Timeline opened','Use this to track dates, responses, and follow-up deadlines.');
+    } else if (text.includes('received the itemized bill') || text.includes('located cpt') || text.includes('marked both duplicate')) {
+      openDashboardSection('findings','Findings opened','Review the flagged items and match them against the itemized statement.');
+    } else if (text.includes('formal dispute') || text.includes('duplicate charge')) {
+      openDocument('doc-letter-2','Dispute letter opened','Use Letter 2 after you can mark the duplicate charge lines.');
+    } else if (text.includes('in-network rate')) {
+      openDocument('doc-letter-3','Rate request opened','Use Letter 3 to request in-network review or written explanation.');
+    } else if (text.includes('no response') || text.includes('refuse') || text.includes('patient advocate')) {
+      showGuide('escalation');
+    } else if (text.includes('written response') || text.includes('corrected statement') || text.includes('final corrected balance')) {
+      openDashboardSection('timeline','Timeline opened','Track the response and confirm resolution in writing.');
+    } else {
+      openDashboardSection('overview','Overview opened','Use the overview to decide your next step.');
+    }
+  }, 120);
+}
+
+function handleActionKey(event, el) {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  event.preventDefault();
+  el.click();
+}
+
 function updateChecklist(el) {
   el.classList.toggle('checked');
   if (el.classList.contains('checked')) {
     const phase = el.closest('.gd-card') && el.closest('.gd-card').querySelector('.gd-card-title');
     showToast('Step complete', phase ? phase.textContent : 'Good work. Keep going.');
   }
+  routeChecklistAction(el);
   // Count total checkboxes in the drawer and update the ring
   const allBoxes = document.querySelectorAll('#gd-body .gdc-box');
   const checked  = document.querySelectorAll('#gd-body .gdc-box.checked');
@@ -3156,6 +3877,7 @@ function closeGuide() {
 
 function toggleCheck(el) {
   el.classList.toggle('checked');
+  routeChecklistAction(el);
   if (el.classList.contains('checked')) showToast('Step marked complete', 'Keep going. You’re making progress.');
 }
 function toggleFaq(btn) { btn.closest('.gd-faq-item').classList.toggle('open'); }
@@ -3223,7 +3945,8 @@ function animateRPGauge() {
 
 function animateSidebar() {
   const fill = document.getElementById('sb-fill');
-  if (fill) fill.style.width = '72%';
+  const profile = window.upaDashboardProfile || buildDashboardProfile();
+  if (fill) fill.style.width = profile.progressWidth;
 }
 
 /* Shimmer pass on financial panels after data loads */
@@ -3265,7 +3988,7 @@ function animateDrawerCards() {
 (function() {
 
   // State
-  const DEFAULT_BALANCE = 23452;
+  const DEFAULT_BALANCE = getDashboardNumericBillAmount();
   let currentBalance = DEFAULT_BALANCE;
   let currentPct     = 25;
   let splitCount     = 2;
@@ -3406,7 +4129,7 @@ function animateDrawerCards() {
 
   function buildScenarios() {
     const pcts = [5, 10, 15, 20, 25, 30, 40, 50];
-    const maxSaving = currentBalance * 0.50;
+    const maxSaving = Math.max(currentBalance * 0.50, 1);
     const table = document.getElementById('qc-scenarios-table');
     const fmt   = (n) => '$' + n.toLocaleString('en-US', { minimumFractionDigits:0, maximumFractionDigits:0 });
     const fmtFull = (n) => '$' + n.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
@@ -3481,7 +4204,7 @@ function animateDrawerCards() {
     currentPct      = 25;
     splitCount      = 2;
     scenariosOpen   = false;
-    document.getElementById('qc-balance').value = '$23,452.00';
+    document.getElementById('qc-balance').value = DEFAULT_BALANCE ? '$' + DEFAULT_BALANCE.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 }) : '';
     document.getElementById('qc-slider').value  = 25;
     document.getElementById('qc-slider-pct').textContent = '25%';
     updateSliderTrack(document.getElementById('qc-slider'));
@@ -3507,6 +4230,9 @@ function animateDrawerCards() {
 
 /* ── Dashboard animations (preserved) ── */
 window.addEventListener('load', () => {
+  applyDynamicDashboardState();
+  applyTrustState();
+  renderGuidedWalkthrough();
   animateBars();
   animateRPGauge();
   animateSidebar();

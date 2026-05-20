@@ -4087,8 +4087,14 @@ function ErrorScreen({ onRetry, onBack, message }) {
 
 // Section
 export default function App() {
+  const currentPath = typeof window !== "undefined" ? window.location.pathname.replace(/\/$/, "") : "";
+  if (currentPath === "/success" || currentPath === "/dashboard") {
+    window.location.replace("/UPA-Final/04_upa-dashboard.html");
+    return null;
+  }
+
   const { mode, toggle } = useTheme();
-  const isSuccessPath = typeof window !== "undefined" && window.location.pathname.replace(/\/$/, "") === "/success";
+  const isSuccessPath = currentPath === "/success";
   const hasHydratedPaidResults = typeof window !== "undefined" && Boolean(readSavedPaidResults()?.results);
   const [screen, setScreen]   = useState("landing");
   const [step,   setStep]     = useState(1);

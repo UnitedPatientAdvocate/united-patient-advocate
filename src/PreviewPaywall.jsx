@@ -231,7 +231,7 @@ export default function PreviewPaywall({
             </div>
           </div>
           <div style={{ display:"flex",justifyContent:"space-between",gap:12,flexWrap:"wrap",fontSize:12,color:"rgba(255,255,255,0.68)",lineHeight:1.6,marginTop:14 }}>
-            <span>Secure checkout opens next</span><span>Return to /success after payment</span><span>Same session handoff preserved</span>
+            <span>Secure checkout opens next</span><span>Return to /dashboard after payment</span><span>Same session handoff preserved</span>
           </div>
         </section>
       </main>

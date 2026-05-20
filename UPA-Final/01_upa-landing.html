@@ -386,6 +386,21 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .step-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(201,168,76,.30),transparent)}
 .step-title{font-family:var(--serif);font-size:1.375rem;font-weight:700;color:var(--on-dark);letter-spacing:-.025em;line-height:1.20;margin-bottom:5px}
 .step-sub{font-size:.8125rem;color:var(--on-dark-2);line-height:1.68;margin-bottom:20px}
+.choice-assist{margin:-4px 0 14px;display:grid;gap:8px}
+.choice-search-wrap{position:relative}
+.choice-search{width:100%;background:rgba(255,255,255,.055);border:1.5px solid rgba(255,255,255,.12);border-radius:14px;padding:15px 16px 15px 42px;font-family:var(--sans);font-size:.9375rem;font-weight:700;color:var(--on-dark);outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 28px rgba(0,0,0,.12)}
+.choice-search::placeholder{color:rgba(235,244,255,.30)}
+.choice-search:focus{border-color:rgba(201,168,76,.55);background:rgba(255,255,255,.075);box-shadow:0 0 0 3px rgba(201,168,76,.12),0 12px 34px rgba(0,0,0,.18)}
+.choice-search-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:rgba(235,244,255,.46);stroke-width:2;fill:none;pointer-events:none}
+.choice-help{font-size:.625rem;line-height:1.5;color:var(--on-dark-3);padding-left:2px}
+.other-choice{display:grid;grid-template-columns:1fr auto;gap:8px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:9px;margin-bottom:16px}
+.other-choice input{min-width:0;background:rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:12px 13px;font-family:var(--sans);font-size:.875rem;color:var(--on-dark);outline:none}
+.other-choice input::placeholder{color:rgba(235,244,255,.25)}
+.other-choice button{border:1px solid rgba(30,184,122,.34);background:linear-gradient(135deg,rgba(30,107,90,.85),rgba(30,184,122,.84));color:white;border-radius:10px;padding:0 16px;font-family:var(--sans);font-size:.75rem;font-weight:900;cursor:pointer}
+.guide-strip{display:flex;align-items:center;gap:10px;margin:0 0 16px;padding:13px 14px;border-radius:14px;background:linear-gradient(135deg,rgba(30,184,122,.10),rgba(255,255,255,.045));border:1px solid rgba(30,184,122,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.guide-strip-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(30,184,122,.16);color:var(--green);font-family:var(--mono);font-weight:900;flex-shrink:0}
+.guide-strip-text{font-size:.75rem;line-height:1.55;color:var(--on-dark-2)}
+.guide-strip-text strong{color:var(--on-dark)}
 
 /* Options */
 .opt-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
@@ -407,6 +422,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .opt-check{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.5);transition:all .28s var(--pop);box-shadow:0 2px 8px rgba(30,184,122,.40)}
 .opt.selected .opt-check{opacity:1;transform:scale(1)}
 .opt-check svg{width:10px;height:10px;stroke:white;stroke-width:2.5;fill:none}
+.choice-hidden{display:none!important}
 
 /* Chips */
 .concern-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:20px}
@@ -516,6 +532,8 @@ html,body{max-width:100%;overflow-x:hidden}
 .rc-source,.rc-citation,.rc-desc,.rd-txt{overflow-wrap:anywhere}
 .rc-pair{flex-wrap:wrap}
 .examine-grid,.steps-grid,.scenarios-grid,.concern-grid,.field-row,.opt-grid-2,.opt-grid-3{grid-template-columns:1fr}
+.other-choice{grid-template-columns:1fr}
+.other-choice button{min-height:44px}
 .sc-num::after{display:none}
 .comp-table{max-width:100%}
 .ct-head,.ct-row,.ct-outcome{grid-template-columns:1fr}
@@ -660,7 +678,7 @@ html,body{max-width:100%;overflow-x:hidden}
     <div class="steps-sub">No legal training. No preparation. No medical knowledge required.</div>
     <div class="steps-grid">
       <div class="step-card"><div class="sc-num">1</div><div class="sc-title">Upload or enter your bill</div><div class="sc-desc">Photo, PDF, or screenshot. Or type the key amounts manually. Either way works.</div><span class="sc-tag">Under 60 seconds</span></div>
-      <div class="step-card"><div class="sc-num">2</div><div class="sc-title">We prepare your review documentation</div><div class="sc-desc">CPT coding reference review, Medicare benchmark comparison, duplicate charge identification, and dispute documentation preparation.</div><span class="sc-tag cobalt">Automated document analysis</span></div>
+      <div class="step-card"><div class="sc-num">2</div><div class="sc-title">We prepare your review documentation</div><div class="sc-desc">CPT coding reference review, Medicare benchmark comparison, duplicate charge identification, and dispute documentation preparation.</div><span class="sc-tag cobalt">Guided document review</span></div>
       <div class="step-card"><div class="sc-num">3</div><div class="sc-title">You receive your report</div><div class="sc-desc">Dispute reference letter, structured phone script, action plan, and consumer billing rights overview sent to your inbox.</div><span class="sc-tag gold">Results in under 60 seconds</span></div>
     </div>
   </div>
@@ -1082,11 +1100,11 @@ html,body{max-width:100%;overflow-x:hidden}
         <div class="field-row">
           <div class="field">
             <label class="field-label">Your First Name</label>
-            <input type="text" id="f-first" placeholder="Jane" autocomplete="given-name"/>
+            <input type="text" id="f-first" placeholder="First Name" autocomplete="given-name"/>
           </div>
           <div class="field">
             <label class="field-label">Last Name</label>
-            <input type="text" id="f-last" placeholder="Smith" autocomplete="family-name"/>
+            <input type="text" id="f-last" placeholder="Last Name" autocomplete="family-name"/>
           </div>
         </div>
         <div class="field-row full">
@@ -1099,7 +1117,7 @@ html,body{max-width:100%;overflow-x:hidden}
         <div class="field-row">
           <div class="field">
             <label class="field-label">Provider / Hospital Name</label>
-            <input type="text" id="f-provider" placeholder="Memorial Regional Medical Center"/>
+            <input type="text" id="f-provider" placeholder="Type provider or hospital name" list="provider-suggestions"/>
           </div>
           <div class="field">
             <label class="field-label">Date of Service</label>
@@ -1144,7 +1162,7 @@ html,body{max-width:100%;overflow-x:hidden}
         </div>
         <button class="btn-submit" onclick="startAnalysis()">
           <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Start My Free Review Now
+          Start Secure Analysis
           <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
         <div style="text-align:center;margin-top:8px;font-size:.5rem;color:rgba(235,244,255,.28);letter-spacing:.06em;text-transform:uppercase">Results in under 60 seconds</div>
@@ -1203,13 +1221,13 @@ var currentStep=1,totalSteps=7;
 var state={
   s1:null,s2:null,s3:null,s4:null,
   s5:[],
-  first:'',last:'',email:'',provider:'',dos:'',file:null
+  first:'',last:'',email:'',provider:'',dos:'',specialty:'',file:null
 };
 
 /* Labels for summary */
 var labels={
   s1:{hospital:'Hospital Bill',er:'Emergency Room',doctor:"Doctor's Office",lab:'Lab / Diagnostic',surgery:'Surgery or Procedure',ambulance:'Ambulance',mental:'Mental Health',pharmacy:'Pharmacy'},
-  s2:{medicare:'Medicare (Part A & B)','medicare-advantage':'Medicare Advantage (Part C)',medigap:'Medicare + Supplement',medicaid:'Medicaid',dual:'Medicare + Medicaid (Dual)','employer':'Employer / Group Insurance','marketplace':'Marketplace / ACA Plan','tricare':'TRICARE (Military)',va:'VA Benefits','chip':'CHIP','workers-comp':"Workers' Compensation",'uninsured':'No Insurance (Self-Pay)'},
+  s2:{medicare:'Medicare (Part A & B)','medicare-advantage':'Medicare Advantage (Part C)',medigap:'Medicare + Supplement',medicaid:'Medicaid',dual:'Medicare + Medicaid (Dual)','aetna':'Aetna','unitedhealthcare':'UnitedHealthcare','bcbs':'Blue Cross Blue Shield','cigna':'Cigna','humana':'Humana','employer':'Employer / Group Insurance','marketplace':'Marketplace / ACA Plan','tricare':'TRICARE (Military)',va:'VA Benefits','chip':'CHIP','workers-comp':"Workers' Compensation",'uninsured':'No Insurance (Self-Pay)'},
   s3:{'under500':'Under $500','500-1k':'$500 – $1,000','1k-5k':'$1,000 – $5,000','5k-10k':'$5,000 – $10,000','10k-25k':'$10,000 – $25,000','25k-50k':'$25,000 – $50,000','50k-100k':'$50,000 – $100,000','over100k':'Over $100,000','unknown':'Not Sure'},
   s4:{unpaid:'Not Paid Yet (Best Position)',partial:'Partial Payment','payment-plan':'On Payment Plan',paid:'Paid in Full',collections:'Sent to Collections','insurance-dispute':'Insurance Denied / Underpaid'}
 };
@@ -1244,6 +1262,139 @@ function selectOpt(btn,group){
   /* Selection confirmed — user clicks Continue to proceed */
 }
 
+function filterChoiceList(scopeId,input){
+  var scope=document.getElementById(scopeId);
+  if(!scope)return;
+  var q=(input.value||'').toLowerCase().trim();
+  scope.querySelectorAll('.opt,.chip').forEach(function(el){
+    var txt=el.textContent.toLowerCase();
+    el.classList.toggle('choice-hidden',q&&txt.indexOf(q)===-1);
+  });
+}
+
+function selectOtherChoice(group,inputId){
+  var input=document.getElementById(inputId);
+  if(!input)return;
+  var value=input.value.trim();
+  if(!value)return;
+  state[group]='other:'+value;
+  var step=input.closest('.step');
+  if(step)step.querySelectorAll('.opt').forEach(function(b){b.classList.remove('selected')});
+  document.getElementById('btn-next').disabled=false;
+  input.blur();
+}
+
+function addOtherConcern(inputId){
+  var input=document.getElementById(inputId);
+  if(!input)return;
+  var value=input.value.trim();
+  if(!value)return;
+  var val='other:'+value;
+  if(state.s5.indexOf(val)===-1)state.s5.push(val);
+  var grid=document.getElementById('concern-grid');
+  if(grid&&!grid.querySelector('[data-val="'+CSS.escape(val)+'"]')){
+    var chip=document.createElement('button');
+    chip.className='chip selected';
+    chip.type='button';
+    chip.dataset.val=val;
+    chip.onclick=function(){toggleChip(chip);};
+    chip.innerHTML='<div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><span class="chip-name">'+escapeHtml(value)+'</span>';
+    grid.appendChild(chip);
+  }
+  input.value='';
+  document.getElementById('btn-next').disabled=state.s5.length===0;
+}
+
+function addChoiceAssist(stepId,scopeId,placeholder,help,otherPlaceholder,group){
+  var step=document.getElementById(stepId);
+  var scope=document.getElementById(scopeId);
+  if(!step||!scope||step.querySelector('.choice-assist'))return;
+  var wrap=document.createElement('div');
+  wrap.className='choice-assist';
+  wrap.innerHTML='<div class="choice-search-wrap"><svg class="choice-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input class="choice-search" type="search" placeholder="'+escapeHtml(placeholder)+'" oninput="filterChoiceList(\\''+scopeId+'\\',this)"></div><div class="choice-help">'+escapeHtml(help)+'</div>';
+  scope.parentNode.insertBefore(wrap,scope);
+  if(otherPlaceholder){
+    var other=document.createElement('div');
+    other.className='other-choice';
+    var inputId=stepId+'-other-input';
+    if(group==='s5'){
+      other.innerHTML='<input id="'+inputId+'" type="text" placeholder="'+escapeHtml(otherPlaceholder)+'"><button type="button" onclick="addOtherConcern(\\''+inputId+'\\')">Add</button>';
+    }else{
+      other.innerHTML='<input id="'+inputId+'" type="text" placeholder="'+escapeHtml(otherPlaceholder)+'"><button type="button" onclick="selectOtherChoice(\\''+group+'\\',\\''+inputId+'\\')">Use this</button>';
+    }
+    scope.parentNode.insertBefore(other,scope.nextSibling);
+  }
+}
+
+function ensureInsuranceOptions(){
+  var list=document.querySelector('#step-2 .opt-list');
+  if(!list||list.querySelector('[data-val="aetna"]'))return;
+  var html=[
+    ['aetna','Aetna','Commercial, employer, Medicare Advantage, or marketplace plan'],
+    ['unitedhealthcare','UnitedHealthcare','Commercial, employer, Medicare Advantage, or marketplace plan'],
+    ['bcbs','Blue Cross Blue Shield','BCBS, Anthem, CareFirst, Premera, or another Blue plan'],
+    ['cigna','Cigna','Commercial, employer, Medicare Advantage, or marketplace plan'],
+    ['humana','Humana','Commercial, Medicare Advantage, or supplemental coverage']
+  ].map(function(row){
+    return '<button class="opt list-item" data-val="'+row[0]+'" onclick="selectOpt(this,\\'s2\\')"><span class="opt-emoji">+</span><span class="opt-text"><span class="opt-name">'+row[1]+'</span><span class="opt-desc">'+row[2]+'</span></span><div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div></button>';
+  }).join('');
+  var anchor=list.querySelector('[data-val="employer"]')||list.firstChild;
+  anchor.insertAdjacentHTML('beforebegin',html);
+}
+
+function enhanceIntake(){
+  ensureInsuranceOptions();
+  var step1=document.getElementById('step-1');
+  var step2=document.getElementById('step-2');
+  var step3=document.getElementById('step-3');
+  var step4=document.getElementById('step-4');
+  if(step1&&!document.getElementById('bill-type-options')){
+    var grid=step1.querySelector('.opt-grid-2'); if(grid)grid.id='bill-type-options';
+  }
+  if(step2&&!document.getElementById('insurance-options')){
+    var list=step2.querySelector('.opt-list'); if(list)list.id='insurance-options';
+  }
+  if(step3&&!document.getElementById('bill-amount-options')){
+    var amountGrid=step3.querySelector('.opt-grid-3'); if(amountGrid)amountGrid.id='bill-amount-options';
+  }
+  if(step4&&!document.getElementById('status-options')){
+    var statusList=step4.querySelector('.opt-list'); if(statusList)statusList.id='status-options';
+  }
+  addChoiceAssist('step-1','bill-type-options','Search bill type, care area, or treatment','Not sure? Pick the closest match, or type your own below.','Type another bill type, treatment, or specialty','s1');
+  addChoiceAssist('step-2','insurance-options','Search insurance: Aetna, UnitedHealthcare, Medicare...','Choose the closest coverage. If you are unsure, type what is on your card.','Type your insurance plan or choose self-pay','s2');
+  addChoiceAssist('step-3','bill-amount-options','Search or choose a bill range','A rough range is fine. You can type the amount from the bill if you have it.','Type an exact amount or your best estimate','s3');
+  addChoiceAssist('step-4','status-options','Search status: unpaid, paid, collections...','Choose the closest status. You can type what is happening if the list does not fit.','Type another bill status','s4');
+  addChoiceAssist('step-5','concern-grid','Search concerns: duplicate, denied, itemized...','Select every concern that feels relevant. You can add your own words too.','Type another concern in your own words','s5');
+  var provider=document.getElementById('f-provider');
+  if(provider&&!document.getElementById('provider-suggestions')){
+    var dl=document.createElement('datalist');
+    dl.id='provider-suggestions';
+    dl.innerHTML='<option value="Hospital billing department"><option value="Emergency department"><option value="Lab billing department"><option value="Specialist office"><option value="Ambulance billing"><option value="Imaging center"><option value="Surgery center">';
+    document.body.appendChild(dl);
+  }
+  if(provider)provider.placeholder='Type provider or hospital name';
+  if(!document.getElementById('f-specialty')){
+    var providerRow=document.getElementById('f-provider')&&document.getElementById('f-provider').closest('.field-row');
+    if(providerRow){
+      var row=document.createElement('div');
+      row.className='field-row full';
+      row.innerHTML='<div class="field"><label class="field-label">Care area or specialty <span class="optional-badge">Optional</span></label><input type="text" id="f-specialty" list="specialty-suggestions" placeholder="Example: ER visit, lab work, surgery, cardiology, imaging"></div><datalist id="specialty-suggestions"><option value="Emergency care"><option value="Lab work"><option value="Imaging / radiology"><option value="Surgery or procedure"><option value="Cardiology"><option value="Oncology"><option value="Physical therapy"><option value="Mental health"><option value="Pharmacy"></datalist>';
+      providerRow.insertAdjacentElement('afterend',row);
+    }
+  }
+  if(!document.querySelector('#step-1 .guide-strip')){
+    document.querySelectorAll('.step').forEach(function(step){
+      var sub=step.querySelector('.step-sub');
+      if(sub){
+        var strip=document.createElement('div');
+        strip.className='guide-strip';
+        strip.innerHTML='<div class="guide-strip-icon">✓</div><div class="guide-strip-text"><strong>You are being guided.</strong> Choose what you know. You can type your own answer whenever the list does not fit.</div>';
+        sub.insertAdjacentElement('afterend',strip);
+      }
+    });
+  }
+}
+
 /* Toggle multi-select chip */
 function toggleChip(chip){
   chip.classList.toggle('selected');
@@ -1265,6 +1416,7 @@ function handleFile(input){
 }
 /* Drag events */
 document.addEventListener('DOMContentLoaded',function(){
+  enhanceIntake();
   var zone=document.getElementById('upload-zone');
   if(!zone)return;
   zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('drag')});
@@ -1291,31 +1443,52 @@ function validateStep6(){
   document.getElementById('btn-next').disabled=!(first&&last&&emailOk&&provider);
 }
 document.addEventListener('input',function(e){
-  if(['f-first','f-last','f-email','f-provider','f-desc'].includes(e.target.id))validateStep6();
+  if(['f-first','f-last','f-email','f-provider','f-specialty','f-desc'].includes(e.target.id))validateStep6();
 });
 
 /* Build summary */
+function escapeHtml(value){
+  return String(value||'').replace(/[&<>"']/g,function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+function cleanSummaryValue(value,fallback){
+  var text=String(value||'').trim();
+  if(!text||text==='undefined'||text==='null'||text==='NaN')return fallback;
+  return text;
+}
 function buildSummary(){
   state.first=document.getElementById('f-first').value.trim();
   state.last=document.getElementById('f-last').value.trim();
   state.email=document.getElementById('f-email').value.trim();
   state.provider=document.getElementById('f-provider').value.trim();
+  state.specialty=getFieldValue('f-specialty');
   state.dos=document.getElementById('f-dos').value;
+  var patientName=cleanSummaryValue((state.first+' '+state.last).trim(),'Name not provided');
+  var billType=cleanSummaryValue(labels.s1[state.s1]||state.s1,'Not selected yet');
+  var insurance=cleanSummaryValue(labels.s2[state.s2]||state.s2,'Not selected yet');
+  var billAmount=cleanSummaryValue(labels.s3[state.s3]||state.s3,'Not selected yet');
+  var paymentStatus=cleanSummaryValue(labels.s4[state.s4]||state.s4,'Not selected yet');
+  var provider=cleanSummaryValue(state.provider,'Provider not provided');
+  var specialty=cleanSummaryValue(state.specialty,'Not provided yet');
+  var dos=cleanSummaryValue(state.dos,'Not provided yet');
+  var concerns=state.s5.length?state.s5.length+' issue'+(state.s5.length!==1?'s':'')+' selected':'Not selected yet';
 
   var rows=[
-    ['Patient Name',state.first+' '+state.last],
-    ['Bill Type',labels.s1[state.s1]||state.s1],
-    ['Insurance',labels.s2[state.s2]||state.s2],
-    ['Bill Amount',labels.s3[state.s3]||state.s3],
-    ['Payment Status',labels.s4[state.s4]||state.s4],
-    ['Provider',state.provider],
-    ['Date of Service',state.dos||'Not provided'],
-    ['Concerns',state.s5.length+' issue'+(state.s5.length!==1?'s':'')+' selected'],
-    ['Bill Uploaded',state.file?state.file.name:'Not uploaded (optional)']
+    ['Patient Name',patientName],
+    ['Bill Type',billType],
+    ['Insurance',insurance],
+    ['Bill Amount',billAmount],
+    ['Payment Status',paymentStatus],
+    ['Provider',provider],
+    ['Care Area',specialty],
+    ['Date of Service',dos],
+    ['Concerns',concerns],
+    ['Bill Uploaded',state.file?state.file.name:'No bill uploaded yet']
   ];
   var p=document.getElementById('summary-panel');
   p.innerHTML=rows.map(function(r){
-    return '<div class="sum-row"><span class="sum-label">'+r[0]+'</span><span class="sum-val'+(r[0]==='Patient Name'?' green':'')+'">'+r[1]+'</span></div>';
+    return '<div class="sum-row"><span class="sum-label">'+escapeHtml(r[0])+'</span><span class="sum-val'+(r[0]==='Patient Name'?' green':'')+'">'+escapeHtml(r[1])+'</span></div>';
   }).join('');
 }
 
@@ -1378,10 +1551,12 @@ function getFieldValue(id){
   return el?el.value.trim():'';
 }
 function selectedOptionLabel(group,value){
+  if(String(value||'').indexOf('other:')===0)return String(value).slice(6);
   return labels[group]&&labels[group][value]?labels[group][value]:(value||'');
 }
 function selectedConcernLabels(){
   return state.s5.map(function(val){
+    if(String(val||'').indexOf('other:')===0)return String(val).slice(6);
     var chip=document.querySelector('.chip[data-val="'+val+'"] .chip-name');
     return chip?chip.textContent.trim():val;
   });
@@ -1391,6 +1566,7 @@ function buildLeadPayload(){
   state.last=getFieldValue('f-last');
   state.email=getFieldValue('f-email');
   state.provider=getFieldValue('f-provider');
+  state.specialty=getFieldValue('f-specialty');
   state.dos=getFieldValue('f-dos');
   var phone=getFieldValue('f-phone');
   var concerns=selectedConcernLabels();
@@ -1405,6 +1581,7 @@ function buildLeadPayload(){
     email:state.email,
     phone:phone,
     provider:state.provider,
+    specialty:state.specialty,
     balance:selectedOptionLabel('s3',state.s3),
     bill_amount:selectedOptionLabel('s3',state.s3),
     date_of_service:state.dos,
@@ -1420,6 +1597,39 @@ function buildLeadPayload(){
     bill_amount_raw:state.s3||'',
     payment_status_raw:state.s4||''
   };
+}
+function detectReviewDepth(desc){
+  var text=(desc||'').trim();
+  var hasLineItems=/(cpt|hcpcs|line\s*\d|procedure code|diagnosis code|charge|\$\s*\d|\b\d{5}\b)/i.test(text);
+  if(state.file||(text.length>=120&&hasLineItems))return 'full';
+  if(text.length>=25||state.provider||state.s1||state.s2||state.s3||state.s4||state.s5.length)return 'guided';
+  return 'starter';
+}
+function saveIntakeContext(){
+  var desc=getFieldValue('f-desc');
+  var depth=detectReviewDepth(desc);
+  var payload={
+    saved_at:new Date().toISOString(),
+    first:getFieldValue('f-first'),
+    last:getFieldValue('f-last'),
+    email:getFieldValue('f-email'),
+    provider:getFieldValue('f-provider'),
+    date_of_service:getFieldValue('f-dos'),
+    bill_amount:selectedOptionLabel('s3',state.s3),
+    payment_status:selectedOptionLabel('s4',state.s4),
+    insurance:selectedOptionLabel('s2',state.s2),
+    bill_type:selectedOptionLabel('s1',state.s1),
+    specialty:getFieldValue('f-specialty'),
+    concerns:selectedConcernLabels(),
+    description:desc,
+    description_length:desc.length,
+    uploaded_bill:state.file?state.file.name:'',
+    has_uploaded_bill:!!state.file,
+    has_enough_bill_detail:depth==='full',
+    review_depth:depth,
+    review_depth_label:depth==='full'?'Full Review':(depth==='guided'?'Guided Estimate':'Starter Guidance')
+  };
+  try{localStorage.setItem('upa.intake.context.v1',JSON.stringify(payload));}catch(e){}
 }
 function appendHiddenField(form,name,value){
   var input=document.createElement('input');
@@ -1488,6 +1698,7 @@ function submitLeadToFormspree(){
 
 /* Start analysis */
 function startAnalysis(){
+  saveIntakeContext();
   var btn=document.querySelector('.btn-submit');
   btn.disabled=true;
   btn.innerHTML='<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:white;stroke-width:2;fill:none;animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Starting Your Review...';

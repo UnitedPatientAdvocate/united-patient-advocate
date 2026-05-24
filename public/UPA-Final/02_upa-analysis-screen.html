@@ -323,6 +323,7 @@ html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
   <div style="position:relative;z-index:10;text-align:center;margin-top:12px;font-family:var(--sans);font-size:.6875rem;color:rgba(235,244,255,.28);font-weight:400;letter-spacing:.02em;line-height:1.70;max-width:400px;margin-left:auto;margin-right:auto;animation:card-rise .8s var(--pop) .7s both">Analyzing your records and preparing a clearer, more confident path forward.</div>
 </div>
 
+<script src="upa-state-persistence.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const body=$('card-body');
@@ -410,7 +411,11 @@ function upaFinalPath(file){
   return window.location.protocol==='file:'?file:'/UPA-Final/'+file;
 }
 function intakeData(){
-  try{return JSON.parse(sessionStorage.getItem('upa.intake.v1')||localStorage.getItem('upa.intake.v1')||'{}')||{};}catch(e){return {};}
+  try{
+    if(window.UPAState && window.UPAState.restoreSession) window.UPAState.restoreSession({stage:'analysis-load'});
+    if(window.UPAState && window.UPAState.getIntake) return window.UPAState.getIntake() || {};
+    return JSON.parse(sessionStorage.getItem('upa.intake.v1')||localStorage.getItem('upa.intake.v1')||'{}')||{};
+  }catch(e){return {};}
 }
 function clean(v,fallback){
   v=(v||'').toString().trim();
@@ -517,6 +522,7 @@ function reveal(){
   card.style.transform='scale(1.04)';
   setTimeout(function(){
     document.body.innerHTML='<div style="position:fixed;inset:0;background:#0E1828;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px"><div style="font-family:Playfair Display,serif;font-size:1.125rem;color:rgba(235,244,255,.55);letter-spacing:.01em">Loading your dashboard...</div><div style="width:52px;height:2px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.65),transparent);animation:sl 1.4s ease-in-out infinite"></div></div><style>@keyframes sl{0%,100%{opacity:.3}50%{opacity:1}}</style>';
+    try{ if(window.UPAState && window.UPAState.captureReviewState) window.UPAState.captureReviewState({stage:'analysis-complete',source:'analysis'}); }catch(e){}
     setTimeout(function(){window.location.href=upaFinalPath('03_upa-preview.html');},1400);
   },1100);
 }

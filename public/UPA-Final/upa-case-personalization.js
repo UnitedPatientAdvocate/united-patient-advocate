@@ -91,13 +91,20 @@
 
   function readIntake(){
     try{
+      if(window.UPAState && window.UPAState.restoreSession) window.UPAState.restoreSession({stage:'personalization-load'});
+      if(window.UPAState && window.UPAState.getIntake){
+        var restored = window.UPAState.getIntake();
+        if(restored && Object.keys(restored).length) return restored;
+      }
       if(window.__UPA_PACKET_INTAKE__) return window.__UPA_PACKET_INTAKE__;
       var intake = readStorageJSON(STORE_KEY);
       if(intake && Object.keys(intake).length) return intake;
       var checkout = readStorageJSON('upa.checkout.session.v2');
-      if(checkout && checkout.intake) return normalizeAppIntake(checkout.intake, checkout);
+      if(checkout && checkout.intake) return (checkout.intake.provider || checkout.intake.name || checkout.intake.bill_amount) ? checkout.intake : normalizeAppIntake(checkout.intake, checkout);
       var paid = readStorageJSON('upa.paid.results.v2');
-      if(paid && paid.session && paid.session.intake) return normalizeAppIntake(paid.session.intake, paid.session);
+      if(paid && paid.session && paid.session.intake) return (paid.session.intake.provider || paid.session.intake.name || paid.session.intake.bill_amount) ? paid.session.intake : normalizeAppIntake(paid.session.intake, paid.session);
+      var savedCase = readStorageJSON('upa.case.snapshot.v1');
+      if(savedCase && savedCase.raw) return savedCase.raw;
       return {};
     }catch(e){
       return {};
@@ -1187,6 +1194,9 @@
   function applyCommon(c){
     ensureStyles();
     window.UPACase = c;
+    try{
+      if(window.UPAState && window.UPAState.persistCase) window.UPAState.persistCase(c,{stage:'case-personalized',source:'upa-case-personalization'});
+    }catch(e){}
     replaceTextNodes(document.body, commonReplacements(c));
     if(document.title && /UPA|United Patient Advocate/.test(document.title)){
       document.title = document.title.replace('Your Review Is Ready','Review Ready - ' + c.patientName).replace('Bill Review','Bill Review - ' + c.patientName);

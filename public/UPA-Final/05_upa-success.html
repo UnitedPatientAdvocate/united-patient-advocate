@@ -121,6 +121,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--navy-deep);color:
   </div>
 </div>
 
+<script src="upa-state-persistence.js"></script>
 <script>
 /* Store the license key from Gumroad if present */
 (function() {
@@ -130,6 +131,11 @@ html,body{height:100%;font-family:var(--sans);background:var(--navy-deep);color:
     if (licenseKey) {
       sessionStorage.setItem('upa.license.key', licenseKey);
       localStorage.setItem('upa.license.key', licenseKey);
+    }
+    if (window.UPAState && window.UPAState.markPaid) {
+      window.UPAState.markPaid({ stage: 'success', source: 'gumroad-return', licenseKey: licenseKey || '' });
+    } else if (window.UPAState && window.UPAState.restoreSession) {
+      window.UPAState.restoreSession({ stage: 'success' });
     }
     /* Mark as paid — dashboard reads this */
     sessionStorage.setItem('upa.paid', '1');

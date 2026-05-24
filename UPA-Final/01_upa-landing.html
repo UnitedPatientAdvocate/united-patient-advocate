@@ -1239,6 +1239,7 @@ html,body{max-width:100%;overflow-x:hidden}
   </div>
 </div>
 
+<script src="upa-state-persistence.js"></script>
 <script>
 var currentStep=1,totalSteps=7;
 
@@ -1609,6 +1610,9 @@ function upaFinalPath(file){
 function saveIntakeSession(){
   try{
     var payload=buildLeadPayload();
+    if(window.UPAState && window.UPAState.persistIntake){
+      window.UPAState.persistIntake(payload,{stage:'intake-complete',source:'landing'});
+    }
     sessionStorage.setItem('upa.intake.v1',JSON.stringify(payload));
     localStorage.setItem('upa.intake.v1',JSON.stringify(payload));
   }catch(e){}

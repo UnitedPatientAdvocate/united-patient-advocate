@@ -632,11 +632,17 @@ html,body{max-width:100%;overflow-x:hidden}
   </div>
 </div>
 
+<script src="upa-state-persistence.js"></script>
 <script>
 /* ═══════════════════════════════════
    GUMROAD PRODUCT URL
 ═══════════════════════════════════ */
 var GUMROAD_URL = 'https://upadvocate.gumroad.com/l/busfn?wanted=true';
+
+try{
+  if(window.UPAState && window.UPAState.restoreSession) window.UPAState.restoreSession({stage:'preview-load'});
+  if(window.UPAState && window.UPAState.captureReviewState) window.UPAState.captureReviewState({stage:'preview-ready',source:'preview'});
+}catch(e){}
 
 function scrollToUnlockCta(){
   var cta = document.getElementById('unlock-review-cta');
@@ -649,6 +655,11 @@ function scrollToUnlockCta(){
 }
 
 function goToGumroad(){
+  try{
+    if(window.UPAState && window.UPAState.markCheckout){
+      window.UPAState.markCheckout({stage:'checkout-started',source:'preview',gumroadUrl:GUMROAD_URL});
+    }
+  }catch(e){}
   /* Optional: fade page out before redirect */
   var ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(8,14,24,0);z-index:9999;pointer-events:none;transition:background .7s ease';

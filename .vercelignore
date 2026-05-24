@@ -1,9 +1,9 @@
 .env
 .env.*
-!.env.example
 node_modules/
 dist/
 .vercel/
+.git/
 *.log
 
 # Local AI/operator workspaces and generated launch scratch files
@@ -13,7 +13,7 @@ UPA-Final-BEFORE-REVERT/
 asset-backups/
 gumroad-fulfillment/chrome-print-profile/
 
-# Preview/export artifacts kept out of source control
+# Preview/export artifacts that should not ship
 tab-*-previews.svg
 upa-premium-v*.html
 upa-preview.html

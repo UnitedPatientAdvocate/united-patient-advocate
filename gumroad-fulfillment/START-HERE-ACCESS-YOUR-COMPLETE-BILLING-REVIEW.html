@@ -1,120 +1,599 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Start Here - Access Your Complete Billing Review</title>
+<title>United Patient Advocate — Your Billing Review Is Ready</title>
 <style>
   @page { size: Letter; margin: 0; }
-  * { box-sizing: border-box; }
+  *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
     width: 8.5in;
-    height: 11in;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #19313a;
+    min-height: 11in;
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    color: #1C2B48;
     background: #ffffff;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  .page { position: relative; width: 8.5in; min-height: 11in; overflow: hidden; background: #fff; }
-  .header {
-    height: 1.62in;
-    background: #0e5961;
-    color: #fff;
+
+  .page {
     position: relative;
-    padding: 0.26in 0.58in;
+    width: 8.5in;
+    min-height: 11in;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  .hdr {
+    background: #111C2E;
+    padding: 0.23in 0.52in;
     display: flex;
     align-items: center;
-    gap: 0.26in;
-    border-bottom: 5px solid #6ed3ca;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
   }
-  .header::before {
-    content: "";
+  .hdr::before {
+    content: '';
     position: absolute;
     inset: 0;
-    background-image: repeating-linear-gradient(104deg, rgba(255,255,255,0.06) 0, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 72px);
-    opacity: 0.75;
+    background: repeating-linear-gradient(
+      104deg,
+      rgba(255,255,255,0.04) 0,
+      rgba(255,255,255,0.04) 1px,
+      transparent 1px,
+      transparent 72px
+    );
   }
-  .brand-logo { position: relative; z-index: 1; width: 1.05in; height: 1.08in; object-fit: contain; display: block; flex: 0 0 auto; }
-  .brand-text { position: relative; z-index: 1; }
-  .brand-title { margin: 0 0 0.10in; color: #ffffff; font-size: 27px; line-height: 1.05; font-weight: 800; letter-spacing: -0.02em; }
-  .brand-subtitle { margin: 0; font-size: 14.5px; color: #73d3c7; font-weight: 650; }
-  .main { padding: 0.66in 0.72in 0; }
-  .card { border: 1px solid #bddbe2; border-radius: 14px; overflow: hidden; box-shadow: 5px 6px 0 rgba(20,91,102,0.12); background: #fff; }
-  .card-head { background: #e5f4f6; color: #157682; border-bottom: 1px solid #bddbe2; padding: 0.28in 0.36in; font-size: 13.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-  .card-body { padding: 0.38in 0.56in 0.26in; text-align: center; }
-  .status { width: 0.68in; height: 0.68in; border-radius: 50%; margin: 0 auto 0.16in; background: #e7f6f3; border: 2px solid #58c9bf; display: flex; align-items: center; justify-content: center; color: #0e5961; font-size: 30px; line-height: 1; font-weight: 800; }
-  h1 { margin: 0 0 0.13in; font-size: 27px; line-height: 1.12; letter-spacing: -0.025em; font-weight: 800; color: #18313a; }
-  .intro { margin: 0 auto 0.16in; max-width: 5.9in; font-size: 15.5px; line-height: 1.55; color: #385d68; font-weight: 520; }
-  .access-label { margin: 0.10in 0 0.06in; font-size: 17px; line-height: 1.35; color: #19313a; font-weight: 800; }
-  .url-box { display: block; border: 2px solid #58c9bf; background: #e9f7f8; border-radius: 10px; padding: 0.17in 0.22in; margin: 0 auto 0.28in; color: #0d5661; font-size: 21px; line-height: 1.16; font-weight: 800; letter-spacing: -0.015em; text-decoration: none; }
-  .url-box:visited { color: #0d5661; }
-  .includes-title { margin: 0 0 0.14in; color: #3e606a; font-size: 13.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
-  .includes { display: grid; grid-template-columns: 1fr 1fr; gap: 0.11in 0.28in; text-align: left; margin: 0 auto 0.18in; max-width: 6.05in; }
-  .item { display: flex; align-items: flex-start; gap: 0.10in; font-size: 14px; line-height: 1.38; color: #355a65; font-weight: 540; }
-  .dot { width: 9px; height: 9px; border-radius: 50%; background: #5fcac0; margin-top: 5px; flex: 0 0 auto; }
-  .next { background: #f4fafb; border: 1px solid #c8dfe5; border-radius: 12px; padding: 0.18in 0.22in; text-align: left; margin-top: 0.12in; }
-  .next-title { color: #19313a; font-size: 13.5px; font-weight: 800; margin: 0 0 0.07in; }
-  .next p { margin: 0; color: #4a6d76; font-size: 13px; line-height: 1.55; }
-  .support { border-top: 1px solid #c8dfe5; margin-top: 0.16in; padding-top: 0.13in; color: #6a8991; font-size: 13.5px; line-height: 1.3; font-weight: 700; }
-  .support span { color: #0d5661; margin-left: 0.05in; }
-  .meta { margin-top: 0.28in; border: 1px solid #c8dfe5; background: #f4fafb; padding: 0.14in 0.24in; display: grid; grid-template-columns: 1.35in 1fr; gap: 0.08in 0.12in; font-size: 12.5px; line-height: 1.35; }
-  .meta-label { color: #6f929b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.01em; }
-  .meta-value { color: #19313a; font-weight: 800; }
-  .footer { position: absolute; left: 0; right: 0; bottom: 0; min-height: 0.56in; padding: 0.13in 0.55in 0.11in; border-top: 1px solid #c8dfe5; background: #eef7f9; text-align: center; color: #587d86; font-size: 10.3px; line-height: 1.5; }
-  .footer p { margin: 0 0 0.035in; }
+  .hdr::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #1EB87A 0%, #F0A500 40%, rgba(240,165,0,0.12) 100%);
+  }
+
+  .hdr-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.18in;
+    position: relative;
+    z-index: 1;
+  }
+  .hdr-logo {
+    width: 0.82in;
+    height: 0.82in;
+    flex: 0 0 auto;
+  }
+  .hdr-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.05in;
+  }
+  .hdr-sub {
+    font-size: 11.5px;
+    color: rgba(235,244,255,0.48);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .hdr-sep {
+    width: 1px;
+    height: 0.52in;
+    background: rgba(255,255,255,0.10);
+    position: relative;
+    z-index: 1;
+    margin: 0 0.26in;
+  }
+
+  .hdr-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.14in;
+    position: relative;
+    z-index: 1;
+  }
+  .hdr-tag-icon {
+    width: 0.46in;
+    height: 0.46in;
+    flex: 0 0 auto;
+  }
+  .hdr-tag-text {
+    font-size: 12.5px;
+    color: rgba(235,244,255,0.62);
+    line-height: 1.75;
+    font-weight: 500;
+  }
+
+  /* ── GOLD RULE ───────────────────────────────── */
+  .gold-rule {
+    height: 3.5px;
+    background: linear-gradient(90deg, #C07E00 0%, #F0A500 28%, #FFD877 50%, #F0A500 72%, rgba(240,165,0,0.18) 100%);
+  }
+
+  /* ── MAIN ────────────────────────────────────── */
+  .main {
+    flex: 1;
+    padding: 0.38in 0.60in 0.24in;
+  }
+
+  /* ── HERO ────────────────────────────────────── */
+  .hero {
+    text-align: center;
+    margin-bottom: 0.22in;
+  }
+  .hero-title {
+    font-family: Georgia, "Times New Roman", serif;
+    margin: 0 0 0.14in;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+  .hero-title .t1 {
+    display: block;
+    font-size: 40px;
+    font-weight: 700;
+    color: #111C2E;
+  }
+  .hero-title .t2 {
+    display: block;
+    font-size: 40px;
+    font-weight: 700;
+    color: #158A5C;
+  }
+  .hero-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15in;
+    margin-bottom: 0.16in;
+  }
+  .hero-rule-l {
+    height: 1px;
+    width: 1.9in;
+    background: linear-gradient(90deg, transparent 0%, #C07E00 100%);
+  }
+  .hero-rule-r {
+    height: 1px;
+    width: 1.9in;
+    background: linear-gradient(90deg, #C07E00 0%, transparent 100%);
+  }
+  .hero-shield-icon {
+    width: 0.36in;
+    height: 0.36in;
+    flex: 0 0 auto;
+  }
+  .hero-intro {
+    font-size: 14px;
+    color: #425A72;
+    line-height: 1.65;
+    margin: 0 auto;
+    max-width: 5.4in;
+  }
+
+  /* ── URL SECTION ─────────────────────────────── */
+  .url-section {
+    background: #F6F9FC;
+    border: 1.5px solid rgba(17,28,46,0.09);
+    border-radius: 12px;
+    padding: 0.20in 0.32in 0.16in;
+    margin-bottom: 0.22in;
+    text-align: center;
+  }
+  .url-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: #6E8898;
+    margin-bottom: 0.09in;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.07in;
+  }
+  .url-label-pip {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #1EB87A;
+    flex: 0 0 auto;
+  }
+  .url-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.11in;
+    background: #111C2E;
+    border-radius: 9px;
+    padding: 0.13in 0.22in;
+    margin-bottom: 0.09in;
+  }
+  .url-globe {
+    width: 0.25in;
+    height: 0.25in;
+    flex: 0 0 auto;
+  }
+  .url-text {
+    font-size: 16.5px;
+    font-weight: 800;
+    color: #1EB87A;
+    letter-spacing: -0.01em;
+  }
+  .url-secure {
+    font-size: 11.5px;
+    color: #8AA0B4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.05in;
+  }
+
+  /* ── FEATURES ────────────────────────────────── */
+  .features-label {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #8AA0B4;
+    margin-bottom: 0.14in;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 0 0.10in;
+    margin-bottom: 0.18in;
+    text-align: center;
+  }
+  .feature {
+    padding: 0 0.04in;
+    border-right: 1px solid rgba(17,28,46,0.06);
+  }
+  .feature:last-child { border-right: none; }
+  .feature-circle {
+    width: 0.50in;
+    height: 0.50in;
+    border-radius: 50%;
+    background: #EEF2F8;
+    border: 1.5px solid rgba(17,28,46,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.08in;
+  }
+  .feature-circle svg {
+    width: 0.22in;
+    height: 0.22in;
+  }
+  .feature-name {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #1C2B48;
+    line-height: 1.3;
+    margin-bottom: 0.05in;
+  }
+  .feature-desc {
+    font-size: 10.5px;
+    color: #6E8898;
+    line-height: 1.5;
+  }
+
+  /* ── NEXT STEPS + SUPPORT ────────────────────── */
+  .info-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.10in;
+  }
+  .info-box {
+    background: #F6F9FC;
+    border: 1px solid rgba(17,28,46,0.07);
+    border-radius: 10px;
+    padding: 0.13in 0.18in;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.14in;
+  }
+  .info-icon-circle {
+    width: 0.34in;
+    height: 0.34in;
+    flex: 0 0 auto;
+    background: #1C2B48;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.01in;
+  }
+  .info-icon-circle svg {
+    width: 0.16in;
+    height: 0.16in;
+  }
+  .info-eyebrow {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #F0A500;
+    margin-bottom: 0.02in;
+  }
+  .info-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1C2B48;
+    margin-bottom: 0.02in;
+  }
+  .info-text {
+    font-size: 11.5px;
+    color: #6E8898;
+    line-height: 1.55;
+  }
+  .info-text a {
+    color: #158A5C;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  /* ── FOOTER ──────────────────────────────────── */
+  .footer {
+    background: #111C2E;
+    padding: 0.16in 0.52in;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.24in;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .footer-col {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.12in;
+  }
+  .footer-icon {
+    width: 0.30in;
+    height: 0.30in;
+    flex: 0 0 auto;
+    margin-top: 0.02in;
+  }
+  .footer-bold {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #1EB87A;
+    line-height: 1.4;
+    margin-bottom: 0.03in;
+  }
+  .footer-soft {
+    font-size: 10.5px;
+    color: rgba(235,244,255,0.40);
+    line-height: 1.5;
+  }
+
+  /* ── DISCLAIMER ──────────────────────────────── */
+  .disclaimer {
+    background: #EEF2F7;
+    border-top: 1px solid rgba(17,28,46,0.07);
+    padding: 0.09in 0.52in;
+    text-align: center;
+  }
+  .disclaimer p {
+    font-size: 9px;
+    color: #8AA0B4;
+    line-height: 1.6;
+    margin: 0;
+  }
 </style>
 </head>
 <body>
-  <div class="page">
-    <header class="header">
-      <img class="brand-logo" src="../public/Transparent.png" alt="United Patient Advocate logo" />
-      <div class="brand-text">
-        <h1 class="brand-title">United Patient Advocate</h1>
-        <p class="brand-subtitle">Consumer Billing Review &amp; Advocacy Platform</p>
+<div class="page">
+
+  <!-- ── HEADER ── -->
+  <header class="hdr">
+    <div class="hdr-brand">
+      <!-- UPA official logo -->
+      <img src="Transparent.png" class="hdr-logo" alt="United Patient Advocate" style="object-fit:contain;display:block;">
+      <div>
+        <div class="hdr-name">United Patient<br>Advocate</div>
+        <div class="hdr-sub">Consumer Billing Review &amp; Advocacy Platform</div>
       </div>
-    </header>
+    </div>
 
-    <main class="main">
-      <section class="card">
-        <div class="card-head">Start Here - Access Information</div>
-        <div class="card-body">
-          <div class="status">OK</div>
-          <h1>Your Complete Billing Review Is Ready</h1>
-          <p class="intro">Thank you for your purchase. Use the secure access page below to continue into your United Patient Advocate review experience.</p>
-          <p class="access-label">Continue Here:</p>
-          <a class="url-box" href="https://unitedpatientadvocate.com/UPA-Final/04_upa-dashboard.html" target="_blank" rel="noopener">UPA-Final/04_upa-dashboard.html</a>
+    <div class="hdr-sep"></div>
 
-          <div class="includes-title">Your purchase includes access to:</div>
-          <div class="includes">
-            <div class="item"><span class="dot"></span><span>Complete Billing Review dashboard</span></div>
-            <div class="item"><span class="dot"></span><span>Upload center for bill documents</span></div>
-            <div class="item"><span class="dot"></span><span>Billing education tools</span></div>
-            <div class="item"><span class="dot"></span><span>Personalized billing workflow</span></div>
-          </div>
+    <div class="hdr-tag">
+      <!-- Shield check (right side) -->
+      <svg class="hdr-tag-icon" viewBox="0 0 48 52" xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 2 L44 10 L44 28 C44 40 36 48 24 51 C12 48 4 40 4 28 L4 10 Z" fill="rgba(240,165,0,0.12)" stroke="rgba(240,165,0,0.35)" stroke-width="1.5"/>
+        <path d="M15 26 L21 32 L33 20" stroke="#F0A500" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div class="hdr-tag-text">
+        Empowering patients.<br>
+        Clarifying bills.<br>
+        Fighting for fairness.
+      </div>
+    </div>
+  </header>
 
-          <div class="next">
-            <div class="next-title">What to do next</div>
-            <p>Open the link above on the same device and browser you used at checkout when possible. You can upload your bill, statement, explanation of benefits, or other supporting documents from the dashboard.</p>
-          </div>
+  <!-- ── GOLD RULE ── -->
+  <div class="gold-rule"></div>
 
-          <div class="support">Need help? Contact: <span>support@unitedpatientadvocate.com</span></div>
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- Hero -->
+    <div class="hero">
+      <h1 class="hero-title">
+        <span class="t1">Your Complete</span>
+        <span class="t2">Billing Review Is Ready</span>
+      </h1>
+      <div class="hero-ornament">
+        <div class="hero-rule-l"></div>
+        <svg class="hero-shield-icon" viewBox="0 0 36 40" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 1 L34 8 L34 22 C34 31 27 37 18 39 C9 37 2 31 2 22 L2 8 Z" fill="rgba(240,165,0,0.10)" stroke="#C07E00" stroke-width="1.5"/>
+          <path d="M11 20 L16 25 L25 14" stroke="#C07E00" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <div class="hero-rule-r"></div>
+      </div>
+      <p class="hero-intro">Thank you for your purchase. You now have access to your United Patient Advocate review experience.</p>
+    </div>
+
+    <!-- URL section -->
+    <div class="url-section">
+      <div class="url-label">
+        <span class="url-label-pip"></span>
+        Continue Here:
+        <span class="url-label-pip"></span>
+      </div>
+      <div class="url-box">
+        <!-- Globe icon -->
+        <svg class="url-globe" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2 C8 6 8 18 12 22 M12 2 C16 6 16 18 12 22"/>
+        </svg>
+        <span class="url-text">https://unitedpatientadvocate.com/success</span>
+      </div>
+      <div class="url-secure">
+        <!-- Lock icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11 V7 a5 5 0 0 1 10 0 v4"/>
+        </svg>
+        &nbsp;Secure. Private. Yours.
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="features-label">Your purchase includes access to:</div>
+    <div class="features-grid">
+
+      <div class="feature">
+        <div class="feature-circle">
+          <!-- Monitor icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1C2B48" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
         </div>
-      </section>
+        <div class="feature-name">Complete Billing<br>Review Dashboard</div>
+        <div class="feature-desc">Track your review and results in one secure place.</div>
+      </div>
 
-      <section class="meta">
-        <div class="meta-label">Document Type:</div>
-        <div class="meta-value">Consumer Billing Review - Access &amp; Fulfillment Notice</div>
-        <div class="meta-label">Issued By:</div>
-        <div class="meta-value">United Patient Advocate | unitedpatientadvocate.com</div>
-      </section>
-    </main>
+      <div class="feature">
+        <div class="feature-circle">
+          <!-- Upload icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1C2B48" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <div class="feature-name">Upload Center</div>
+        <div class="feature-desc">Easily upload your bills, statements, EOBs, and supporting documents.</div>
+      </div>
 
-    <footer class="footer">
-      <p>Educational and informational billing review support only. Not legal, medical, insurance, or financial advice.</p>
-      <p>No outcomes are guaranteed. United Patient Advocate does not promise reductions, refunds, corrections, or specific results.</p>
-    </footer>
+      <div class="feature">
+        <div class="feature-circle">
+          <!-- Graduation cap icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1C2B48" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 10 L12 5 L2 10 L12 15 Z"/>
+            <path d="M6 12 v5 c0 2 3 3 6 3 s6-1 6-3 v-5"/>
+          </svg>
+        </div>
+        <div class="feature-name">Billing Education<br>Tools</div>
+        <div class="feature-desc">Learn your rights and understand confusing medical bills.</div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-circle">
+          <!-- Clipboard icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1C2B48" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            <line x1="9" y1="12" x2="15" y2="12"/>
+            <line x1="9" y1="16" x2="13" y2="16"/>
+          </svg>
+        </div>
+        <div class="feature-name">Personalized<br>Billing Workflow</div>
+        <div class="feature-desc">Step-by-step guidance tailored to your situation.</div>
+      </div>
+
+    </div>
+
+    <!-- Next Steps + Support -->
+    <div class="info-row">
+
+      <div class="info-box">
+        <div class="info-icon-circle">
+          <!-- Compass/navigation icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1EB87A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10"/>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+          </svg>
+        </div>
+        <div>
+          <div class="info-eyebrow">Next Steps</div>
+          <div class="info-title">Open the link on the same device and browser when possible.</div>
+          <div class="info-text">Upload your documents and complete your Secure Intake to get started. Everything is saved to your session — no account creation required.</div>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <div class="info-icon-circle">
+          <!-- Headset/support icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#F0A500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 18 v-6 a9 9 0 0 1 18 0 v6"/>
+            <path d="M21 19 a2 2 0 0 1-2 2 h-1 a2 2 0 0 1-2-2 v-3 a2 2 0 0 1 2-2 h3 Z"/>
+            <path d="M3 19 a2 2 0 0 0 2 2 h1 a2 2 0 0 0 2-2 v-3 a2 2 0 0 0-2-2 H3 Z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="info-eyebrow">Need Help?</div>
+          <div class="info-title">We're here for you.</div>
+          <div class="info-text">Email us anytime at <a href="mailto:support@unitedpatientadvocate.com">support@unitedpatientadvocate.com</a></div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-col">
+      <!-- Shield icon -->
+      <svg class="footer-icon" viewBox="0 0 36 40" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 1 L34 8 L34 22 C34 31 27 37 18 39 C9 37 2 31 2 22 L2 8 Z" fill="rgba(30,184,122,0.12)" stroke="rgba(30,184,122,0.35)" stroke-width="1.5"/>
+        <path d="M11 20 L16 25 L25 14" stroke="#1EB87A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div>
+        <div class="footer-bold">We're here to help you take control of your medical bills with clarity and confidence.</div>
+        <div class="footer-soft">Your information is secure and confidential.</div>
+      </div>
+    </div>
+    <div class="footer-col">
+      <!-- Heart icon -->
+      <svg class="footer-icon" viewBox="0 0 36 34" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 30 C18 30 3 20 3 10 C3 5.6 6.5 2 10.5 2 C13.5 2 16 3.8 18 6.3 C20 3.8 22.5 2 25.5 2 C29.5 2 33 5.6 33 10 C33 20 18 30 18 30 Z" fill="rgba(240,165,0,0.12)" stroke="rgba(240,165,0,0.40)" stroke-width="1.5"/>
+      </svg>
+      <div>
+        <div class="footer-bold">Thank you</div>
+        <div class="footer-soft">for trusting United Patient Advocate to stand with you.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ── DISCLAIMER ── -->
+  <div class="disclaimer">
+    <p>United Patient Advocate provides educational and informational billing review support. We do not provide legal, medical, insurance, or financial advice. Results vary and are not guaranteed.</p>
   </div>
+
+</div>
 </body>
 </html>

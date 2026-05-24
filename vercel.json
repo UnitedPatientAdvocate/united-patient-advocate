@@ -14,7 +14,7 @@
     },
     {
       "src": "/success/?",
-      "dest": "/UPA-Final/04_upa-dashboard.html"
+      "dest": "/UPA-Final/05_upa-success.html"
     },
     {
       "src": "/dashboard/?",

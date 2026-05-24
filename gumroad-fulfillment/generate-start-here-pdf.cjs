@@ -44,7 +44,7 @@ c += text(192, 420, 13.5, 'into your United Patient Advocate review experience.'
 c += text(252, 385, 16, 'Continue Here:', 'F2', '0.10 0.19 0.23');
 c += rect(92, 330, 428, 42, '0.91 0.97 0.98');
 c += strokeRect(92, 330, 428, 42, '0.35 0.79 0.75', 2);
-c += text(134, 346, 17, 'UPA-Final/04_upa-dashboard.html', 'F2', '0.05 0.34 0.38');
+c += text(116, 346, 17, 'unitedpatientadvocate.com/success', 'F2', '0.05 0.34 0.38');
 
 c += text(206, 300, 13, 'YOUR PURCHASE INCLUDES ACCESS TO:', 'F2', '0.24 0.38 0.42');
 c += bullet(112, 270, 'Complete Billing Review dashboard');
@@ -72,7 +72,7 @@ const pageId = add('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resour
 const font1Id = add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
 const font2Id = add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>');
 const streamId = add(`<< /Length ${Buffer.byteLength(c, 'utf8')} >>\nstream\n${c}\nendstream`);
-const annotId = add('<< /Type /Annot /Subtype /Link /Rect [92 330 520 372] /Border [0 0 0] /A << /S /URI /URI (https://unitedpatientadvocate.com/UPA-Final/04_upa-dashboard.html) >> >>');
+const annotId = add('<< /Type /Annot /Subtype /Link /Rect [92 330 520 372] /Border [0 0 0] /A << /S /URI /URI (https://unitedpatientadvocate.com/success) >> >>');
 
 let pdf = '%PDF-1.4\n';
 const offsets = [0];

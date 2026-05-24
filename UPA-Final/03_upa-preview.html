@@ -138,10 +138,11 @@ html,body{min-height:100%;font-family:var(--sans);background:var(--navy-deep);-w
 .dt-kpi-val.w{color:rgba(235,244,255,.80)}
 .dt-kpi-lbl{font-size:.375rem;color:rgba(235,244,255,.38);font-weight:600}
 /* Tabs — partially visible */
-.dt-tabs{background:rgba(0,0,0,.20);display:flex;gap:0;padding:0 14px;border-bottom:1px solid rgba(255,255,255,.07)}
-.dt-tab{padding:8px 10px;font-size:.4375rem;font-weight:700;color:rgba(235,244,255,.38);border-bottom:2px solid transparent;white-space:nowrap}
-.dt-tab.on{color:rgba(235,244,255,.90);border-bottom-color:var(--green)}
-.dt-tab-badge{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;font-size:.3125rem;font-weight:700;margin-left:3px;background:var(--crimson);color:white}
+.dt-tabs{background:linear-gradient(180deg,rgba(59,110,224,.10),rgba(28,43,72,.55));display:flex;gap:2px;padding:6px 12px 0;border-top:1px solid rgba(30,184,122,.28);border-bottom:1px solid rgba(255,255,255,.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 1px 0 rgba(0,0,0,.18)}
+.dt-tab{padding:10px 12px;font-size:.4375rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(235,244,255,.78);border-bottom:2px solid transparent;border-radius:6px 6px 0 0;white-space:nowrap;cursor:pointer;transition:color .18s var(--pop),background .18s var(--pop),transform .18s var(--pop)}
+.dt-tab:hover{color:rgba(235,244,255,.98);background:rgba(255,255,255,.06);transform:translateY(-1px)}
+.dt-tab.on{color:#fff;background:rgba(30,184,122,.12);border-bottom-color:var(--green);box-shadow:inset 0 -3px 0 var(--green)}
+.dt-tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:14px;padding:0 5px;border-radius:7px;font-size:.3125rem;font-weight:800;margin-left:5px;background:var(--crimson);color:white;letter-spacing:.03em}
 /* Blurred body sections */
 .dt-body-vis{padding:12px 14px}
 .dt-kpi-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}
@@ -211,21 +212,26 @@ html,body{min-height:100%;font-family:var(--sans);background:var(--navy-deep);-w
 .inc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .inc-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid}
 .inc-item.free{background:rgba(30,107,90,.08);border-color:rgba(30,184,122,.22)}
-.inc-item.locked{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.08)}
+.inc-item.preview{background:rgba(59,110,224,.065);border-color:rgba(59,110,224,.20)}
+.inc-item.locked{background:rgba(201,168,76,.055);border-color:rgba(201,168,76,.18)}
 .inc-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .inc-item.free .inc-icon{background:rgba(30,184,122,.18);border:1px solid rgba(30,184,122,.32)}
-.inc-item.locked .inc-icon{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+.inc-item.preview .inc-icon{background:rgba(59,110,224,.15);border:1px solid rgba(59,110,224,.30)}
+.inc-item.locked .inc-icon{background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.25)}
 .inc-icon svg{width:12px;height:12px;fill:none;stroke-width:2.2}
 .inc-item.free .inc-icon svg{stroke:var(--green)}
-.inc-item.locked .inc-icon svg{stroke:rgba(235,244,255,.30)}
+.inc-item.preview .inc-icon svg{stroke:#90B4FF}
+.inc-item.locked .inc-icon svg{stroke:var(--gold)}
 .inc-text{}
 .inc-name{font-size:.75rem;font-weight:700;color:var(--on-dark);margin-bottom:2px;line-height:1.3}
-.inc-item.locked .inc-name{color:var(--on-dark-2)}
+.inc-item.locked .inc-name{color:var(--on-dark)}
 .inc-desc{font-size:.5rem;color:var(--on-dark-3);line-height:1.55}
 .inc-status{font-size:.375rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;padding:2px 7px;border-radius:100px;margin-top:4px;display:inline-flex;align-items:center;gap:4px}
+.is-preview{background:rgba(59,110,224,.14);color:#90B4FF;border:1px solid rgba(59,110,224,.28)}
+.is-preview svg{width:9px;height:9px;stroke:#90B4FF;stroke-width:1.8;fill:none}
 .is-free{background:rgba(30,184,122,.14);color:var(--green);border:1px solid rgba(30,184,122,.25)}
-.is-locked{background:rgba(255,255,255,.05);color:rgba(235,244,255,.30);border:1px solid rgba(255,255,255,.10)}
-.is-locked svg{width:8px;height:8px;stroke:rgba(235,244,255,.28);stroke-width:2;fill:none}
+.is-locked{background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.26)}
+.is-locked svg{width:8px;height:8px;stroke:var(--gold);stroke-width:2;fill:none}
 
 /* ── PDF TEASER ── */
 .pdf-teaser{margin-bottom:28px;animation:rise .8s var(--pop) .38s both}
@@ -300,26 +306,6 @@ html,body{min-height:100%;font-family:var(--sans);background:var(--navy-deep);-w
 /* Legal footer */
 .legal-footer{padding:24px 0 8px;text-align:center}
 .legal-txt{font-size:.4375rem;color:rgba(235,244,255,.22);line-height:1.72;max-width:680px;margin:0 auto}
-.need-detail-state{display:none;position:relative;overflow:hidden;background:radial-gradient(circle at 16% 8%,rgba(30,184,122,.20),transparent 30%),radial-gradient(circle at 88% 0%,rgba(240,165,0,.14),transparent 26%),linear-gradient(145deg,rgba(18,29,48,.96),rgba(9,15,26,.98));border:1px solid rgba(235,244,255,.16);border-radius:24px;padding:34px 30px;margin:10px auto 30px;box-shadow:0 24px 90px rgba(0,0,0,.46),0 0 0 1px rgba(30,184,122,.10),inset 0 1px 0 rgba(255,255,255,.08);max-width:940px;text-align:left}
-.need-detail-state::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.04),transparent 42%,rgba(255,255,255,.03));pointer-events:none}
-.need-detail-inner{position:relative;z-index:1;display:grid;grid-template-columns:120px 1fr;gap:26px;align-items:center}
-.need-detail-symbol{width:112px;height:112px;border-radius:32px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,rgba(30,184,122,.20),rgba(255,255,255,.05));border:1px solid rgba(30,184,122,.28);box-shadow:0 18px 50px rgba(30,184,122,.16),inset 0 1px 0 rgba(255,255,255,.14)}
-.need-detail-symbol svg{width:62px;height:62px;stroke:var(--green);stroke-width:1.7;fill:none}
-.need-detail-label{font-size:.5rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
-.need-detail-title{font-family:var(--serif);font-size:clamp(2rem,4vw,3.45rem);font-weight:800;color:var(--on-dark);letter-spacing:-.035em;line-height:1.02;margin-bottom:12px}
-.need-detail-copy{font-size:1rem;color:var(--on-dark-2);line-height:1.75;margin-bottom:20px;max-width:720px}
-.need-detail-path{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0 22px}
-.need-path-step{min-height:96px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.055);border-radius:15px;padding:15px 14px;display:flex;gap:12px;align-items:flex-start}
-.need-path-num{width:34px;height:34px;border-radius:50%;background:rgba(30,184,122,.18);color:var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.75rem;font-weight:900;flex-shrink:0}
-.need-path-title{font-size:.8125rem;font-weight:900;color:var(--on-dark);line-height:1.25;margin-bottom:4px}
-.need-path-copy{font-size:.6875rem;color:var(--on-dark-3);line-height:1.5}
-.need-detail-actions{display:grid;grid-template-columns:1.35fr 1fr;gap:12px}
-.need-detail-btn{font-family:var(--sans);font-size:.875rem;font-weight:900;border-radius:16px;padding:18px 20px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:var(--on-dark);cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:10px;min-height:68px;text-align:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
-.need-detail-btn.primary{font-size:1.05rem;background:linear-gradient(135deg,var(--green-dk),var(--green));border-color:rgba(30,184,122,.44);color:white;box-shadow:0 16px 48px rgba(30,184,122,.30),0 0 0 1px rgba(30,184,122,.20)}
-.need-detail-btn svg{width:22px;height:22px;stroke:currentColor;stroke-width:2.3;fill:none}
-.need-detail-note{position:relative;z-index:1;margin-top:18px;padding:13px 16px;border-radius:14px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);font-size:.75rem;line-height:1.6;color:var(--on-dark-3);text-align:center}
-body.needs-bill-details .results-hero,body.needs-bill-details .proof-metrics,body.needs-bill-details .findings-teaser,body.needs-bill-details .dashboard-teaser,body.needs-bill-details .letter-teaser,body.needs-bill-details .included-section,body.needs-bill-details .pdf-teaser,body.needs-bill-details .urgency-banner,body.needs-bill-details .cta-block{display:none}
-body.needs-bill-details .need-detail-state{display:block}
 @media (max-width:600px){
 html,body{max-width:100%;overflow-x:hidden}
 .content{padding:72px 18px 48px;max-width:100%}
@@ -344,19 +330,10 @@ html,body{max-width:100%;overflow-x:hidden}
 .pdf-fan-pill{max-width:calc(100vw - 48px);white-space:normal;text-align:center;justify-content:center}
 .urgency-banner{align-items:flex-start}
 .btn-unlock{width:100%;justify-content:center;padding-left:18px;padding-right:18px}
-.need-detail-state{padding:24px 18px;border-radius:20px}
-.need-detail-inner{grid-template-columns:1fr;gap:18px;text-align:center}
-.need-detail-symbol{width:96px;height:96px;margin:0 auto}
-.need-detail-copy{font-size:.9375rem}
-.need-detail-path{grid-template-columns:1fr}
-.need-path-step{text-align:left}
-.need-detail-actions{grid-template-columns:1fr}
-.need-detail-btn{min-height:70px}
 }
 </style>
 </head>
 <body>
-<!-- TODO: Replace First Name Last Name demo values with individualized customer data during fulfillment. -->
 
 <div class="topnav">
   <div class="nav-brand">
@@ -374,42 +351,11 @@ html,body{max-width:100%;overflow-x:hidden}
   <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
 
   <div class="content">
-    <div class="need-detail-state" id="need-detail-state">
-      <div class="need-detail-inner">
-        <div class="need-detail-symbol" aria-hidden="true">
-          <svg viewBox="0 0 64 64">
-            <path d="M32 6l20 8v15c0 14-8.5 24.5-20 29-11.5-4.5-20-15-20-29V14l20-8z"/>
-            <path d="M22 33l7 7 15-17"/>
-          </svg>
-        </div>
-        <div>
-          <div class="need-detail-label" id="need-detail-label">Guided Estimate</div>
-          <div class="need-detail-title" id="need-detail-title">Let's build your case together.</div>
-          <div class="need-detail-copy" id="need-detail-copy">Your UPA guide is ready. We will organize what you know, help you request the right records, and guide each next step inside your secure workspace.</div>
-          <div class="need-detail-path">
-            <div class="need-path-step"><div class="need-path-num">1</div><div><div class="need-path-title">Build the case file</div><div class="need-path-copy">Turn your typed details into a clean action path.</div></div></div>
-            <div class="need-path-step"><div class="need-path-num">2</div><div><div class="need-path-title">Request the proof</div><div class="need-path-copy">Get the itemized bill and written explanation.</div></div></div>
-            <div class="need-path-step"><div class="need-path-num">3</div><div><div class="need-path-title">Move with confidence</div><div class="need-path-copy">Use scripts, letters, and follow-up guidance.</div></div></div>
-          </div>
-          <div class="need-detail-actions">
-            <button class="need-detail-btn primary" onclick="goToDashboardGuidance()">
-              <svg viewBox="0 0 24 24"><path d="M12 3l8 4v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V7l8-4z"/><path d="M8 12l3 3 6-7"/></svg>
-              Open My Guided Workspace
-            </button>
-            <button class="need-detail-btn" onclick="goToDashboardForRequest()">
-              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-              Start the itemized bill path
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="need-detail-note">You are not stuck. UPA will keep guiding you with what you have, then sharpen the review when bill-level details arrive.</div>
-    </div>
 
     <!-- Hero -->
     <div class="results-hero">
       <div class="rh-eyebrow">Analysis Complete</div>
-      <div class="rh-title">Your review path is ready.<br><span>Let us build your case together.</span></div>
+      <div class="rh-title">Your review areas are prepared.<br><span>Amount to review needs review.</span></div>
       <div class="rh-sub">Your billing review is complete. We've prepared your dispute letters, benchmarked every charge, and built your full action plan. Here's what we found — and everything that's waiting for you inside.</div>
     </div>
 
@@ -417,20 +363,20 @@ html,body{max-width:100%;overflow-x:hidden}
     <div class="proof-metrics">
       <div class="pm pm-green">
         <span class="pm-icon">💰</span>
-        <div class="pm-val green">Guided</div>
-        <div class="pm-label">Review Path</div>
+        <div class="pm-val green">Amount to review</div>
+        <div class="pm-label">Charges Flagged for Review</div>
         <div class="pm-badge"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Verified</div>
       </div>
       <div class="pm pm-crimson">
         <span class="pm-icon">⚠️</span>
-        <div class="pm-val crim">0 yet</div>
-        <div class="pm-label">Confirmed Findings</div>
+        <div class="pm-val crim">3</div>
+        <div class="pm-label">Billing Review Areas</div>
         <div class="pm-badge"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Confirmed</div>
       </div>
       <div class="pm pm-gold">
         <span class="pm-icon">📋</span>
-        <div class="pm-val gold">Ready</div>
-        <div class="pm-label">Next Step Tools</div>
+        <div class="pm-val gold">3+</div>
+        <div class="pm-label">Case Letters Being Prepared</div>
         <div class="pm-badge"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Ready to Send</div>
       </div>
     </div>
@@ -445,16 +391,16 @@ html,body{max-width:100%;overflow-x:hidden}
           <div class="fc-icon-wrap red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
           <div class="fc-content">
             <div class="fc-top">
-              <span class="fc-type fct-r">Review Area</span>
-              <span class="fc-confidence">Needs confirmation</span>
-              <span class="fc-amount">No estimate</span>
+              <span class="fc-type fct-r">Line-Item Review</span>
+              <span class="fc-confidence">Needs Review</span>
+              <span class="fc-amount">To confirm</span>
             </div>
-            <div class="fc-title">Your first review area will appear here</div>
-            <div class="fc-desc">UPA only shows specific findings when your intake or uploaded bill supports them. If details are limited, we begin with the itemized bill request path and keep you moving.</div>
+            <div class="fc-title">billing line item billed twice on the same date of service</div>
+            <div class="fc-desc">Emergency department visit code billing line item appears on both the relevant itemized bill lines of your itemized statement for date of service. Billing the same procedure code twice on the same date of service for the same patient is a recognized billing discrepancy under CMS guidelines and may be disputed in writing.</div>
             <div class="fc-meta">
-              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Based on intake</div>
-              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 0 2-2h11"/></svg>Proof request ready</div>
-              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Workspace prepared</div>
+              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>date of service</div>
+              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 0 2-2h11"/></svg>Itemized bill lines</div>
+              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Letter 1 prepared</div>
             </div>
           </div>
         </div>
@@ -467,13 +413,13 @@ html,body{max-width:100%;overflow-x:hidden}
             <div class="fc-row">
               <div class="fc-icon-wrap cobalt"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
               <div class="fc-content">
-                <div class="fc-top"><span class="fc-type fct-c">Rate Discrepancy</span><span class="fc-confidence">62% Confidence</span><span class="fc-amount">$680</span></div>
-                <div class="fc-title">CPT-99215 billed above standard complexity level for documented visit type</div>
+                <div class="fc-top"><span class="fc-type fct-c">Rate Discrepancy</span><span class="fc-confidence">Needs review</span><span class="fc-amount">To confirm</span></div>
+                <div class="fc-title">billing line item billed above standard complexity level for documented visit type</div>
                 <div class="fc-desc">Office visit complexity code may not align with the documented service level. A benchmark comparison against the published Medicare allowable rate for this CPT code has been prepared and is included in your documentation package.</div>
               </div>
             </div>
           </div>
-          <div class="blur-lock" onclick="goToGumroad()" style="cursor:pointer"><div class="bl-pill"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Unlock to view full finding</div></div>
+          <div class="blur-lock" onclick="scrollToUnlockCta()" style="cursor:pointer"><div class="bl-pill"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Unlock to view full finding</div></div>
         </div>
       </div>
 
@@ -484,13 +430,13 @@ html,body{max-width:100%;overflow-x:hidden}
             <div class="fc-row">
               <div class="fc-icon-wrap amber"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
               <div class="fc-content">
-                <div class="fc-top"><span class="fc-type fct-a">Out-of-Network Lab</span><span class="fc-confidence">74% Confidence</span><span class="fc-amount">$1,265</span></div>
-                <div class="fc-title">Quest Diagnostics lab charges billed at out-of-network rate during in-network facility visit</div>
+                <div class="fc-top"><span class="fc-type fct-a">Rate Review</span><span class="fc-confidence">Needs Review</span><span class="fc-amount">To confirm</span></div>
+                <div class="fc-title">Outside Service Provider lab charges billed at out-of-network rate during in-network facility visit</div>
                 <div class="fc-desc">Laboratory services performed during your in-network visit may have been billed at out-of-network rates. No Surprises Act protections may apply. Documentation and dispute letter prepared.</div>
               </div>
             </div>
           </div>
-          <div class="blur-lock" onclick="goToGumroad()" style="cursor:pointer"><div class="bl-pill"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Unlock to view full finding</div></div>
+          <div class="blur-lock" onclick="scrollToUnlockCta()" style="cursor:pointer"><div class="bl-pill"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Unlock to view full finding</div></div>
         </div>
       </div>
     </div>
@@ -502,18 +448,18 @@ html,body{max-width:100%;overflow-x:hidden}
         <!-- Top bar -->
         <div class="dt-topbar">
           <div class="dt-dot"></div>
-          <div class="dt-topbar-name">United Patient Advocate — Active Case: Memorial Regional Medical Center</div>
+          <div class="dt-topbar-name">United Patient Advocate — Active Case: Your Provider</div>
           <div class="dt-topbar-spacer"></div>
-          <div class="dt-pill">REF: UPA-2026-04831</div>
+          <div class="dt-pill">Account: account number</div>
         </div>
         <!-- Case header — fully visible -->
         <div class="dt-case-hdr">
           <div class="dt-h1">We reviewed your bill.</div>
-          <div class="dt-h1-sub">We found issues you may not have to pay for.</div>
+          <div class="dt-h1-sub">We prepared issues you may not have to pay for.</div>
           <div class="dt-kpis">
-            <div class="dt-kpi"><div class="dt-kpi-val g">$3,185</div><div class="dt-kpi-lbl">You May Not Legally Owe</div></div>
-            <div class="dt-kpi"><div class="dt-kpi-val r">3 Issues</div><div class="dt-kpi-lbl">Requiring Attention</div></div>
-            <div class="dt-kpi"><div class="dt-kpi-val w">72 / 100</div><div class="dt-kpi-lbl">Recovery Score</div></div>
+            <div class="dt-kpi"><div class="dt-kpi-val g">Amount to review</div><div class="dt-kpi-lbl">Needs Review</div></div>
+            <div class="dt-kpi"><div class="dt-kpi-val r">Review Areas</div><div class="dt-kpi-lbl">Requiring Attention</div></div>
+            <div class="dt-kpi"><div class="dt-kpi-val w">Ready</div><div class="dt-kpi-lbl">Review Status</div></div>
           </div>
         </div>
         <!-- Tabs — fully visible -->
@@ -528,9 +474,9 @@ html,body{max-width:100%;overflow-x:hidden}
         <!-- Body — visible KPI strip then blurs -->
         <div class="dt-body-vis">
           <div class="dt-kpi-strip">
-            <div class="dt-ks"><div class="dt-ks-val g">$3,185</div><div class="dt-ks-lbl">You May Not Legally Owe</div></div>
-            <div class="dt-ks"><div class="dt-ks-val r">3 Issues</div><div class="dt-ks-lbl">Requiring Attention</div></div>
-            <div class="dt-ks"><div class="dt-ks-val w">3 Letters</div><div class="dt-ks-lbl">Ready to Send Today</div></div>
+            <div class="dt-ks"><div class="dt-ks-val g">Amount to review</div><div class="dt-ks-lbl">Needs Review</div></div>
+            <div class="dt-ks"><div class="dt-ks-val r">Review Areas</div><div class="dt-ks-lbl">Requiring Attention</div></div>
+            <div class="dt-ks"><div class="dt-ks-val w">3+ Letters</div><div class="dt-ks-lbl">Minimum Being Prepared</div></div>
           </div>
         </div>
         <!-- Progressive blur zone -->
@@ -559,10 +505,10 @@ html,body{max-width:100%;overflow-x:hidden}
 
     <!-- LETTER TEASER — show opening of Letter 1 -->
     <div class="letter-teaser">
-      <div class="lt-label">Your Dispute Letters — Written &amp; Ready</div>
+      <div class="lt-label">Your Case Letters Are Being Prepared</div>
       <div class="lt-frame">
         <div class="lt-doc-top">
-          <div class="lt-doc-label">Letter 1 of 3 — Request for Itemized Statement &amp; Duplicate Charge Review</div>
+          <div class="lt-doc-label">Letter Preview — Request for Itemized Statement &amp; Case-Specific Review</div>
           <div class="lt-doc-badge">Ready to Sign</div>
         </div>
         <!-- Visible portion -->
@@ -572,13 +518,13 @@ html,body{max-width:100%;overflow-x:hidden}
             <div class="lt-from-sub">Patient · Medicare Beneficiary</div>
           </div>
           <div class="lt-to">
-            Memorial Regional Medical Center · Billing Department<br>
-            Account Reference: UPA-2026-04831 · Date of Service: January 8, 2026
+            Your Provider · Billing Department<br>
+            Account number/reference: account number · Date of Service: date of service
           </div>
-          <div class="lt-re">RE: Formal Request — Itemized Bill Review · CPT-99285 Duplicate Charge</div>
+          <div class="lt-re">RE: Formal Request — Itemized Bill Review · billing line item Line-Item Review</div>
           <div class="lt-body-vis">
             Dear Billing Department,<br><br>
-            I am writing to formally request a detailed, itemized review of the billing statement issued for services rendered on <strong>January 8, 2026</strong>, at Memorial Regional Medical Center. Upon reviewing my statement, I have identified what appears to be a <span class="lt-highlight">duplicate charge for CPT-99285 (Emergency Department Visit, Level 5)</span>, appearing on both Line 3 and Line 11 of the itemized statement for the same date of service.
+            I am writing to formally request a detailed, itemized review of the billing statement issued for services rendered on <strong>date of service</strong>, at Your Provider. Upon reviewing my statement, I have identified what appears to be a <span class="lt-highlight">line-item concern for billing line item (billing line item)</span>, appearing on both the relevant itemized bill lines of the itemized statement for the same date of service.
           </div>
         </div>
         <!-- Blurred rest -->
@@ -599,37 +545,37 @@ html,body{max-width:100%;overflow-x:hidden}
         </div>
         <div class="lt-unlock-teaser">
           <div class="lt-unlock-txt">
-            <strong>2 more letters ready:</strong> Medicare Benchmark Rate Dispute · No Surprises Act Lab Rate Review.<br>
-            Each letter includes federal citations, specific amounts, and your signature line.
+            <strong>Your full letter set is being prepared:</strong> no fewer than 3 case-specific letters, with more added when the bill complexity requires it.<br>
+            Each letter is tailored to your provider, amount, coverage, and selected concerns.
           </div>
-          <div class="lt-unlock-btn" onclick="goToGumroad()" style="cursor:pointer">Unlock All 3 Letters</div>
+          <div class="lt-unlock-btn" onclick="goToGumroad()" style="cursor:pointer">Unlock My Letter Set</div>
         </div>
       </div>
     </div>
 
     <!-- WHAT'S INCLUDED -->
     <div class="included-section">
-      <div class="inc-label">Everything Prepared for You</div>
+      <div class="inc-label">Everything Included in Your Full Review</div>
       <div class="inc-grid">
-        <div class="inc-item free"><div class="inc-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="inc-text"><div class="inc-name">Billing Summary &amp; 3 Issues</div><div class="inc-desc">Every finding documented with confidence scores, amounts, and CPT codes</div><div class="inc-status is-free"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Included</div></div></div>
-        <div class="inc-item free"><div class="inc-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="inc-text"><div class="inc-name">3 Dispute Letters — Ready</div><div class="inc-desc">Signed, cited, personalized — send today by mail or email</div><div class="inc-status is-free"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Included</div></div></div>
-        <div class="inc-item locked"><div class="inc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="inc-text"><div class="inc-name">Full Dashboard — 6 Tabs</div><div class="inc-desc">Financials, Findings, Documents, Action Plan, Timeline</div><div class="inc-status is-locked"><svg viewBox="0 0 12 12"><rect x="1" y="6" width="10" height="6" rx="1"/><path d="M3 6V4a3 3 0 0 1 6 0v2"/></svg>Locked</div></div></div>
-        <div class="inc-item locked"><div class="inc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="inc-text"><div class="inc-name">12-Page PDF Advocacy Packet</div><div class="inc-desc">Charts, timelines, rights guide, all letters — print and send</div><div class="inc-status is-locked"><svg viewBox="0 0 12 12"><rect x="1" y="6" width="10" height="6" rx="1"/><path d="M3 6V4a3 3 0 0 1 6 0v2"/></svg>Locked</div></div></div>
-        <div class="inc-item locked"><div class="inc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="inc-text"><div class="inc-name">Quick Financial Calculator</div><div class="inc-desc">Real-time savings estimator, payment plan tool, recovery gauge</div><div class="inc-status is-locked"><svg viewBox="0 0 12 12"><rect x="1" y="6" width="10" height="6" rx="1"/><path d="M3 6V4a3 3 0 0 1 6 0v2"/></svg>Locked</div></div></div>
-        <div class="inc-item locked"><div class="inc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="inc-text"><div class="inc-name">Call Scripts &amp; Escalation Guide</div><div class="inc-desc">Word-for-word scripts, 4-step escalation ladder, your rights</div><div class="inc-status is-locked"><svg viewBox="0 0 12 12"><rect x="1" y="6" width="10" height="6" rx="1"/><path d="M3 6V4a3 3 0 0 1 6 0v2"/></svg>Locked</div></div></div>
+        <div class="inc-item preview"><div class="inc-icon"><svg viewBox="0 0 24 24"><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="inc-text"><div class="inc-name">Billing Summary &amp; Review Areas</div><div class="inc-desc">Partial preview shown here; complete summary unlocks with the full review</div><div class="inc-status is-preview"><svg viewBox="0 0 12 12"><path d="M1.5 6s1.7-2.6 4.5-2.6S10.5 6 10.5 6 8.8 8.6 6 8.6 1.5 6 1.5 6z"/><circle cx="6" cy="6" r="1.2"/></svg>Partial Preview</div></div></div>
+        <div class="inc-item preview"><div class="inc-icon"><svg viewBox="0 0 24 24"><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="inc-text"><div class="inc-name">Dispute Letters Being Prepared</div><div class="inc-desc">No fewer than 3 case-specific letters; final count adjusts to case complexity</div><div class="inc-status is-preview"><svg viewBox="0 0 12 12"><path d="M1.5 6s1.7-2.6 4.5-2.6S10.5 6 10.5 6 8.8 8.6 6 8.6 1.5 6 1.5 6z"/><circle cx="6" cy="6" r="1.2"/></svg>Partial Preview</div></div></div>
+        <div class="inc-item locked"><div class="inc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="inc-text"><div class="inc-name">Full Dashboard — 6 Tabs</div><div class="inc-desc">Financials, Findings, Documents, Action Plan, Timeline</div><div class="inc-status is-locked"><svg viewBox="0 0 12 12"><rect x="1" y="6" width="10" height="6" rx="1"/><path d="M3 6V4a3 3 0 0 1 6 0v2"/></svg>Included After Unlock</div></div></div>
+        <div class="inc-item locked"><div class="inc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="inc-text"><div class="inc-name">Printable PDF Advocacy Packet</div><div class="inc-desc">Charts, timelines, rights guide, all case letters — page count adapts to complexity</div><div class="inc-status is-locked"><svg viewBox="0 0 12 12"><rect x="1" y="6" width="10" height="6" rx="1"/><path d="M3 6V4a3 3 0 0 1 6 0v2"/></svg>Included After Unlock</div></div></div>
+        <div class="inc-item locked"><div class="inc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="inc-text"><div class="inc-name">Quick Financial Calculator</div><div class="inc-desc">Real-time savings estimator, payment plan tool, review guide</div><div class="inc-status is-locked"><svg viewBox="0 0 12 12"><rect x="1" y="6" width="10" height="6" rx="1"/><path d="M3 6V4a3 3 0 0 1 6 0v2"/></svg>Included After Unlock</div></div></div>
+        <div class="inc-item locked"><div class="inc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="inc-text"><div class="inc-name">Call Scripts &amp; Escalation Guide</div><div class="inc-desc">Word-for-word scripts, 4-step escalation ladder, your rights</div><div class="inc-status is-locked"><svg viewBox="0 0 12 12"><rect x="1" y="6" width="10" height="6" rx="1"/><path d="M3 6V4a3 3 0 0 1 6 0v2"/></svg>Included After Unlock</div></div></div>
       </div>
     </div>
 
     <!-- PDF PACKET TEASER -->
     <div class="pdf-teaser">
-      <div class="pdf-t-label">12-Page Downloadable Advocacy Packet</div>
+      <div class="pdf-t-label">Downloadable Advocacy Packet</div>
       <div class="pdf-fan">
         <div class="pdf-page-t t4 p3"><div class="ppt-top"></div><div class="ppt-body"><div class="ppt-hl"></div><div class="ppt-hl short"></div><div style="height:24px;background:rgba(30,184,122,.08);border-radius:3px;margin:4px 0"></div><div class="ppt-row green"></div><div class="ppt-row shorter"></div></div></div>
         <div class="pdf-page-t p1"><div class="ppt-top"></div><div class="ppt-body"><div class="ppt-hl"></div><div class="ppt-bar"><div class="ppt-bar-seg navy"></div><div class="ppt-bar-seg crimson"></div><div class="ppt-bar-seg cobalt"></div><div class="ppt-bar-seg green"></div></div><div class="ppt-row"></div><div class="ppt-row shorter"></div><div class="ppt-row gold"></div></div></div>
         <div class="pdf-page-t t5 p5"><div class="ppt-top"></div><div class="ppt-body"><div class="ppt-hl"></div><div class="ppt-mini-bar"><div class="ppt-mini-fill" style="width:88%;background:rgba(30,184,122,.55)"></div></div><div class="ppt-mini-bar"><div class="ppt-mini-fill" style="width:74%;background:rgba(59,110,224,.55)"></div></div><div class="ppt-mini-bar"><div class="ppt-mini-fill" style="width:62%;background:rgba(208,112,0,.55)"></div></div><div class="ppt-row shorter" style="margin-top:4px"></div></div></div>
         <div class="pdf-page-t t2 p2"><div class="ppt-top"></div><div class="ppt-body"><div class="ppt-hl"></div><div class="ppt-row crimson"></div><div class="ppt-row"></div><div class="ppt-row shorter"></div><div class="ppt-stamp">FORMAL REVIEW</div></div></div>
         <div class="pdf-page-t t3 p4"><div class="ppt-top"></div><div class="ppt-body"><div class="ppt-hl"></div><div class="ppt-row"></div><div class="ppt-row shorter"></div><div class="ppt-row gold"></div><div class="ppt-stamp">RIGHTS DOC</div></div></div>
-        <div class="pdf-fan-lock"><div class="pdf-fan-pill" onclick="goToGumroad()" style="cursor:pointer"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Dashboard access · Packet included · PDF backup</div></div>
+        <div class="pdf-fan-lock"><div class="pdf-fan-pill" onclick="goToGumroad()" style="cursor:pointer"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>12 pages · Print-ready · Unlock to download</div></div>
       </div>
     </div>
 
@@ -643,16 +589,16 @@ html,body{max-width:100%;overflow-x:hidden}
     </div>
 
     <!-- CTA BLOCK -->
-    <div class="cta-block">
+    <div class="cta-block" id="unlock-review-cta">
       <div class="cta-eyebrow">Unlock Your Full Review</div>
-      <div class="cta-title">Everything you need to dispute this bill.<br>Done. Prepared. Ready.</div>
-      <div class="cta-sub">Your complete billing review dashboard opens immediately after checkout. The 12-page PDF packet and email receipt stay available as backup copies for saving or printing.</div>
+      <div class="cta-title">Everything you need to challenge this bill.<br>Prepared around your case.</div>
+      <div class="cta-sub">Your complete billing review dashboard, case-specific letter set, PDF packet, billing calculator, call scripts, escalation guide, and review plan.</div>
 
       <div class="feature-grid">
         <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Full Dashboard with 6 Tabs &amp; 10 Guide Sections</div></div>
-        <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">3 Signed Dispute Letters — Send Today</div></div>
+        <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Case-Specific Letter Set — No Fewer Than 3</div></div>
         <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">12-Page Printable PDF Advocacy Packet</div></div>
-        <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Real-Time Financial Calculator &amp; Recovery Score</div></div>
+        <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Billing Guidance Tools</div></div>
         <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Word-for-Word Call Scripts</div></div>
         <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Patient Rights Guide &amp; Escalation Ladder</div></div>
       </div>
@@ -663,15 +609,15 @@ html,body{max-width:100%;overflow-x:hidden}
       </div>
       <div class="price-anchor"><del>$250–$400/hr</del> with a medical billing consultant &nbsp;·&nbsp; <strong>$97 total, one time</strong></div>
 
-      <a href="javascript:void(0)" onclick="goToGumroad()" class="btn-unlock">
+      <a href="javascript:void(0)" onclick="goToGumroad()" class="btn-unlock" id="unlock-full-review-btn">
         <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        Unlock &amp; Open My Billing Review — $97
+        Unlock My Full Review — $97
         <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>
-      <div class="btn-sub-txt">After payment, open the dashboard first · PDF and email are backup copies</div>
+      <div class="btn-sub-txt">Instant access · Secure checkout · Your information is never sold</div>
 
       <div class="guarantee-row">
-        <div class="gr-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Open Dashboard After Payment</div>
+        <div class="gr-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Instant Access After Payment</div>
         <div class="gr-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>No Recurring Charges</div>
         <div class="gr-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Never Sold or Shared</div>
         <div class="gr-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>No Phone Calls Required</div>
@@ -680,7 +626,7 @@ html,body{max-width:100%;overflow-x:hidden}
 
     <!-- Legal -->
     <div class="legal-footer">
-      <div class="legal-txt">United Patient Advocate is an independent medical billing review and dispute documentation preparation service. Results identified during the review process represent potential billing discrepancies and do not constitute legal, medical, or financial advice. Dispute outcomes vary based on provider policies, insurer determinations, and individual circumstances. Due to the personalized nature of the review materials, guidance tools, and document preparation services provided through UPA, refunds are not provided once access has been granted. United Patient Advocate is not a law firm and does not provide legal representation.</div>
+      <div class="legal-txt">United Patient Advocate is an independent medical billing review and dispute documentation preparation service. Potential review areas flagged during the review process are informational and do not constitute legal, medical, insurance, or financial advice. Dispute outcomes vary based on provider policies, insurer determinations, and individual circumstances. Due to the personalized nature of the review materials, guidance tools, and document preparation services provided through UPA, refunds are not provided once access has been granted. United Patient Advocate is not a law firm and does not provide legal representation.</div>
     </div>
 
   </div>
@@ -689,177 +635,20 @@ html,body{max-width:100%;overflow-x:hidden}
 <script>
 /* ═══════════════════════════════════
    GUMROAD PRODUCT URL
-   Replace the URL below with your actual Gumroad product link
-   Example: https://yourname.gumroad.com/l/your-product-id
 ═══════════════════════════════════ */
 var GUMROAD_URL = 'https://upadvocate.gumroad.com/l/busfn?wanted=true';
 
-function upaFinalPath(file){
-  return window.location.protocol==='file:'?file:'/UPA-Final/'+file;
-}
-function getIntakeContext(){
-  try{return JSON.parse(sessionStorage.getItem('upa.intake.context.v1')||localStorage.getItem('upa.intake.context.v1')||'{}');}catch(e){return {};}
-}
-function getReviewDepth(){
-  var ctx=getIntakeContext();
-  if(ctx.review_depth)return ctx.review_depth;
-  var desc=(ctx.description||'').trim();
-  var hasLineItems=/(cpt|hcpcs|line\s*\d|procedure code|diagnosis code|charge|\$\s*\d|\b\d{5}\b)/i.test(desc);
-  if(ctx.has_uploaded_bill||ctx.has_enough_bill_detail||(desc.length>=120&&hasLineItems))return 'full';
-  if(desc.length>=25||ctx.provider||ctx.bill_amount||ctx.insurance||ctx.payment_status)return 'guided';
-  return 'starter';
-}
-function getReviewDepthLabel(){
-  var depth=getReviewDepth();
-  return depth==='full'?'Full Review':(depth==='guided'?'Guided Estimate':'Starter Guidance');
-}
-function cleanText(value,fallback){
-  var text=String(value||'').trim();
-  if(!text||text==='undefined'||text==='null'||text==='NaN')return fallback;
-  return text;
-}
-function getConcernLabels(ctx){
-  return Array.isArray(ctx.concerns)?ctx.concerns:[];
-}
-function buildResultProfile(){
-  var ctx=getIntakeContext();
-  var depth=getReviewDepth();
-  var concerns=getConcernLabels(ctx);
-  var concernText=concerns.join(' ').toLowerCase();
-  var findings=[];
-  function add(kind,title,desc){
-    if(!findings.some(function(f){return f.kind===kind;}))findings.push({kind:kind,title:title,desc:desc});
+function scrollToUnlockCta(){
+  var cta = document.getElementById('unlock-review-cta');
+  var btn = document.getElementById('unlock-full-review-btn');
+  if (!cta) return;
+  cta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (btn) {
+    setTimeout(function(){ btn.focus({ preventScroll: true }); }, 650);
   }
-  if(/itemized|understand|confusing/.test(concernText))add('Proof Request','Start with the itemized bill path','The intake suggests the next best step is getting a complete itemized statement before treating anything as a confirmed billing error.');
-  if(/twice|duplicate/.test(concernText))add('Possible Duplicate','Possible repeated or duplicate charge to review','You selected a duplicate-charge concern. The dashboard will guide you to compare repeated dates, codes, descriptions, or amounts once the itemized bill is available.');
-  if(/network|surprise|lab|test/.test(concernText))add('Coverage Review','Possible network, lab, or surprise-billing concern','Your selections point to a coverage or network question. The next step is comparing the bill, EOB, and provider network explanation.');
-  if(/code|coding|wrong/.test(concernText))add('Coding Review','Possible billing-code or service-level mismatch','You selected a coding concern. This should be reviewed against itemized charges and supporting documentation before making a specific claim.');
-  if(/denied|insurance|underpaid/.test(concernText))add('Insurance Review','Insurance denial or underpayment needs review','Your selections point to an insurer decision or payment issue. The workspace will prioritize EOB review and written clarification.');
-  if(/too high|inflated/.test(concernText))add('Charge Review','Charges may need benchmark or explanation review','Your intake suggests the bill amount may need explanation, itemization, or comparison before any exact reduction is estimated.');
-  if(depth==='starter')findings=[];
-  if(depth==='guided'&&findings.length>2)findings=findings.slice(0,2);
-  return {
-    ctx:ctx,
-    depth:depth,
-    label:getReviewDepthLabel(),
-    name:cleanText([ctx.first,ctx.last].filter(Boolean).join(' '),'Your review'),
-    provider:cleanText(ctx.provider,'Provider not provided'),
-    amount:cleanText(ctx.bill_amount,'Amount not provided'),
-    detail:ctx.has_uploaded_bill||(ctx.uploaded_bill&&ctx.uploaded_bill!=='Not uploaded')?'Document uploaded':((ctx.description||'').trim().length>=25?'Typed details':'General guidance'),
-    concerns:concerns,
-    findings:findings
-  };
 }
-function applyResultProfile(){
-  var p=buildResultProfile();
-  var badge=document.querySelector('.nav-badge');
-  if(badge)badge.textContent=p.label+' - '+p.name;
-  var heroTitle=document.querySelector('.rh-title');
-  var heroSub=document.querySelector('.rh-sub');
-  if(heroTitle){
-    if(p.findings.length===0)heroTitle.innerHTML='Your review guidance is ready.<br><span>No specific findings yet.</span>';
-    else if(p.findings.length===1)heroTitle.innerHTML='1 possible review area is ready.<br><span>Confirm with bill details.</span>';
-    else heroTitle.innerHTML=p.findings.length+' possible review areas are ready.<br><span>Confirm with bill details.</span>';
-  }
-  if(heroSub)heroSub.textContent='This preview is based on your intake details. It avoids exact savings, scores, codes, or findings unless bill-level information supports them.';
-  var pmVals=document.querySelectorAll('.pm-val');
-  var pmLabels=document.querySelectorAll('.pm-label');
-  if(pmVals[0])pmVals[0].textContent=p.detail;
-  if(pmLabels[0])pmLabels[0].textContent='Bill Detail Level';
-  if(pmVals[1])pmVals[1].textContent=p.findings.length?p.findings.length:'0';
-  if(pmLabels[1])pmLabels[1].textContent=p.findings.length===1?'Possible Review Area':'Possible Review Areas';
-  if(pmVals[2])pmVals[2].textContent=p.label;
-  if(pmLabels[2])pmLabels[2].textContent='Review Depth';
-  var cards=document.querySelectorAll('.findings-teaser .finding-card');
-  if(cards[0]){
-    var first=p.findings[0]||{kind:'General Guidance',title:'No specific billing finding is shown yet',desc:'Add an itemized bill, line-item charges, CPT/HCPCS codes, EOB details, or provider notes to turn this into a more specific review.'};
-    var type=cards[0].querySelector('.fc-type');
-    var confidence=cards[0].querySelector('.fc-confidence');
-    var amount=cards[0].querySelector('.fc-amount');
-    var title=cards[0].querySelector('.fc-title');
-    var desc=cards[0].querySelector('.fc-desc');
-    var meta=cards[0].querySelector('.fc-meta');
-    if(type)type.textContent=first.kind;
-    if(confidence)confidence.textContent=p.label;
-    if(amount)amount.textContent='No estimate';
-    if(title)title.textContent=first.title;
-    if(desc)desc.textContent=first.desc;
-    if(meta)meta.innerHTML='<div class="fc-meta-item">Based on intake details</div><div class="fc-meta-item">'+p.detail+'</div><div class="fc-meta-item">Add bill details anytime</div>';
-  }
-  for(var i=1;i<cards.length;i++){
-    if(p.findings[i]){
-      cards[i].style.display='';
-      var t=cards[i].querySelector('.fc-type'); if(t)t.textContent=p.findings[i].kind;
-      var c=cards[i].querySelector('.fc-confidence'); if(c)c.textContent='Needs confirmation';
-      var a=cards[i].querySelector('.fc-amount'); if(a)a.textContent='No estimate';
-      var h=cards[i].querySelector('.fc-title'); if(h)h.textContent=p.findings[i].title;
-      var d=cards[i].querySelector('.fc-desc'); if(d)d.textContent=p.findings[i].desc;
-    }else{
-      cards[i].style.display='none';
-    }
-  }
-  var dtName=document.querySelector('.dt-topbar-name'); if(dtName)dtName.textContent='United Patient Advocate - '+(p.provider==='Provider not provided'?'Billing Review':p.provider);
-  var dtPill=document.querySelector('.dt-pill'); if(dtPill)dtPill.textContent=p.label;
-  var dtH1=document.querySelector('.dt-h1'); if(dtH1)dtH1.textContent='Your review workspace is ready.';
-  var dtSub=document.querySelector('.dt-h1-sub'); if(dtSub)dtSub.textContent=p.findings.length?'Review areas are organized for confirmation.':'Start with documentation and general guidance.';
-  var dtKpiVals=document.querySelectorAll('.dt-kpi-val,.dt-ks-val');
-  if(dtKpiVals[0])dtKpiVals[0].textContent=p.detail;
-  if(dtKpiVals[1])dtKpiVals[1].textContent=p.findings.length?p.findings.length+' possible':'0 yet';
-  if(dtKpiVals[2])dtKpiVals[2].textContent=p.label;
-  if(dtKpiVals[3])dtKpiVals[3].textContent=p.detail;
-  if(dtKpiVals[4])dtKpiVals[4].textContent=p.findings.length?p.findings.length+' possible':'0 yet';
-  if(dtKpiVals[5])dtKpiVals[5].textContent='Guides';
-  document.querySelectorAll('.dt-tab-badge').forEach(function(el){el.textContent='';});
-  var letterLabel=document.querySelector('.lt-doc-label'); if(letterLabel)letterLabel.textContent='Request path - itemized statement and billing explanation';
-  var letterBadge=document.querySelector('.lt-doc-badge'); if(letterBadge)letterBadge.textContent='Guidance Ready';
-  var fromName=document.querySelector('.lt-from-name'); if(fromName)fromName.textContent=p.name;
-  var to=document.querySelector('.lt-to'); if(to)to.innerHTML=(p.provider==='Provider not provided'?'Provider billing department':p.provider+' billing department')+'<br>Review depth: '+p.label;
-  var re=document.querySelector('.lt-re'); if(re)re.textContent='RE: Request for itemized billing details and written explanation';
-  var body=document.querySelector('.lt-body-vis'); if(body)body.innerHTML='Dear Billing Department,<br><br>I am requesting a complete itemized statement and written explanation for the charges connected to this account. I would like to review the bill before making decisions about payment, dispute, or reimbursement.';
-  var incNames=document.querySelectorAll('.inc-name');
-  var incDescs=document.querySelectorAll('.inc-desc');
-  if(incNames[0])incNames[0].textContent='Billing Guidance & Review Areas';
-  if(incDescs[0])incDescs[0].textContent='Review areas are based on the concerns and details entered during intake';
-  if(incNames[1])incNames[1].textContent='Request Letters & Call Scripts';
-  if(incDescs[1])incDescs[1].textContent='Documentation request language and next-step guidance';
-  var feats=document.querySelectorAll('.feat-txt');
-  if(feats[1])feats[1].textContent='Request letters and billing scripts';
-  if(feats[3])feats[3].textContent='Payment planning and documentation tools';
-}
-function goToIntakeForDetails(){
-  goToDashboardGuidance();
-}
-function goToDashboardForRequest(){
-  window.location.href=upaFinalPath('04_upa-dashboard.html')+'?needDetails=1';
-}
-function goToDashboardGuidance(){
-  window.location.href=upaFinalPath('04_upa-dashboard.html')+'?guided=1';
-}
-function applyTrustPreview(){
-  applyResultProfile();
-  var depth=getReviewDepth();
-  if(depth==='full')return;
-  document.body.classList.add('needs-bill-details');
-  var label=getReviewDepthLabel();
-  var labelEl=document.getElementById('need-detail-label');
-  var titleEl=document.getElementById('need-detail-title');
-  var copyEl=document.getElementById('need-detail-copy');
-  if(labelEl)labelEl.textContent=label;
-  if(titleEl)titleEl.textContent=depth==='guided'?'Your UPA guide is building your case.':'Let us build your case together.';
-  if(copyEl)copyEl.textContent=depth==='guided'
-    ? 'You gave us enough to begin. We will organize your concerns, guide the itemized bill request, and keep you moving inside the secure workspace.'
-    : 'Even with limited details, you are not stuck. UPA will guide the first steps, help you ask for the right records, and build the case with you.';
-  var badge=document.querySelector('.nav-badge');
-  if(badge)badge.textContent=label;
-}
-document.addEventListener('DOMContentLoaded',function(){applyResultProfile();applyTrustPreview();});
 
 function goToGumroad(){
-  if(getReviewDepth()!=='full'){
-    applyTrustPreview();
-    goToDashboardGuidance();
-    return;
-  }
   /* Optional: fade page out before redirect */
   var ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(8,14,24,0);z-index:9999;pointer-events:none;transition:background .7s ease';
@@ -868,6 +657,7 @@ function goToGumroad(){
   setTimeout(function(){ window.location.href = GUMROAD_URL; }, 720);
 }
 </script>
+<script src="upa-case-personalization.js"></script>
 
 </body>
 </html>

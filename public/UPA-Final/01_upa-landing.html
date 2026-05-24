@@ -142,6 +142,9 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .range-opt.sel .ro-radio{border-color:var(--teal);background:var(--teal)}
 .ro-dot{width:7px;height:7px;border-radius:50%;background:white;opacity:0;transition:opacity .2s ease}
 .range-opt.sel .ro-dot{opacity:1}
+.range-reveal{display:none;max-width:580px;margin:0 auto 8px;text-align:left;animation:fadeSlideUp .32s ease}
+.range-reveal.show{display:block}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .ro-text{flex:1}
 .ro-name{font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:1px}
 .ro-desc{font-size:.5625rem;color:var(--ink-3)}
@@ -343,11 +346,6 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 @keyframes o1{from{transform:translate(0,0) scale(1)}to{transform:translate(36px,-24px) scale(1.12)}}
 @keyframes o2{from{transform:translate(0,0) scale(1)}to{transform:translate(-40px,18px) scale(1.09)}}
 @keyframes o3{from{transform:translate(0,0) scale(1)}to{transform:translate(-24px,-32px) scale(1.07)}}
-/* Particles */
-.is-particles{position:absolute;inset:0;pointer-events:none;z-index:0}
-.is-pt{position:absolute;border-radius:50%;animation:pt-drift var(--d,12s) ease-in-out var(--dl,0s) infinite;opacity:0}
-@keyframes pt-drift{0%,100%{opacity:0;transform:translateY(0)}15%,85%{opacity:var(--op,.28)}50%{transform:translateY(-18px)}}
-
 .intake-section-inner{position:relative;z-index:10;max-width:600px;margin:0 auto}
 .is-header{text-align:center;margin-bottom:28px;animation:is-rise .9s var(--pop) both}
 @keyframes is-rise{from{opacity:0;transform:translateY(20px);filter:blur(3px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
@@ -435,6 +433,8 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .email-hint{font-size:.5rem;font-weight:600;color:rgba(224,59,59,.75);margin-top:4px;display:none}
 .email-hint.show{display:block}
 .optional-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;background:rgba(255,255,255,.06);font-size:.375rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--on-dark-3);margin-left:6px;vertical-align:middle}
+.other-entry{display:none;margin-top:-8px;margin-bottom:18px}
+.other-entry.show{display:grid}
 
 /* Upload */
 .upload-zone{border:2px dashed rgba(255,255,255,.13);border-radius:12px;padding:26px 18px;text-align:center;cursor:pointer;transition:all .28s var(--ease);margin-bottom:11px;position:relative;background:rgba(255,255,255,.02);backdrop-filter:blur(8px)}
@@ -482,9 +482,6 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .is-tagline{margin-top:20px;text-align:center}
 .tg-txt{font-family:var(--serif);font-size:.8125rem;font-style:italic;color:rgba(235,244,255,.22);margin-bottom:7px;display:block}
 .tg-calm{font-size:.625rem;color:rgba(235,244,255,.26);line-height:1.70;max-width:420px;margin:0 auto 8px}
-.tg-dots{display:flex;justify-content:center;gap:5px}
-.tg-dots span{width:4px;height:4px;border-radius:50%;background:rgba(235,244,255,.13);transition:background .4s ease}
-.tg-dots span.on{background:var(--gold)}
 
 /* ═══════════════════════════════════
    FOOTER
@@ -555,7 +552,7 @@ html,body{max-width:100%;overflow-x:hidden}
 <div class="hero">
   <div class="hero-eyebrow">Independent Billing Review &amp; Dispute Documentation Service</div>
   <div class="hero-hl">Understand Your Medical Bill.<br><em>We Prepare Your Review.</em></div>
-  <div class="hero-sub">Medical bills may contain discrepancies such as coding inconsistencies, duplicate line items, or charges that appear above published Medicare benchmarks. We prepare an independent billing review and dispute documentation package you may reference when reviewing charges with your provider or insurer.</div>
+  <div class="hero-sub">Medical bills may contain discrepancies such as coding inconsistencies, billing issue line items, or charges that appear above published Medicare benchmarks. We prepare an independent billing review and dispute documentation package you may reference when reviewing charges with your provider or insurer.</div>
   <a href="#begin-review" class="hero-cta">
     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg>
     Begin My Billing Review
@@ -609,23 +606,24 @@ html,body{max-width:100%;overflow-x:hidden}
   <div class="quick-q-inner">
     <div class="quick-q-label">Quick Question — 5 Seconds</div>
     <div class="quick-q-hl">How much is your medical bill?</div>
-    <div class="quick-q-sub">Select the range that fits. We will explain what a review typically covers for your bill size.</div>
+    <div class="quick-q-sub">Select your range — we'll show you what errors are most common in bills like yours.</div>
     <div class="range-opts">
-      <div class="range-opt" onclick="selectRange(this)"><div class="ro-radio"><div class="ro-dot"></div></div><div class="ro-text"><div class="ro-name">Under $1,000</div><div class="ro-desc">Outpatient visits, minor procedures</div></div></div>
-      <div class="range-opt" onclick="selectRange(this)"><div class="ro-radio"><div class="ro-dot"></div></div><div class="ro-text"><div class="ro-name">$1,000 – $5,000</div><div class="ro-desc">ER visits, imaging, specialist care</div></div></div>
-      <div class="range-opt" onclick="selectRange(this)"><div class="ro-radio"><div class="ro-dot"></div></div><div class="ro-text"><div class="ro-name">Over $5,000</div><div class="ro-desc">Surgeries, hospital stays</div></div></div>
+      <div class="range-opt" data-val="low" onclick="selectRange(this,this.dataset.val)"><div class="ro-radio"><div class="ro-dot"></div></div><div class="ro-text"><div class="ro-name">Under $1,000</div><div class="ro-desc">Outpatient visits, minor procedures</div></div></div>
+      <div class="range-opt" data-val="mid" onclick="selectRange(this,this.dataset.val)"><div class="ro-radio"><div class="ro-dot"></div></div><div class="ro-text"><div class="ro-name">$1,000 – $5,000</div><div class="ro-desc">ER visits, imaging, specialist care</div></div></div>
+      <div class="range-opt" data-val="high" onclick="selectRange(this,this.dataset.val)"><div class="ro-radio"><div class="ro-dot"></div></div><div class="ro-text"><div class="ro-name">Over $5,000</div><div class="ro-desc">Surgeries, hospital stays</div></div></div>
     </div>
+    <div class="range-reveal" id="range-reveal"></div>
 
     <div class="sr-label">Sample Billing Review</div>
     <div class="sr-hl">This is what we prepare<br><em>for your bill</em></div>
-    <div class="sr-sub">CPT codes, ICD-10 references, Medicare benchmarks, duplicate charges, and coding indicators. Choose your review package to access your complete report.</div>
+    <div class="sr-sub">CPT codes, ICD-10 references, Medicare benchmarks, billing issue charges, and coding indicators. Choose your review package to access your complete report.</div>
     <div class="report-table">
       <div class="rt-header"><div class="rt-title">United Patient Advocate — Billing Analysis Report</div><div class="rt-badges"><span class="rt-badge rtb-review">IN REVIEW</span><span class="rt-badge rtb-flags">3 FLAGS</span></div></div>
-      <div class="rt-row"><div class="rt-col-label">CPT Codes Identified</div><div class="rt-col-content"><div class="rt-cpt-tags"><span class="rt-cpt">99285</span><span class="rt-cpt">71046</span><span class="rt-cpt">93010</span><span style="font-size:.5rem;color:var(--ink-3);padding:2px 4px">+ 2 more</span></div></div><div class="rt-col-status"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
+      <div class="rt-row"><div class="rt-col-label">Billing Lines Identified</div><div class="rt-col-content"><div class="rt-cpt-tags"><span class="rt-cpt">Line item</span><span class="rt-cpt">Charge</span><span class="rt-cpt">Coverage</span></div></div><div class="rt-col-status"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
       <div class="rt-row"><div class="rt-col-label">ICD-10 Diagnoses</div><div class="rt-col-content rt-blurred">M47.816 · S07.0xxA · T14</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
-      <div class="rt-row"><div class="rt-col-label">Medicare Benchmark</div><div class="rt-col-content"><div class="rt-flag-txt">CPT 99285: Charge above Medicare allowable</div></div><div class="rt-col-status"><span class="rt-chip rtc-flagged">Flagged</span></div></div>
+      <div class="rt-row"><div class="rt-col-label">Medicare Benchmark</div><div class="rt-col-content"><div class="rt-flag-txt">Billing line item: Charge above benchmark</div></div><div class="rt-col-status"><span class="rt-chip rtc-flagged">Flagged</span></div></div>
       <div class="rt-row"><div class="rt-col-label">Provider Charge Analysis</div><div class="rt-col-content rt-blurred">Billed $2,480 vs Medicare allowable $880. Variance +180%</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
-      <div class="rt-row"><div class="rt-col-label">Duplicate Charge Check</div><div class="rt-col-content"><div class="rt-flag-txt">Line items 3 &amp; 7 appear duplicated</div><div style="font-size:.4375rem;color:var(--ink-4);margin-top:2px">CPT 71046 ×2</div></div><div class="rt-col-status"><span class="rt-chip rtc-flagged">Flagged</span></div></div>
+      <div class="rt-row"><div class="rt-col-label">Line Item Check</div><div class="rt-col-content"><div class="rt-flag-txt">Line items are checked for repeated or unclear charges</div><div style="font-size:.4375rem;color:var(--ink-4);margin-top:2px">Billing line item review</div></div><div class="rt-col-status"><span class="rt-chip rtc-flagged">Flagged</span></div></div>
       <div class="rt-row"><div class="rt-col-label">Coding Mismatch</div><div class="rt-col-content rt-blurred">Diagnosis code does not support billed procedure level. Specify indication present.</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
       <div class="rt-row"><div class="rt-col-label">Insurance Billing Analysis</div><div class="rt-col-content rt-blurred">Out-of-network rate applied to in-network eligible procedure. No Surprises Act applicability.</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
       <div class="rt-row"><div class="rt-col-label">Dispute Letter</div><div class="rt-col-content rt-blurred">Your Billing Department: Pursuant to federal billing regulations, we formally dispute...</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Ready</span></div></div>
@@ -660,7 +658,7 @@ html,body{max-width:100%;overflow-x:hidden}
     <div class="steps-sub">No legal training. No preparation. No medical knowledge required.</div>
     <div class="steps-grid">
       <div class="step-card"><div class="sc-num">1</div><div class="sc-title">Upload or enter your bill</div><div class="sc-desc">Photo, PDF, or screenshot. Or type the key amounts manually. Either way works.</div><span class="sc-tag">Under 60 seconds</span></div>
-      <div class="step-card"><div class="sc-num">2</div><div class="sc-title">We prepare your review documentation</div><div class="sc-desc">CPT coding reference review, Medicare benchmark comparison, duplicate charge identification, and dispute documentation preparation.</div><span class="sc-tag cobalt">Automated document analysis</span></div>
+      <div class="step-card"><div class="sc-num">2</div><div class="sc-title">We prepare your review documentation</div><div class="sc-desc">CPT coding reference review, Medicare benchmark comparison, billing issue charge identification, and dispute documentation preparation.</div><span class="sc-tag cobalt">Automated document analysis</span></div>
       <div class="step-card"><div class="sc-num">3</div><div class="sc-title">You receive your report</div><div class="sc-desc">Dispute reference letter, structured phone script, action plan, and consumer billing rights overview sent to your inbox.</div><span class="sc-tag gold">Results in under 60 seconds</span></div>
     </div>
   </div>
@@ -733,7 +731,7 @@ html,body{max-width:100%;overflow-x:hidden}
     <div class="scenarios-grid">
       <div class="scenario-card"><div class="sc-header"><div class="sc-avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sc-name">Retired Medicare Patient</div><div class="sc-type">Hospital outpatient visit</div></div></div><div class="sc-story">After receiving a hospital statement that included charges she did not recognize, a retired patient in her late 60s submitted her bill for review. She was unfamiliar with the CPT codes listed and unsure whether her Medicare coverage had been correctly applied.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">CPT code reference breakdown, Medicare benchmark comparison, insurance billing reference, and a structured dispute letter for her records.</div></div></div>
       <div class="scenario-card"><div class="sc-header"><div class="sc-avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sc-name">Retired School Teacher</div><div class="sc-type">Emergency room balance</div></div></div><div class="sc-story">A retired teacher received an ER billing statement months after her visit. The balance was significantly higher than she expected given her insurance coverage. She was unsure which charges were her responsibility and whether the No Surprises Act applied to her situation.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">ER billing code reference review, No Surprises Act applicability analysis, insurance billing reference, and a structured communication guide for contacting the billing department.</div></div></div>
-      <div class="scenario-card"><div class="sc-header"><div class="sc-avatar building"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sc-name">Parent Reviewing Child's Bill</div><div class="sc-type">Outpatient procedure charges</div></div></div><div class="sc-story">A parent received an outpatient billing statement for her child's procedure that contained several unfamiliar line items. One procedure code appeared more than once on the itemized bill. She wanted to understand the charges before making any payment.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">Line-item CPT code reference analysis, duplicate charge identification, Medicare benchmark comparison for reference, and a dispute documentation package.</div></div></div>
+      <div class="scenario-card"><div class="sc-header"><div class="sc-avatar building"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sc-name">Parent Reviewing Child's Bill</div><div class="sc-type">Outpatient procedure charges</div></div></div><div class="sc-story">A parent received an outpatient billing statement for her child's procedure that contained several unfamiliar line items. One procedure code appeared more than once on the itemized bill. She wanted to understand the charges before making any payment.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">Line-item CPT code reference analysis, billing issue charge identification, Medicare benchmark comparison for reference, and a dispute documentation package.</div></div></div>
       <div class="scenario-card"><div class="sc-header"><div class="sc-avatar building"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><div><div class="sc-name">Insured Employee, Age 48</div><div class="sc-type">Post-insurance adjustment discrepancy</div></div></div><div class="sc-story">An insured employee received a bill from a specialist after insurance adjustments had been applied. The remaining balance did not match what his Explanation of Benefits document showed as his responsibility. He submitted the bill to understand the discrepancy.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">EOB vs billed amount cross-reference analysis, in-network rate applicability review, insurance billing reference analysis, and a structured letter for the billing department.</div></div></div>
     </div>
     <div class="scenarios-disclaimer">All scenarios above are anonymized and illustrative. They represent common billing review categories and do not represent specific findings, specific outcomes, or individual patient results.</div>
@@ -783,14 +781,13 @@ html,body{max-width:100%;overflow-x:hidden}
   <div class="is-orb is-orb1"></div>
   <div class="is-orb is-orb2"></div>
   <div class="is-orb is-orb3"></div>
-  <div class="is-particles" id="is-particles"></div>
 
   <div class="intake-section-inner">
     <!-- Header -->
     <div class="is-header">
       <span class="is-label">Your Next Step</span>
       <div class="is-hl">Every patient has the right<br>to <span>review their bill.</span></div>
-      <div class="is-sub">Medical bills in the United States may include coding inconsistencies, duplicate charges, or amounts that appear inconsistent with published Medicare benchmarks. We provide a structured, documented billing review to help you understand and respond to your charges.</div>
+      <div class="is-sub">Medical bills in the United States may include coding inconsistencies, billing issue charges, or amounts that appear inconsistent with published Medicare benchmarks. We provide a structured, documented billing review to help you understand and respond to your charges.</div>
     </div>
 
     <!-- Step indicator -->
@@ -851,6 +848,17 @@ html,body{max-width:100%;overflow-x:hidden}
             <span class="opt-text"><span class="opt-name">Pharmacy</span><span class="opt-desc">Prescription medication billing or co-pay dispute</span></span>
             <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
           </button>
+          <button class="opt" data-val="other" onclick="selectOpt(this,'s1')">
+            <span class="opt-emoji">+</span>
+            <span class="opt-text"><span class="opt-name">Other / Not Listed</span><span class="opt-desc">Type the bill type in your own words</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+        </div>
+        <div class="field-row full other-entry" id="s1-other-wrap">
+          <div class="field">
+            <label class="field-label">Other Bill Type</label>
+            <input type="text" id="s1-other-input" placeholder="Type the kind of medical bill" oninput="updateOther('s1')"/>
+          </div>
         </div>
       </div>
 
@@ -921,6 +929,17 @@ html,body{max-width:100%;overflow-x:hidden}
             <span class="opt-text"><span class="opt-name">No Insurance (Self-Pay)</span><span class="opt-desc">Paying out of pocket without any insurance coverage</span></span>
             <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
           </button>
+          <button class="opt list-item" data-val="other" onclick="selectOpt(this,'s2')">
+            <span class="opt-emoji">+</span>
+            <span class="opt-text"><span class="opt-name">Other / Not Listed</span><span class="opt-desc">Type your coverage or payer name</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+        </div>
+        <div class="field-row full other-entry" id="s2-other-wrap">
+          <div class="field">
+            <label class="field-label">Other Coverage</label>
+            <input type="text" id="s2-other-input" placeholder="Type your insurance, payer, or coverage" oninput="updateOther('s2')"/>
+          </div>
         </div>
       </div>
 
@@ -976,6 +995,17 @@ html,body{max-width:100%;overflow-x:hidden}
             <span class="opt-name">Not Sure</span>
             <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
           </button>
+          <button class="opt center" data-val="other" onclick="selectOpt(this,'s3')">
+            <span class="opt-center-emoji">+</span>
+            <span class="opt-name">Other Amount</span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+        </div>
+        <div class="field-row full other-entry" id="s3-other-wrap">
+          <div class="field">
+            <label class="field-label">Other Amount</label>
+            <input type="text" id="s3-other-input" placeholder="Type the approximate amount or range" oninput="updateOther('s3')"/>
+          </div>
         </div>
       </div>
 
@@ -1020,6 +1050,17 @@ html,body{max-width:100%;overflow-x:hidden}
             <span class="opt-text"><span class="opt-name">My insurance denied or underpaid</span><span class="opt-desc">Claim denial or coverage dispute with your insurer</span></span>
             <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
           </button>
+          <button class="opt list-item" data-val="other" onclick="selectOpt(this,'s4')">
+            <span class="opt-emoji">+</span>
+            <span class="opt-text"><span class="opt-name">Other / Not Listed</span><span class="opt-desc">Type the current status in your own words</span></span>
+            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+          </button>
+        </div>
+        <div class="field-row full other-entry" id="s4-other-wrap">
+          <div class="field">
+            <label class="field-label">Other Bill Status</label>
+            <input type="text" id="s4-other-input" placeholder="Type the current status of the bill" oninput="updateOther('s4')"/>
+          </div>
         </div>
       </div>
 
@@ -1034,7 +1075,7 @@ html,body{max-width:100%;overflow-x:hidden}
             <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
             <span class="chip-name">Charges seem too high or inflated</span>
           </button>
-          <button class="chip" onclick="toggleChip(this)" data-val="duplicate">
+          <button class="chip" onclick="toggleChip(this)" data-val="billing issue">
             <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
             <span class="chip-name">I think I was charged twice for something</span>
           </button>
@@ -1070,6 +1111,16 @@ html,body{max-width:100%;overflow-x:hidden}
             <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
             <span class="chip-name">I never received an itemized bill</span>
           </button>
+          <button class="chip" onclick="toggleChip(this)" data-val="other">
+            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <span class="chip-name">Other concern</span>
+          </button>
+        </div>
+        <div class="field-row full other-entry" id="s5-other-wrap">
+          <div class="field">
+            <label class="field-label">Other Concern</label>
+            <textarea id="s5-other-input" placeholder="Type the billing concern that was not listed" oninput="updateOther('s5')"></textarea>
+          </div>
         </div>
       </div>
 
@@ -1099,7 +1150,7 @@ html,body{max-width:100%;overflow-x:hidden}
         <div class="field-row">
           <div class="field">
             <label class="field-label">Provider / Hospital Name</label>
-            <input type="text" id="f-provider" placeholder="Memorial Regional Medical Center"/>
+            <input type="text" id="f-provider" placeholder="Provider or hospital name"/>
           </div>
           <div class="field">
             <label class="field-label">Date of Service</label>
@@ -1109,8 +1160,8 @@ html,body{max-width:100%;overflow-x:hidden}
         <!-- Description textarea -->
         <div class="field-row full">
           <div class="field">
-            <label class="field-label">Describe your billing situation <span class="optional-badge">Optional</span></label>
-            <textarea id="f-desc" placeholder="In your own words, tell us what concerns you about this bill — anything unusual, confusing, or that doesn't seem right. The more detail you share, the more personalized your review will be."></textarea>
+            <label class="field-label">Other details about your billing situation <span class="optional-badge">Optional</span></label>
+            <textarea id="f-desc" placeholder="In your own words, tell us anything unusual, confusing, or not covered above. The more detail you share, the more personalized your review will be."></textarea>
           </div>
         </div>
         <!-- Upload zone -->
@@ -1140,11 +1191,11 @@ html,body{max-width:100%;overflow-x:hidden}
         </div>
         <div class="calm-banner">
           <span class="calm-icon">🛡️</span>
-          <div class="calm-text">Our system will scan your bill for duplicate charges, coding issues, and out-of-network rate discrepancies. <strong>Your review is completely private</strong> and your information is never shared or sold.</div>
+          <div class="calm-text">Our system will scan your bill for billing issue charges, coding issues, and out-of-network rate discrepancies. <strong>Your review is completely private</strong> and your information is never shared or sold.</div>
         </div>
         <button class="btn-submit" onclick="startAnalysis()">
           <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Start Secure Analysis
+          Start My Free Review Now
           <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
         <div style="text-align:center;margin-top:8px;font-size:.5rem;color:rgba(235,244,255,.28);letter-spacing:.06em;text-transform:uppercase">Results in under 60 seconds</div>
@@ -1172,7 +1223,6 @@ html,body{max-width:100%;overflow-x:hidden}
   <!-- Tagline -->
   <div class="is-tagline">
     <div class="tg-txt">"You don't have to navigate this alone."</div>
-    <div class="tg-dots"><span class="on" id="td0"></span><span id="td1"></span><span id="td2"></span></div>
   </div>
 
 </div><!-- /intake-section -->
@@ -1190,21 +1240,33 @@ html,body{max-width:100%;overflow-x:hidden}
 </div>
 
 <script>
-if(window.location.hash==='#begin-review'){
-  history.replaceState(null,'',window.location.pathname+window.location.search);
-  window.scrollTo(0,0);
-}
-function upaFinalPath(file){
-  return window.location.protocol==='file:'?file:'/UPA-Final/'+file;
-}
 var currentStep=1,totalSteps=7;
 
 /* State */
 var state={
   s1:null,s2:null,s3:null,s4:null,
   s5:[],
+  other:{s1:'',s2:'',s3:'',s4:'',s5:''},
   first:'',last:'',email:'',provider:'',dos:'',file:null
 };
+
+function todayISO(){
+  var now=new Date();
+  now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  return now.toISOString().slice(0,10);
+}
+function enforceServiceDateLimit(){
+  var dos=document.getElementById('f-dos');
+  if(!dos)return true;
+  var today=todayISO();
+  dos.max=today;
+  if(dos.value&&dos.value>today){
+    dos.value='';
+    state.dos='';
+    return false;
+  }
+  return true;
+}
 
 /* Labels for summary */
 var labels={
@@ -1227,12 +1289,38 @@ function buildDots(){
   document.getElementById('si-bar').style.width=Math.round((currentStep/totalSteps)*100)+'%';
 }
 
-/* Tagline dots */
-var tdx=0;
-setInterval(function(){
-  [0,1,2].forEach(function(i){document.getElementById('td'+i).classList.toggle('on',i===tdx);});
-  tdx=(tdx+1)%3;
-},1100);
+function getOtherValue(group){
+  var el=document.getElementById(group+'-other-input');
+  var value=el?el.value.trim():(state.other&&state.other[group]?state.other[group]:'');
+  state.other[group]=value;
+  return value;
+}
+function syncOtherVisibility(group){
+  var wrap=document.getElementById(group+'-other-wrap');
+  var isSelected=group==='s5'?state.s5.indexOf('other')>-1:state[group]==='other';
+  if(wrap)wrap.classList.toggle('show',isSelected);
+}
+function isSingleStepValid(group){
+  if(!state[group])return false;
+  if(state[group]==='other')return getOtherValue(group).length>0;
+  return true;
+}
+function isStep5Valid(){
+  if(state.s5.length===0)return false;
+  if(state.s5.indexOf('other')>-1)return getOtherValue('s5').length>0;
+  return true;
+}
+function updateOther(group){
+  getOtherValue(group);
+  syncOtherVisibility(group);
+  if(group==='s5'){
+    document.getElementById('btn-next').disabled=!isStep5Valid();
+    return;
+  }
+  if(currentStep===Number(group.substring(1))){
+    document.getElementById('btn-next').disabled=!isSingleStepValid(group);
+  }
+}
 
 /* Select single-choice option */
 function selectOpt(btn,group){
@@ -1240,7 +1328,8 @@ function selectOpt(btn,group){
   parent.querySelectorAll('.opt').forEach(function(b){b.classList.remove('selected')});
   btn.classList.add('selected');
   state[group]=btn.dataset.val;
-  document.getElementById('btn-next').disabled=false;
+  syncOtherVisibility(group);
+  document.getElementById('btn-next').disabled=!isSingleStepValid(group);
   /* Selection confirmed — user clicks Continue to proceed */
 }
 
@@ -1250,7 +1339,8 @@ function toggleChip(chip){
   var val=chip.dataset.val;
   var idx=state.s5.indexOf(val);
   if(idx>-1)state.s5.splice(idx,1);else state.s5.push(val);
-  document.getElementById('btn-next').disabled=state.s5.length===0;
+  syncOtherVisibility('s5');
+  document.getElementById('btn-next').disabled=!isStep5Valid();
 }
 
 /* File upload */
@@ -1274,6 +1364,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(e.dataTransfer.files[0]){document.getElementById('f-file').files=e.dataTransfer.files;handleFile(document.getElementById('f-file'));}
   });
   buildDots();
+  enforceServiceDateLimit();
 });
 
 /* Validate step 6 */
@@ -1291,49 +1382,41 @@ function validateStep6(){
   document.getElementById('btn-next').disabled=!(first&&last&&emailOk&&provider);
 }
 document.addEventListener('input',function(e){
+  if(e.target.id==='f-dos')enforceServiceDateLimit();
   if(['f-first','f-last','f-email','f-provider','f-desc'].includes(e.target.id))validateStep6();
 });
 
-/* Build summary */
-function escapeHtml(value){
+function escapeHTML(value){
   return String(value||'').replace(/[&<>"']/g,function(ch){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
   });
 }
-function cleanSummaryValue(value,fallback){
-  var text=String(value||'').trim();
-  if(!text||text==='undefined'||text==='null'||text==='NaN')return fallback;
-  return text;
-}
+
+/* Build summary */
 function buildSummary(){
   state.first=document.getElementById('f-first').value.trim();
   state.last=document.getElementById('f-last').value.trim();
   state.email=document.getElementById('f-email').value.trim();
   state.provider=document.getElementById('f-provider').value.trim();
+  enforceServiceDateLimit();
   state.dos=document.getElementById('f-dos').value;
-  var patientName=cleanSummaryValue((state.first+' '+state.last).trim(),'Name not provided');
-  var billType=cleanSummaryValue(labels.s1[state.s1]||state.s1,'Not selected yet');
-  var insurance=cleanSummaryValue(labels.s2[state.s2]||state.s2,'Not selected yet');
-  var billAmount=cleanSummaryValue(labels.s3[state.s3]||state.s3,'Not selected yet');
-  var paymentStatus=cleanSummaryValue(labels.s4[state.s4]||state.s4,'Not selected yet');
-  var provider=cleanSummaryValue(state.provider,'Provider not provided');
-  var dos=cleanSummaryValue(state.dos,'Not provided yet');
-  var concerns=state.s5.length?state.s5.length+' issue'+(state.s5.length!==1?'s':'')+' selected':'Not selected yet';
+  var description=getFieldValue('f-desc');
 
   var rows=[
-    ['Patient Name',patientName],
-    ['Bill Type',billType],
-    ['Insurance',insurance],
-    ['Bill Amount',billAmount],
-    ['Payment Status',paymentStatus],
-    ['Provider',provider],
-    ['Date of Service',dos],
-    ['Concerns',concerns],
-    ['Bill Uploaded',state.file?state.file.name:'No bill uploaded yet']
+    ['Patient Name',state.first+' '+state.last],
+    ['Bill Type',selectedOptionLabel('s1',state.s1)],
+    ['Insurance',selectedOptionLabel('s2',state.s2)],
+    ['Bill Amount',selectedOptionLabel('s3',state.s3)],
+    ['Payment Status',selectedOptionLabel('s4',state.s4)],
+    ['Provider',state.provider],
+    ['Date of Service',state.dos||'Not provided'],
+    ['Concerns',selectedConcernLabels().join(', ')],
+    ['Bill Uploaded',state.file?state.file.name:'Not uploaded (optional)']
   ];
+  if(description)rows.splice(rows.length-1,0,['Additional Details',description]);
   var p=document.getElementById('summary-panel');
   p.innerHTML=rows.map(function(r){
-    return '<div class="sum-row"><span class="sum-label">'+escapeHtml(r[0])+'</span><span class="sum-val'+(r[0]==='Patient Name'?' green':'')+'">'+escapeHtml(r[1])+'</span></div>';
+    return '<div class="sum-row"><span class="sum-label">'+escapeHTML(r[0])+'</span><span class="sum-val'+(r[0]==='Patient Name'?' green':'')+'">'+escapeHTML(r[1])+'</span></div>';
   }).join('');
 }
 
@@ -1373,9 +1456,11 @@ function updateNav(){
   back.style.visibility=currentStep>1?'visible':'hidden';
   /* Step-specific states */
   if(currentStep===5){
-    next.disabled=state.s5.length===0;
+    next.style.display='flex';
+    next.disabled=!isStep5Valid();
     next.textContent='Continue';next.innerHTML='Continue <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;stroke-width:2.5;fill:none"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>';
   } else if(currentStep===6){
+    next.style.display='flex';
     validateStep6();
     next.textContent='Continue';next.innerHTML='Continue <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;stroke-width:2.5;fill:none"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>';
   } else if(currentStep===7){
@@ -1383,7 +1468,7 @@ function updateNav(){
   } else {
     next.style.display='flex';
     var stateKey='s'+currentStep;
-    next.disabled=!state[stateKey];
+    next.disabled=!isSingleStepValid(stateKey);
   }
 }
 
@@ -1396,10 +1481,18 @@ function getFieldValue(id){
   return el?el.value.trim():'';
 }
 function selectedOptionLabel(group,value){
+  if(value==='other'){
+    var other=getOtherValue(group);
+    return other?'Other: '+other:'Other';
+  }
   return labels[group]&&labels[group][value]?labels[group][value]:(value||'');
 }
 function selectedConcernLabels(){
   return state.s5.map(function(val){
+    if(val==='other'){
+      var other=getOtherValue('s5');
+      return other?'Other: '+other:'Other';
+    }
     var chip=document.querySelector('.chip[data-val="'+val+'"] .chip-name');
     return chip?chip.textContent.trim():val;
   });
@@ -1409,6 +1502,7 @@ function buildLeadPayload(){
   state.last=getFieldValue('f-last');
   state.email=getFieldValue('f-email');
   state.provider=getFieldValue('f-provider');
+  enforceServiceDateLimit();
   state.dos=getFieldValue('f-dos');
   var phone=getFieldValue('f-phone');
   var concerns=selectedConcernLabels();
@@ -1431,43 +1525,18 @@ function buildLeadPayload(){
     payment_status:selectedOptionLabel('s4',state.s4),
     concerns:concerns.join(', '),
     concerns_raw:state.s5.join(', '),
+    concern_other:state.s5.indexOf('other')>-1?getOtherValue('s5'):'',
     description:getFieldValue('f-desc'),
     uploaded_bill:state.file?state.file.name:'Not uploaded',
     bill_type_raw:state.s1||'',
     insurance_raw:state.s2||'',
     bill_amount_raw:state.s3||'',
-    payment_status_raw:state.s4||''
+    payment_status_raw:state.s4||'',
+    bill_type_other:state.s1==='other'?getOtherValue('s1'):'',
+    insurance_other:state.s2==='other'?getOtherValue('s2'):'',
+    bill_amount_other:state.s3==='other'?getOtherValue('s3'):'',
+    payment_status_other:state.s4==='other'?getOtherValue('s4'):''
   };
-}
-function detectReviewDepth(desc){
-  var text=(desc||'').trim();
-  var hasLineItems=/(cpt|hcpcs|line\s*\d|procedure code|diagnosis code|charge|\$\s*\d|\b\d{5}\b)/i.test(text);
-  if(state.file||(text.length>=120&&hasLineItems))return 'full';
-  if(text.length>=25||state.provider||state.s1||state.s2||state.s3||state.s4||state.s5.length)return 'guided';
-  return 'starter';
-}
-function saveIntakeContext(){
-  var desc=getFieldValue('f-desc');
-  var depth=detectReviewDepth(desc);
-  var payload={
-    saved_at:new Date().toISOString(),
-    first:getFieldValue('f-first'),
-    last:getFieldValue('f-last'),
-    email:getFieldValue('f-email'),
-    provider:getFieldValue('f-provider'),
-    date_of_service:getFieldValue('f-dos'),
-    bill_amount:selectedOptionLabel('s3',state.s3),
-    payment_status:selectedOptionLabel('s4',state.s4),
-    concerns:selectedConcernLabels(),
-    description:desc,
-    description_length:desc.length,
-    uploaded_bill:state.file?state.file.name:'',
-    has_uploaded_bill:!!state.file,
-    has_enough_bill_detail:depth==='full',
-    review_depth:depth,
-    review_depth_label:depth==='full'?'Full Review':(depth==='guided'?'Guided Estimate':'Starter Guidance')
-  };
-  try{localStorage.setItem('upa.intake.context.v1',JSON.stringify(payload));}catch(e){}
 }
 function appendHiddenField(form,name,value){
   var input=document.createElement('input');
@@ -1534,9 +1603,19 @@ function submitLeadToFormspree(){
   });
 }
 
+function upaFinalPath(file){
+  return window.location.protocol==='file:'?file:'/UPA-Final/'+file;
+}
+function saveIntakeSession(){
+  try{
+    var payload=buildLeadPayload();
+    sessionStorage.setItem('upa.intake.v1',JSON.stringify(payload));
+    localStorage.setItem('upa.intake.v1',JSON.stringify(payload));
+  }catch(e){}
+}
+
 /* Start analysis */
 function startAnalysis(){
-  saveIntakeContext();
   var btn=document.querySelector('.btn-submit');
   btn.disabled=true;
   btn.innerHTML='<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:white;stroke-width:2;fill:none;animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Starting Your Review...';
@@ -1545,6 +1624,7 @@ function startAnalysis(){
   function continueToAnalysis(){
     if(navigated)return;
     navigated=true;
+    saveIntakeSession();
     window.location.href=upaFinalPath('02_upa-analysis-screen.html');
   }
   function continueAfterMinimumDelay(){
@@ -1562,31 +1642,68 @@ function startAnalysis(){
 </script>
 
 <script>
-// Spawn particles in dark intake section
-(function(){
-  var c=document.getElementById("is-particles");
-  if(!c)return;
-  var colors=["rgba(201,168,76,.45)","rgba(30,184,122,.38)","rgba(59,110,224,.28)","rgba(235,244,255,.14)"];
-  for(var i=0;i<16;i++){
-    var p=document.createElement("div");p.className="is-pt";
-    var s=Math.random()*2.5+1.5;
-    p.style.cssText="width:"+s+"px;height:"+s+"px;background:"+colors[Math.floor(Math.random()*4)]+";left:"+Math.random()*100+"%;top:"+Math.random()*100+"%;--d:"+(10+Math.random()*14)+"s;--dl:"+(Math.random()*10)+"s;--op:"+(0.16+Math.random()*0.32);
-    c.appendChild(p);
-  }
-})();
-
 // Bill range selector
-function selectRange(el){
-  document.querySelectorAll(".range-opt").forEach(function(r){r.classList.remove("sel")});
-  el.classList.add("sel");
-}
+function selectRange(el, val) {
+  document.querySelectorAll(".range-opt").forEach(function(r) { r.classList.remove("sel"); });
+  if (el) el.classList.add("sel");
 
-// Tagline dots
-var tdx=0;
-setInterval(function(){
-  [0,1,2].forEach(function(i){var el=document.getElementById("td"+i);if(el)el.classList.toggle("on",i===tdx)});
-  tdx=(tdx+1)%3;
-},1100);
+  var chk = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1E6B5A" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:2px"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  function stat(num, label, color) {
+    return '<div style="background:#fff;border:1px solid rgba(28,43,72,0.09);border-radius:12px;padding:14px 10px;text-align:center;">'
+      + '<div style="font-family:Georgia,serif;font-size:1.35rem;font-weight:800;color:' + color + ';line-height:1;margin-bottom:5px;">' + num + '</div>'
+      + '<div style="font-size:0.6rem;font-weight:600;color:#7A98B0;line-height:1.35;">' + label + '</div>'
+      + '</div>';
+  }
+
+  function check(text) {
+    return '<div style="display:flex;align-items:flex-start;gap:7px;font-size:0.775rem;color:#2E4060;line-height:1.4;">' + chk + text + '</div>';
+  }
+
+  var data = {
+    low: {
+      stats: [
+        stat('1 in 5', 'outpatient bills have a billable error', '#1C2B48'),
+        stat('#1', 'issue: duplicate charges per visit', '#C0392B'),
+        stat('$180', 'avg. overcharge flagged', '#1E6B5A')
+      ],
+      checks: ['CPT code verification', 'Duplicate charge scan', 'Medicare rate comparison', 'Dispute letter + call script']
+    },
+    mid: {
+      stats: [
+        stat('64%', 'of ER bills have billing errors — AMA', '#C0392B'),
+        stat('#1', 'issue: facility fee above Medicare rate', '#1C2B48'),
+        stat('$480', 'avg. overcharge flagged', '#1E6B5A')
+      ],
+      checks: ['ER facility fee audit', 'Medicare benchmark analysis', 'In-network rate verification', 'Full CPT review + dispute letter']
+    },
+    high: {
+      stats: [
+        stat('80%', 'of hospital bills have billing errors', '#C0392B'),
+        stat('#1', 'issue: upcoding and unbundling', '#1C2B48'),
+        stat('$1,300+', 'avg. overcharge flagged', '#1E6B5A')
+      ],
+      checks: ['Upcoding & unbundling detection', 'No Surprises Act applicability', 'Full Medicare benchmark', 'Multi-document dispute package']
+    }
+  };
+
+  var d = data[val];
+  if (!d) return;
+
+  var html = '<div style="display:grid;gap:10px;">'
+    + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;">' + d.stats.join('') + '</div>'
+    + '<div style="background:#fff;border:1px solid rgba(28,43,72,0.08);border-radius:12px;padding:14px 16px;">'
+    + '<div style="font-size:0.55rem;font-weight:800;text-transform:uppercase;letter-spacing:0.13em;color:#1C2B48;margin-bottom:10px;">Your review checks for</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px 18px;">' + d.checks.map(check).join('') + '</div>'
+    + '</div>'
+    + '</div>';
+
+  var revealEl = document.getElementById("range-reveal");
+  if (revealEl) {
+    revealEl.innerHTML = html;
+    revealEl.classList.add("show");
+  }
+}
 </script>
 
 </body>

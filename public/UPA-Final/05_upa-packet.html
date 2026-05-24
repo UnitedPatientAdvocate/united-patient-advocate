@@ -161,7 +161,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 .toolbar{gap:10px;align-items:flex-start;flex-direction:column;padding:12px}
 .toolbar>div:first-child{display:flex!important;flex-direction:column;align-items:flex-start!important;gap:2px}
 .tb-sub{margin-left:0;line-height:1.4}
-.tb-btns{width:100%;display:grid;grid-template-columns:1fr;gap:8px}
+.tb-btns{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .btn-p,.btn-d{justify-content:center;min-width:0}
 .pg-lbl{font-size:.4375rem;gap:6px}
 .pg-lbl::before,.pg-lbl::after{width:24px}
@@ -184,18 +184,16 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 </style>
 </head>
 <body>
-<!-- TODO: Replace First Name Last Name demo values with individualized customer data during fulfillment. -->
 
 <!-- TOOLBAR -->
 <div class="toolbar">
   <div style="display:flex;align-items:center">
     <span class="tb-title">Patient Dispute Packet</span>
-    <span class="tb-sub">— Account #2026-01-08 · First Name Last Name · 11 pages</span>
+    <span class="tb-sub">— Account number · First Name Last Name · 11 pages</span>
   </div>
   <div class="tb-btns">
-    <button class="btn-d" onclick="openDashboard()"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/></svg> Open My Billing Review</button>
-    <button class="btn-p" onclick="window.print()"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print All</button>
-    <button class="btn-p" onclick="window.print()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Save / Print PDF</button>
+    <button class="btn-p" onclick="return upaPrintPacketPDF(event)"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print / Save PDF</button>
+    <button class="btn-d" onclick="return upaDownloadPacket(event)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Packet</button>
   </div>
 </div>
 
@@ -237,13 +235,13 @@ body{padding:12px 10px 40px;overflow-x:hidden}
   <div style="margin:24px 36px 20px;background:#F3F6FB;border:1px solid var(--bdr);border-radius:8px;overflow:hidden">
     <div style="background:var(--navy);padding:9px 16px;display:flex;justify-content:space-between;align-items:center">
       <span style="font-size:.375rem;font-weight:700;letter-spacing:.20em;text-transform:uppercase;color:rgba(235,244,255,.40)">Case Information</span>
-      <span style="font-family:var(--mono);font-size:.4375rem;color:rgba(235,244,255,.50)">Account: #2026-01-08</span>
+      <span style="font-family:var(--mono);font-size:.4375rem;color:rgba(235,244,255,.50)">Account: account number</span>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);padding:13px 16px">
       <div style="padding-right:14px;margin-right:14px;border-right:1px solid var(--bdr)"><div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px">Patient</div><div style="font-size:.75rem;font-weight:700;color:var(--navy)">First Name Last Name</div></div>
-      <div style="padding-right:14px;margin-right:14px;border-right:1px solid var(--bdr)"><div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px">Provider</div><div style="font-size:.75rem;font-weight:700;color:var(--navy)">Memorial Regional</div></div>
-      <div style="padding-right:14px;margin-right:14px;border-right:1px solid var(--bdr)"><div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px">Date of Service</div><div style="font-size:.75rem;font-weight:700;color:var(--navy)">January 8, 2026</div></div>
-      <div><div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px">Charges Flagged</div><div style="font-size:.875rem;font-weight:700;color:var(--teal)">$3,185</div></div>
+      <div style="padding-right:14px;margin-right:14px;border-right:1px solid var(--bdr)"><div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px">Provider</div><div style="font-size:.75rem;font-weight:700;color:var(--navy)">Your Provider</div></div>
+      <div style="padding-right:14px;margin-right:14px;border-right:1px solid var(--bdr)"><div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px">Date of Service</div><div style="font-size:.75rem;font-weight:700;color:var(--navy)">date of service</div></div>
+      <div><div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px">Charges Flagged</div><div style="font-size:.875rem;font-weight:700;color:var(--teal)">Amount to review</div></div>
     </div>
   </div>
 
@@ -255,17 +253,17 @@ body{padding:12px 10px 40px;overflow-x:hidden}
       <div style="display:flex;flex-direction:column;gap:6px">
         <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--gold-dk)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--gold-dk);flex-shrink:0">Pg 2</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Start Here — You Are In Good Hands</div><div style="font-size:.5rem;color:var(--ink4)">Calm, reassure, and guide your first steps</div></div></div>
         <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--teal)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--teal);flex-shrink:0">Pg 3</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Your Bill at a Glance — Charts &amp; Summary</div><div style="font-size:.5rem;color:var(--ink4)">Donut chart showing confirmed vs. flagged charges</div></div></div>
-        <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--teal)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--teal);flex-shrink:0">Pg 4</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Likelihood of Resolution — Confidence Charts</div><div style="font-size:.5rem;color:var(--ink4)">Large bars showing 88%, 74%, 62% resolution rates</div></div></div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--teal)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--teal);flex-shrink:0">Pg 4</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Review Guidance ? Readiness Chart</div><div style="font-size:.5rem;color:var(--ink4)">Guidance bars showing what to review, request, and document</div></div></div>
         <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--teal)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--teal);flex-shrink:0">Pg 5</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Medicare Comparison &amp; Estimated Timeline</div><div style="font-size:.5rem;color:var(--ink4)">What was billed vs. standard rates + what to expect when</div></div></div>
         <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--cobalt)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--cobalt);flex-shrink:0">Pg 6</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">What To Expect — Step by Step</div><div style="font-size:.5rem;color:var(--ink4)">Large numbered steps with timing so nothing surprises you</div></div></div>
       </div>
       <!-- col 2 -->
       <div style="display:flex;flex-direction:column;gap:6px">
         <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--crimson)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--crimson);flex-shrink:0">Pg 7</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Mistakes To Avoid — Protect Yourself</div><div style="font-size:.5rem;color:var(--ink4)">What not to do so you stay in the strongest position</div></div></div>
-        <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--gold-dk)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--gold-dk);flex-shrink:0">Pg 8</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Your Patient Rights — Simple &amp; Empowering</div><div style="font-size:.5rem;color:var(--ink4)">What the law says you are entitled to, in plain language</div></div></div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--gold-dk)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--gold-dk);flex-shrink:0">Pg 8</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Your Patient Rights — Simple &amp; Empowering</div><div style="font-size:.5rem;color:var(--ink4)">Common billing protections and request paths, in plain language</div></div></div>
         <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--navy)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--navy);flex-shrink:0">Pg 9</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Letter 1 — Request for Itemized Statement</div><div style="font-size:.5rem;color:var(--ink4)">Send first · Federal right to full billing documentation</div></div></div>
-        <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--crimson)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--crimson);flex-shrink:0">Pg 10</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Letter 2 — Billing Review Request (CPT 99285)</div><div style="font-size:.5rem;color:var(--ink4)">Send after receiving itemized bill · $1,240 under review</div></div></div>
-        <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--cobalt)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--cobalt);flex-shrink:0">Pg 11</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Letter 3 — In-Network Rate Inquiry (Lab)</div><div style="font-size:.5rem;color:var(--ink4)">Can be sent simultaneously · $1,265 under review</div></div></div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--crimson)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--crimson);flex-shrink:0">Pg 10</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Letter 2 — Billing Review Request (billing line item)</div><div style="font-size:.5rem;color:var(--ink4)">Send after receiving itemized bill · To confirm under review</div></div></div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--white);border:1px solid var(--bdr);border-radius:6px;border-left:3px solid var(--cobalt)"><div style="font-family:var(--mono);font-size:.4375rem;font-weight:700;color:var(--cobalt);flex-shrink:0">Pg 11</div><div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">Letter 3 — In-Network Rate Inquiry (Lab)</div><div style="font-size:.5rem;color:var(--ink4)">Can be sent simultaneously · To confirm under review</div></div></div>
       </div>
     </div>
   </div>
@@ -276,7 +274,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     <div><div style="font-size:.4375rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:3px">Before You Begin</div><div style="font-size:.6875rem;color:var(--ink2);line-height:1.65">Start with Page 2 — it will calm any questions you have and show you exactly what to do first. <strong style="color:var(--navy)">Do not pay any disputed amount</strong> while your communication is pending. Keep copies of every letter you send.</div></div>
   </div>
 
-  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com</div></div><div class="nf-r">Prepared May 16, 2026<br>Account #2026-01-08</div></div>
+  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com</div></div><div class="nf-r">Prepared Preparation date<br>Account number</div></div>
   <div class="disc"><div class="disc-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="disc-t">United Patient Advocate provides educational and informational billing review support. We do not provide legal, medical, insurance, or financial advice. Results vary and are not guaranteed. Nothing in this packet constitutes legal counsel or a guarantee of outcome.</div></div>
 </div>
 
@@ -309,7 +307,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     <div style="padding:24px 20px;text-align:center;border-right:1px solid var(--bdr)">
       <div style="font-size:2.25rem;margin-bottom:8px">⚖️</div>
       <div style="font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:6px">You have<br>legal rights</div>
-      <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">Federal law gives you the right to question, clarify, and dispute medical charges. No lawyer required.</div>
+      <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">You can question, clarify, and dispute medical charges in writing. No lawyer required.</div>
     </div>
     <div style="padding:24px 20px;text-align:center">
       <div style="font-size:2.25rem;margin-bottom:8px">🛡️</div>
@@ -343,8 +341,8 @@ body{padding:12px 10px 40px;overflow-x:hidden}
       <div style="display:flex;align-items:flex-start;gap:16px;padding:16px 18px;background:#EEF2FA;border:1px solid rgba(40,80,192,.18);border-radius:10px;border-left:4px solid var(--cobalt)">
         <div style="font-family:var(--serif);font-size:2.25rem;font-weight:900;color:var(--cobalt);flex-shrink:0;line-height:1">3</div>
         <div>
-          <div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:4px">Do not pay any disputed amount yet</div>
-          <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">While your letters are being reviewed, you are not required to pay the amounts under review. Keep any payment on hold for the flagged charges only — pay what is confirmed correct if you wish.</div>
+          <div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:4px">Pause before paying disputed portions if possible</div>
+          <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">While your letters are being reviewed, ask the provider whether the reviewed amount can be placed on hold. Consider paying only portions that are confirmed correct if you choose to make a payment.</div>
         </div>
       </div>
 
@@ -352,7 +350,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
         <div style="font-family:var(--serif);font-size:2.25rem;font-weight:900;color:var(--crimson);flex-shrink:0;line-height:1">4</div>
         <div>
           <div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:4px">Wait for a response, then send Letters 2 and 3</div>
-          <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">Once you receive the itemized bill (usually within 2–4 weeks), send Letter 2 to address the duplicate charge and Letter 3 for the lab fee. Page 6 walks you through exactly what happens and when.</div>
+          <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">Once you receive the itemized bill (usually within 2–4 weeks), send Letter 2 to address the line-item concern and Letter 3 for the lab fee. Page 6 walks you through exactly what happens and when.</div>
         </div>
       </div>
 
@@ -380,14 +378,14 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 
   <!-- 3 big metrics -->
   <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--bdr)">
-    <div style="padding:28px 20px;text-align:center;border-right:1px solid var(--bdr);position:relative"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--teal)"></div><div style="font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--navy);letter-spacing:-.04em;line-height:1;margin-bottom:6px">$23,452</div><div style="font-size:.75rem;font-weight:700;color:var(--ink3);margin-bottom:5px">Total on Your Bill</div><div style="font-size:.625rem;color:var(--ink4);line-height:1.55">The full amount Memorial Regional Medical Center billed for your January 8 visit</div></div>
-    <div style="padding:28px 20px;text-align:center;border-right:1px solid var(--bdr);position:relative"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--crimson)"></div><div style="font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--crimson);letter-spacing:-.04em;line-height:1;margin-bottom:6px">$3,185</div><div style="font-size:.75rem;font-weight:700;color:var(--ink3);margin-bottom:5px">Flagged for Review</div><div style="font-size:.625rem;color:var(--ink4);line-height:1.55">Charges identified that may qualify for clarification, review, or rate adjustment</div></div>
+    <div style="padding:28px 20px;text-align:center;border-right:1px solid var(--bdr);position:relative"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--teal)"></div><div style="font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--navy);letter-spacing:-.04em;line-height:1;margin-bottom:6px">Bill amount</div><div style="font-size:.75rem;font-weight:700;color:var(--ink3);margin-bottom:5px">Total on Your Bill</div><div style="font-size:.625rem;color:var(--ink4);line-height:1.55">The full amount Your Provider billed for your date of service</div></div>
+    <div style="padding:28px 20px;text-align:center;border-right:1px solid var(--bdr);position:relative"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--crimson)"></div><div style="font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--crimson);letter-spacing:-.04em;line-height:1;margin-bottom:6px">Amount to review</div><div style="font-size:.75rem;font-weight:700;color:var(--ink3);margin-bottom:5px">Flagged for Review</div><div style="font-size:.625rem;color:var(--ink4);line-height:1.55">Charges identified that may qualify for clarification, review, or rate adjustment</div></div>
     <div style="padding:28px 20px;text-align:center;position:relative"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold-dk)"></div><div style="font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--gold-dk);letter-spacing:-.04em;line-height:1;margin-bottom:6px">86%</div><div style="font-size:.75rem;font-weight:700;color:var(--ink3);margin-bottom:5px">Confirmed Charges</div><div style="font-size:.625rem;color:var(--ink4);line-height:1.55">The majority of your bill appears standard — only 14% has been flagged for potential review</div></div>
   </div>
 
   <!-- Donut chart -->
   <div style="padding:30px 40px">
-    <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);letter-spacing:-.01em;text-align:center;margin-bottom:4px">How Your $23,452 Bill Breaks Down</div>
+    <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);letter-spacing:-.01em;text-align:center;margin-bottom:4px">How Your Bill amount Bill Breaks Down</div>
     <div style="font-size:.75rem;color:var(--ink4);text-align:center;margin-bottom:24px">The chart below shows exactly where every dollar on your bill stands today</div>
 
     <div style="display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:center">
@@ -422,24 +420,24 @@ body{padding:12px 10px 40px;overflow-x:hidden}
         </div>
         <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--crimson-lt);border:1px solid rgba(200,50,50,.20);border-radius:9px;border-left:5px solid var(--crimson)">
           <div style="width:16px;height:16px;background:var(--crimson);border-radius:3px;flex-shrink:0"></div>
-          <div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">Possible Duplicate Charge</div><div style="font-size:.625rem;color:var(--ink3)">Same procedure may have been billed twice · Flagged for formal review</div></div>
-          <div style="font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--crimson);letter-spacing:-.02em">$1,240</div>
+          <div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">Possible Line-Item Review</div><div style="font-size:.625rem;color:var(--ink3)">Same procedure may have been billed twice · Flagged for formal review</div></div>
+          <div style="font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--crimson);letter-spacing:-.02em">To confirm</div>
         </div>
         <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--amber-lt);border:1px solid rgba(208,112,0,.20);border-radius:9px;border-left:5px solid var(--amber)">
           <div style="width:16px;height:16px;background:var(--amber);border-radius:3px;flex-shrink:0"></div>
           <div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">Coding Question</div><div style="font-size:.625rem;color:var(--ink3)">Complexity level billed may not match what records describe · Under review</div></div>
-          <div style="font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--amber);letter-spacing:-.02em">$680</div>
+          <div style="font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--amber);letter-spacing:-.02em">To confirm</div>
         </div>
         <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--cobalt-lt);border:1px solid rgba(40,80,192,.20);border-radius:9px;border-left:5px solid var(--cobalt)">
           <div style="width:16px;height:16px;background:var(--cobalt);border-radius:3px;flex-shrink:0"></div>
-          <div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">Out-of-Network Lab — Rate Inquiry</div><div style="font-size:.625rem;color:var(--ink3)">May qualify for in-network rates under the No Surprises Act · Inquiry prepared</div></div>
-          <div style="font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--cobalt);letter-spacing:-.02em">$1,265</div>
+          <div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">Rate Review — Rate Inquiry</div><div style="font-size:.625rem;color:var(--ink3)">May qualify for in-network rates under the No Surprises Act · Inquiry prepared</div></div>
+          <div style="font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--cobalt);letter-spacing:-.02em">To confirm</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com</div></div><div class="nf-r">Page 3 of 11 · Account #2026-01-08</div></div>
+  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com</div></div><div class="nf-r">Page 3 of 11 · Account number</div></div>
   <div class="disc"><div class="disc-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="disc-t">Charts are informational estimates. Not a guarantee of any outcome. Results vary. Not legal advice.</div></div>
 </div>
 
@@ -447,15 +445,15 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 <!-- ════════════════════════════════════════════════
   PAGE 4 — CHART: LIKELIHOOD / CONFIDENCE BARS
 ════════════════════════════════════════════════ -->
-<div class="pg-lbl">Page 4 of 11 · Likelihood of Resolution — Chart 2</div>
+<div class="pg-lbl">Page 4 of 11 · Review Guidance ? Chart 2</div>
 <div class="page">
   <div class="gold-rule"></div>
   <div class="nh nh-sm"><div class="nh-inner"><div class="nh-brand"><div class="nh-logo"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div><div class="nh-big">United Patient Advocate</div><span class="nh-spaced">How Likely Is Each Issue to Be Resolved? — Page 4 of 11</span></div></div></div></div>
 
   <div style="padding:28px 40px 8px;text-align:center;border-bottom:1px solid var(--bdr)">
-    <div class="sec-label">Confidence Ratings</div>
+    <div class="sec-label">Review Readiness</div>
     <div style="font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--navy);letter-spacing:-.02em;margin-bottom:10px">How Likely Is Each Issue to Be Resolved?</div>
-    <p style="font-size:.8125rem;color:var(--ink4);line-height:1.68;max-width:520px;margin:0 auto">These percentages are based on typical outcomes for similar billing patterns. A higher number means the issue is more likely to be resolved in your favor when formally requested in writing. They are estimates — not guarantees.</p>
+    <p style="font-size:.8125rem;color:var(--ink4);line-height:1.68;max-width:520px;margin:0 auto">These percentages are informational estimates based on similar billing patterns. A higher number means the issue may be worth prioritizing when formally requested in writing. They are estimates — not guarantees.</p>
   </div>
 
   <div style="padding:28px 40px;display:flex;flex-direction:column;gap:28px">
@@ -464,11 +462,11 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     <div style="background:var(--white);border:1px solid var(--bdr);border-radius:12px;overflow:hidden">
       <div style="background:linear-gradient(135deg,var(--teal-pale),var(--white));padding:18px 22px 12px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
         <div>
-          <div style="font-size:.4375rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:5px">Issue 1 — Possible Duplicate Charge</div>
-          <div style="font-family:var(--serif);font-size:1.125rem;font-weight:700;color:var(--navy)">CPT 99285 Billed Twice — Same Date of Service</div>
+          <div style="font-size:.4375rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:5px">Issue 1 — Possible Line-Item Review</div>
+          <div style="font-family:var(--serif);font-size:1.125rem;font-weight:700;color:var(--navy)">billing line item Billed Twice — Same Date of Service</div>
         </div>
         <div style="text-align:right;flex-shrink:0">
-          <div style="font-family:var(--serif);font-size:3.75rem;font-weight:900;color:var(--teal);letter-spacing:-.04em;line-height:1">88%</div>
+          <div style="font-family:var(--serif);font-size:3.75rem;font-weight:900;color:var(--teal);letter-spacing:-.04em;line-height:1">Review</div>
           <div style="font-size:.5rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-top:2px">High likelihood</div>
         </div>
       </div>
@@ -476,7 +474,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
         <div style="height:24px;background:#EEF4F2;border-radius:12px;overflow:hidden;margin-bottom:12px">
           <div style="width:88%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:12px"></div>
         </div>
-        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65"><strong style="color:var(--teal)">Why this is likely to be resolved:</strong> When the same CPT code appears twice for the same visit on the same date, it typically represents a data entry error. Hospitals are required to correct duplicate billing entries upon a written request that identifies the specific line numbers. This is one of the most straightforward types of billing corrections.</div>
+        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65"><strong style="color:var(--teal)">Why this may be worth reviewing:</strong> When the same billing line item appears twice for the same visit on the same date, it can represent a data entry issue. Providers may correct or explain the charge when a written request identifies the specific line numbers. This is one of the most straightforward types of billing items to document.</div>
       </div>
     </div>
 
@@ -484,11 +482,11 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     <div style="background:var(--white);border:1px solid var(--bdr);border-radius:12px;overflow:hidden">
       <div style="background:linear-gradient(135deg,var(--cobalt-lt),var(--white));padding:18px 22px 12px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
         <div>
-          <div style="font-size:.4375rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--cobalt);margin-bottom:5px">Issue 2 — Out-of-Network Lab Rate</div>
-          <div style="font-family:var(--serif);font-size:1.125rem;font-weight:700;color:var(--navy)">Quest Diagnostics — Rate Review Request</div>
+          <div style="font-size:.4375rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--cobalt);margin-bottom:5px">Issue 2 — Rate Review Rate</div>
+          <div style="font-family:var(--serif);font-size:1.125rem;font-weight:700;color:var(--navy)">Outside Service Provider — Rate Review Request</div>
         </div>
         <div style="text-align:right;flex-shrink:0">
-          <div style="font-family:var(--serif);font-size:3.75rem;font-weight:900;color:var(--cobalt);letter-spacing:-.04em;line-height:1">74%</div>
+          <div style="font-family:var(--serif);font-size:3.75rem;font-weight:900;color:var(--cobalt);letter-spacing:-.04em;line-height:1">Request</div>
           <div style="font-size:.5rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--cobalt);margin-top:2px">Good likelihood</div>
         </div>
       </div>
@@ -496,7 +494,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
         <div style="height:24px;background:#EEF2FA;border-radius:12px;overflow:hidden;margin-bottom:12px">
           <div style="width:74%;height:100%;background:linear-gradient(90deg,#1A3AA0,var(--cobalt));border-radius:12px"></div>
         </div>
-        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65"><strong style="color:var(--cobalt)">Why this often works:</strong> The No Surprises Act (federal law, 2022) protects patients from out-of-network charges for ancillary services — like lab work — ordered during an in-network visit. When patients submit a written request citing this law, many billing departments apply the in-network rate. Success depends on how the referral was documented.</div>
+        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65"><strong style="color:var(--cobalt)">Why this may be worth reviewing:</strong> No Surprises Act protections may apply to certain out-of-network ancillary services ordered during an in-network visit. When patients submit a written request citing the specific protection, billing departments may review whether in-network rates apply. Outcomes depend on how the referral and consent were documented.</div>
       </div>
     </div>
 
@@ -504,11 +502,11 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     <div style="background:var(--white);border:1px solid var(--bdr);border-radius:12px;overflow:hidden">
       <div style="background:linear-gradient(135deg,var(--amber-lt),var(--white));padding:18px 22px 12px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
         <div>
-          <div style="font-size:.4375rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);margin-bottom:5px">Issue 3 — Possible Coding Mismatch</div>
-          <div style="font-family:var(--serif);font-size:1.125rem;font-weight:700;color:var(--navy)">CPT 99215 — Highest Complexity Code</div>
+          <div style="font-size:.4375rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);margin-bottom:5px">Issue 3 — Possible Documentation Review</div>
+          <div style="font-family:var(--serif);font-size:1.125rem;font-weight:700;color:var(--navy)">billing line item — Highest Complexity Code</div>
         </div>
         <div style="text-align:right;flex-shrink:0">
-          <div style="font-family:var(--serif);font-size:3.75rem;font-weight:900;color:var(--amber);letter-spacing:-.04em;line-height:1">62%</div>
+          <div style="font-family:var(--serif);font-size:3.75rem;font-weight:900;color:var(--amber);letter-spacing:-.04em;line-height:1">Docs</div>
           <div style="font-size:.5rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-top:2px">Moderate likelihood</div>
         </div>
       </div>
@@ -522,7 +520,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 
   </div>
 
-  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com</div></div><div class="nf-r">Page 4 of 11 · Account #2026-01-08</div></div>
+  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com</div></div><div class="nf-r">Page 4 of 11 · Account number</div></div>
   <div class="disc"><div class="disc-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="disc-t">Percentages are informational estimates based on similar billing patterns. Not a guarantee of any specific outcome. Results vary. Not legal advice.</div></div>
 </div>
 
@@ -541,37 +539,37 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     <div style="font-size:.75rem;color:var(--ink4);line-height:1.6;margin-bottom:18px">The <span style="color:var(--teal);font-weight:700">green bar</span> shows what Medicare typically allows for each procedure. The <span style="color:var(--crimson);font-weight:700">red bar</span> shows what was billed to you. A large gap between the two may indicate room for negotiation.</div>
 
     <div style="display:flex;flex-direction:column;gap:14px">
-      <!-- CPT 99285 -->
+      <!-- billing line item -->
       <div style="background:white;border:1px solid var(--bdr);border-radius:9px;padding:16px 18px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-          <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Emergency Visit — CPT 99285</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Billed for this procedure on two separate line items</div></div>
+          <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Emergency Visit — billing line item</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Billed for this procedure on two separate line items</div></div>
           <div style="font-size:.75rem;font-weight:700;color:var(--crimson)">Billed 82% above Medicare rate</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:92%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">$2,480</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">Medicare</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:51%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">$1,362</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:92%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">To confirm</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">Medicare</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:51%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">Benchmark</span></div>
         </div>
       </div>
-      <!-- CPT 99215 -->
+      <!-- billing line item -->
       <div style="background:white;border:1px solid var(--bdr);border-radius:9px;padding:16px 18px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-          <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Office Visit Level 5 — CPT 99215</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Highest complexity code — records may support a lower level</div></div>
+          <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Office Visit Level 5 — billing line item</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Highest complexity code — records may support a lower level</div></div>
           <div style="font-size:.75rem;font-weight:700;color:var(--crimson)">Billed 56% above Medicare rate</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:72%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">$890</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">Medicare</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:46%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">$571</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:72%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">To confirm</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">Medicare</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:46%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">Benchmark</span></div>
         </div>
       </div>
       <!-- Lab -->
       <div style="background:white;border:1px solid var(--bdr);border-radius:9px;padding:16px 18px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-          <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Lab Services — Quest Diagnostics</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Processed out-of-network — in-network rate may apply</div></div>
-          <div style="font-size:.75rem;font-weight:700;color:var(--cobalt)">In-network rate estimated ~$420</div>
+          <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Lab Services — Outside Service Provider</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Processed out-of-network — in-network rate may apply</div></div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--cobalt)">In-network rate estimated ~Benchmark</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">OON Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:95%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">$1,265</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">In-Network</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:32%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">~$420</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">OON Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:95%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">To confirm</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">In-Network</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:32%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">~Benchmark</span></div>
         </div>
       </div>
     </div>
@@ -587,7 +585,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
         <div style="font-family:var(--serif);font-size:2.5rem;font-weight:900;color:var(--teal);letter-spacing:-.04em;line-height:1;margin-bottom:4px">7–30</div>
         <div style="font-size:.75rem;font-weight:700;color:var(--teal);margin-bottom:6px">days</div>
         <div style="font-size:.75rem;font-weight:700;color:var(--navy);margin-bottom:6px">Itemized Statement</div>
-        <div style="font-size:.625rem;color:var(--ink3);line-height:1.60">After you send Letter 1, the hospital typically provides your itemized bill within 7–30 days. Law requires a response within 30 days.</div>
+        <div style="font-size:.625rem;color:var(--ink3);line-height:1.60">After you send Letter 1, the hospital may provide your itemized bill within 7-30 days. Follow up around 30 days if you have not received a written response.</div>
       </div>
       <div style="background:var(--cobalt-lt);border:1px solid rgba(40,80,192,.18);border-radius:12px;padding:20px 16px;text-align:center">
         <div style="font-family:var(--serif);font-size:2.5rem;font-weight:900;color:var(--cobalt);letter-spacing:-.04em;line-height:1;margin-bottom:4px">14–45</div>
@@ -604,7 +602,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     </div>
   </div>
 
-  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com</div></div><div class="nf-r">Page 5 of 11 · Account #2026-01-08</div></div>
+  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com</div></div><div class="nf-r">Page 5 of 11 · Account number</div></div>
   <div class="disc"><div class="disc-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="disc-t">Timelines and rates are estimates only. Results vary. Not legal advice. Not a guarantee of outcome.</div></div>
 </div>
 
@@ -638,7 +636,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
           <div style="font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--navy)">Send Letter 1 — Request for Itemized Statement</div>
           <div style="font-family:var(--mono);font-size:.5rem;font-weight:700;color:var(--teal);background:var(--teal-pale);border:1px solid rgba(30,107,90,.22);padding:2px 9px;border-radius:100px;flex-shrink:0;white-space:nowrap">Today</div>
         </div>
-        <p style="font-size:.75rem;color:var(--ink3);line-height:1.68">Download Letter 1 from this packet. Fill in your address, sign it, and mail or email it to Memorial Regional Patient Financial Services. Keep a copy. This is the most important step — it protects your position and starts the formal process.</p>
+        <p style="font-size:.75rem;color:var(--ink3);line-height:1.68">Download Letter 1 from this packet. Fill in your address, sign it, and mail or email it to Your Provider Patient Financial Services. Keep a copy. This is the most important step — it protects your position and starts the formal process.</p>
         <div style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--teal-pale);border-radius:100px"><span style="font-size:.5625rem;font-weight:700;color:var(--teal)">⏱ Expected response time: 7–30 days</span></div>
       </div>
     </div>
@@ -656,7 +654,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
           <div style="font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--navy)">Receive &amp; Review Your Itemized Bill</div>
           <div style="font-family:var(--mono);font-size:.5rem;font-weight:700;color:var(--gold-dk);background:var(--gold-pale);border:1px solid var(--bdr-gold);padding:2px 9px;border-radius:100px;flex-shrink:0;white-space:nowrap">7–30 days after Step 1</div>
         </div>
-        <p style="font-size:.75rem;color:var(--ink3);line-height:1.68">The hospital will send you a complete line-by-line bill. When it arrives, look for CPT code 99285 — if it appears on two lines for January 8, that confirms the duplicate. Circle or highlight both lines. You will attach this to Letter 2.</p>
+        <p style="font-size:.75rem;color:var(--ink3);line-height:1.68">The hospital will send you a complete line-by-line bill. When it arrives, look for a billing line item — if the same charge appears more than once for the same service date, circle or highlight the relevant lines. You will attach this to Letter 2.</p>
         <div style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--gold-pale);border:1px solid var(--bdr-gold);border-radius:100px"><span style="font-size:.5625rem;font-weight:700;color:var(--gold-dk)">💡 If you haven't received it after 30 days, call billing and follow up</span></div>
       </div>
     </div>
@@ -674,7 +672,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
           <div style="font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--navy)">Send Letters 2 and 3</div>
           <div style="font-family:var(--mono);font-size:.5rem;font-weight:700;color:var(--crimson);background:var(--crimson-lt);border:1px solid rgba(200,50,50,.22);padding:2px 9px;border-radius:100px;flex-shrink:0;white-space:nowrap">After itemized bill arrives</div>
         </div>
-        <p style="font-size:.75rem;color:var(--ink3);line-height:1.68">Download Letters 2 and 3 from this packet. Send Letter 2 (duplicate charge review) to Memorial Regional with your highlighted itemized bill attached. Send Letter 3 (lab rate inquiry) to both Memorial Regional and Quest Diagnostics. You can send both at the same time.</p>
+        <p style="font-size:.75rem;color:var(--ink3);line-height:1.68">Download Letters 2 and 3 from this packet. Send Letter 2 (line-item concern review) to Your Provider with your highlighted itemized bill attached. Send Letter 3 (lab rate inquiry) to both Your Provider and Outside Service Provider. You can send both at the same time.</p>
         <div style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--crimson-lt);border:1px solid rgba(200,50,50,.20);border-radius:100px"><span style="font-size:.5625rem;font-weight:700;color:var(--crimson)">⏱ Expected response time: 14–45 days after sending</span></div>
       </div>
     </div>
@@ -692,7 +690,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
           <div style="font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--navy)">Wait for Their Response</div>
           <div style="font-family:var(--mono);font-size:.5rem;font-weight:700;color:var(--cobalt);background:var(--cobalt-lt);border:1px solid rgba(40,80,192,.22);padding:2px 9px;border-radius:100px;flex-shrink:0;white-space:nowrap">14–45 days</div>
         </div>
-        <p style="font-size:.75rem;color:var(--ink3);line-height:1.68">The billing department will review your letters and respond in writing. They may request additional information, issue a corrected statement, or decline the review request. If you receive a corrected bill showing the duplicate removed, your request was successful. If they decline, see Step 5.</p>
+        <p style="font-size:.75rem;color:var(--ink3);line-height:1.68">The billing department may review your letters and respond in writing. They may request additional information, issue a corrected statement, or decline the review request. If you receive a corrected bill showing the billing line corrected, your request may be resolved. If they decline, see Step 5.</p>
       </div>
     </div>
 
@@ -708,13 +706,13 @@ body{padding:12px 10px 40px;overflow-x:hidden}
           <div style="font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--navy)">If No Response or Decline — Escalate</div>
           <div style="font-family:var(--mono);font-size:.5rem;font-weight:700;color:var(--ink4);background:#F0F3F8;border:1px solid var(--bdr);padding:2px 9px;border-radius:100px;flex-shrink:0;white-space:nowrap">Only if needed · Varies</div>
         </div>
-        <p style="font-size:.75rem;color:var(--ink3);line-height:1.68">If the billing department does not respond within 45 days or declines without a clear explanation, you can escalate to the hospital's Patient Financial Advocate (required at every accredited hospital), or file a complaint with your state's insurance commissioner. Most disputes resolve before this step is needed.</p>
+        <p style="font-size:.75rem;color:var(--ink3);line-height:1.68">If the billing department does not respond within 45 days or declines without a clear explanation, you can ask for the hospital's Patient Financial Advocate, patient representative, or billing supervisor, or file a complaint with your state's insurance commissioner. Many disputes are handled before this step is needed.</p>
       </div>
     </div>
 
   </div>
 
-  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com</div></div><div class="nf-r">Page 6 of 11 · Account #2026-01-08</div></div>
+  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com</div></div><div class="nf-r">Page 6 of 11 · Account number</div></div>
   <div class="disc"><div class="disc-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="disc-t">Timelines are estimates based on typical billing processes. Results vary by provider. Not legal advice.</div></div>
 </div>
 
@@ -739,7 +737,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     <div style="background:var(--crimson-lt);border:1px solid rgba(200,50,50,.22);border-radius:10px;padding:18px 18px;border-left:4px solid var(--crimson)">
       <div style="font-size:1.5rem;margin-bottom:8px">⚠️</div>
       <div style="font-size:.875rem;font-weight:700;color:var(--crimson);margin-bottom:6px">Paying the full bill before requesting itemization</div>
-      <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">Once you pay, recovering money is significantly harder. Always request the itemized bill first. You are legally entitled to it, and the hospital must hold collections while the request is being processed.</div>
+      <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">Once you pay, recovering money can be significantly harder. Request the itemized bill first, and ask the provider in writing to pause collection activity on the reviewed amount while the request is being processed.</div>
     </div>
 
     <div style="background:var(--crimson-lt);border:1px solid rgba(200,50,50,.22);border-radius:10px;padding:18px 18px;border-left:4px solid var(--crimson)">
@@ -757,7 +755,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     <div style="background:var(--crimson-lt);border:1px solid rgba(200,50,50,.22);border-radius:10px;padding:18px 18px;border-left:4px solid var(--crimson)">
       <div style="font-size:1.5rem;margin-bottom:8px">⚠️</div>
       <div style="font-size:.875rem;font-weight:700;color:var(--crimson);margin-bottom:6px">Accepting "that's how our billing works" as a final answer</div>
-      <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">Billing system errors are not your financial responsibility. A duplicate charge is an error regardless of how it was generated. If you hit a wall, calmly ask to speak with a supervisor or the Patient Advocate office.</div>
+      <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">A billing system explanation is still worth reviewing. A line-item concern can be reviewed regardless of how it was generated. If you hit a wall, calmly ask to speak with a supervisor or the Patient Advocate office.</div>
     </div>
 
     <div style="background:var(--crimson-lt);border:1px solid rgba(200,50,50,.22);border-radius:10px;padding:18px 18px;border-left:4px solid var(--crimson)">
@@ -769,7 +767,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     <div style="background:var(--crimson-lt);border:1px solid rgba(200,50,50,.22);border-radius:10px;padding:18px 18px;border-left:4px solid var(--crimson)">
       <div style="font-size:1.5rem;margin-bottom:8px">⚠️</div>
       <div style="font-size:.875rem;font-weight:700;color:var(--crimson);margin-bottom:6px">Getting frustrated on the phone</div>
-      <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">The billing representative you speak with almost certainly did not create the error. Being calm and kind gets better results. You are more likely to be helped quickly when the call feels cooperative rather than confrontational.</div>
+      <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">The billing representative you speak with almost certainly did not create the issue. Being calm and kind gets better results. You are more likely to be helped quickly when the call feels cooperative rather than confrontational.</div>
     </div>
 
   </div>
@@ -796,8 +794,8 @@ body{padding:12px 10px 40px;overflow-x:hidden}
   <div style="padding:24px 40px 18px;text-align:center;border-bottom:1px solid var(--bdr)">
     <div style="font-size:2.5rem;margin-bottom:6px">⚖️</div>
     <div class="sec-label">Simple. Empowering. Yours.</div>
-    <div style="font-family:var(--serif);font-size:1.625rem;font-weight:700;color:var(--navy);letter-spacing:-.02em;line-height:1.2;margin-bottom:10px">These Are Your Rights<br><span style="color:var(--teal)">as a Patient. They Are Federal Law.</span></div>
-    <p style="font-size:.8125rem;color:var(--ink4);max-width:500px;margin:0 auto;line-height:1.68">You do not need a lawyer to use any of these rights. You just need to ask — in writing, calmly, with a copy kept for yourself. That is exactly what this packet helps you do.</p>
+    <div style="font-family:var(--serif);font-size:1.625rem;font-weight:700;color:var(--navy);letter-spacing:-.02em;line-height:1.2;margin-bottom:10px">These Are Common<br><span style="color:var(--teal)">Billing Protections and Request Paths.</span></div>
+    <p style="font-size:.8125rem;color:var(--ink4);max-width:500px;margin:0 auto;line-height:1.68">You do not need a lawyer to use these request paths. You just need to ask — in writing, calmly, with a copy kept for yourself. That is exactly what this packet helps you do.</p>
   </div>
 
   <div style="padding:22px 40px;display:flex;flex-direction:column;gap:12px">
@@ -805,9 +803,9 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     <div style="display:flex;gap:16px;padding:18px 20px;background:var(--teal-pale);border:1px solid rgba(30,107,90,.20);border-radius:10px">
       <div style="flex-shrink:0;width:48px;height:48px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="font-size:1.375rem">📄</span></div>
       <div>
-        <div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:4px">Patient Protection Act</div>
-        <div style="font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:5px">Right to a Fully Itemized Bill</div>
-        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">You have the right to request a complete, line-by-line itemized statement from any hospital. They are required to provide it within 30 days in most states. This right exists even if you have already received a summary bill. No one can deny you this.</div>
+        <div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:4px">Itemized Bill Request</div>
+        <div style="font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:5px">Request a Fully Itemized Bill</div>
+        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">You can request a complete, line-by-line itemized statement from the provider. Many providers can provide it on request; timing and requirements vary by state, plan, provider, and dispute process.</div>
       </div>
     </div>
 
@@ -815,8 +813,8 @@ body{padding:12px 10px 40px;overflow-x:hidden}
       <div style="flex-shrink:0;width:48px;height:48px;background:var(--cobalt);border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="font-size:1.375rem">📋</span></div>
       <div>
         <div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--cobalt);margin-bottom:4px">CMS Claims Processing Manual · Chapter 1, §80.7</div>
-        <div style="font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:5px">Right to Request Correction of Duplicate Charges</div>
-        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">Medicare rules prohibit billing the same procedure twice for the same date of service. If a CPT code appears twice on a single visit, you have grounds to request a correction in writing. The hospital must review and respond. <strong style="color:var(--navy)">CPT 99285 appears twice on your bill on Lines 3 and 11.</strong></div>
+        <div style="font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:5px">Right to Request Correction of Line-Item Reviews</div>
+        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">CMS billing guidance can support questions about duplicate billing lines. If a billing line item appears twice on a single visit, you have grounds to request a written explanation and correction if the provider confirms a duplicate entry. <strong style="color:var(--navy)">billing line item appears twice on your bill on the relevant itemized bill lines.</strong></div>
       </div>
     </div>
 
@@ -824,8 +822,8 @@ body{padding:12px 10px 40px;overflow-x:hidden}
       <div style="flex-shrink:0;width:48px;height:48px;background:var(--gold-dk);border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="font-size:1.375rem">🏥</span></div>
       <div>
         <div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:4px">No Surprises Act · Public Law 116-260 (2022)</div>
-        <div style="font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:5px">Right to In-Network Rates for Emergency Ancillary Services</div>
-        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">If you received care at an in-network facility, you cannot be billed at out-of-network rates for services ordered by in-network providers — including lab work — without your prior written consent. <strong style="color:var(--navy)">Your Quest Diagnostics lab was ordered during your in-network visit at Memorial Regional.</strong></div>
+        <div style="font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:5px">Review In-Network Rate Protections for Ancillary Services</div>
+        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">If you received care at an in-network facility, No Surprises Act protections may limit out-of-network billing for certain services ordered by in-network providers — including some lab work — without required notice and consent. <strong style="color:var(--navy)">Your Outside Service Provider lab was ordered during your in-network visit at Your Provider.</strong></div>
       </div>
     </div>
 
@@ -833,24 +831,24 @@ body{padding:12px 10px 40px;overflow-x:hidden}
       <div style="flex-shrink:0;width:48px;height:48px;background:var(--crimson);border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="font-size:1.375rem">⏸️</span></div>
       <div>
         <div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--crimson);margin-bottom:4px">Fair Debt Collection Practices Act</div>
-        <div style="font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:5px">Right to Pause Collections While Your Request Is Active</div>
-        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">Once you submit a written billing review request, collection activity on the reviewed amount must be paused while the review is active. Request this explicitly in your letters — our prepared letters already include this language. Medical bills under active review cannot legally be reported to credit agencies during the review period.</div>
+        <div style="font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:5px">Request a Collection Pause While Your Request Is Active</div>
+        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">Once you submit a written billing review request, ask the provider or collector to pause collection activity on the reviewed amount while the review is active. Our prepared letters include this request. Credit reporting treatment varies by account, timing, collector status, and dispute type.</div>
       </div>
     </div>
 
     <div style="display:flex;gap:16px;padding:18px 20px;background:#F3F6FB;border:1px solid var(--bdr);border-radius:10px">
       <div style="flex-shrink:0;width:48px;height:48px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="font-size:1.375rem">👤</span></div>
       <div>
-        <div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--navy);margin-bottom:4px">Federal Requirement · All Accredited Hospitals</div>
-        <div style="font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:5px">Right to Speak with a Patient Financial Advocate</div>
-        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">Every accredited hospital in the United States is required to have a Patient Financial Advocate (also called a Patient Representative). This person's job is to help resolve billing concerns directly. If your letters don't get results, simply call the hospital and ask: <strong style="color:var(--navy)">"I'd like to speak with the Patient Financial Advocate, please."</strong></div>
+        <div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--navy);margin-bottom:4px">Common Hospital Support Channel</div>
+        <div style="font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:5px">Ask to Speak with a Patient Financial Advocate</div>
+        <div style="font-size:.75rem;color:var(--ink3);line-height:1.65">Many hospitals have a Patient Financial Advocate, Patient Representative, or billing supervisor who can help route billing concerns directly. If your letters don't get results, simply call the hospital and ask: <strong style="color:var(--navy)">"I'd like to speak with the Patient Financial Advocate, please."</strong></div>
       </div>
     </div>
 
   </div>
 
-  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com</div></div><div class="nf-r">Page 8 of 11 · Account #2026-01-08</div></div>
-  <div class="disc"><div class="disc-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="disc-t">Educational information only. Rights described are based on federal law but application may vary by state, plan type, and circumstance. Not legal advice. Consult a licensed attorney for legal guidance specific to your situation.</div></div>
+  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com</div></div><div class="nf-r">Page 8 of 11 · Account number</div></div>
+  <div class="disc"><div class="disc-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="disc-t">Educational information only. Billing protections and request paths may vary by state, plan type, provider, and circumstance. Not legal advice. Consult a licensed attorney for legal guidance specific to your situation.</div></div>
 </div>
 
 
@@ -860,20 +858,20 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 <div class="pg-lbl">Page 9 of 11 · Letter 1 — Request for Itemized Statement</div>
 <div class="page">
   <div class="gold-rule rule-teal"></div>
-  <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Letter 01 of 03</span><div class="ltb-sep"></div><span class="ltb-title">Request for Fully Itemized Statement — Send This First</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-teal">Ready to Send</span></div></div>
-  <div class="lhd"><div><div class="lhd-name">First Name Last Name</div><span class="lhd-sub">Patient · Medicare Beneficiary</span><div class="lhd-addr">2847 Coral Springs Drive<br>Hollywood, FL 33021<br>(954) 555-0182 · firstname.lastname@example.com</div></div><div class="lhd-r"><div class="lhd-date">May 16, 2026</div><span class="lhd-acct">Account: #2026-01-08 · Letter 1 of 3</span></div></div>
+  <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Core Letter 01</span><div class="ltb-sep"></div><span class="ltb-title">Request for Fully Itemized Statement — Send This First</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-teal">Ready to Send</span></div></div>
+  <div class="lhd"><div><div class="lhd-name">First Name Last Name</div><span class="lhd-sub">Patient · Medicare Beneficiary</span><div class="lhd-addr">2847 Coral Springs Drive<br>Hollywood, FL 33021<br>phone number · patient@example.com</div></div><div class="lhd-r"><div class="lhd-date">Preparation date</div><span class="lhd-acct">Account: account number · Core letter 1</span></div></div>
   <div class="lbody">
-    <div style="margin-bottom:12px"><div class="lb-to-lbl">Addressed To</div><div class="lb-to-name">Patient Financial Services Department</div><div class="lb-to-addr">Memorial Regional Medical Center · Billing &amp; Accounts<br>123 Medical Center Drive, Hollywood, FL 33021</div></div>
-    <div class="lb-re re-teal"><span class="lb-re-lbl">RE:</span><span class="lb-re-txt">Request for Fully Itemized Statement · Account #2026-01-08 · Date of Service: January 8, 2026</span></div>
+    <div style="margin-bottom:12px"><div class="lb-to-lbl">Addressed To</div><div class="lb-to-name">Patient Financial Services Department</div><div class="lb-to-addr">Your Provider · Billing &amp; Accounts<br>Provider billing address</div></div>
+    <div class="lb-re re-teal"><span class="lb-re-lbl">RE:</span><span class="lb-re-txt">Request for Fully Itemized Statement · Account number · Date of Service: date of service</span></div>
     <p class="lb-salut">Dear Patient Financial Services Team,</p>
-    <p class="lb-para">I am writing to formally request a complete, fully itemized statement for medical services rendered on <strong>January 8, 2026</strong>, account number 2026-01-08, at Memorial Regional Medical Center. My current statement reflects total charges of <strong>$23,452</strong> with Medicare as the primary payer. I am reviewing this statement prior to remitting any payment.</p>
+    <p class="lb-para">I am writing to formally request a complete, fully itemized statement for medical services rendered on <strong>date of service</strong>, account number account number, at Your Provider. My current statement reflects total charges of <strong>Bill amount</strong> with Medicare as the primary payer. I am reviewing this statement prior to remitting any payment.</p>
     <div class="lb-hl">I am formally requesting a complete line-by-line itemized statement for all services rendered, including all CPT codes, HCPCS codes, revenue codes, dates of service, units billed, and the charge for each individual item.</div>
     <div class="lb-cite"><div class="lb-cite-lbl">Federal Patient Right — Basis for This Request</div><div class="lb-cite-txt">"Patients are entitled to receive a complete, itemized statement of all charges including CPT codes, HCPCS codes, revenue codes, units, dates of service, and the Medicare allowable amount for each line item, upon written request, within thirty (30) days of receipt."</div></div>
-    <p class="lb-sm">This request is made under the Patient Protection Act and my federal right to transparent, itemized medical billing. Please hold any collections activity while this request is being processed. Please provide written confirmation of this request and a reference number. Respond within 30 days.</p>
-    <div class="lb-sig"><div><div class="lbs-close">Sincerely,</div><div class="lbs-name">First Name Last Name</div><span class="lbs-sub">Patient / Medicare Beneficiary · Account #2026-01-08</span></div><div class="stamp"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="rgba(30,107,90,.06)" stroke="rgba(30,107,90,.52)" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="rgba(30,107,90,.18)" stroke-width="1"/><path id="s9" d="M50 50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" fill="none"/><text font-family="Plus Jakarta Sans" font-size="8.5" font-weight="700" fill="rgba(30,107,90,.72)" letter-spacing="2.5"><textPath href="#s9">PATIENT RIGHTS PROTECTED · </textPath></text><text x="50" y="47" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="7.5" font-weight="800" fill="rgba(30,107,90,.85)">PREPARED</text><text x="50" y="58" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="7" font-weight="700" fill="rgba(30,107,90,.68)">FOR REVIEW</text><text x="50" y="30" text-anchor="middle" font-size="8" fill="rgba(30,107,90,.50)">✦</text></svg></div></div>
+    <p class="lb-sm">This request is made under the Itemized Bill Request and my federal right to transparent, itemized medical billing. Please hold any collections activity while this request is being processed. Please provide written confirmation of this request and a reference number. Respond within 30 days.</p>
+    <div class="lb-sig"><div><div class="lbs-close">Sincerely,</div><div class="lbs-name">First Name Last Name</div><span class="lbs-sub">Patient / Medicare Beneficiary · Account number</span></div><div class="stamp"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="rgba(30,107,90,.06)" stroke="rgba(30,107,90,.52)" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="rgba(30,107,90,.18)" stroke-width="1"/><path id="s9" d="M50 50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" fill="none"/><text font-family="Plus Jakarta Sans" font-size="8.5" font-weight="700" fill="rgba(30,107,90,.72)" letter-spacing="2.5"><textPath href="#s9">PATIENT RIGHTS PROTECTED · </textPath></text><text x="50" y="47" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="7.5" font-weight="800" fill="rgba(30,107,90,.85)">PREPARED</text><text x="50" y="58" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="7" font-weight="700" fill="rgba(30,107,90,.68)">FOR REVIEW</text><text x="50" y="30" text-anchor="middle" font-size="8" fill="rgba(30,107,90,.50)">✦</text></svg></div></div>
   </div>
-  <div class="lfoot"><span class="lf-m">Letter 1 of 3 · Account #2026-01-08 · DOS: January 8, 2026 · Prepared May 16, 2026</span><span class="lf-p">Page 9 of 11</span></div>
-  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com · Send certified mail and keep a copy</div></div><div class="nf-r">Page 9 of 11</div></div>
+  <div class="lfoot"><span class="lf-m">Core letter 1 · Account number · DOS: date of service · Prepared Preparation date</span><span class="lf-p">Page 9 of 11</span></div>
+  <div class="nfoot"><div class="nf-l"><div class="nf-t"><strong>Patient copy:</strong> Send by certified mail, secure portal, or email and keep a copy.</div></div><div class="nf-r">Page 9 of 11</div></div>
   <div class="disc"><div class="disc-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="disc-t">Educational and informational use only. Not legal advice. Results vary and are not guaranteed.</div></div>
 </div>
 
@@ -884,20 +882,20 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 <div class="pg-lbl">Page 10 of 11 · Letter 2 — Billing Review Request</div>
 <div class="page">
   <div class="gold-rule rule-crimson"></div>
-  <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Letter 02 of 03</span><div class="ltb-sep"></div><span class="ltb-title">Billing Review Request — CPT 99285 Possible Duplicate · $1,240</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-crimson">Ready to Send</span></div></div>
-  <div class="lhd"><div><div class="lhd-name">First Name Last Name</div><span class="lhd-sub">Patient · Medicare Beneficiary</span><div class="lhd-addr">2847 Coral Springs Drive<br>Hollywood, FL 33021<br>(954) 555-0182 · firstname.lastname@example.com</div></div><div class="lhd-r"><div class="lhd-date">May 16, 2026</div><span class="lhd-acct">Account: #2026-01-08 · Letter 2 of 3</span></div></div>
+  <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Core Letter 02</span><div class="ltb-sep"></div><span class="ltb-title">Billing Review Request — billing line item Possible Duplicate · To confirm</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-crimson">Ready to Send</span></div></div>
+  <div class="lhd"><div><div class="lhd-name">First Name Last Name</div><span class="lhd-sub">Patient · Medicare Beneficiary</span><div class="lhd-addr">2847 Coral Springs Drive<br>Hollywood, FL 33021<br>phone number · patient@example.com</div></div><div class="lhd-r"><div class="lhd-date">Preparation date</div><span class="lhd-acct">Account: account number · Core letter 2</span></div></div>
   <div class="lbody">
-    <div style="margin-bottom:12px"><div class="lb-to-lbl">Addressed To</div><div class="lb-to-name">Patient Financial Services — Billing Review Department</div><div class="lb-to-addr">Memorial Regional Medical Center · 123 Medical Center Drive, Hollywood, FL 33021</div></div>
-    <div class="lb-re re-crimson"><span class="lb-re-lbl">RE:</span><span class="lb-re-txt">Billing Review Request · CPT 99285 — Possible Duplicate Entry · Lines 3 &amp; 11 · DOS: January 8, 2026 · Amount Under Review: $1,240</span></div>
+    <div style="margin-bottom:12px"><div class="lb-to-lbl">Addressed To</div><div class="lb-to-name">Patient Financial Services — Billing Review Department</div><div class="lb-to-addr">Your Provider · Provider billing address</div></div>
+    <div class="lb-re re-crimson"><span class="lb-re-lbl">RE:</span><span class="lb-re-txt">Billing Review Request · billing line item — Possible Duplicate Entry · Itemized bill lines · DOS: date of service · Amount Under Review: To confirm</span></div>
     <p class="lb-salut">Dear Patient Financial Services Team,</p>
-    <p class="lb-para">I am writing to request a formal review of a potential billing discrepancy on my statement, Account #2026-01-08. Upon reviewing my itemized statement, I noticed that <strong>CPT code 99285 — Emergency Department Visit, Level 5 — appears on two separate line items (Lines 3 and 11) for the same date of service, January 8, 2026.</strong> I am requesting clarification as to whether both entries represent separate, distinct services or a duplicate billing entry for a single encounter.</p>
-    <div class="lb-hl">CPT code 99285 appears on Lines 3 and 11 of my itemized statement, both dated January 8, 2026. If both entries reflect the same encounter, I respectfully request that the duplicate entry be removed and that I receive a corrected statement.</div>
-    <div class="lb-cite cc"><div class="lb-cite-lbl">Reference Standard — CMS Claims Processing Manual</div><div class="lb-cite-txt">"Medicare does not pay for duplicate services. When the same service is billed more than once for the same beneficiary on the same date of service, the claim must be adjusted or denied." — Chapter 1, §80.7</div></div>
-    <p class="lb-sm">I respectfully request a written response within 30 days, a corrected statement if the review confirms a duplicate entry, and confirmation that collections activity on the reviewed amount will be paused while this matter is under review. Please provide a reference number for this request.</p>
-    <div class="lb-sig"><div><div class="lbs-close">Sincerely,</div><div class="lbs-name">First Name Last Name</div><span class="lbs-sub">Patient / Medicare Beneficiary · Account #2026-01-08</span></div><div class="stamp"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="rgba(200,50,50,.05)" stroke="rgba(176,32,32,.50)" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="rgba(176,32,32,.18)" stroke-width="1"/><path id="s10" d="M50 50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" fill="none"/><text font-family="Plus Jakarta Sans" font-size="8.5" font-weight="700" fill="rgba(176,32,32,.70)" letter-spacing="2.5"><textPath href="#s10">FORMAL BILLING REVIEW · </textPath></text><text x="50" y="47" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="7.5" font-weight="800" fill="rgba(176,32,32,.82)">REVIEW</text><text x="50" y="58" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="7" font-weight="700" fill="rgba(176,32,32,.68)">REQUESTED</text><text x="50" y="30" text-anchor="middle" font-size="8" fill="rgba(176,32,32,.50)">✦</text></svg></div></div>
+    <p class="lb-para">I am writing to request a formal review of a potential billing discrepancy on my statement, Account number. Upon reviewing my itemized statement, I noticed that <strong>a billing line item — billing line item — appears on two separate line items (the relevant itemized bill lines) for the same date of service, date of service.</strong> I am requesting clarification as to whether both entries represent separate, distinct services or a line-item billing review entry for a single encounter.</p>
+    <div class="lb-hl">a billing line item appears on the relevant itemized bill lines of my itemized statement, both dated date of service. If both entries reflect the same encounter, I respectfully request a written explanation and correction if your review confirms a duplicate entry.</div>
+    <div class="lb-cite cc"><div class="lb-cite-lbl">Reference Standard — CMS Claims Processing Manual</div><div class="lb-cite-txt">"Medicare does not pay for billing issue services. If the same service appears more than once for the same beneficiary on the same date of service, request a written explanation and correction if the provider confirms a duplicate entry." — Chapter 1, §80.7</div></div>
+    <p class="lb-sm">I respectfully request a written response within 30 days, a corrected statement if the review confirms a billing entry, and confirmation whether collection activity on the reviewed amount can be paused while this matter is under review. Please provide a reference number for this request.</p>
+    <div class="lb-sig"><div><div class="lbs-close">Sincerely,</div><div class="lbs-name">First Name Last Name</div><span class="lbs-sub">Patient / Medicare Beneficiary · Account number</span></div><div class="stamp"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="rgba(200,50,50,.05)" stroke="rgba(176,32,32,.50)" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="rgba(176,32,32,.18)" stroke-width="1"/><path id="s10" d="M50 50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" fill="none"/><text font-family="Plus Jakarta Sans" font-size="8.5" font-weight="700" fill="rgba(176,32,32,.70)" letter-spacing="2.5"><textPath href="#s10">FORMAL BILLING REVIEW · </textPath></text><text x="50" y="47" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="7.5" font-weight="800" fill="rgba(176,32,32,.82)">REVIEW</text><text x="50" y="58" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="7" font-weight="700" fill="rgba(176,32,32,.68)">REQUESTED</text><text x="50" y="30" text-anchor="middle" font-size="8" fill="rgba(176,32,32,.50)">✦</text></svg></div></div>
   </div>
-  <div class="lfoot"><span class="lf-m">Letter 2 of 3 · Account #2026-01-08 · CPT 99285 Review · $1,240 · Prepared May 16, 2026</span><span class="lf-p">Page 10 of 11</span></div>
-  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong> support@unitedpatientadvocate.com · Attach itemized bill with lines highlighted</div></div><div class="nf-r">Page 10 of 11</div></div>
+  <div class="lfoot"><span class="lf-m">Core letter 2 · Account number · billing line item Review · To confirm · Prepared Preparation date</span><span class="lf-p">Page 10 of 11</span></div>
+  <div class="nfoot"><div class="nf-l"><div class="nf-t"><strong>Patient copy:</strong> Attach the itemized bill or EOB with relevant lines highlighted.</div></div><div class="nf-r">Page 10 of 11</div></div>
   <div class="disc"><div class="disc-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="disc-t">Educational and informational use only. Not legal advice. Results vary and are not guaranteed.</div></div>
 </div>
 
@@ -908,21 +906,21 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 <div class="pg-lbl">Page 11 of 11 · Letter 3 — In-Network Rate Inquiry</div>
 <div class="page">
   <div class="gold-rule rule-cobalt"></div>
-  <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Letter 03 of 03</span><div class="ltb-sep"></div><span class="ltb-title">In-Network Rate Inquiry — Quest Diagnostics Lab Fees · $1,265</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-cobalt">Ready to Send</span></div></div>
-  <div class="lhd"><div><div class="lhd-name">First Name Last Name</div><span class="lhd-sub">Patient · Medicare Beneficiary</span><div class="lhd-addr">2847 Coral Springs Drive<br>Hollywood, FL 33021<br>(954) 555-0182 · firstname.lastname@example.com</div></div><div class="lhd-r"><div class="lhd-date">May 16, 2026</div><span class="lhd-acct">Account: #2026-01-08 · Letter 3 of 3</span></div></div>
+  <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Core Letter 03</span><div class="ltb-sep"></div><span class="ltb-title">In-Network Rate Inquiry — Outside Service Provider Lab Fees · To confirm</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-cobalt">Ready to Send</span></div></div>
+  <div class="lhd"><div><div class="lhd-name">First Name Last Name</div><span class="lhd-sub">Patient · Medicare Beneficiary</span><div class="lhd-addr">2847 Coral Springs Drive<br>Hollywood, FL 33021<br>phone number · patient@example.com</div></div><div class="lhd-r"><div class="lhd-date">Preparation date</div><span class="lhd-acct">Account: account number · Core letter 3</span></div></div>
   <div class="lbody">
-    <div style="margin-bottom:12px"><div class="lb-to-lbl">Addressed To</div><div class="lb-to-name">Billing Department — Memorial Regional &amp; Quest Diagnostics</div><div class="lb-to-addr">Memorial Regional Medical Center · Ancillary Services · 123 Medical Center Drive, Hollywood, FL 33021<br>Quest Diagnostics · Patient Financial Services · Quest Diagnostics · Patient Financial Services · PO Box 740376 · Cincinnati, OH 45274</div></div>
-    <div class="lb-re re-cobalt"><span class="lb-re-lbl">RE:</span><span class="lb-re-txt">In-Network Rate Inquiry · Quest Diagnostics Ref: LAB-4430-B · Out-of-Network Lab Charges · $1,265 · Account: #2026-01-08</span></div>
+    <div style="margin-bottom:12px"><div class="lb-to-lbl">Addressed To</div><div class="lb-to-name">Billing Department — Your Provider &amp; Outside Service Provider</div><div class="lb-to-addr">Your Provider · Ancillary Services · Provider billing address<br>Outside Service Provider · Patient Financial Services · Outside Service Provider · Patient Financial Services · PO Box 740376 · Cincinnati, OH 45274</div></div>
+    <div class="lb-re re-cobalt"><span class="lb-re-lbl">RE:</span><span class="lb-re-txt">In-Network Rate Inquiry · Outside Service Provider Ref: billing reference · Rate Review Charges · To confirm · Account: account number</span></div>
     <p class="lb-salut">Dear Billing Department,</p>
-    <p class="lb-para">I am writing regarding laboratory services billed through Quest Diagnostics (Reference: LAB-4430-B) in connection with my <strong>January 8, 2026 outpatient visit</strong> at Memorial Regional Medical Center, Account #2026-01-08. These services were processed at out-of-network rates, resulting in a patient-responsibility charge of <strong>$1,265.</strong> I am writing to inquire whether these charges qualify for in-network cost-sharing rates under applicable federal guidelines.</p>
-    <div class="lb-hl">This laboratory work was ordered by my treating provider during an in-network outpatient encounter at Memorial Regional Medical Center. I am requesting that billing review whether in-network rates apply to these charges under the No Surprises Act.</div>
-    <div class="lb-cite cb"><div class="lb-cite-lbl">Reference — No Surprises Act · Public Law 116-260 (2022)</div><div class="lb-cite-txt">"Patients receiving care at in-network facilities may not be balance-billed for out-of-network ancillary services — including laboratory services ordered by in-network providers during an in-network facility visit — without prior written notice and patient consent."</div></div>
-    <p class="lb-sm">I respectfully ask that you review the referenced lab charges and apply in-network cost-sharing rates if they qualify under the above. Please respond in writing within 30 days with your determination. I am prepared to provide my insurance plan documentation and Explanation of Benefits upon request. Please also confirm that collections on this amount will be paused during your review.</p>
-    <div class="lb-sig"><div><div class="lbs-close">Sincerely,</div><div class="lbs-name">First Name Last Name</div><span class="lbs-sub">Patient / Medicare Beneficiary · Account #2026-01-08</span></div><div class="stamp"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="rgba(40,80,192,.05)" stroke="rgba(32,64,160,.50)" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="rgba(32,64,160,.18)" stroke-width="1"/><path id="s11" d="M50 50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" fill="none"/><text font-family="Plus Jakarta Sans" font-size="8.5" font-weight="700" fill="rgba(32,64,160,.70)" letter-spacing="2.5"><textPath href="#s11">RATE REVIEW REQUEST · </textPath></text><text x="50" y="44" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="7" font-weight="800" fill="rgba(32,64,160,.82)">IN-NETWORK</text><text x="50" y="55" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="6.5" font-weight="700" fill="rgba(32,64,160,.68)">RATE REVIEW</text><text x="50" y="30" text-anchor="middle" font-size="8" fill="rgba(32,64,160,.50)">✦</text></svg></div></div>
+    <p class="lb-para">I am writing regarding laboratory services billed through Outside Service Provider (Reference: billing reference) in connection with my <strong>date of service outpatient visit</strong> at Your Provider, Account number. These services were processed at out-of-network rates, resulting in a patient-responsibility charge of <strong>To confirm.</strong> I am writing to inquire whether these charges qualify for in-network cost-sharing rates under applicable federal guidelines.</p>
+    <div class="lb-hl">This laboratory work was ordered by my treating provider during an in-network outpatient encounter at Your Provider. I am requesting that billing review whether in-network rates apply to these charges under the No Surprises Act.</div>
+    <div class="lb-cite cb"><div class="lb-cite-lbl">Reference — No Surprises Act · Public Law 116-260 (2022)</div><div class="lb-cite-txt">No Surprises Act protections may apply to certain out-of-network ancillary services at in-network facilities when notice and consent requirements are not met.</div></div>
+    <p class="lb-sm">I respectfully ask that you review the referenced lab charges and apply in-network cost-sharing rates if they qualify under the above. Please respond in writing or provide a timeline for review. I am prepared to provide my insurance plan documentation and Explanation of Benefits upon request. Please also confirm whether collections on this amount can be paused during your review.</p>
+    <div class="lb-sig"><div><div class="lbs-close">Sincerely,</div><div class="lbs-name">First Name Last Name</div><span class="lbs-sub">Patient / Medicare Beneficiary · Account number</span></div><div class="stamp"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="rgba(40,80,192,.05)" stroke="rgba(32,64,160,.50)" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="rgba(32,64,160,.18)" stroke-width="1"/><path id="s11" d="M50 50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" fill="none"/><text font-family="Plus Jakarta Sans" font-size="8.5" font-weight="700" fill="rgba(32,64,160,.70)" letter-spacing="2.5"><textPath href="#s11">RATE REVIEW REQUEST · </textPath></text><text x="50" y="44" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="7" font-weight="800" fill="rgba(32,64,160,.82)">IN-NETWORK</text><text x="50" y="55" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="6.5" font-weight="700" fill="rgba(32,64,160,.68)">RATE REVIEW</text><text x="50" y="30" text-anchor="middle" font-size="8" fill="rgba(32,64,160,.50)">✦</text></svg></div></div>
   </div>
-  <div class="lfoot"><span class="lf-m">Letter 3 of 3 · Account #2026-01-08 · LAB-4430-B · $1,265 · Prepared May 16, 2026</span><span class="lf-p">Page 11 of 11</span></div>
-  <div class="nfoot"><div class="nf-l"><div class="nf-sh"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div class="nf-t"><strong>Help us improve UPA, share ideas and features you’d like to see added:</strong></div></div><div class="nf-r">♥ United Patient Advocate<br>support@unitedpatientadvocate.com</div></div>
-  <div class="disc"><div class="disc-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="disc-t">United Patient Advocate provides educational and informational billing review support. We do not provide legal, medical, insurance, or financial advice. Results vary and are not guaranteed. Nothing in this packet constitutes legal counsel or a guarantee of any specific billing outcome.</div></div>
+  <div class="lfoot"><span class="lf-m">Core letter 3 · Account number · billing reference · To confirm · Prepared Preparation date</span><span class="lf-p">Page 11 of 11</span></div>
+  <div class="nfoot"><div class="nf-l"><div class="nf-t"><strong>Patient copy:</strong> Keep a signed copy and delivery confirmation for your records.</div></div><div class="nf-r">Page 11 of 11</div></div>
+  <div class="disc"><div class="disc-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="disc-t">Educational and informational use only. Not legal, medical, insurance, or financial advice. Results vary and are not guaranteed.</div></div>
 </div>
 
 <!-- ════════════════════════════════════════════════
@@ -1024,7 +1022,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 
   <!-- Footer -->
   <div style="padding:14px 40px;border-top:1px solid rgba(28,43,72,0.07);display:flex;align-items:center;justify-content:space-between;background:rgba(28,43,72,0.02)">
-    <div style="font-family:'DM Mono',monospace;font-size:0.375rem;color:#A8C0CF;letter-spacing:0.07em">Account #2026-01-08 · Prepared May 16, 2026 · United Patient Advocate</div>
+    <div style="font-family:'DM Mono',monospace;font-size:0.375rem;color:#A8C0CF;letter-spacing:0.07em">Account number · Prepared Preparation date · United Patient Advocate</div>
     <div style="font-family:'DM Mono',monospace;font-size:0.375rem;color:#A8C0CF">Page 12 of 12</div>
   </div>
 
@@ -1035,14 +1033,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
   </div>
 
 </div>
-<script>
-function upaFinalPath(file) {
-  return window.location.protocol === 'file:' ? file : '/UPA-Final/' + file;
-}
-
-function openDashboard() {
-  window.location.href = upaFinalPath('04_upa-dashboard.html');
-}
-</script>
+<script src="upa-download-packet.js"></script>
+<script src="upa-case-personalization.js"></script>
 </body>
 </html>

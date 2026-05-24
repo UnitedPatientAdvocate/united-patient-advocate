@@ -130,7 +130,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);-webkit-font-smoot
 .mval.white{color:var(--on-dark)}
 .msub{font-size:.4375rem;color:var(--on-dark-3);margin-top:2px}
 
-/* ── Detail Scanner ── */
+/* ── Billing Review ── */
 .scanner{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 12px;font-family:var(--mono);opacity:0;transform:translateY(6px);filter:blur(2px);transition:opacity .45s var(--pop),transform .45s var(--pop),filter .35s ease}
 .scanner.appear{opacity:1;transform:translateY(0);filter:blur(0)}
 .scan-hdr{font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:7px;display:flex;align-items:center;gap:6px}
@@ -274,6 +274,7 @@ html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
 </style>
 </head>
 <body>
+
 <div class="topnav">
   <div class="nav-brand">
     <div class="nav-logo">
@@ -302,7 +303,7 @@ html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
       </div>
       <div class="hdr-stage" id="hdr-stage">Initializing Secure Review</div>
       <div class="hdr-title" id="hdr-title">Reviewing Your Bill</div>
-      <div class="hdr-sub" id="hdr-sub">We are preparing your billing review using the details you provided and keeping guidance general where bill-level details are not available.</div>
+      <div class="hdr-sub" id="hdr-sub">Our system is carefully analyzing every line of your statement to identify discrepancies, benchmark your charges, and prepare your action plan.</div>
     </div>
     <div class="prog-wrap">
       <div class="prog-hdr"><span class="prog-lbl">Review Progress</span><span class="prog-pct" id="prog-pct">0%</span></div>
@@ -310,8 +311,8 @@ html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
     </div>
     <div class="card-body" id="card-body"></div>
     <div class="pstrip">
-      <div class="ps-l"><div class="ps-dot"></div><div><div class="ps-lbl">Active Review</div><div class="ps-nm" id="active-review-name">Your billing review</div></div></div>
-      <div class="ps-r" id="active-review-ref">REF: Intake review</div>
+      <div class="ps-l"><div class="ps-dot"></div><div><div class="ps-lbl">Active Review</div><div class="ps-nm">Your billing review</div></div></div>
+      <div class="ps-r">Account: account number</div>
     </div>
   </div>
 
@@ -405,199 +406,107 @@ setInterval(function(){
 },1100);
 
 /* ═══════════ MAIN ANALYSIS ═══════════ */
-function getIntakeContext(){
-  try{
-    return JSON.parse(sessionStorage.getItem('upa.intake.context.v1')||localStorage.getItem('upa.intake.context.v1')||'{}');
-  }catch(e){return {};}
-}
-function cleanText(value,fallback){
-  var text=String(value||'').trim();
-  if(!text||text==='undefined'||text==='null'||text==='NaN')return fallback;
-  return text;
-}
-function escapeHtml(value){
-  return String(value||'').replace(/[&<>"']/g,function(ch){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
-  });
-}
-function getConcernCount(ctx){
-  return Array.isArray(ctx.concerns)?ctx.concerns.length:0;
-}
-function getBillSignal(ctx){
-  if(ctx.has_uploaded_bill||(ctx.uploaded_bill&&ctx.uploaded_bill!=='Not uploaded'))return 'Document uploaded';
-  if((ctx.description||'').trim().length>=25)return 'Typed details provided';
-  return 'General guidance';
-}
-function getAnalysisCase(){
-  var ctx=getIntakeContext();
-  var name=cleanText([ctx.first,ctx.last].filter(Boolean).join(' '),'Your billing review');
-  return {
-    ctx:ctx,
-    name:name,
-    provider:cleanText(ctx.provider,'Provider not provided'),
-    date:cleanText(ctx.date_of_service,'Date not provided'),
-    amount:cleanText(ctx.bill_amount,'Amount not provided'),
-    coverage:cleanText(ctx.insurance,'Coverage not selected'),
-    payment:cleanText(ctx.payment_status,'Payment status not selected'),
-    concernCount:getConcernCount(ctx),
-    concernText:getConcernCount(ctx)?getConcernCount(ctx)+' concern area'+(getConcernCount(ctx)!==1?'s':'')+' selected':'General billing guidance',
-    billSignal:getBillSignal(ctx),
-    depthLabel:getReviewDepthLabel()
-  };
-}
-function updateActiveReviewStrip(){
-  var info=getAnalysisCase();
-  var nameEl=document.getElementById('active-review-name');
-  var refEl=document.getElementById('active-review-ref');
-  if(nameEl)nameEl.textContent=info.name+(info.provider!=='Provider not provided'?' - '+info.provider:'');
-  if(refEl)refEl.textContent=info.date!=='Date not provided'?'DOS: '+info.date:'REF: Intake review';
-}
-function getReviewDepth(){
-  var ctx=getIntakeContext();
-  if(ctx.review_depth)return ctx.review_depth;
-  var desc=(ctx.description||'').trim();
-  var hasLineItems=/(cpt|hcpcs|line\s*\d|procedure code|diagnosis code|charge|\$\s*\d|\b\d{5}\b)/i.test(desc);
-  if(ctx.has_uploaded_bill||ctx.has_enough_bill_detail||(desc.length>=120&&hasLineItems))return 'full';
-  if(desc.length>=25||ctx.provider||ctx.bill_amount||ctx.insurance||ctx.payment_status)return 'guided';
-  return 'starter';
-}
-function getReviewDepthLabel(){
-  var depth=getReviewDepth();
-  return depth==='full'?'Full Review':(depth==='guided'?'Guided Estimate':'Starter Guidance');
-}
-async function runLimitedDetails(){
-  var label=getReviewDepthLabel();
-  setProg(100,700);
-  await wait(500);
-  setHdr(label,'Your guided path is ready','We will help you build the case from what you have.');
-  await wait(900);
-  body.innerHTML='';
-  await ins('<div class="final"><div style="font-family:var(--serif);font-size:.9375rem;font-style:italic;color:rgba(235,244,255,.36);margin-bottom:16px;letter-spacing:.01em">'+label+'</div><div class="final-hl">Let us build your case together.<br><span>Your next step is ready.</span></div><div class="final-sub">UPA will organize what you entered, guide the proof request, and keep you moving inside the secure workspace.</div><button class="btn-go" onclick="reveal()">Open My Preview <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></button><div class="btn-sub">Next: your premium preview and guided workspace path</div></div>');
-}
-
-async function run(){
-  var info=getAnalysisCase();
-  updateActiveReviewStrip();
-  var amountProvided=info.amount!=='Amount not provided';
-  var providerProvided=info.provider!=='Provider not provided';
-  var dateProvided=info.date!=='Date not provided';
-  var coverageProvided=info.coverage!=='Coverage not selected';
-  var paymentProvided=info.payment!=='Payment status not selected';
-  var detailShort=info.billSignal==='Document uploaded'?'Uploaded':(info.billSignal==='Typed details provided'?'Typed':'General');
-  var codes=((info.ctx.description||'').match(/\b\d{5}\b/g)||[]).filter(function(v,i,a){return a.indexOf(v)===i;}).slice(0,4);
-
-  setProg(6,800);
-  var s1=await ins('<div class="srow active"><div class="sicon">&#128272;</div><div class="scontent"><div class="stitle">Verifying secure access</div><div class="sdetail">Encrypted session &middot; Patient record authenticated</div></div><span class="sbadge sb-a">Active</span></div>');
-  await wait(6000);
-  s1.className='srow done appear';s1.querySelector('.sbadge').className='sbadge sb-d';s1.querySelector('.sbadge').textContent='Verified';s1.querySelector('.sicon').textContent='\u2713';
-
-  setProg(16,900);
-  await wait(500);
-  setHdr('Preparing Intake','Reviewing Your Billing Details','Using only the provider, balance, coverage, and bill details entered during intake.');
-  var s2=await ins('<div class="srow active"><div class="sicon">&#128196;</div><div class="scontent"><div class="stitle">Preparing billing context</div><div class="sdetail">'+escapeHtml(providerProvided?info.provider:'Provider can be added later')+' &middot; '+escapeHtml(dateProvided?info.date:'Date not provided')+'</div></div><span class="sbadge sb-a">Loading</span></div>');
-  await wait(1800);
-  var mr=await ins('<div class="mrow"><div class="mcard" style="transition-delay:0s"><div class="mlabel">Bill Amount</div><div class="mval white" id="m-bill" style="font-size:.9rem;margin-top:4px">'+escapeHtml(info.amount)+'</div><div class="msub">'+(amountProvided?'Entered during intake':'Can be added later')+'</div></div><div class="mcard" style="transition-delay:.12s"><div class="mlabel">Bill Details</div><div class="mval gold" id="m-lines" style="font-size:.9rem;margin-top:4px">'+escapeHtml(detailShort)+'</div><div class="msub">'+escapeHtml(info.depthLabel)+'</div></div><div class="mcard" style="transition-delay:.24s"><div class="mlabel">Coverage</div><div class="mval white" style="font-size:.8125rem;margin-top:4px">'+escapeHtml(info.coverage)+'</div><div class="msub">'+(coverageProvided?'Entered during intake':'Can be added later')+'</div></div></div>');
-  await wait(5400);
-  s2.className='srow done appear';s2.querySelector('.sbadge').className='sbadge sb-d';s2.querySelector('.sbadge').textContent='Prepared';s2.querySelector('.sicon').textContent='\u2713';
-
-  setProg(32,1100);
-  await wait(500);
-  setHdr('Organizing Details','Building the Right Review Path','We will keep the analysis tied to the information you provided and avoid specific findings until bill-level details support them.');
-  var s3=await ins('<div class="srow active"><div class="sicon">&#128270;</div><div class="scontent"><div class="stitle">Reviewing intake details</div><div class="sdetail" id="scan-d">Organizing submitted billing information...</div></div><span class="sbadge sb-a">Reviewing</span></div>');
-  var scEl=await ins('<div class="scanner"><div class="scan-hdr">Submitted Detail Review</div><div class="scan-lines" id="scan-lines"></div></div>');
-  var rows=[
-    {code:'Provider',desc:info.provider,amt:providerProvided?'Provided':'Optional'},
-    {code:'Service Date',desc:info.date,amt:dateProvided?'Provided':'Optional'},
-    {code:'Balance',desc:info.amount,amt:amountProvided?'Provided':'Optional'},
-    {code:'Coverage',desc:info.coverage,amt:coverageProvided?'Provided':'Optional'},
-    {code:'Payment',desc:info.payment,amt:paymentProvided?'Provided':'Optional'},
-    {code:'Details',desc:info.billSignal,amt:info.depthLabel}
-  ];
-  codes.forEach(function(code){rows.push({code:'Entered Code',desc:code,amt:'User provided'});});
-  var scanLines=$('scan-lines'),scanDetail=$('scan-d');
-  for(var i=0;i<rows.length;i++){
-    var l=rows[i];
-    scanDetail.textContent='Reviewing item '+(i+1)+' of '+rows.length+'... '+l.code;
-    var lineEl=document.createElement('div');lineEl.className='sl ok';
-    lineEl.innerHTML='<span class="sl-code">'+escapeHtml(l.code)+'</span><span class="sl-desc">'+escapeHtml(l.desc)+'</span><span class="sl-amt">'+escapeHtml(l.amt)+'</span><span class="sl-st sl-ok">Added</span>';
-    scanLines.appendChild(lineEl);
-    await wait(30);lineEl.classList.add('appear');
-    await wait(500);
-  }
-  await wait(1200);
-  s3.className='srow done appear';s3.querySelector('.sbadge').className='sbadge sb-d';s3.querySelector('.sbadge').textContent='Details Reviewed';s3.querySelector('.sicon').textContent='\u2713';
-
-  setProg(48,1000);
-  await wait(700);
-  setHdr('Setting Review Depth','Matching Guidance to Your Detail Level','The workspace will show specific findings only when the bill details you entered support them.');
-  var s4=await ins('<div class="srow active"><div class="sicon">&#128737;</div><div class="scontent"><div class="stitle">'+escapeHtml(info.depthLabel)+' selected</div><div class="sdetail">'+escapeHtml(info.billSignal)+' &middot; '+escapeHtml(info.concernText)+'</div></div><span class="sbadge sb-a">Calibrating</span></div>');
-  await wait(1200);
-  var s4b=await ins('<div class="srow active"><div class="sicon">&#128270;</div><div class="scontent"><div class="stitle">Preparing review focus areas</div><div class="sdetail">Itemized bill request &middot; charge review guidance &middot; call scripts &middot; follow-up plan</div></div><span class="sbadge sb-a">Checking</span></div>');
-  await wait(5500);
-  s4.className='srow done appear';s4.querySelector('.sbadge').className='sbadge sb-d';s4.querySelector('.sbadge').textContent='Depth Set';s4.querySelector('.sicon').textContent='\u2713';
-  s4b.className='srow done appear';s4b.querySelector('.sbadge').className='sbadge sb-d';s4b.querySelector('.sbadge').textContent='Focus Ready';s4b.querySelector('.sicon').textContent='\u2713';
-  var issCard=$('m-lines').closest('.mcard');
-  issCard.style.transition='opacity .4s ease';issCard.style.opacity='0';
-  await wait(700);
-  issCard.innerHTML='<div class="mlabel">Review Depth</div><div class="mval gold" style="font-size:.9rem;margin-top:4px">'+escapeHtml(info.depthLabel)+'</div><div class="msub">'+escapeHtml(info.billSignal)+'</div>';
-  issCard.style.opacity='1';
-
-  setProg(62,1100);
-  await wait(400);
-  setHdr('Building Guidance','Preparing Your Review Checklist','Creating a practical path from the details you entered: what to request, what to compare, and what to do next.');
-  var s5=await ins('<div class="srow active"><div class="sicon">&#128202;</div><div class="scontent"><div class="stitle">Preparing review checkpoints</div><div class="sdetail">Itemized statement &middot; billing explanation &middot; dispute documentation &middot; follow-up timeline</div></div><span class="sbadge sb-a">Preparing</span></div>');
-  var bEl=await ins('<div class="bench"><div class="bench-hdr">Review Checklist</div><div class="bi"><div class="bi-hd"><span class="bi-nm">Information entered</span><span class="bi-dl">'+escapeHtml(info.depthLabel)+'</span></div><div class="br-row"><span class="br-lbl">Provider</span><div class="br-track"><div class="br-fill br-b" id="bb1"></div></div><span class="br-val">'+(providerProvided?'Ready':'Optional')+'</span></div><div class="br-row"><span class="br-lbl">Balance</span><div class="br-track"><div class="br-fill br-m" id="bm1"></div></div><span class="br-val">'+(amountProvided?'Ready':'Optional')+'</span></div></div><div class="bi"><div class="bi-hd"><span class="bi-nm">Next guidance</span><span class="bi-dl">Prepared</span></div><div class="br-row"><span class="br-lbl">Request</span><div class="br-track"><div class="br-fill br-b" id="bb2"></div></div><span class="br-val">Itemized bill</span></div><div class="br-row"><span class="br-lbl">Follow-up</span><div class="br-track"><div class="br-fill br-m" id="bm2"></div></div><span class="br-val">Call script</span></div></div></div>');
-  setTimeout(function(){$('bb1').style.width=providerProvided?'90%':'42%';$('bm1').style.width=amountProvided?'82%':'42%';},100);
-  setTimeout(function(){$('bb2').style.width='88%';$('bm2').style.width='78%';},450);
-  await wait(6000);
-  s5.className='srow done appear';s5.querySelector('.sbadge').className='sbadge sb-d';s5.querySelector('.sbadge').textContent='Complete';s5.querySelector('.sicon').textContent='\u2713';
-
-  setProg(76,1000);
-  await wait(600);
-  setHdr('Preparing Guidance','Turning Your Intake Into Action Steps','Preparing general guidance now and keeping any specific findings tied to details you actually provided.');
-  await removeEl(scEl,300);
-  await removeEl(bEl,260);
-  var s6=await ins('<div class="srow active"><div class="sicon">&#128176;</div><div class="scontent"><div class="stitle">Preparing review guidance</div><div class="sdetail">'+escapeHtml(info.concernText)+' &middot; '+escapeHtml(info.billSignal)+'</div></div><span class="sbadge sb-a">Preparing</span></div>');
-  var svEl=await ins('<div class="srev"><div class="srev-inner"><div class="srev-lbl">Review Status</div><div class="srev-amt" id="srev-amt">Ready</div><div class="srev-sub">'+escapeHtml(info.depthLabel)+' based on intake details</div><div class="score-row" style="margin-top:12px"><div class="score-arc"><svg viewBox="0 0 100 60" width="68" height="42"><defs><linearGradient id="sg"><stop offset="0%" stop-color="#158A5C"/><stop offset="100%" stop-color="#1EB87A"/></linearGradient><filter id="sf"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="M 10 52 A 40 40 0 0 1 90 52" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="8" stroke-linecap="round"/><path id="sarc" d="M 10 52 A 40 40 0 0 1 90 52" fill="none" stroke="url(#sg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="131" stroke-dashoffset="131" filter="url(#sf)" style="transition:stroke-dashoffset 2.0s cubic-bezier(.16,1,.3,1) .4s"/></svg></div><div><div class="score-num" id="snum">OK</div><div class="score-lbl">Guidance Mode</div><div class="score-sub" id="ssub">No unsupported findings shown</div></div></div></div></div>');
-  setTimeout(function(){$('sarc').style.strokeDashoffset=131-(131*.70);},300);
-  await wait(7000);
-  s6.className='srow done appear';s6.querySelector('.sbadge').className='sbadge sb-d';s6.querySelector('.sbadge').textContent='Guidance Ready';s6.querySelector('.sicon').textContent='\u2713';
-
-  setProg(88,900);
-  await wait(600);
-  setHdr('Preparing Tools','Building Your Review Workspace','Preparing the itemized bill request path, call scripts, and action checklist for the information you entered.');
-  await removeEl(svEl,280);
-  var s7=await ins('<div class="srow active"><div class="sicon">&#9993;</div><div class="scontent"><div class="stitle">Preparing guidance tools</div><div class="sdetail">Itemized request &middot; call scripts &middot; action checklist</div></div><span class="sbadge sb-a">Building</span></div>');
-  var lbEl=await ins('<div class="lbuild"><div class="lb-hdr">Workspace Preparation</div><div class="lb-row"><div class="lc" id="lc1"><div class="lc-top lc-t1"></div><div class="lc-body"><div class="lc-step">Tool 1</div><div class="lc-title">Itemized Bill Request</div><div class="lc-lines"><div class="ll g1"></div><div class="ll g2"></div><div class="ll g3"></div></div><div class="lc-status ls-g"><div class="ls-dot d-g"></div><span id="ls1">Preparing</span></div></div></div><div class="lc" id="lc2" style="opacity:0;transform:translateY(8px);transition:opacity .5s ease .65s,transform .5s ease .65s"><div class="lc-top lc-t2"></div><div class="lc-body"><div class="lc-step">Tool 2</div><div class="lc-title">Billing Call Script</div><div class="lc-lines"><div class="ll r1"></div><div class="ll r2"></div><div class="ll r3"></div></div><div class="lc-status ls-r"><div class="ls-dot d-r"></div><span id="ls2">Preparing</span></div></div></div><div class="lc" id="lc3" style="opacity:0;transform:translateY(8px);transition:opacity .5s ease 1.3s,transform .5s ease 1.3s"><div class="lc-top lc-t3"></div><div class="lc-body"><div class="lc-step">Tool 3</div><div class="lc-title">Action Checklist</div><div class="lc-lines"><div class="ll b1"></div><div class="ll b2"></div><div class="ll b3"></div></div><div class="lc-status ls-b"><div class="ls-dot d-b"></div><span id="ls3">Preparing</span></div></div></div></div></div>');
-  await wait(800);
-  $('lc2').style.opacity='1';$('lc2').style.transform='translateY(0)';
-  await wait(1800);
-  $('lc3').style.opacity='1';$('lc3').style.transform='translateY(0)';
-  await wait(4000);
-  ['ls1','ls2','ls3'].forEach(function(id){var el=$(id);if(el)el.textContent='Ready \u2713';});
-  await wait(1800);
-  s7.className='srow done appear';s7.querySelector('.sbadge').className='sbadge sb-d';s7.querySelector('.sbadge').textContent='Tools Ready';s7.querySelector('.sicon').textContent='\u2713';
-
-  setProg(95,700);
-  await wait(600);
-  setHdr('Finalizing','Building Your Personal Action Plan','Organizing your request path, call scripts, and next steps into one workspace.');
-  await removeEl(lbEl,260);
-  var s8=await ins('<div class="srow active"><div class="sicon">&#128203;</div><div class="scontent"><div class="stitle">Building personalized action plan</div><div class="sdetail">Request roadmap &middot; call scripts &middot; patient rights guide</div></div><span class="sbadge sb-a">Finalizing</span></div>');
-  await wait(5000);
-  s8.className='srow done appear';s8.querySelector('.sbadge').className='sbadge sb-d';s8.querySelector('.sbadge').textContent='Complete';s8.querySelector('.sicon').textContent='\u2713';
-
-  setProg(100,600);
-  await wait(600);
-  setHdr('Review Ready','Your Billing Review Workspace Is Ready.','Your intake details have been organized into a guided review workspace. Specific findings will stay tied to bill-level details you add.');
-  await wait(1800);
-  body.innerHTML='';
-  await ins('<div class="final"><div style="font-family:var(--serif);font-size:.9375rem;font-style:italic;color:rgba(235,244,255,.36);margin-bottom:16px;letter-spacing:.01em">Review ready for '+escapeHtml(info.name)+'</div><div class="final-hl">Your premium preview is ready.<br><span>See what UPA prepared.</span></div><div class="final-sub">We used the details you provided and kept the review general wherever bill-level detail was not available.<br>Your preview opens first, then the workspace continues from there.</div><div class="final-metrics"><div class="fm"><div class="fm-val green" style="font-size:1.15rem">'+escapeHtml(detailShort)+'</div><div class="fm-lbl">Bill Detail</div></div><div class="fm-sep"></div><div class="fm"><div class="fm-val crim" style="font-size:1.15rem">'+escapeHtml(info.concernCount?String(info.concernCount):'General')+'</div><div class="fm-lbl">Concern Areas</div></div><div class="fm-sep"></div><div class="fm"><div class="fm-val gold" style="font-size:1.15rem">'+escapeHtml(info.depthLabel)+'</div><div class="fm-lbl">Review Depth</div></div></div><button class="btn-go" onclick="reveal()">Open My Preview <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></button><div class="btn-sub">Next: your premium preview</div></div>');
-}
-
-/* ── Cinematic reveal ── */
 function upaFinalPath(file){
   return window.location.protocol==='file:'?file:'/UPA-Final/'+file;
 }
+function intakeData(){
+  try{return JSON.parse(sessionStorage.getItem('upa.intake.v1')||localStorage.getItem('upa.intake.v1')||'{}')||{};}catch(e){return {};}
+}
+function clean(v,fallback){
+  v=(v||'').toString().trim();
+  return v?v:fallback;
+}
+function reviewName(data){
+  return clean(data.name,'Your billing review');
+}
+function reviewProvider(data){
+  return clean(data.provider,'your provider');
+}
+function reviewAmount(data){
+  return clean(data.bill_amount||data.balance,'bill amount to review');
+}
+function reviewCoverage(data){
+  return clean(data.insurance,'coverage details');
+}
+
+async function run(){
+  var data=intakeData();
+  var provider=reviewProvider(data);
+  var amount=reviewAmount(data);
+  var coverage=reviewCoverage(data);
+
+  setProg(8,800);
+  var s1=await ins('<div class="srow active"><div class="sicon">&#128272;</div><div class="scontent"><div class="stitle">Verifying secure access</div><div class="sdetail">Private review session prepared</div></div><span class="sbadge sb-a">Active</span></div>');
+  await wait(1600);
+  s1.className='srow done appear';s1.querySelector('.sbadge').className='sbadge sb-d';s1.querySelector('.sbadge').textContent='Verified';s1.querySelector('.sicon').textContent='\u2713';
+
+  setProg(22,900);
+  await wait(350);
+  setHdr('Preparing Review','Organizing Your Billing Details','We are using the information you provided to prepare a clear review path.');
+  var s2=await ins('<div class="srow active"><div class="sicon">&#128196;</div><div class="scontent"><div class="stitle">Preparing billing context</div><div class="sdetail">Provider: '+provider+' ? Amount: '+amount+'</div></div><span class="sbadge sb-a">Preparing</span></div>');
+  await wait(900);
+  await ins('<div class="mrow"><div class="mcard" style="transition-delay:0s"><div class="mlabel">Bill Amount</div><div class="mval white" id="m-bill">'+amount+'</div><div class="msub">From intake</div></div><div class="mcard" style="transition-delay:.12s"><div class="mlabel">Provider</div><div class="mval gold" id="m-lines" style="font-size:.82rem;letter-spacing:0">'+provider+'</div><div class="msub">Billing party</div></div><div class="mcard" style="transition-delay:.24s"><div class="mlabel">Coverage</div><div class="mval white" style="font-size:.8125rem;margin-top:4px">'+coverage+'</div><div class="msub">From intake</div></div></div>');
+  await wait(1700);
+  s2.className='srow done appear';s2.querySelector('.sbadge').className='sbadge sb-d';s2.querySelector('.sbadge').textContent='Ready';s2.querySelector('.sicon').textContent='\u2713';
+
+  setProg(38,1100);
+  await wait(350);
+  setHdr('Reviewing Details','Building Your Billing Review','We are checking the information you shared and organizing the next questions to ask.');
+  var s3=await ins('<div class="srow active"><div class="sicon">&#128270;</div><div class="scontent"><div class="stitle">Reviewing available bill details</div><div class="sdetail" id="scan-d">Preparing review areas...</div></div><span class="sbadge sb-a">Reviewing</span></div>');
+  var scEl=await ins('<div class="scanner"><div class="scan-hdr">Review Preparation</div><div class="scan-lines" id="scan-lines"></div></div>');
+  var lines=[
+    {code:'Provider',desc:provider,amt:'Provided',t:'ok'},
+    {code:'Bill amount',desc:amount,amt:'Provided',t:'ok'},
+    {code:'Coverage',desc:coverage,amt:'Provided',t:'ok'},
+    {code:'Concerns',desc:clean(data.concerns,'General billing review'),amt:'Review',t:'ok'},
+    {code:'Documents',desc:data.uploaded_bill&&data.uploaded_bill!=='Not uploaded'?'Bill uploaded':'Itemized bill can be added later',amt:'Next step',t:'warn'}
+  ];
+  var scanLines=$('scan-lines'),scanDetail=$('scan-d');
+  for(var i=0;i<lines.length;i++){
+    var l=lines[i];
+    scanDetail.textContent='Preparing '+l.code.toLowerCase()+'...';
+    var lineEl=document.createElement('div');lineEl.className='sl '+l.t;
+    lineEl.innerHTML='<span class="sl-code">'+l.code+'</span><span class="sl-desc">'+l.desc+'</span><span class="sl-amt">'+l.amt+'</span><span class="sl-st '+(l.t==='ok'?'sl-ok':'sl-fl')+'">'+(l.t==='ok'?'READY':'ADD')+'</span>';
+    scanLines.appendChild(lineEl);
+    await wait(30);lineEl.classList.add('appear');
+    await wait(550);
+  }
+  await wait(700);
+  s3.className='srow done appear';s3.querySelector('.sbadge').className='sbadge sb-d';s3.querySelector('.sbadge').textContent='Prepared';s3.querySelector('.sicon').textContent='\u2713';
+
+  setProg(56,1000);
+  await wait(500);
+  setHdr('Preparing Next Steps','Your Review Path Is Taking Shape','The workspace will show what to check, what to request, and what to say next.');
+  var s4=await ins('<div class="srow active"><div class="sicon">&#128221;</div><div class="scontent"><div class="stitle">Preparing guidance and documents</div><div class="sdetail">Itemized bill request ? call script ? action plan</div></div><span class="sbadge sb-a">Preparing</span></div>');
+  await wait(1800);
+  s4.className='srow done appear';s4.querySelector('.sbadge').className='sbadge sb-d';s4.querySelector('.sbadge').textContent='Ready';s4.querySelector('.sicon').textContent='\u2713';
+
+  setProg(74,1000);
+  await wait(500);
+  setHdr('Personalizing Workspace','Preparing Your Billing Review Workspace','No unsupported findings or scores are shown until bill-level details support them.');
+  await removeEl(scEl,260);
+  var s5=await ins('<div class="srow active"><div class="sicon">&#128203;</div><div class="scontent"><div class="stitle">Organizing review sections</div><div class="sdetail">Findings guidance ? documents ? checklist ? call scripts</div></div><span class="sbadge sb-a">Organizing</span></div>');
+  var svEl=await ins('<div class="srev"><div class="srev-inner"><div class="srev-lbl">Review Depth</div><div class="srev-amt" id="srev-amt" style="font-size:2rem">Guided Review</div><div class="srev-sub">Upload an itemized bill later for deeper line-by-line review</div><div class="score-row" style="margin-top:12px"><div><div class="score-num" id="snum" style="font-size:1rem">Ready</div><div class="score-lbl">Workspace Status</div><div class="score-sub" id="ssub">Next steps prepared</div></div></div></div></div>');
+  await wait(2100);
+  s5.className='srow done appear';s5.querySelector('.sbadge').className='sbadge sb-d';s5.querySelector('.sbadge').textContent='Ready';s5.querySelector('.sicon').textContent='\u2713';
+
+  setProg(90,900);
+  await wait(500);
+  setHdr('Finalizing','Preparing Your Action Plan','Your preview is ready with clear next steps and document paths.');
+  await removeEl(svEl,260);
+  var s6=await ins('<div class="srow active"><div class="sicon">&#9993;</div><div class="scontent"><div class="stitle">Preparing letters and scripts</div><div class="sdetail">Request language ? phone guidance ? follow-up checklist</div></div><span class="sbadge sb-a">Finalizing</span></div>');
+  await wait(1700);
+  s6.className='srow done appear';s6.querySelector('.sbadge').className='sbadge sb-d';s6.querySelector('.sbadge').textContent='Complete';s6.querySelector('.sicon').textContent='\u2713';
+
+  setProg(100,600);
+  await wait(600);
+  setHdr('Review Complete','Your Billing Review Is Ready.','Your preview is prepared. Open it to see your guidance, documents, and next actions.');
+  await wait(900);
+  body.innerHTML='';
+  await ins('<div class="final"><div style="font-family:var(--serif);font-size:.9375rem;font-style:italic;color:rgba(235,244,255,.36);margin-bottom:16px;letter-spacing:.01em">Review prepared for '+reviewName(data)+'</div><div class="final-hl">Your review path is ready.<br><span>Next steps are prepared.</span></div><div class="final-sub">Your guidance, documents, and action plan are ready to preview.</div><div class="final-metrics"><div class="fm"><div class="fm-val green">Ready</div><div class="fm-lbl">Review Status</div></div><div class="fm-sep"></div><div class="fm"><div class="fm-val crim">Guided</div><div class="fm-lbl">Review Depth</div></div><div class="fm-sep"></div><div class="fm"><div class="fm-val gold">Prepared</div><div class="fm-lbl">Next Steps</div></div></div><button class="btn-go" onclick="reveal()">Open My Review <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></button><div class="btn-sub">Your billing review preview awaits</div></div>');
+}
+
+/* ── Cinematic reveal ── */
 function reveal(){
   var ov=document.createElement('div');
   ov.style.cssText='position:fixed;inset:0;background:rgba(8,14,24,0);z-index:50;transition:background 1.1s ease;pointer-events:none';
@@ -607,12 +516,12 @@ function reveal(){
   card.style.transition='transform 1.0s cubic-bezier(.16,1,.3,1),border-radius 1.0s ease';
   card.style.transform='scale(1.04)';
   setTimeout(function(){
-    document.body.innerHTML='<div style="position:fixed;inset:0;background:#0E1828;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px"><div style="font-family:Playfair Display,serif;font-size:1.125rem;color:rgba(235,244,255,.55);letter-spacing:.01em">Opening your preview...</div><div style="width:52px;height:2px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.65),transparent);animation:sl 1.4s ease-in-out infinite"></div></div><style>@keyframes sl{0%,100%{opacity:.3}50%{opacity:1}}</style>';
+    document.body.innerHTML='<div style="position:fixed;inset:0;background:#0E1828;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px"><div style="font-family:Playfair Display,serif;font-size:1.125rem;color:rgba(235,244,255,.55);letter-spacing:.01em">Loading your dashboard...</div><div style="width:52px;height:2px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.65),transparent);animation:sl 1.4s ease-in-out infinite"></div></div><style>@keyframes sl{0%,100%{opacity:.3}50%{opacity:1}}</style>';
     setTimeout(function(){window.location.href=upaFinalPath('03_upa-preview.html');},1400);
   },1100);
 }
 
-window.addEventListener('load',function(){updateActiveReviewStrip();setTimeout(getReviewDepth()==='full'?run:runLimitedDetails,800);});
+window.addEventListener('load',function(){setTimeout(run,800);});
 </script>
 </body>
 </html>

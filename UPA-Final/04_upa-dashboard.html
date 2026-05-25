@@ -4073,6 +4073,19 @@ function animateDrawerCards() {
   // Init on load. Pre-calculate with case defaults
   window.addEventListener('load', () => {
     updateSliderTrack(document.getElementById('qc-slider'));
+    // Seed qc-balance from intake bill amount so calculator starts with real case data
+    (function(){
+      try{
+        var intake = (window.UPAState && window.UPAState.getIntake) ? window.UPAState.getIntake() : {};
+        var rawAmt = intake.bill_amount_other || intake.bill_amount || intake.balance || intake.totalBilled || '';
+        var numStr = String(rawAmt).replace(/[^0-9.]/g, '');
+        var numVal = parseFloat(numStr);
+        if(numVal > 0){
+          var balEl = document.getElementById('qc-balance');
+          if(balEl && !balEl.value){ balEl.value = numVal.toFixed(2); currentBalance = numVal; }
+        }
+      }catch(e){}
+    })();
     calcUpdate();
     buildPlanRows();
     buildSplitBars();

@@ -41,6 +41,8 @@
 
   function hasIntake(value){
     if(!value || typeof value !== 'object') return false;
+    // Scan-originated sessions: _scan flag + at least one meaningful field
+    if(value._scan && (clean(value.provider || value.providerName) || clean(value.bill_amount || value.totalBilled || value.patientBalance))) return true;
     return !!(clean(value.name || value.patient_name || value.patientName) ||
       clean(value.provider || value.providerName) ||
       clean(value.bill_amount || value.balance || value.totalBilled) ||
@@ -143,6 +145,31 @@
     if(review && hasIntake(review.intake)) return review.intake;
     var savedCase = readJSON(CASE_KEY);
     if(savedCase && hasIntake(savedCase.raw)) return savedCase.raw;
+    // Final fallback: scan session — normalize scan fields into intake-compatible shape
+    var scan = readJSON('upa.scan.v1');
+    if(scan && (scan.provider || scan.totalBilled != null || scan.patientBalance != null)){
+      var scanAmt = scan.patientBalance != null ? scan.patientBalance : (scan.totalBilled != null ? scan.totalBilled : null);
+      var fmtAmt = scanAmt != null ? ('$' + Number(scanAmt).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})) : '';
+      return {
+        _scan:                           true,
+        provider:                        scan.provider || '',
+        bill_amount:                     fmtAmt,
+        bill_amount_other:               fmtAmt,
+        extracted_bill_amount:           scanAmt != null ? String(scanAmt) : '',
+        extracted_bill_amount_confidence: scanAmt != null ? 0.9 : 0,
+        date_of_service:                 scan.serviceDateRaw || scan.serviceDate || '',
+        insurance:                       scan.insuranceName || '',
+        _patient_balance:                scan.patientBalance,
+        _total_billed:                   scan.totalBilled,
+        _claim_number:                   scan.claimNumber || '',
+        _confidence:                     scan.confidence || '',
+        _denial:                         !!scan.denialDetected,
+        _has_duplicates:                 !!scan.hasDuplicateCodes,
+        _cpt_codes:                      scan.cptCodes || [],
+        _page_count:                     scan.pageCount || 1,
+        _scan_ts:                        scan._scanTimestamp || ''
+      };
+    }
     return {};
   }
 

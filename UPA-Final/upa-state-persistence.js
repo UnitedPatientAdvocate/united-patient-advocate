@@ -149,11 +149,23 @@
   function newestIntakeCandidate(){
     // ACTIVE_KEY is the explicitly managed "current case" slot.
     // writeScanStateToStorage() and activateIntake() are the ONLY writers.
-    // If it holds scan-originated data, trust it absolutely — no timestamp race.
+    //
+    // C3 FIX: trust scan-sourced ACTIVE_KEY unconditionally — even during the
+    // provisional window when provider/amount are still empty and hasIntake() would
+    // return false. The presence of _upa_active_at (stamped by writeScanStateToStorage)
+    // is the authoritative signal that a new scan session has started. Without this,
+    // a provisional that fails hasIntake() falls through to the timestamp list, where
+    // old PAID_KEY or CHECKOUT_KEY data wins (they have newer updatedAt from markPaid).
     var active = readJSON(ACTIVE_KEY);
-    if(active && active.intake && hasIntake(active.intake)){
-      var activeIsScanned = !!(active.source === 'scan' || (active.intake && active.intake._scan) || (active.intake && active.intake._upa_source === 'scan'));
-      if(activeIsScanned){
+    if(active && active.intake){
+      var activeIsScanned = !!(active.source === 'scan' || active.intake._scan || active.intake._upa_source === 'scan');
+      if(activeIsScanned && active.intake._upa_active_at){
+        // Trust this slot. Return it regardless of hasIntake() result.
+        // Downstream callers (getIntake → activateIntake) will handle empty-field provisionals gracefully.
+        return { intake:active.intake, source:'active', time:timeValue(active), caseId:active.caseId || caseIdFromIntake(active.intake) };
+      }
+      // Non-provisional scan with all required fields — standard hasIntake check
+      if(activeIsScanned && hasIntake(active.intake)){
         return { intake:active.intake, source:'active', time:timeValue(active), caseId:active.caseId || caseIdFromIntake(active.intake) };
       }
     }
@@ -170,7 +182,19 @@
     if(paid && paid.session && paid.session.intake) addIntakeCandidate(list, paid.session.intake, paid.session, 'paid-session');
     if(paid && paid.intake) addIntakeCandidate(list, paid.intake, paid, 'paid');
     var savedCase = readJSON(CASE_KEY);
-    if(savedCase && savedCase.raw) addIntakeCandidate(list, savedCase.raw, savedCase, 'case');
+    if(savedCase && savedCase.raw){
+      // CASE_KEY guard: if an active case exists with a DIFFERENT caseId, the snapshot is stale —
+      // suppress it entirely so it cannot win the timestamp race over the current active case.
+      // Only include the snapshot when: (a) there is no active case, (b) neither has a caseId to
+      // compare, or (c) both caseIds match (same session).
+      var activeCaseId = active && (active.caseId || caseIdFromIntake(active.intake || {})) || '';
+      var snapshotCaseId = caseIdFromIntake(savedCase.raw) || '';
+      if(!activeCaseId || !snapshotCaseId || snapshotCaseId === activeCaseId){
+        addIntakeCandidate(list, savedCase.raw, savedCase, 'case');
+      } else {
+        console.log('[UPA] ⚠ Stale case snapshot suppressed | snapshot:', snapshotCaseId, '| active:', activeCaseId);
+      }
+    }
     list.sort(function(a,b){ return b.time - a.time; });
     return list[0] || null;
   }

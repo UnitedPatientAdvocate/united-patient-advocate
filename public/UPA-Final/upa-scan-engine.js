@@ -695,6 +695,23 @@ function writeScanStateToStorage(ext) {
       intake: compat
     };
     const active = { version: 1, caseId: caseId, source: 'scan', updatedAt: activeAt, intake: compat, session: session, scan: ext };
+    // ── STALE-KEY WIPE — runs FIRST, before any setItem ────────────────────────
+    // Previously these removals were at the END of the try block. If any setItem
+    // above threw (QuotaExceededError etc.) the outer catch fired and CASE_KEY was
+    // never removed — leaving upa.case.snapshot.v1 with old hospital/amount data
+    // that then won the timestamp race in newestIntakeCandidate().
+    // Moving removals to the TOP means stale data is always gone regardless of
+    // whether the subsequent writes succeed.
+    [CASE_KEY, PAID_KEY, DASHBOARD_KEY, CHECKOUT_KEY, REVIEW_KEY,
+     'upa.case.handoff.token.v1',
+     'upa.dashboard.state.v1'
+    ].forEach(function(key){
+      try{ sessionStorage.removeItem(key); localStorage.removeItem(key); }catch(e){}
+    });
+    try{ sessionStorage.removeItem('upa.paid'); localStorage.removeItem('upa.paid'); }catch(e){}
+    console.log('[UPA] 🗑 Stale keys cleared | caseId:', caseId, '| provider:', compat.provider || '—', '| provisional:', !!(ext._provisional));
+    // ────────────────────────────────────────────────────────────────────────────
+
     sessionStorage.setItem(INTAKE_KEY, JSON.stringify(compat));
     localStorage.setItem(INTAKE_KEY,   JSON.stringify(compat));
     sessionStorage.setItem(ACTIVE_KEY, JSON.stringify(active));
@@ -703,23 +720,7 @@ function writeScanStateToStorage(ext) {
     localStorage.setItem(CHECKOUT_KEY,   JSON.stringify(session));
     sessionStorage.setItem(REVIEW_KEY, JSON.stringify(session));
     localStorage.setItem(REVIEW_KEY,   JSON.stringify(session));
-    console.log(
-      '[UPA] ✅ Active case written to storage' +
-      '\n  caseId:   ' + caseId +
-      '\n  provider: ' + (compat.provider || '—') +
-      '\n  amount:   ' + (compat.bill_amount || '—') +
-      '\n  source:   scan' +
-      '\n  ts:       ' + activeAt +
-      '\n  provisional: ' + !!(ext._provisional)
-    );
-    // Wipe ALL stale-case keys so a new scan can never inherit a previous session's data
-    [PAID_KEY, CASE_KEY, DASHBOARD_KEY,
-     'upa.case.handoff.token.v1',   // encoded prior case token
-     'upa.dashboard.state.v1'       // redundant but explicit
-    ].forEach(function(key){
-      try{ sessionStorage.removeItem(key); localStorage.removeItem(key); }catch(e){}
-    });
-    try{ sessionStorage.removeItem('upa.paid'); localStorage.removeItem('upa.paid'); }catch(e){}
+    console.log('[UPA] ✅ Active case written | caseId:', caseId, '| provider:', compat.provider || '—', '| amount:', compat.bill_amount || '—', '| provisional:', !!(ext._provisional));
   } catch(e){ console.warn('[UPA Scan Engine] Storage write failed', e); }
 }
 

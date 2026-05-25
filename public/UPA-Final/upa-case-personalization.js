@@ -34,7 +34,53 @@
     if(!t || t.length < 8) return '';
     if(!/\s/.test(t)) return '';  // single token, probably garbage
     if(/^(idk|n\/a|na|nothing|none|no|yes|ok|okay|same|see above|other|not sure|unsure|unknown)$/i.test(t.trim())) return '';
-    return titleFromText(t, maxLen || 140);
+    return professionalBillingNote(t, maxLen || 140);
+  }
+
+  function billingConcernPhrases(text){
+    var t = clean(text).toLowerCase();
+    var phrases = [];
+    function add(match, phrase){
+      if(match.test(t) && phrases.indexOf(phrase) === -1) phrases.push(phrase);
+    }
+    add(/duplicate|double|twice|again|repeat|same charge|charged.*two/i, 'possible duplicate or repeated charge');
+    add(/insurance|eob|claim|denial|denied|covered|coverage|payer|benefit/i, 'insurance, EOB, or coverage reconciliation concern');
+    add(/surprise|network|out.of.network|in.network|no surprises|balance bill/i, 'network status or surprise billing concern');
+    add(/expensive|high|overcharg|too much|price|cost|amount|balance|rate|estimate/i, 'charge amount or patient responsibility concern');
+    add(/code|coding|cpt|hcpcs|modifier|upcod|level|units|unbundle/i, 'coding, modifier, unit, or service-description concern');
+    add(/paid|payment|refund|credit|collection|collections|agency|plan|late fee/i, 'payment posting, refund, collection, or account-status concern');
+    add(/itemized|details|statement|line item|receipt|breakdown|explanation|records/i, 'missing itemized documentation or unclear line-item detail');
+    add(/wrong|incorrect|date|provider|doctor|service|procedure|visit|test|lab|er|emergency|ambulance|anesthesia|surgery/i, 'service date, provider, or service-description accuracy concern');
+    return phrases;
+  }
+
+  function professionalBillingNote(text, maxLen){
+    var phrases = billingConcernPhrases(text);
+    var note = phrases.length
+      ? 'The patient is requesting written review of ' + phrases.slice(0, 3).join(', ') + ', with supporting itemized documentation and payer/provider explanation.'
+      : 'The patient requested help understanding the bill and identifying possible billing issues.';
+    return titleFromText(note, maxLen || 160);
+  }
+
+  function professionalConcernLabel(text){
+    var t = clean(text);
+    if(!t) return '';
+    var known = {
+      'duplicate charge':'Possible duplicate charge',
+      "i was billed for services i didn't receive":'Services may not match the bill',
+      'billed out-of-network during in-network visit':'Network status or surprise billing concern',
+      'unexpected lab or test charges':'Unexpected lab or test charge concern',
+      'i think the wrong billing code was used':'Coding, modifier, or service-description concern',
+      'my insurance claim was denied':'Insurance denial or EOB reconciliation concern',
+      "i just don't understand what i'm being charged for":'Missing itemized documentation or unclear line-item detail',
+      "i received a surprise bill i wasn't expecting":'Network status or surprise billing concern',
+      'i never received an itemized bill':'Missing itemized documentation or unclear line-item detail',
+      'other concern':'Additional billing documentation concern',
+      'general billing review':'General billing review'
+    };
+    var key = t.toLowerCase();
+    if(known[key]) return known[key];
+    return professionalBillingNote(t, 120);
   }
 
   function readStorageJSON(key){
@@ -330,7 +376,7 @@
         type:'User-described concern',
         title:'Additional intake details need a written answer',
         short:'intake-detail review',
-        desc:(function(){ var sd = safeUserText(description, 140); return sd ? 'A specific concern was noted in the intake: "' + sd + '". The provider should address this point directly rather than offering a generic balance explanation.' : 'A specific concern was noted during intake. The provider should address it in writing rather than offering a generic balance explanation.'; })(),
+        desc:(function(){ var sd = safeUserText(description, 140); return sd ? 'The intake includes this professionalized billing note: ' + sd + ' The provider should address this point directly rather than offering a generic balance explanation.' : 'A specific concern was noted during intake. The provider should address it in writing rather than offering a generic balance explanation.'; })(),
         action:'Include the user-described detail in the request and ask billing to identify the exact records or line items that answer it.'
       });
     }
@@ -371,7 +417,7 @@
         title: safeOther ? titleFromText(safeOther, 80) : 'Additional billing concern raised in intake',
         short: safeOther ? titleFromText(safeOther, 46) : 'Additional billing concern',
         desc: safeOther
-          ? 'A specific concern was noted in the intake: "' + safeOther + '". The provider should address this point directly rather than giving a generic balance explanation.'
+          ? 'The intake includes this professionalized billing note: ' + safeOther + ' The provider should address this point directly rather than giving a generic balance explanation.'
           : 'A specific concern was noted during intake. The provider should address it in writing.',
         action:'Include this concern in the written request and ask billing to identify the specific records, codes, and adjustments that explain it.'
       });
@@ -511,7 +557,7 @@
     var pay  = paymentLabel(c);
     var ref  = c.accountRef;
     var bill = billKindLabel(c);
-    var cust = clean((c.raw && (c.raw.concern_other || c.raw.description)) || c.description || 'see intake details');
+    var cust = c.userDetail || professionalBillingNote((c.raw && (c.raw.concern_other || c.raw.description)) || c.description || '', 140) || 'additional billing documentation concern';
     var map = {
       network:{
         title:'No Surprises Act & Network Rate Review',type:'Network / Surprise Billing Dispute',
@@ -572,7 +618,7 @@
         color:'green',stamp:['CUSTOM','REVIEW'],
         re:'RE: Custom Billing Concern Addendum — Acct: '+ref+' — DOS: '+date,
         sal:'Dear Billing Department,',
-        p1:'This letter is a formal written addendum to the billing review initiated for account '+ref+' at '+prov+' on '+date+'. It addresses a specific concern I described in my intake that has not been resolved through general billing communications. The concern is: "'+h(cust)+'". Current balance is '+amt+' with coverage '+cov+'.',
+        p1:'This letter is a formal written addendum to the billing review initiated for account '+ref+' at '+prov+' on '+date+'. It addresses additional billing context from my intake: '+h(cust)+' Current balance is '+amt+' with coverage '+cov+'.',
         hl:'I request that you identify the specific billing lines, CPT/HCPCS codes, clinical records, and payer documentation that directly address the concern described above. A general account balance statement or form letter does not constitute a response to this specific concern. I require a documented, specific written answer.',
         p2:'Please provide a written response identifying the records supporting the charges in question, how the billing was determined, any payer processing applied, and whether any adjustment is warranted. If an adjustment is made, issue a corrected statement with refund or credit instructions where applicable. Respond within 30 days with a reference number. Do not refer any portion to collections while this review is pending.'
       }
@@ -657,7 +703,8 @@
     var description = clean(data.description);
     var email = clean(data.email);
     var phone = clean(data.phone);
-    var concernLabels = splitList(data.concerns).concat(clean(data.concern_other) ? [clean(data.concern_other)] : []);
+    var concernLabels = splitList(data.concerns).map(professionalConcernLabel);
+    if(clean(data.concern_other)) concernLabels.push(professionalConcernLabel(data.concern_other));
     var seenConcerns = {};
     concernLabels = concernLabels.filter(function(item){
       var key = item.toLowerCase();
@@ -883,7 +930,7 @@
     if(c.uploaded) parts.push('Uploaded bill: ' + h(c.uploadedBill));
     if(c.contactLine !== 'Contact not provided') parts.push('Contact: ' + h(c.contactLine));
     parts.push('Concerns: ' + h(c.concernSummary));
-    if(c.userDetail) parts.push('User note: "' + h(c.userDetail) + '"');
+    if(c.userDetail) parts.push('Billing note: ' + h(c.userDetail));
     return parts.join(' | ');
   }
 
@@ -1016,7 +1063,7 @@
     setText('.lt-from-sub', c.patientLabel);
     setHTML('.lt-to', h(c.provider) + ' - Billing Department<br>Account number/reference: ' + h(c.accountRef) + ' - Date of Service: ' + h(c.dateOfService));
     setText('.lt-re', 'RE: Formal Request - Itemized Bill Review - ' + c.primary.short);
-    setHTML('.lt-body-vis', 'Dear Billing Department,<br><br>I am requesting a detailed, itemized review of the billing statement for services on <strong>' + h(c.dateOfService) + '</strong> at ' + h(c.provider) + '. My intake identifies <span class="lt-highlight">' + h(c.concernSummary) + '</span>.' + (c.userDetail ? ' My note was: "' + h(c.userDetail) + '".' : '') + ' Please provide the itemized statement, codes, units, adjustments, and any records needed to confirm the patient responsibility.');
+    setHTML('.lt-body-vis', 'Dear Billing Department,<br><br>I am requesting a detailed, itemized review of the billing statement for services on <strong>' + h(c.dateOfService) + '</strong> at ' + h(c.provider) + '. My intake identifies <span class="lt-highlight">' + h(c.concernSummary) + '</span>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' Please provide the itemized statement, codes, units, adjustments, and any records needed to confirm the patient responsibility.');
     setHTML('.lt-unlock-txt', '<strong>Your full letter set is being prepared:</strong> ' + h(c.letterSetLabel) + ', with more added when the bill complexity requires it.<br>Each letter uses the patient, provider, amount, coverage, and issue details from this intake.');
 
     setText('.ub-title', c.statusCopy.title);
@@ -1064,7 +1111,7 @@
     setText('.ch-subline', 'Your review is tailored to the exact case details provided.');
     var deckCov = hasKnown(c.coverage, 'Coverage not provided') ? ', coverage listed as ' + h(c.coverage) : '';
     var deckPay = hasKnown(c.paymentStatus, 'Payment status not provided') ? ', and payment status "' + h(c.paymentStatus) + '"' : '';
-    setHTML('.ch-deck', 'This dashboard organizes the <u>' + h(c.billType) + '</u> around the concerns you selected: <strong>' + h(c.concernSummary) + '</strong>' + deckCov + deckPay + '.' + (c.userDetail ? '<br>Your note: "' + h(c.userDetail) + '".' : '') + '<br>' + h(c.reviewBasis));
+    setHTML('.ch-deck', 'This dashboard organizes the <u>' + h(c.billType) + '</u> around the concerns you selected: <strong>' + h(c.concernSummary) + '</strong>' + deckCov + deckPay + '.' + (c.userDetail ? '<br>Additional billing context: ' + h(c.userDetail) : '') + '<br>' + h(c.reviewBasis));
     var pills = all('.ch-pill.dark-pill');
     if(pills[0]) setIconText(pills[0], 'Prepared for ' + c.patientName);
     if(pills[1]) setIconText(pills[1], 'Prepared: ' + c.prepDate);
@@ -1083,7 +1130,7 @@
     if(cardTexts[0]){
       var ctCov = hasKnown(c.coverage, 'Coverage not provided') ? ', coverage listed as <strong>' + h(c.coverage) + '</strong>' : '';
       var ctPay = hasKnown(c.paymentStatus, 'Payment status not provided') ? ', and payment status <strong>' + h(c.paymentStatus) + '</strong>' : '';
-      cardTexts[0].innerHTML = 'Your case centers on <strong>' + h(c.concernSummary) + '</strong> for a ' + h(c.billType) + ' from ' + h(providerLabel(c)) + '. The current amount is <strong>' + h(c.amount.reviewText) + '</strong>' + ctCov + ctPay + '.' + (c.userDetail ? ' Your added note was: <strong>' + h(c.userDetail) + '</strong>.' : '') + ' This review does not mark charges as errors until the itemized bill, EOB, and provider records support that conclusion.';
+      cardTexts[0].innerHTML = 'Your case centers on <strong>' + h(c.concernSummary) + '</strong> for a ' + h(c.billType) + ' from ' + h(providerLabel(c)) + '. The current amount is <strong>' + h(c.amount.reviewText) + '</strong>' + ctCov + ctPay + '.' + (c.userDetail ? ' Additional billing context: <strong>' + h(c.userDetail) + '</strong>.' : '') + ' This review does not mark charges as errors until the itemized bill, EOB, and provider records support that conclusion.';
     }
     setText('.bb-label', c.amount.display + ' total bill: what needs confirmation');
     setAllText('.legend-text', [
@@ -1167,7 +1214,7 @@
     if(bodies[0]){
       setHTML('.lb-to-addr', h(c.provider) + ' - Billing & Accounts<br>Billing address — see statement', bodies[0]);
       setText('.lb-re-txt', 'Request for Fully Itemized Statement - ' + c.accountRef + ' - Date of Service: ' + c.dateOfService, bodies[0]);
-      setHTML('.lb-para', 'I am writing to request a complete, fully itemized statement for medical services rendered on <strong>' + h(c.dateOfService) + '</strong>, account reference ' + h(c.accountRef) + ', at ' + h(c.provider) + '. My current intake lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, payment status as <strong>' + h(c.paymentStatus) + '</strong>, and concerns including <strong>' + h(c.concernSummary) + '</strong>.' + (c.userDetail ? ' My additional note was: "' + h(c.userDetail) + '".' : '') + ' I am reviewing this statement before accepting the patient responsibility.', bodies[0]);
+      setHTML('.lb-para', 'I am writing to request a complete, fully itemized statement for medical services rendered on <strong>' + h(c.dateOfService) + '</strong>, account reference ' + h(c.accountRef) + ', at ' + h(c.provider) + '. My current intake lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, payment status as <strong>' + h(c.paymentStatus) + '</strong>, and concerns including <strong>' + h(c.concernSummary) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' I am reviewing this statement before accepting the patient responsibility.', bodies[0]);
       setText('.lb-hl', 'Please provide every line item, CPT/HCPCS code, revenue code, units, dates of service, provider adjustments, insurer payments or denials, and the patient-responsibility amount for each individual item.', bodies[0]);
       setText('.lb-sm', 'This request is made so I can reconcile the statement against my EOB, coverage, and records. Please pause collection activity on any disputed portion while this written review is pending and provide a reference number for this request.', bodies[0]);
     }
@@ -1175,7 +1222,7 @@
       var issue = c.issues[0];
       setHTML('.lb-to-addr', h(c.provider) + ' - Billing Review Department<br>Billing address — see statement', bodies[1]);
       setText('.lb-re-txt', 'Billing Review Request - ' + issue.title + ' - DOS: ' + c.dateOfService + ' - Amount Under Review: ' + issue.amountText, bodies[1]);
-      setHTML('.lb-para', 'I am requesting a formal written review of my statement, account reference ' + h(c.accountRef) + '. Based on my intake and the documents available to me, my concerns include: <strong>' + h(c.concernSummary) + '</strong>. The primary review point is <strong>' + h(issue.title) + '</strong>.' + (c.userDetail ? ' My additional note was: "' + h(c.userDetail) + '".' : '') + ' This review relates to services at ' + h(c.provider) + ' on ' + h(c.dateOfService) + ' with current amount listed as ' + h(c.amount.display) + '.', bodies[1]);
+      setHTML('.lb-para', 'I am requesting a formal written review of my statement, account reference ' + h(c.accountRef) + '. Based on my intake and the documents available to me, my concerns include: <strong>' + h(c.concernSummary) + '</strong>. The primary review point is <strong>' + h(issue.title) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' This review relates to services at ' + h(c.provider) + ' on ' + h(c.dateOfService) + ' with current amount listed as ' + h(c.amount.display) + '.', bodies[1]);
       setText('.lb-hl', issue.action + ' If the review changes the patient responsibility, please issue a corrected statement and written explanation.', bodies[1]);
       setText('.lb-sm', 'Please respond in writing within 30 days with the records, code details, EOB reconciliation, or corrected billing statement that supports your determination. Please pause collection activity on the reviewed amount while this request is pending.', bodies[1]);
     }
@@ -1241,7 +1288,7 @@
           replaceTextNodes(root, guideReplacements(c, name));
           ensureGuideContext(root, name);
           var texts = all('.gd-card-text', root);
-          if(texts[0] && name === 'starthere') texts[0].innerHTML = 'Start with the <strong>Documents tab</strong>. Letter 1 is tailored to ' + h(c.provider) + ', ' + h(c.dateOfService) + ', ' + h(c.amount.display) + ', ' + h(c.coverage) + ', and the concerns you entered: "' + h(c.concernSummary) + '".' + (c.userDetail ? ' Your added note is included in the packet: "' + h(c.userDetail) + '".' : '');
+          if(texts[0] && name === 'starthere') texts[0].innerHTML = 'Start with the <strong>Documents tab</strong>. Letter 1 is tailored to ' + h(c.provider) + ', ' + h(c.dateOfService) + ', ' + h(c.amount.display) + ', ' + h(c.coverage) + ', and the concerns you entered: "' + h(c.concernSummary) + '".' + (c.userDetail ? ' A professionalized billing note is included in the packet: ' + h(c.userDetail) + '.' : '');
           if(name === 'checklist'){
             var checks = all('.gdc-text', root);
             if(checks[0]) checks[0].innerHTML = '<strong>Bill review prepared.</strong> Your review organized ' + h(c.amount.display) + ' around ' + h(c.issueCount) + ' review areas from this intake: ' + h(c.concernSummary) + '.';

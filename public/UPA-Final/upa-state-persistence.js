@@ -10,7 +10,8 @@
   var TOKEN_KEY = 'upa.case.handoff.token.v1';
   var TOKEN_PARAM = 'case';
   var MAX_TOKEN_LENGTH = 6000;
-  var MAX_CHECKOUT_URL_LENGTH = 12000;
+  var MAX_CASE_PARAM_LENGTH = 1200;
+  var MAX_CHECKOUT_URL_LENGTH = 1800;
 
   function now(){
     return new Date().toISOString();
@@ -337,7 +338,7 @@
     try{
       var url = new URL('/success', window.location.origin);
       var token = exportCaseToken(Object.assign({ stage:'success-link-token' }, meta || {}));
-      if(token) url.searchParams.set(TOKEN_PARAM, token);
+      if(token && token.length <= MAX_CASE_PARAM_LENGTH) url.searchParams.set(TOKEN_PARAM, token);
       return url.href;
     }catch(e){
       return fallback;
@@ -347,16 +348,10 @@
   function checkoutUrlWithToken(gumroadUrl, meta){
     var href = gumroadUrl || '';
     try{
+      captureReviewState(Object.assign({ stage:'checkout-local-handoff' }, meta || {}));
       var url = new URL(href, window.location.href);
-      var token = exportCaseToken(Object.assign({ stage:'checkout-token' }, meta || {}));
-      if(!token) return href;
-      url.searchParams.set(TOKEN_PARAM, token);
-      var successUrl = new URL('/success', window.location.origin);
-      successUrl.searchParams.set(TOKEN_PARAM, token);
-      url.searchParams.set('upa_success', successUrl.href);
-      if(url.href.length > MAX_CHECKOUT_URL_LENGTH) url.searchParams.delete('upa_success');
-      if(url.href.length > MAX_CHECKOUT_URL_LENGTH) url.searchParams.delete(TOKEN_PARAM);
-      return url.href;
+      url.searchParams.set('upa_checkout', '1');
+      return url.href.length <= MAX_CHECKOUT_URL_LENGTH ? url.href : href;
     }catch(e){
       return href;
     }

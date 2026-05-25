@@ -168,7 +168,12 @@ var tokenRestored = false;
       sessionStorage.setItem('upa.license.key', licenseKey);
       localStorage.setItem('upa.license.key', licenseKey);
     }
-    if (window.UPAState && window.UPAState.restoreFromUrl) {
+    var storageRestored = false;
+    if (window.UPAState && window.UPAState.restoreSession) {
+      window.UPAState.restoreSession({ stage: 'success-storage-restore', source: 'same-browser-storage' });
+      storageRestored = !!(window.UPAState.hasIntake && window.UPAState.hasIntake(window.UPAState.getIntake()));
+    }
+    if (!storageRestored && window.UPAState && window.UPAState.restoreFromUrl) {
       tokenRestored = !!window.UPAState.restoreFromUrl({ stage: 'success-token-restore', source: 'success-url' });
     }
     if (window.UPAState && window.UPAState.markPaid) {

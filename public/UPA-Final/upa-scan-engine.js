@@ -502,9 +502,9 @@ function buildScanFindings(ext) {
   if (ext.denialDetected) {
     findings.push({
       id: 'denial-appeal', priority: 0, severity: 'CRITICAL', gated: false,
-      title:  'Coverage Denial — Appeal Rights Identified',
-      teaser: 'Your document contains language indicating a claim was denied by ' + ins + '. Insurance denials are not',
-      body:   'Your document contains language indicating a claim was denied by ' + ins + '. Insurance denials are not final. Federal law provides patients the right to a full internal appeal and, in many cases, an external independent review. The majority of formally appealed denials result in full or partial reversal — particularly when the denial involves medical necessity, prior authorization, or coverage eligibility.\n\nYou typically have 30–180 days from the denial date to file a written appeal. This window closes without notice.',
+      title:  'Coverage Denial Language Detected',
+      teaser: 'Your document appears to include denial language connected to ' + ins + '. That does not automatically mean the bill is wrong, but',
+      body:   'Your document appears to include denial language connected to ' + ins + '. That does not automatically mean the bill is wrong, but it can be a strong reason to request the EOB basis, denial reason, appeal deadline, and any missing documentation in writing.\n\nMany payer notices include appeal or review deadlines. The prepared request helps you organize the denial language and ask for the specific explanation before accepting the balance as final.',
       letterIncluded: true, letterType: 'appeal',
       injectedValues: { insurance: ins }
     });
@@ -515,9 +515,9 @@ function buildScanFindings(ext) {
     findings.push({
       id: 'charge-verification', priority: 1,
       severity: bal > 500 ? 'HIGH' : 'MEDIUM', gated: false,
-      title:  'Patient Balance Verification',
-      teaser: 'A patient balance of ' + formatCurrency(bal) + ' is reflected on your statement from ' + prov + '. At this level, your',
-      body:   'A patient balance of ' + formatCurrency(bal) + ' is reflected on your statement from ' + prov + '. At this level, your claim falls into a category where formal itemized review has a documented recovery rate. Charges at this amount are frequently subject to contractual adjustment errors, coordination-of-benefits misapplication, or coding inconsistencies that result in overbilling to the patient.\n\nPatients who formally dispute this type of balance in writing — with the correct documentation — recover partial or full adjustments in the majority of cases.',
+      title:  'Patient Balance Needs Verification',
+      teaser: 'A patient balance of ' + formatCurrency(bal) + ' appears on your statement from ' + prov + '. That amount should be',
+      body:   'A patient balance of ' + formatCurrency(bal) + ' appears on your statement from ' + prov + '. That amount should be reconciled against itemized charges, insurance payments, contractual adjustments, and remaining patient responsibility before it is treated as final.\n\nThis finding does not mean there is an error or savings. It helps prepare a written request asking the provider or payer to explain how the patient balance was calculated.',
       letterIncluded: true, letterType: 'dispute',
       injectedValues: { amount: bal, provider: prov }
     });
@@ -525,9 +525,9 @@ function buildScanFindings(ext) {
     findings.push({
       id: 'charge-verification', priority: 1,
       severity: total > 1000 ? 'HIGH' : 'MEDIUM', gated: false,
-      title:  'Charge Amount Verification',
-      teaser: 'A total of ' + formatCurrency(total) + ' in charges was identified in your document from ' + prov + '. High-dollar',
-      body:   'A total of ' + formatCurrency(total) + ' in charges was identified in your document from ' + prov + '. High-dollar medical claims carry a statistically elevated rate of billing errors — including duplicate charges, unbundled procedure codes, and incorrect payment applications by the insurance carrier. Charges at this level warrant a formal itemized review before payment is made or accepted as final.',
+      title:  'Charge Amount Needs Itemized Review',
+      teaser: 'A total of ' + formatCurrency(total) + ' in charges was identified in your document from ' + prov + '. The next',
+      body:   'A total of ' + formatCurrency(total) + ' in charges was identified in your document from ' + prov + '. The next safe step is to compare that amount against itemized line items, payer adjustments, and any EOB or claim explanation.\n\nThis does not prove the amount is incorrect. It gives you a structured written request to confirm what was billed, what was adjusted, and what remains the patient responsibility.',
       letterIncluded: true, letterType: 'dispute',
       injectedValues: { amount: total, provider: prov }
     });
@@ -538,9 +538,9 @@ function buildScanFindings(ext) {
     const pct = Math.round((bal / total) * 100);
     findings.push({
       id: 'balance-discrepancy', priority: 2, severity: 'HIGH', gated: true,
-      title:  'Patient Responsibility Discrepancy',
-      teaser: 'Your patient balance represents ' + pct + '% of total billed charges — above the expected patient share for most insured claims at',
-      body:   'Your patient balance of ' + formatCurrency(bal) + ' represents ' + pct + '% of total billed charges of ' + formatCurrency(total) + '. This ratio exceeds the expected patient share for most insured claims at this charge level. This warrants formal verification that ' + ins + ' applied the correct contractual adjustment, coordination of benefits, and in-network rate.\n\nAn incorrectly applied contractual discount alone can result in a patient being billed thousands of dollars more than their actual obligation.',
+      title:  'Patient Responsibility Ratio Needs Review',
+      teaser: 'Your patient balance represents ' + pct + '% of total billed charges. That ratio may be normal for some plans, but it',
+      body:   'Your patient balance of ' + formatCurrency(bal) + ' represents ' + pct + '% of total billed charges of ' + formatCurrency(total) + '. That ratio may be normal for some plans, but it is worth confirming that ' + ins + ' applied the correct contractual adjustment, coordination of benefits, network handling, and patient-responsibility calculation.\n\nThe prepared request asks for the EOB basis and adjustment history so you can review whether the balance was calculated correctly.',
       letterIncluded: true, letterType: 'eob-verification',
       injectedValues: { balance: bal, total, pct }
     });
@@ -551,9 +551,9 @@ function buildScanFindings(ext) {
     const code = ext.duplicateCodes[0];
     findings.push({
       id: 'duplicate-code', priority: 2, severity: 'HIGH', gated: true,
-      title:  'Potential Duplicate Billing — Code ' + code,
-      teaser: 'Procedure code ' + code + ' appears more than once in your billing document. Duplicate procedure codes represent',
-      body:   'Procedure code ' + code + ' appears more than once in your billing document. Duplicate procedure codes represent a known billing error that results in patients being charged twice for the same service. This requires a written itemized billing request and formal dispute if the duplication is confirmed.\n\nThe provider is required to supply an itemized statement upon written request. If the duplicate charge is confirmed, you have grounds to dispute the second charge in full.',
+      title:  'Possible Duplicate Billing — Code ' + code,
+      teaser: 'Procedure code ' + code + ' appears more than once in your billing document. That may be valid in some cases, but',
+      body:   'Procedure code ' + code + ' appears more than once in your billing document. That may be valid in some cases, but it should be checked against the dates, units, modifiers, and service descriptions before the balance is accepted.\n\nThe prepared request asks the provider to identify the line items and documentation supporting each occurrence of the code. If the duplicate is confirmed, you can ask for a corrected statement.',
       letterIncluded: true, letterType: 'duplicate-code',
       injectedValues: { code }
     });
@@ -565,8 +565,8 @@ function buildScanFindings(ext) {
     findings.push({
       id: 'cpt-verification', priority: 3, severity: 'MEDIUM', gated: true,
       title:  'Procedure Code Verification — Code ' + code,
-      teaser: 'Procedure code ' + code + ' was identified in your bill. Verifying that billed codes match services actually rendered — and that',
-      body:   'Procedure code ' + code + ' was identified in your bill. Verifying that billed procedure codes match the services actually rendered — and that those codes were billed at the correct complexity and frequency — is a standard step in formal billing review. Upcoded or incorrectly billed procedure codes are recoverable through a written dispute process.',
+      teaser: 'Procedure code ' + code + ' was identified in your bill. The full review helps you ask whether that code matches',
+      body:   'Procedure code ' + code + ' was identified in your bill. The full review helps you ask whether that code matches the service, date, units, and documentation tied to the visit.\n\nThis does not determine whether the code is wrong. It prepares a professional written request for the provider to explain the code basis and any patient-responsibility calculation tied to it.',
       letterIncluded: true, letterType: 'itemized-request',
       injectedValues: { code }
     });
@@ -576,9 +576,9 @@ function buildScanFindings(ext) {
   if (ext.pageCount > 1) {
     findings.push({
       id: 'complex-claim', priority: 4, severity: 'MEDIUM', gated: true,
-      title:  'Complex Claim — Enhanced Review Warranted',
-      teaser: 'Your ' + ext.pageCount + '-page billing document indicates a complex claim with multiple service lines. Multi-page claims carry a',
-      body:   'Your ' + ext.pageCount + '-page billing document indicates a complex claim with multiple service lines. Multi-page claims carry a significantly higher error rate than single-service claims — including duplicate line items, charge bundling issues, and coordination-of-benefits errors that span multiple pages and are difficult to identify without systematic review.',
+      title:  'Multi-Page Claim Needs Organized Review',
+      teaser: 'Your ' + ext.pageCount + '-page billing document appears to include multiple service lines. More pages usually means more details to',
+      body:   'Your ' + ext.pageCount + '-page billing document appears to include multiple service lines. More pages usually means more details to reconcile, including line items, dates, units, payer adjustments, and patient-responsibility calculations.\n\nThe prepared packet helps organize those questions so the provider can respond in writing instead of giving a generic balance explanation.',
       letterIncluded: true, letterType: 'itemized-request',
       injectedValues: { pageCount: ext.pageCount }
     });
@@ -588,8 +588,8 @@ function buildScanFindings(ext) {
   findings.push({
     id: 'itemized-request', priority: 5, severity: 'MEDIUM', gated: true,
     title:  'Itemized Billing Documentation Request',
-    teaser: 'Under federal billing regulations, you have the right to a complete itemized statement from ' + prov + ' before any',
-    body:   'Under federal billing regulations, you have the right to a complete itemized statement from ' + prov + ' before any payment obligation is final. An itemized statement lists every charge by service code, date, and amount — and is the foundational document for any formal billing dispute.\n\nMany patients pay bills without ever requesting this documentation. Of those who do request it, a significant percentage discover errors, duplicate charges, or charges for services not rendered.',
+    teaser: 'A complete itemized statement from ' + prov + ' can help you verify dates, codes, units, adjustments, and the patient balance',
+    body:   'A complete itemized statement from ' + prov + ' can help you verify dates, codes, units, adjustments, and the patient balance before you rely on a summary bill alone.\n\nThe prepared request asks for the itemized statement, EOB basis, payer adjustments, and current account status in writing. That paper trail helps you review the bill more safely and respond with specific questions.',
     letterIncluded: true, letterType: 'itemized-request',
     injectedValues: { provider: prov }
   });
@@ -615,23 +615,46 @@ function writeScanStateToStorage(ext) {
   /* Full scan data */
   try { sessionStorage.setItem('upa.scan.v1', JSON.stringify(ext)); } catch(e){}
 
-  /* Intake-compatible for existing personalization pipeline */
+  /* Intake-compatible for existing personalization pipeline.
+     Field names must match what upa-case-personalization.js expects. */
+  const rawAmount = ext.patientBalance != null ? ext.patientBalance
+                  : ext.totalBilled    != null ? ext.totalBilled : null;
   const compat = {
-    provider:       ext.provider         || '',
-    date_of_service:ext.serviceDateRaw   || '',
-    amount:         ext.totalBilled      ? formatCurrency(ext.totalBilled)
-                  : ext.patientBalance   ? formatCurrency(ext.patientBalance) : '',
-    insurance:      ext.insuranceName    || '',
-    bill_type:      inferBillType(ext.rawText || ''),
-    payment_status: ext.patientBalance !== null
-                      ? (ext.patientBalance > 0 ? 'balance due' : 'paid in full')
-                      : 'unknown',
-    concern_other: '',
-    _scan:          true,
+    /* Core fields read by amountInfo() */
+    bill_amount:      rawAmount != null ? formatCurrency(rawAmount) : '',
+    bill_amount_raw:  '',
+    bill_amount_other:rawAmount != null ? formatCurrency(rawAmount) : '',
+    /* Extracted amount path — takes priority in amountInfo() when confidence >= 0.5 */
+    extracted_bill_amount:           rawAmount != null ? String(rawAmount) : '',
+    extracted_bill_amount_confidence: rawAmount != null ? 0.9 : 0,
+    /* Structured fields */
+    provider:         ext.provider        || '',
+    extracted_provider: ext.provider      || '',
+    extracted_provider_confidence: ext.provider ? (ext.confidence === 'high' ? 0.85 : 0.65) : 0,
+    date_of_service:  ext.serviceDateRaw  || ext.serviceDate || '',
+    extracted_date_of_service: ext.serviceDateRaw || ext.serviceDate || '',
+    extracted_date_confidence: ext.serviceDate ? (ext.confidence === 'high' ? 0.85 : 0.62) : 0,
+    insurance:        ext.insuranceName   || '',
+    extracted_insurance: ext.insuranceName || '',
+    extracted_insurance_confidence: ext.insuranceName ? 0.7 : 0,
+    account_number:   ext.claimNumber     || '',
+    extracted_account_number: ext.claimNumber || '',
+    extracted_account_confidence: ext.claimNumber ? 0.74 : 0,
+    bill_type:        inferBillType(ext.rawText || ''),
+    payment_status:   ext.patientBalance  != null
+                        ? (ext.patientBalance > 0 ? 'balance due' : 'paid in full')
+                        : 'unknown',
+    concern_other:    ext.denialDetected ? 'Claim denial detected — appeal review needed' : '',
+    /* Scan meta flags — used by applyDashboard() for copy variants */
+    _scan:            true,
     _patient_balance: ext.patientBalance,
+    _total_billed:    ext.totalBilled,
     _claim_number:    ext.claimNumber,
     _confidence:      ext.confidence,
     _denial:          ext.denialDetected,
+    _has_duplicates:  ext.hasDuplicateCodes,
+    _cpt_codes:       ext.cptCodes        || [],
+    _page_count:      ext.pageCount       || 1,
     _scan_ts:         ext._scanTimestamp
   };
 

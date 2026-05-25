@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>United Patient Advocate · AI Bill Scan</title>
+<title>United Patient Advocate · Bill Scan</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://gumroad.com/js/gumroad.js"></script>
@@ -485,14 +485,14 @@ body{background:var(--navy)}
   </a>
 
   <div class="upload-card">
-    <h1 class="upload-headline">Drop your bill.<br>We'll find what's wrong with it.</h1>
-    <p class="upload-sub">Works with hospital bills, doctor's office statements, and insurance Explanations of Benefits. No account needed. Results in about 60 seconds.</p>
+    <h1 class="upload-headline">Upload your bill.<br>See what stands out.</h1>
+    <p class="upload-sub">We scan the PDF text for real bill details like provider, amount, service date, insurance, and account numbers. No account needed. You can confirm anything the scan cannot read clearly.</p>
 
     <div class="drop-zone" id="drop-zone">
       <input type="file" accept=".pdf" class="drop-input" id="file-input">
       <span class="drop-icon">📄</span>
-      <div class="drop-label">Drop your PDF here</div>
-      <div class="drop-sub">or click to browse your files</div>
+      <div class="drop-label">Drop your bill or EOB PDF here</div>
+      <div class="drop-sub">hospital bill, office statement, or insurance EOB</div>
     </div>
 
     <div class="file-selected-badge" id="file-badge" style="display:none">
@@ -511,21 +511,21 @@ body{background:var(--navy)}
     <div class="upload-trust">
       <div class="trust-item">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        Analyzed in your browser
+        Scanned in your browser
       </div>
       <div class="trust-item">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        No account required
+        You confirm weak matches
       </div>
       <div class="trust-item">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        Private &amp; secure
+        No diagnosis or legal advice
       </div>
     </div>
   </div>
 
   <div class="upload-manual">
-    <a href="01_upa-landing.html">Don't have a PDF? Answer a few questions instead →</a>
+    <a href="01_upa-landing.html">No PDF available? Use the guided intake instead &rarr;</a>
   </div>
 </section>
 
@@ -538,14 +538,14 @@ body{background:var(--navy)}
     <div class="scan-nav-name">United Patient Advocate</div>
     <div class="scan-nav-pill">
       <div class="scan-pill-dot"></div>
-      <span class="scan-pill-label">Analyzing</span>
+      <span class="scan-pill-label">Reading PDF</span>
     </div>
   </div>
 
   <div class="scan-body">
     <!-- Document preview -->
     <div class="scan-preview-panel">
-      <div class="scan-preview-label">Your document</div>
+      <div class="scan-preview-label">Your uploaded document</div>
       <div class="scan-doc-wrap" id="scan-doc-wrap">
         <canvas id="scan-canvas"></canvas>
         <!-- Callout boxes (heuristic positions) -->
@@ -553,13 +553,13 @@ body{background:var(--navy)}
           <div class="scan-callout-label">Date area</div>
         </div>
         <div class="scan-callout callout-2" id="callout-2">
-          <div class="scan-callout-label">Provider header</div>
+          <div class="scan-callout-label">Provider / biller</div>
         </div>
         <div class="scan-callout callout-3" id="callout-3">
-          <div class="scan-callout-label">Totals section</div>
+          <div class="scan-callout-label">Amounts</div>
         </div>
         <div class="scan-callout callout-4" id="callout-4">
-          <div class="scan-callout-label">Line items</div>
+          <div class="scan-callout-label">Line-item clues</div>
         </div>
       </div>
       <div class="scan-progress-bar">
@@ -569,8 +569,8 @@ body{background:var(--navy)}
 
     <!-- Status + value feed -->
     <div class="scan-status-panel">
-      <div class="scan-status-headline">Reviewing your bill</div>
-      <div class="scan-status-sub">Extracting charges, codes, and dates from your document.</div>
+      <div class="scan-status-headline">Reading your bill</div>
+      <div class="scan-status-sub">Looking for real values we can safely use in your review: provider, amount, service date, insurance, and account details.</div>
 
       <div class="scan-status-text" id="scan-status-text">Reading document structure...</div>
 
@@ -582,7 +582,7 @@ body{background:var(--navy)}
         <div class="sfc-icon">⚠️</div>
         <div>
           <div class="sfc-text" id="sfc-text">Items identified</div>
-          <div class="sfc-sub">Review ready in a moment</div>
+          <div class="sfc-sub">Preliminary review ready in a moment</div>
         </div>
       </div>
     </div>
@@ -606,9 +606,9 @@ body{background:var(--navy)}
   <div class="findings-header">
     <div class="fh-top-line"></div>
     <div class="fh-inner">
-      <div class="fh-eyebrow"><div class="fh-eyebrow-dot"></div>Scan complete · Case review ready</div>
+      <div class="fh-eyebrow"><div class="fh-eyebrow-dot"></div>Scan complete · Preliminary review ready</div>
       <h1 class="fh-headline" id="fh-headline">Here's what we found in your bill.</h1>
-      <p class="fh-subline" id="fh-subline">Based on what we extracted, these items warrant formal review before payment is made or accepted as final.</p>
+      <p class="fh-subline" id="fh-subline">Based on the values we could read from your PDF, these items may be worth reviewing before payment is made or accepted as final.</p>
       <div class="fh-severity-row" id="fh-severity-row"></div>
     </div>
   </div>
@@ -627,8 +627,8 @@ body{background:var(--navy)}
 <section id="state-fallback" class="scan-state">
   <div class="fallback-card">
     <div class="fallback-eyebrow"><div class="fallback-eyebrow-dot"></div>Your document was processed</div>
-    <h2 class="fallback-title">Confirm a few details to complete your review</h2>
-    <p class="fallback-sub">Your document was analyzed but we need a bit more context to generate accurate findings for your case.</p>
+    <h2 class="fallback-title">Confirm the values we could not read clearly</h2>
+    <p class="fallback-sub">The PDF was scanned, but it did not provide enough clear text to build a case-specific preview. Add one or two details below so the review does not rely on generic placeholders.</p>
 
     <div class="fallback-field">
       <label class="fallback-label" for="fb-amount">What was the total amount on your bill?</label>
@@ -651,7 +651,7 @@ body{background:var(--navy)}
         <option value="medical bill">Other Medical Bill</option>
       </select>
     </div>
-    <button class="btn-fallback" id="btn-fallback-submit">Complete My Review →</button>
+    <button class="btn-fallback" id="btn-fallback-submit">Continue With These Details &rarr;</button>
   </div>
 </section>
 
@@ -675,8 +675,7 @@ if (typeof pdfjsLib !== 'undefined') {
 
 /* ─── CONFIG ─── */
 const UPA_SCAN_CONFIG = {
-  // Replace with your actual Gumroad product URL
-  gumroadURL:  'https://YOUR_GUMROAD_PRODUCT_URL',
+  gumroadURL:  'https://upadvocate.gumroad.com/l/busfn?wanted=true',
   upgradePrice: '$97',
   findingCount: 3  // shown in upgrade copy
 };
@@ -723,7 +722,7 @@ function onFileSelected(file) {
   clearUploadError();
   if (!file) return;
   if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-    showUploadError('Please upload a PDF file. Hospital bills, EOBs, and doctor's office statements work best.');
+    showUploadError("Please upload a PDF file. Hospital bills, EOBs, and doctor's office statements work best.");
     fileInput.value = '';
     return;
   }
@@ -735,7 +734,7 @@ function onFileSelected(file) {
   badgeName.textContent = file.name;
   fileBadge.style.display = 'flex';
   dropZone.querySelector('.drop-label').textContent = 'File ready';
-  dropZone.querySelector('.drop-sub').textContent   = file.name;
+  dropZone.querySelector('.drop-sub').textContent   = 'Ready to scan: ' + file.name;
   btnScan.disabled = false;
 }
 
@@ -746,8 +745,8 @@ fileRemove.addEventListener('click', function() {
   selectedFile = null;
   fileInput.value = '';
   fileBadge.style.display = 'none';
-  dropZone.querySelector('.drop-label').textContent = 'Drop your PDF here';
-  dropZone.querySelector('.drop-sub').textContent   = 'or click to browse your files';
+  dropZone.querySelector('.drop-label').textContent = 'Drop your bill or EOB PDF here';
+  dropZone.querySelector('.drop-sub').textContent   = 'hospital bill, office statement, or insurance EOB';
   btnScan.disabled = true;
   clearUploadError();
 });
@@ -816,12 +815,12 @@ function renderDocumentPreview(file) {
 /* ─── ANIMATION SEQUENCE ─── */
 const STATUS_STEPS = [
   'Reading document structure...',
-  'Identifying service codes and charge amounts...',
-  'Locating claim reference and account number...',
-  'Checking insurance payment application...',
-  'Reviewing charge patterns for discrepancies...',  // HOLD POINT
-  'Flagging items for review...',
-  'Analysis complete.'
+  'Looking for provider and biller name...',
+  'Checking amount and payment fields...',
+  'Looking for service date, insurance, and account clues...',
+  'Separating real extracted values from items that need confirmation...',  // HOLD POINT
+  'Preparing preliminary review areas...',
+  'Scan complete.'
 ];
 
 function setStatus(text) {
@@ -854,20 +853,27 @@ function addValueFeedItem(icon, text, badgeClass, badgeLabel) {
   });
 }
 
+function confidenceWord(data) {
+  if (!data || data.confidence === 'failed') return 'Needs confirmation';
+  if (data.confidence === 'high') return 'Strong match';
+  if (data.confidence === 'medium') return 'Found - confirm';
+  return 'Needs confirmation';
+}
+
 function runAnimationSequence() {
   setProgress(0);
   // T+0
   setStatus(STATUS_STEPS[0]);
-  // T+600: callout 1 (date area)
-  after(600, function() { showCallout(1); setProgress(12); });
+  // T+600: provider/biller area appears first
+  after(600, function() { showCallout(2); setProgress(12); });
   // T+1400: status 2
   after(1400, function() { setStatus(STATUS_STEPS[1]); setProgress(26); });
-  // T+2200: callout 2 (provider header)
-  after(2200, function() { showCallout(2); });
+  // T+2200: amount area
+  after(2200, function() { showCallout(3); });
   // T+3000: status 3
-  after(3000, function() { setStatus(STATUS_STEPS[2]); setProgress(40); showCallout(4); });
-  // T+4200: status 4 + callout 3
-  after(4200, function() { setStatus(STATUS_STEPS[3]); setProgress(55); showCallout(3); });
+  after(3000, function() { setStatus(STATUS_STEPS[2]); setProgress(40); });
+  // T+4200: status 4 + date/line areas
+  after(4200, function() { setStatus(STATUS_STEPS[3]); setProgress(55); showCallout(1); showCallout(4); });
   // T+5400: HOLD POINT — wait for extraction
   after(5400, function() {
     setStatus(STATUS_STEPS[4]);
@@ -894,60 +900,79 @@ function resumeAnimation(data) {
 
   // Inject real extracted values into the feed
   let feedDelay = 0;
-  function feedItem(fn) { after(feedDelay, fn); feedDelay += 800; }
+  function feedItem(fn) { after(feedDelay, fn); feedDelay += 900; }
 
-  // Claim / account number
-  if (data.claimNumber) {
+  // Provider first: this is the strongest trust anchor when it is real.
+  if (data.provider) {
     feedItem(function() {
-      addValueFeedItem('🔍',
-        'Claim / account <strong>' + esc(data.claimNumber) + '</strong> — confirmed',
-        'svi-confirmed', 'CONFIRMED ✓');
+      addValueFeedItem('🏥',
+        'Provider found: <strong>' + esc(data.provider) + '</strong>',
+        data.confidence === 'high' ? 'svi-confirmed' : 'svi-flagged',
+        confidenceWord(data));
+    });
+  }
+  // Patient balance
+  if (data.patientBalance !== null && data.patientBalance > 0) {
+    feedItem(function() {
+      addValueFeedItem('💵',
+        'Patient balance found: <strong>' + esc(UPAScanEngine.formatCurrency(data.patientBalance)) + '</strong>',
+        data.confidence === 'high' ? 'svi-confirmed' : 'svi-flagged',
+        data.confidence === 'high' ? 'FOUND' : 'CHECK');
+    });
+  } else if (data.totalBilled !== null && data.totalBilled > 0) {
+    feedItem(function() {
+      addValueFeedItem('💵',
+        'Total charges found: <strong>' + esc(UPAScanEngine.formatCurrency(data.totalBilled)) + '</strong>',
+        'svi-confirmed', 'FOUND');
     });
   }
   // Service date
   if (data.serviceDate) {
     feedItem(function() {
       addValueFeedItem('📅',
-        'Service date: <strong>' + esc(data.serviceDate) + '</strong> — confirmed',
-        'svi-confirmed', 'CONFIRMED ✓');
+        'Service date found: <strong>' + esc(data.serviceDate) + '</strong>',
+        data.confidence === 'high' ? 'svi-confirmed' : 'svi-flagged',
+        data.confidence === 'high' ? 'FOUND' : 'CHECK');
     });
   }
-  // Patient balance
-  if (data.patientBalance !== null && data.patientBalance > 0) {
+  // Claim / account number
+  if (data.claimNumber) {
     feedItem(function() {
-      addValueFeedItem('⚠️',
-        'Patient balance: <strong>' + esc(UPAScanEngine.formatCurrency(data.patientBalance)) + '</strong> — flagged for review',
-        'svi-flagged', 'FLAGGED ⚠');
+      addValueFeedItem('🔎',
+        'Account / claim found: <strong>' + esc(data.claimNumber) + '</strong>',
+        'svi-confirmed', 'FOUND');
     });
-  } else if (data.totalBilled !== null && data.totalBilled > 0) {
+  }
+  // Insurance / payer
+  if (data.insuranceName) {
     feedItem(function() {
-      addValueFeedItem('💰',
-        'Total charges: <strong>' + esc(UPAScanEngine.formatCurrency(data.totalBilled)) + '</strong> — logged',
-        'svi-confirmed', 'LOGGED ✓');
+      addValueFeedItem('🛡',
+        'Insurance or payer found: <strong>' + esc(data.insuranceName) + '</strong>',
+        'svi-confirmed', 'FOUND');
     });
   }
   // Denial flag
   if (data.denialDetected) {
     feedItem(function() {
-      addValueFeedItem('🚨', 'Denial language detected in document', 'svi-alert', 'ALERT 🚨');
+      addValueFeedItem('⚠', 'Denial language may be present in the document', 'svi-alert', 'REVIEW');
     });
   }
   // Page count if multi-page
   if (data.pageCount > 1 && !data.claimNumber && !data.serviceDate) {
     feedItem(function() {
       addValueFeedItem('📄',
-        'Document processed — <strong>' + data.pageCount + ' pages</strong> reviewed',
-        'svi-confirmed', 'PROCESSED ✓');
+        'Document text processed: <strong>' + data.pageCount + ' pages</strong>',
+        'svi-confirmed', 'READ');
     });
   }
   // If nothing real to show
   if (!data.claimNumber && !data.serviceDate && !data.patientBalance && !data.totalBilled && !data.denialDetected) {
     feedItem(function() {
-      addValueFeedItem('🔎', 'Document reviewed — additional confirmation needed', 'svi-confirmed', 'PROCESSED ✓');
+      addValueFeedItem('🔎', 'PDF text read, but key values need confirmation', 'svi-flagged', 'CHECK');
     });
   }
 
-  // Progress + status: "Flagging items"
+  // Progress + status: prepare review areas after real values have appeared
   after(feedDelay, function() {
     setStatus(STATUS_STEPS[5]);
     setProgress(84);
@@ -958,7 +983,7 @@ function resumeAnimation(data) {
     const countEl  = document.getElementById('scan-finding-count');
     const textEl   = document.getElementById('sfc-text');
     if (countEl && textEl) {
-      textEl.textContent = findings.length + ' item' + (findings.length !== 1 ? 's' : '') + ' flagged for review';
+      textEl.textContent = findings.length + ' review item' + (findings.length !== 1 ? 's' : '') + ' prepared';
       countEl.classList.add('show');
     }
     setProgress(95);
@@ -1010,15 +1035,15 @@ function renderFindings(data, findings) {
 
   if (headlineEl) {
     if (provider && date) {
-      headlineEl.textContent = 'Here’s what we found in your ' + provider + ' bill.';
+      headlineEl.textContent = 'Here\'s what stood out in your ' + provider + ' bill.';
     } else if (provider) {
-      headlineEl.textContent = 'Here’s what we found in your ' + provider + ' statement.';
+      headlineEl.textContent = 'Here\'s what stood out in your ' + provider + ' statement.';
     } else {
-      headlineEl.textContent = 'Here’s what we found in your bill.';
+      headlineEl.textContent = 'Here\'s what stood out in your bill.';
     }
   }
   if (sublineEl && date) {
-    sublineEl.textContent = 'Scanned from your ' + (date ? date + ' ' : '') + 'document. These items warrant formal review before payment is made or accepted as final.';
+    sublineEl.textContent = 'Scanned from your ' + (date ? date + ' ' : '') + 'document. These are preliminary review areas based on extracted bill text, not a final determination.';
   }
 
   // Severity summary pills
@@ -1053,7 +1078,7 @@ function renderFindings(data, findings) {
         '</div>' +
         '<p class="fc-text">' + bodyText + '</p>' +
         '<div class="fc-footer">' +
-          '<div class="fc-letter-badge"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Dispute letter included</div>' +
+          '<div class="fc-letter-badge"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Written request prepared</div>' +
           (!f.gated ? '<div class="fc-free-tag">FREE</div>' : '') +
         '</div>' +
       '</div>';
@@ -1064,7 +1089,7 @@ function renderFindings(data, findings) {
       lockBar.style.gridColumn = '1 / -1';
       lockBar.innerHTML =
         '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
-        'Unlock this finding — complete your case review';
+        'Unlock the full explanation and prepared request';
       lockBar.addEventListener('click', scrollToUpgrade);
       // Append lock bar inside the grid
       const wrapper = document.createElement('div');
@@ -1085,20 +1110,20 @@ function renderFindings(data, findings) {
   if (estimate.display) {
     caseValBlock.innerHTML =
       '<div class="cvb-left">' +
-        '<div class="cvb-label">Estimated disputable charges</div>' +
+        '<div class="cvb-label">Potential review range</div>' +
         '<div class="cvb-amount">' + esc(estimate.display) + '</div>' +
         '<div class="cvb-desc">Based on the ' +
           (estimate.basis === 'patient_balance'
             ? 'patient balance identified in your document'
             : 'charges identified in your document') +
-        '. Formal dispute documentation gives you the best chance of recovery.</div>' +
+        '. Actual savings or reductions depend on provider, payer, and document review.</div>' +
       '</div>';
   } else {
     caseValBlock.innerHTML =
       '<div class="cvb-left">' +
         '<div class="cvb-label">Findings identified</div>' +
         '<div class="cvb-amount" style="font-size:1.5rem">Review your case</div>' +
-        '<div class="cvb-desc">Based on what we identified, there are items in your bill worth formally reviewing before payment is accepted as final.</div>' +
+        '<div class="cvb-desc">Based on what we could read, there are items in your bill worth reviewing before payment is treated as final.</div>' +
       '</div>';
   }
   scroll.appendChild(caseValBlock);
@@ -1110,16 +1135,16 @@ function renderFindings(data, findings) {
   upgradeBlock.id = 'upgrade-block';
 
   const includeItems = [
-    'All ' + findings.length + ' findings fully unlocked with complete analysis',
-    gatedCount + ' additional dispute letter' + (gatedCount !== 1 ? 's' : '') + ' — ready to send',
+    'All ' + findings.length + ' review items unlocked with complete explanations',
+    gatedCount + ' additional written request' + (gatedCount !== 1 ? 's' : '') + ' prepared for you to review and send',
     'Step-by-step action plan with timeline',
     'Call scripts for billing departments and insurance carriers',
     'Downloadable patient packet — everything in one file'
   ];
 
   upgradeBlock.innerHTML =
-    '<div class="ub-title">Complete your case review</div>' +
-    '<div class="ub-sub">Your scan identified ' + findings.length + ' items. Unlock the full review to see every finding, get your dispute letters, and know exactly what to do next.</div>' +
+    '<div class="ub-title">Unlock your prepared review</div>' +
+    '<div class="ub-sub">Your scan prepared ' + findings.length + ' review items from the PDF. Unlock the full packet to see the complete explanations, written requests, and next steps prepared for you to review and send.</div>' +
     '<div class="ub-includes">' +
       includeItems.map(function(item) {
         return '<div class="ub-include-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' + esc(item) + '</div>';
@@ -1127,15 +1152,15 @@ function renderFindings(data, findings) {
     '</div>' +
     '<a class="btn-upgrade" href="' + esc(UPA_SCAN_CONFIG.gumroadURL) + '" target="_blank" rel="noopener">' +
       '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' +
-      'Unlock your full case review' +
+      'Unlock my full review' +
       '<span class="ub-price">' + esc(UPA_SCAN_CONFIG.upgradePrice) + '</span>' +
     '</a>' +
-    '<div class="ub-loss">⏱ Without formal dispute documentation, these findings expire unaddressed. Most insurers require written disputes within 180 days of the claim date.</div>' +
+    '<div class="ub-loss">Timelines vary by provider, payer, and notice type. Written requests help preserve a clear paper trail while you review the bill.</div>' +
     '<div class="ub-trust-row">' +
       '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Instant access</div>' +
       '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>One-time payment</div>' +
       '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>No subscription</div>' +
-      '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>No account required</div>' +
+      '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Review before sending</div>' +
     '</div>';
 
   scroll.appendChild(upgradeBlock);
@@ -1212,7 +1237,7 @@ function resetToUpload() {
   if (scroll) scroll.innerHTML = '';
   // Reset header
   const hl = document.getElementById('fh-headline');
-  if (hl) hl.textContent = 'Here’s what we found in your bill.';
+  if (hl) hl.textContent = 'Here\'s what stood out in your bill.';
   const sevRow = document.getElementById('fh-severity-row');
   if (sevRow) sevRow.innerHTML = '';
   showState('state-upload');

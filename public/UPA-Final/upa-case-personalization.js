@@ -1305,11 +1305,23 @@
     setText('.sb-score-num', c.detailScore >= 70 ? 'Strong start' : 'Open case');
 
     setText('.ch-ref', c.accountRef);
-    setText('.ch-headline', 'Here’s what we’re looking at for ' + providerLabel(c) + '.');
-    setText('.ch-subline', 'Your review is tailored to the exact case details provided.');
-    var deckCov = hasKnown(c.coverage, 'Coverage not provided') ? ', coverage listed as ' + h(c.coverage) : '';
-    var deckPay = hasKnown(c.paymentStatus, 'Payment status not provided') ? ', and payment status "' + h(c.paymentStatus) + '"' : '';
-    setHTML('.ch-deck', 'This dashboard organizes the <u>' + h(c.billType) + '</u> around the concerns you selected: <strong>' + h(c.concernSummary) + '</strong>' + deckCov + deckPay + '.' + (c.userDetail ? '<br>Additional billing context: ' + h(c.userDetail) : '') + '<br>' + h(c.reviewBasis));
+
+    /* ── Scan-aware copy variants ── */
+    var isScan = !!(c.raw && c.raw._scan);
+    if(isScan){
+      var scanProv = hasKnown(c.provider, 'Provider not provided') ? c.provider : 'your bill';
+      setText('.ch-headline', 'Here\'s what stood out in your ' + scanProv + ' bill.');
+      setText('.ch-subline', 'These review areas are based on values read from your uploaded document. Confirm anything that looks off before sending requests.');
+      var denialPrefix = (c.raw && c.raw._denial) ? '<strong style="color:var(--crimson)">Claim denial language may be present.</strong> ' : '';
+      var confNote = (c.raw && c.raw._confidence === 'high') ? ' Provider, amount, and service date were all read from the PDF.' : '';
+      setHTML('.ch-deck', denialPrefix + 'Your uploaded <u>' + h(c.billType) + '</u> was scanned and <strong>' + h(c.concernSummary) + '</strong> was prepared as a review area.' + confNote + (c.userDetail ? '<br>Additional context: ' + h(c.userDetail) : '') + '<br>' + h(c.reviewBasis));
+    } else {
+      setText('.ch-headline', 'Here\'s what we\'re looking at for ' + providerLabel(c) + '.');
+      setText('.ch-subline', 'Your review is tailored to the case details provided.');
+      var deckCov = hasKnown(c.coverage, 'Coverage not provided') ? ', coverage listed as ' + h(c.coverage) : '';
+      var deckPay = hasKnown(c.paymentStatus, 'Payment status not provided') ? ', and payment status "' + h(c.paymentStatus) + '"' : '';
+      setHTML('.ch-deck', 'This dashboard organizes the <u>' + h(c.billType) + '</u> around the concerns you selected: <strong>' + h(c.concernSummary) + '</strong>' + deckCov + deckPay + '.' + (c.userDetail ? '<br>Additional billing context: ' + h(c.userDetail) : '') + '<br>' + h(c.reviewBasis));
+    }
     var pills = all('.ch-pill.dark-pill');
     if(pills[0]) setIconText(pills[0], 'Prepared for ' + c.patientName);
     if(pills[1]) setIconText(pills[1], 'Prepared: ' + c.prepDate);

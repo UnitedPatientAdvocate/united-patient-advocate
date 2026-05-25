@@ -1693,11 +1693,15 @@ function upaFinalPath(file){
 function saveIntakeSession(){
   try{
     var payload=buildLeadPayload();
+    var persisted=null;
     if(window.UPAState && window.UPAState.persistIntake){
-      window.UPAState.persistIntake(payload,{stage:'intake-complete',source:'landing'});
+      persisted=window.UPAState.persistIntake(payload,{stage:'intake-complete',source:'landing'});
     }
-    sessionStorage.setItem('upa.intake.v1',JSON.stringify(payload));
-    localStorage.setItem('upa.intake.v1',JSON.stringify(payload));
+    var activePayload=persisted&&persisted.intake?persisted.intake:payload;
+    if(!window.UPAState){
+      sessionStorage.setItem('upa.intake.v1',JSON.stringify(activePayload));
+      localStorage.setItem('upa.intake.v1',JSON.stringify(activePayload));
+    }
   }catch(e){}
 }
 

@@ -612,8 +612,28 @@ function buildScanFindings(ext) {
 ───────────────────────────────────────────── */
 
 function writeScanStateToStorage(ext) {
+  const ACTIVE_KEY = 'upa.active.case.v1';
+  const INTAKE_KEY = 'upa.intake.v1';
+  const CHECKOUT_KEY = 'upa.checkout.session.v2';
+  const REVIEW_KEY = 'upa.review.session.v1';
+  const PAID_KEY = 'upa.paid.results.v2';
+  const CASE_KEY = 'upa.case.snapshot.v1';
+  const DASHBOARD_KEY = 'upa.dashboard.state.v1';
+  const activeAt = new Date().toISOString();
+  const caseIdParts = [
+    'scan',
+    ext._scanTimestamp || Date.now(),
+    ext.provider || 'provider',
+    ext.claimNumber || ext.serviceDateRaw || ext.serviceDate || 'case'
+  ].join('|');
+  let hash = 0;
+  for (let i = 0; i < caseIdParts.length; i++) hash = ((hash << 5) - hash + caseIdParts.charCodeAt(i)) | 0;
+  const caseId = 'upa-scan-' + Math.abs(hash).toString(36) + '-' + String(ext._scanTimestamp || Date.now()).slice(-6);
+
   /* Full scan data */
-  try { sessionStorage.setItem('upa.scan.v1', JSON.stringify(ext)); } catch(e){}
+  ext._upa_case_id = caseId;
+  ext._upa_active_at = activeAt;
+  try { sessionStorage.setItem('upa.scan.v1', JSON.stringify(ext)); localStorage.setItem('upa.scan.v1', JSON.stringify(ext)); } catch(e){}
 
   /* Intake-compatible for existing personalization pipeline.
      Field names must match what upa-case-personalization.js expects. */
@@ -621,6 +641,10 @@ function writeScanStateToStorage(ext) {
                   : ext.totalBilled    != null ? ext.totalBilled : null;
   const compat = {
     /* Core fields read by amountInfo() */
+    _upa_case_id:     caseId,
+    _upa_active_at:   activeAt,
+    _upa_source:      'scan',
+    active_case_id:   caseId,
     bill_amount:      rawAmount != null ? formatCurrency(rawAmount) : '',
     bill_amount_raw:  '',
     bill_amount_other:rawAmount != null ? formatCurrency(rawAmount) : '',
@@ -659,8 +683,30 @@ function writeScanStateToStorage(ext) {
   };
 
   try {
-    sessionStorage.setItem('upa.intake.v1', JSON.stringify(compat));
-    localStorage.setItem('upa.intake.v1',   JSON.stringify(compat));
+    const session = {
+      version: 4,
+      sessionId: caseId,
+      activeCaseId: caseId,
+      createdAt: activeAt,
+      updatedAt: activeAt,
+      stage: 'scan-complete',
+      source: 'scan',
+      paid: false,
+      intake: compat
+    };
+    const active = { version: 1, caseId: caseId, source: 'scan', updatedAt: activeAt, intake: compat, session: session, scan: ext };
+    sessionStorage.setItem(INTAKE_KEY, JSON.stringify(compat));
+    localStorage.setItem(INTAKE_KEY,   JSON.stringify(compat));
+    sessionStorage.setItem(ACTIVE_KEY, JSON.stringify(active));
+    localStorage.setItem(ACTIVE_KEY,   JSON.stringify(active));
+    sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify(session));
+    localStorage.setItem(CHECKOUT_KEY,   JSON.stringify(session));
+    sessionStorage.setItem(REVIEW_KEY, JSON.stringify(session));
+    localStorage.setItem(REVIEW_KEY,   JSON.stringify(session));
+    [PAID_KEY, CASE_KEY, DASHBOARD_KEY].forEach(function(key){
+      try{ sessionStorage.removeItem(key); localStorage.removeItem(key); }catch(e){}
+    });
+    try{ sessionStorage.removeItem('upa.paid'); localStorage.removeItem('upa.paid'); }catch(e){}
   } catch(e){ console.warn('[UPA Scan Engine] Storage write failed', e); }
 }
 

@@ -655,9 +655,13 @@ function scrollToUnlockCta(){
 }
 
 function goToGumroad(){
+  var checkoutUrl = GUMROAD_URL;
   try{
     if(window.UPAState && window.UPAState.markCheckout){
       window.UPAState.markCheckout({stage:'checkout-started',source:'preview',gumroadUrl:GUMROAD_URL});
+    }
+    if(window.UPAState && window.UPAState.checkoutUrlWithToken){
+      checkoutUrl = window.UPAState.checkoutUrlWithToken(GUMROAD_URL, {stage:'gumroad-handoff',source:'preview'});
     }
   }catch(e){}
   /* Optional: fade page out before redirect */
@@ -665,7 +669,7 @@ function goToGumroad(){
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(8,14,24,0);z-index:9999;pointer-events:none;transition:background .7s ease';
   document.body.appendChild(ov);
   requestAnimationFrame(function(){ ov.style.background = 'rgba(8,14,24,1)'; });
-  setTimeout(function(){ window.location.href = GUMROAD_URL; }, 720);
+  setTimeout(function(){ window.location.href = checkoutUrl; }, 720);
 }
 </script>
 <script src="upa-case-personalization.js"></script>

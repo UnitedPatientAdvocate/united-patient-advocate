@@ -158,6 +158,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--navy-deep);color:
 /* Store the license key from Gumroad if present */
 var resumeMode = false;
 var resumeRedirectTimer = null;
+var tokenRestored = false;
 
 (function() {
   try {
@@ -167,8 +168,11 @@ var resumeRedirectTimer = null;
       sessionStorage.setItem('upa.license.key', licenseKey);
       localStorage.setItem('upa.license.key', licenseKey);
     }
+    if (window.UPAState && window.UPAState.restoreFromUrl) {
+      tokenRestored = !!window.UPAState.restoreFromUrl({ stage: 'success-token-restore', source: 'success-url' });
+    }
     if (window.UPAState && window.UPAState.markPaid) {
-      window.UPAState.markPaid({ stage: 'success', source: 'gumroad-return', licenseKey: licenseKey || '' });
+      window.UPAState.markPaid({ stage: 'success', source: tokenRestored ? 'gumroad-return-token' : 'gumroad-return', licenseKey: licenseKey || '' });
     } else if (window.UPAState && window.UPAState.restoreSession) {
       window.UPAState.restoreSession({ stage: 'success' });
     }
@@ -198,7 +202,7 @@ function showResumeReview() {
   document.documentElement.style.overflow = 'auto';
   document.body.style.overflow = 'auto';
   document.querySelector('.card-title').innerHTML = 'Resume Your <span>Review.</span>';
-  document.querySelector('.card-sub').textContent = 'We confirmed access, but this browser does not have your saved case details. Re-enter the key billing details below so your dashboard opens as your case instead of a generic example.';
+  document.querySelector('.card-sub').textContent = 'We confirmed access, but could not restore a saved case token or browser session. Re-enter the key billing details below so your dashboard opens as your case instead of a generic example.';
   var progLabel = document.getElementById('prog-label');
   var progFill = document.getElementById('prog-fill');
   var sub = document.querySelector('.btn-sub');

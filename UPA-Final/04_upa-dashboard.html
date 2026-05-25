@@ -3458,6 +3458,10 @@ function showToast(title, sub) {
 
 function upaSecureAccessLink() {
   try {
+    if (window.UPAState && window.UPAState.successUrlWithToken) {
+      const tokenLink = window.UPAState.successUrlWithToken({stage:'dashboard-share-link',source:'paid-dashboard'});
+      if (tokenLink) return tokenLink;
+    }
     return new URL('/success', window.location.origin).href;
   } catch(e) {
     return 'https://unitedpatientadvocate.com/success';
@@ -3481,7 +3485,7 @@ async function upaShareAccess(evt) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     try {
       await navigator.clipboard.writeText(link);
-      showToast('Secure link copied', 'This link opens the saved review on this device, or a resume step if case data is missing.');
+      showToast('Secure link copied', 'This link includes your saved case when possible, or opens the resume fallback if case data is missing.');
       return false;
     } catch(e) {}
   }

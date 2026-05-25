@@ -112,12 +112,12 @@
   }
 
   function formatMoney(n){
-    if(!isFinite(n)) return 'Pending';
+    if(!isFinite(n)) return 'Awaiting itemized bill';
     return '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
   }
 
   function formatMoneyFull(n){
-    if(!isFinite(n)) return 'Pending';
+    if(!isFinite(n)) return 'Awaiting itemized bill';
     return '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   }
 
@@ -401,7 +401,7 @@
     return found.slice(0,3).map(function(issue, idx){
       var copy = Object.assign({},issue);
       copy.confidence = uploaded ? 'Use uploaded bill' : 'Needs documentation';
-      copy.amountText = amount.exact ? amount.display : 'Pending';
+      copy.amountText = amount.exact ? amount.display : 'Awaiting itemized bill';
       copy.letterName = idx === 0 ? 'Itemized statement request' : (idx === 1 ? 'Billing review request' : 'Insurance and rate review');
       return copy;
     });
@@ -655,6 +655,19 @@
     var coverage = clean(data.insurance_other || data.insurance, 'Coverage not provided');
     var paymentStatus = clean(data.payment_status_other || data.payment_status, 'Payment status not provided');
     var description = clean(data.description);
+    var email = clean(data.email);
+    var phone = clean(data.phone);
+    var concernLabels = splitList(data.concerns).concat(clean(data.concern_other) ? [clean(data.concern_other)] : []);
+    var seenConcerns = {};
+    concernLabels = concernLabels.filter(function(item){
+      var key = item.toLowerCase();
+      if(!item || seenConcerns[key]) return false;
+      seenConcerns[key] = true;
+      return true;
+    });
+    var concernSummary = concernLabels.length ? concernLabels.join(', ') : 'General billing review';
+    var userDetail = safeUserText(description, 220);
+    if(!userDetail && clean(data.concern_other)) userDetail = safeUserText(data.concern_other, 220);
     var uploadedBill = clean(data.uploaded_bill);
     var uploaded = !!(uploadedBill && !/^not uploaded/i.test(uploadedBill));
     var issues = buildIssues(data, amount, uploaded);
@@ -676,7 +689,7 @@
     var primary = issues[0];
     var status = paymentCopy(paymentStatus);
     var letterPlan = buildLetterPlan(data, issues);
-    var ref = clean(data.account_number || data.accountNumber || data.account || data.billing_reference || data.billingReference, 'on file');
+    var ref = clean(data.account_number || data.accountNumber || data.account || data.billing_reference || data.billingReference, 'in your case folder');
     var basis = [
       'itemized statement request',
       'EOB and payer-responsibility comparison',
@@ -689,6 +702,9 @@
       patientName:name,
       firstName:first || name.split(/\s+/)[0] || 'Patient',
       provider:provider,
+      email:email,
+      phone:phone,
+      contactLine:[email, phone].filter(Boolean).join(' | ') || 'Contact not provided',
       dateOfService:dos,
       dateShort:shortDate(data.date_of_service || data.dos),
       prepDate:prepDate,
@@ -707,6 +723,8 @@
       uploaded:uploaded,
       uploadedBill:uploaded ? uploadedBill : 'Not uploaded',
       description:description,
+      concernSummary:concernSummary,
+      userDetail:userDetail,
       detailScore:detailScore,
       notes:notes,
       noteText:notes.join(' '),
@@ -755,7 +773,7 @@
   }
 
   function commonReplacements(c){
-    var confirmedText = c.amount.exact ? 'Pending itemized review' : 'Pending';
+    var confirmedText = c.amount.exact ? 'Confirms once your itemized bill is added' : 'Awaiting itemized bill';
     return [
       ['First Name Last Name', c.patientName],
       ['Your Provider', c.provider],
@@ -769,11 +787,11 @@
       ['Bill Amount', c.amount.display],
       ['Amount to review', c.amount.reviewText],
       ['$20,267', confirmedText],
-      ['$17,589.00', 'Pending'],
-      ['$5,863.00', 'Pending'],
-      ['$11,726.00', 'Pending'],
-      ['$651.44', 'Pending'],
-      ['To confirm8.58', 'Pending'],
+      ['$17,589.00', 'Awaiting itemized bill'],
+      ['$5,863.00', 'Awaiting itemized bill'],
+      ['$11,726.00', 'Awaiting itemized bill'],
+      ['$651.44', 'Awaiting itemized bill'],
+      ['To confirm8.58', 'Awaiting itemized bill'],
       ['Medicare Beneficiary', c.coverage],
       ['Medicare Primary', c.coverage],
       ['Medicare primary', c.coverage.toLowerCase()],
@@ -831,7 +849,9 @@
       '.upa-case-note strong{color:#1C2B48}' +
       '.upa-case-note.dark{border-color:rgba(30,184,122,.22);background:rgba(30,184,122,.08);color:rgba(235,244,255,.68)}' +
       '.upa-case-note.dark strong{color:rgba(235,244,255,.95)}' +
-      '.upa-case-note.print{margin:14px 36px;background:#F6F8FA;color:#4A6480;border-color:rgba(28,43,72,.10)}';
+      '.upa-case-note.print{margin:14px 36px;background:#F6F8FA;color:#4A6480;border-color:rgba(28,43,72,.10)}' +
+      '.upa-intake-context{margin:12px 0;padding:12px 14px;border:1px solid rgba(28,43,72,.10);border-radius:8px;background:#F9FBFD;color:#4A6480;font-size:.72rem;line-height:1.62}' +
+      '.upa-intake-context strong{color:#1C2B48}.upa-intake-context.dark{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);color:rgba(235,244,255,.64)}.upa-intake-context.dark strong{color:rgba(235,244,255,.94)}';
     document.head.appendChild(style);
   }
 
@@ -850,25 +870,51 @@
     anchor.parentNode.insertBefore(wrap, anchor.nextSibling);
   }
 
+  function contextHTML(c){
+    var parts = [
+      '<strong>Intake used:</strong> ' + h(c.patientName),
+      h(providerLabel(c)),
+      h(c.billType),
+      h(c.amount.reviewText),
+      h(coverageLabel(c)),
+      h(paymentLabel(c))
+    ];
+    if(hasKnown(c.dateOfService, 'Date not provided')) parts.push('DOS ' + h(c.dateOfService));
+    if(c.uploaded) parts.push('Uploaded bill: ' + h(c.uploadedBill));
+    if(c.contactLine !== 'Contact not provided') parts.push('Contact: ' + h(c.contactLine));
+    parts.push('Concerns: ' + h(c.concernSummary));
+    if(c.userDetail) parts.push('User note: "' + h(c.userDetail) + '"');
+    return parts.join(' | ');
+  }
+
+  function insertContextAfter(selector, c, className){
+    var anchor = typeof selector === 'string' ? one(selector) : selector;
+    if(!anchor || anchor.parentNode.querySelector('.upa-intake-context')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'upa-intake-context' + (className ? ' ' + className : '');
+    wrap.innerHTML = contextHTML(c);
+    anchor.parentNode.insertBefore(wrap, anchor.nextSibling);
+  }
+
   function hasKnown(value, placeholder){
     value = clean(value);
     return !!value && value !== placeholder;
   }
 
   function providerLabel(c){
-    return hasKnown(c.provider, 'Provider not provided') ? c.provider : 'your provider';
+    return hasKnown(c.provider, 'Provider not provided') ? c.provider : 'the provider listed on your bill';
   }
 
   function serviceDateLabel(c){
-    return hasKnown(c.dateOfService, 'Date not provided') ? c.dateOfService : 'the service date';
+    return hasKnown(c.dateOfService, 'Date not provided') ? c.dateOfService : 'the date shown on your statement';
   }
 
   function coverageLabel(c){
-    return hasKnown(c.coverage, 'Coverage not provided') ? c.coverage : 'your coverage';
+    return hasKnown(c.coverage, 'Coverage not provided') ? c.coverage : 'the insurance you listed at intake';
   }
 
   function paymentLabel(c){
-    return hasKnown(c.paymentStatus, 'Payment status not provided') ? c.paymentStatus : 'current account status';
+    return hasKnown(c.paymentStatus, 'Payment status not provided') ? c.paymentStatus : 'where your account stands right now';
   }
 
   function billKindLabel(c){
@@ -897,8 +943,8 @@
     if(issue.key === 'network' || issue.key === 'denied' || issue.key === 'payer-responsibility'){
       if(hasKnown(c.coverage, 'Coverage not provided')) parts.push(c.coverage);
     }
-    if(c.uploaded) parts.push('uploaded bill on file');
-    return parts.join(' · ') || 'Billing review — details pending';
+    if(c.uploaded) parts.push('your uploaded bill in this case');
+    return parts.join(' · ') || 'Open case — your itemized bill will fill in the details';
   }
 
   function issueDesc(c, issue){
@@ -908,7 +954,7 @@
     if(hasKnown(c.coverage, 'Coverage not provided')) ctx.push('Coverage: ' + c.coverage);
     ctx.push('Amount: ' + c.amount.reviewText);
     if(hasKnown(c.paymentStatus, 'Payment status not provided')) ctx.push('Status: ' + c.paymentStatus);
-    if(c.uploaded) ctx.push('Uploaded bill on file');
+    if(c.uploaded) ctx.push('Your uploaded bill in this case');
     return issue.desc + (ctx.length ? ' (' + ctx.join(' · ') + ')' : '');
   }
 
@@ -925,12 +971,12 @@
     setHTML('.fi-desc', h(issueDesc(c, issue)) + ' <strong>Use written documentation before accepting the balance.</strong>', card);
     setText('.fi-code', issueCodeLine(c, issue), card);
     setText('.fi-amount', issue.amountText, card);
-    setText('.fi-amount-lbl', c.amount.exact ? 'Amount provided' : 'Amount to confirm', card);
-    setText('.fi-res', idx === 0 ? 'Open first' : (idx === 1 ? 'Next step' : 'Also review'), card);
+    setText('.fi-amount-lbl', c.amount.exact ? 'Amount you shared at intake' : 'Confirms with your itemized bill', card);
+    setText('.fi-res', idx === 0 ? 'Press on this first' : (idx === 1 ? 'Next up' : 'Also worth a look'), card);
     var meta = all('.fc-meta-item', card);
     if(meta[0]) setIconText(meta[0], serviceDateLabel(c));
-    if(meta[1]) setIconText(meta[1], c.uploaded ? 'Use uploaded bill: ' + c.uploadedBill : 'Itemized bill needed');
-    if(meta[2]) setIconText(meta[2], 'Letter ' + (idx + 1) + ' prepared');
+    if(meta[1]) setIconText(meta[1], c.uploaded ? 'Using your uploaded bill: ' + c.uploadedBill : 'Add your itemized bill to unlock specifics');
+    if(meta[2]) setIconText(meta[2], 'Letter ' + (idx + 1) + ' drafted for you');
     var ev = all('.ev-item-val', card);
     if(ev[0]) ev[0].textContent = issue.type;
     if(ev[1]) ev[1].textContent = c.uploaded ? 'Uploaded bill' : 'Need itemized bill';
@@ -941,6 +987,7 @@
   function applyPreview(c){
     if(!one('.results-hero')) return;
     insertNoteAfter('.results-hero', c, 'dark');
+    insertContextAfter('.results-hero', c, 'dark');
     setText('.nav-badge', 'Review Complete - ' + c.patientName);
     setHTML('.rh-title', 'Your review areas are prepared.<br><span>' + h(c.amount.reviewText) + ' needs review.</span>');
     var rhParts = [c.primaryInline];
@@ -955,8 +1002,8 @@
     all('.finding-card').slice(0,3).forEach(function(card, idx){ applyIssueCard(card, c.issues[idx], c, idx); });
 
     setText('.dt-topbar-name', 'United Patient Advocate - Active Case: ' + c.provider);
-    setText('.dt-pill', 'REF: ' + c.accountRef);
-    setText('.dt-h1', 'We reviewed the intake for ' + providerLabel(c) + '.');
+    setText('.dt-pill', 'Account: ' + c.accountRef);
+    setText('.dt-h1', 'Here\'s what we\'re looking at for ' + providerLabel(c) + '.');
     setText('.dt-h1-sub', 'The next step is confirming the details before payment or appeal.');
     setAllText('.dt-kpi-val', [c.amount.reviewText, String(c.issueCount), 'Ready']);
     setAllText('.dt-kpi-lbl', ['Amount provided','Review areas','Packet status']);
@@ -969,7 +1016,7 @@
     setText('.lt-from-sub', c.patientLabel);
     setHTML('.lt-to', h(c.provider) + ' - Billing Department<br>Account number/reference: ' + h(c.accountRef) + ' - Date of Service: ' + h(c.dateOfService));
     setText('.lt-re', 'RE: Formal Request - Itemized Bill Review - ' + c.primary.short);
-    setHTML('.lt-body-vis', 'Dear Billing Department,<br><br>I am requesting a detailed, itemized review of the billing statement for services on <strong>' + h(c.dateOfService) + '</strong> at ' + h(c.provider) + '. My intake identifies a <span class="lt-highlight">' + h(c.primary.short) + '</span>. Please provide the itemized statement, codes, units, adjustments, and any records needed to confirm the patient responsibility.');
+    setHTML('.lt-body-vis', 'Dear Billing Department,<br><br>I am requesting a detailed, itemized review of the billing statement for services on <strong>' + h(c.dateOfService) + '</strong> at ' + h(c.provider) + '. My intake identifies <span class="lt-highlight">' + h(c.concernSummary) + '</span>.' + (c.userDetail ? ' My note was: "' + h(c.userDetail) + '".' : '') + ' Please provide the itemized statement, codes, units, adjustments, and any records needed to confirm the patient responsibility.');
     setHTML('.lt-unlock-txt', '<strong>Your full letter set is being prepared:</strong> ' + h(c.letterSetLabel) + ', with more added when the bill complexity requires it.<br>Each letter uses the patient, provider, amount, coverage, and issue details from this intake.');
 
     setText('.ub-title', c.statusCopy.title);
@@ -1003,20 +1050,21 @@
   function applyDashboard(c){
     if(!one('.case-header') || !one('.right-panel')) return;
     insertNoteAfter('.kpi-strip', c, '');
-    setText('.ncp-text', hasKnown(c.provider, 'Provider not provided') ? 'Active Case: ' + c.provider : 'Active Case — Review Ready');
-    setText('.nav-ref', 'REF: ' + c.accountRef + ' | Case Opened: ' + c.prepDate);
+    insertContextAfter('.kpi-strip', c, '');
+    setText('.ncp-text', hasKnown(c.provider, 'Provider not provided') ? 'Your case · ' + c.provider : 'Your case · awaiting provider details');
+    setText('.nav-ref', 'Account: ' + c.accountRef + ' | Opened ' + c.prepDate);
     setText('.sb-hospital', c.provider);
     setText('.sb-sub', c.billType + ' - ' + c.dateShort);
     setAllText('.sb-kpi-val', [c.amount.display, c.amount.reviewText]);
-    setAllText('.sb-kpi-sub', [hasKnown(c.coverage, 'Coverage not provided') ? c.coverage : 'Coverage on file', c.uploaded ? 'Bill uploaded for review' : 'Itemized bill needed']);
-    setText('.sb-score-num', c.detailScore >= 70 ? 'Review ready' : 'Preliminary');
+    setAllText('.sb-kpi-sub', [hasKnown(c.coverage, 'Coverage not provided') ? c.coverage : 'Insurance you listed at intake', c.uploaded ? 'Your itemized bill is in this case' : 'Add your itemized bill to unlock the full review']);
+    setText('.sb-score-num', c.detailScore >= 70 ? 'Strong start' : 'Open case');
 
     setText('.ch-ref', c.accountRef);
-    setText('.ch-headline', 'We reviewed the intake for ' + providerLabel(c) + '.');
+    setText('.ch-headline', 'Here’s what we’re looking at for ' + providerLabel(c) + '.');
     setText('.ch-subline', 'Your review is tailored to the exact case details provided.');
     var deckCov = hasKnown(c.coverage, 'Coverage not provided') ? ', coverage listed as ' + h(c.coverage) : '';
     var deckPay = hasKnown(c.paymentStatus, 'Payment status not provided') ? ', and payment status "' + h(c.paymentStatus) + '"' : '';
-    setHTML('.ch-deck', 'This dashboard organizes the <u>' + h(c.billType) + '</u> around ' + h(c.primaryInline) + deckCov + deckPay + '.<br>' + h(c.reviewBasis));
+    setHTML('.ch-deck', 'This dashboard organizes the <u>' + h(c.billType) + '</u> around the concerns you selected: <strong>' + h(c.concernSummary) + '</strong>' + deckCov + deckPay + '.' + (c.userDetail ? '<br>Your note: "' + h(c.userDetail) + '".' : '') + '<br>' + h(c.reviewBasis));
     var pills = all('.ch-pill.dark-pill');
     if(pills[0]) setIconText(pills[0], 'Prepared for ' + c.patientName);
     if(pills[1]) setIconText(pills[1], 'Prepared: ' + c.prepDate);
@@ -1035,7 +1083,7 @@
     if(cardTexts[0]){
       var ctCov = hasKnown(c.coverage, 'Coverage not provided') ? ', coverage listed as <strong>' + h(c.coverage) + '</strong>' : '';
       var ctPay = hasKnown(c.paymentStatus, 'Payment status not provided') ? ', and payment status <strong>' + h(c.paymentStatus) + '</strong>' : '';
-      cardTexts[0].innerHTML = 'Your case centers on <strong>' + h(c.primary.short) + '</strong> for a ' + h(c.billType) + ' from ' + h(providerLabel(c)) + '. The current amount is <strong>' + h(c.amount.reviewText) + '</strong>' + ctCov + ctPay + '. This review does not mark charges as errors until the itemized bill, EOB, and provider records support that conclusion.';
+      cardTexts[0].innerHTML = 'Your case centers on <strong>' + h(c.concernSummary) + '</strong> for a ' + h(c.billType) + ' from ' + h(providerLabel(c)) + '. The current amount is <strong>' + h(c.amount.reviewText) + '</strong>' + ctCov + ctPay + '.' + (c.userDetail ? ' Your added note was: <strong>' + h(c.userDetail) + '</strong>.' : '') + ' This review does not mark charges as errors until the itemized bill, EOB, and provider records support that conclusion.';
     }
     setText('.bb-label', c.amount.display + ' total bill: what needs confirmation');
     setAllText('.legend-text', [
@@ -1046,17 +1094,17 @@
     ]);
     setAllText('.bench-name', c.issues.map(function(i){return i.title;}));
     setAllText('.bench-delta', ['Needs itemized detail','Needs EOB/code detail']);
-    setAllText('.bench-bar-val', ['Pending','Benchmark when codes are available','Pending','Benchmark when codes are available']);
-    setText('.nb-title', c.uploaded ? 'Review the uploaded bill and request missing line-item support' : 'Request a fully itemized statement before accepting the balance');
-    setText('.nb-desc', c.uploaded ? 'Use the uploaded bill with the prepared letters to request written explanations, EOB reconciliation, and corrections where the records support it.' : 'The intake did not include a complete itemized bill. Letter 1 asks the provider for the codes, units, charges, adjustments, and records needed to make the review more specific.');
+    setAllText('.bench-bar-val', ['Awaiting itemized bill','Benchmark unlocks once you upload your itemized bill with codes','Awaiting itemized bill','Benchmark unlocks once you upload your itemized bill with codes']);
+    setText('.nb-title', c.uploaded ? 'Use your uploaded bill to press for line-item answers' : 'Ask the provider for a fully itemized statement before you pay');
+    setText('.nb-desc', c.uploaded ? 'We’ll work from your uploaded bill alongside the drafted letters to push for written explanations, EOB reconciliation, and corrections wherever the records support it.' : 'Your intake didn’t include a complete itemized bill yet. Letter 1 is drafted to ask the provider for the codes, units, charges, adjustments, and records we need to make the rest of the review specific.');
 
     all('#tab-findings .finding-card').slice(0,3).forEach(function(card, idx){ applyIssueCard(card, c.issues[idx], c, idx); });
-    var actionTitles = ['Request fully itemized statement', 'Submit ' + c.issues[0].short + ' review', 'Send insurance/EOB or rate clarification', 'Follow up and escalate if no written response'];
+    var actionTitles = ['Ask for a fully itemized statement', 'Press on the ' + c.issues[0].short + ' question', 'Clarify coverage, EOB, or rates', 'Follow up — and escalate if no written reply'];
     var actionDescs = [
-      'Send the prepared letter to ' + providerLabel(c) + ' requesting the full line-by-line statement, codes, units, adjustments, and payer responsibility. Time needed: 5 minutes.',
-      'Once the itemized statement is available, use Letter 2 to ask billing to answer the specific issue: ' + c.issues[0].title + '.',
-      'Use Letter 3 to reconcile coverage, EOB, network status, payer adjustments, and any rate issue tied to ' + c.coverage + '.',
-      'If there is no written response in 30 days, follow up with billing, then escalate with copies of the letters and proof of delivery.'
+      'Send Letter 1 to ' + providerLabel(c) + ' asking for the full line-by-line statement, codes, units, adjustments, and payer responsibility for the concerns you entered: ' + c.concernSummary + '. About five minutes of your time.',
+      'Once your itemized statement arrives, use Letter 2 to ask billing to answer this question directly: ' + c.issues[0].title + '.',
+      'Use Letter 3 to sort out coverage, EOB, network status, payer adjustments, and any rate question tied to ' + c.coverage + '. Your contact on file for the packet is ' + c.contactLine + '.',
+      'If there is no written reply within 30 days, follow up with billing, then escalate with copies of your letters and proof of delivery.'
     ];
     var providerHint = c.provider === 'Provider not provided' ? 'the provider' : c.provider;
     var coverageHint = c.coverage === 'Coverage not provided' ? 'insurance or payer' : c.coverage;
@@ -1075,13 +1123,13 @@
     });
 
     setText('.rpc-amount', c.amount.reviewText);
-    setText('.rpc-sub', c.amount.exact ? 'Amount entered by user' : 'Amount needs confirmation');
-    setAllText('.rpc-row-val', [c.amount.display, String(c.issueCount), c.letterCount + ' prepared']);
-    var rpsPayment = hasKnown(c.paymentStatus, 'Payment status not provided') ? c.paymentStatus : 'Not specified';
-    setAllText('.rps-row-val', [c.amount.reviewText, c.primary.short, rpsPayment, c.uploaded ? 'Review uploaded bill' : 'Request itemization']);
-    setText('#rp-gauge-amount', c.detailScore >= 70 ? 'Review' : 'Prelim');
+    setText('.rpc-sub', c.amount.exact ? 'From the amount you shared at intake' : 'Confirms with your itemized bill');
+    setAllText('.rpc-row-val', [c.amount.display, String(c.issueCount), c.letterCount + ' drafted']);
+    var rpsPayment = hasKnown(c.paymentStatus, 'Payment status not provided') ? c.paymentStatus : 'Where your account stands';
+    setAllText('.rps-row-val', [c.amount.reviewText, c.primary.short, rpsPayment, c.uploaded ? 'Working from your uploaded bill' : 'Ask for an itemized statement first']);
+    setText('#rp-gauge-amount', c.detailScore >= 70 ? 'Strong start' : 'Open case');
     setText('#rp-gauge-pct', c.detailScore + '%');
-    setText('.rp-gauge-sub', c.uploaded ? 'Bill detail included' : 'More detail improves results');
+    setText('.rp-gauge-sub', c.uploaded ? 'Your itemized bill is in the case' : 'Adding your itemized bill sharpens the review');
     all('.rp-flag').slice(0,3).forEach(function(flag, idx){
       setText('.rp-flag-title', c.issues[idx].title, flag);
       setText('.rp-flag-sub', c.issues[idx].action, flag);
@@ -1119,7 +1167,7 @@
     if(bodies[0]){
       setHTML('.lb-to-addr', h(c.provider) + ' - Billing & Accounts<br>Billing address — see statement', bodies[0]);
       setText('.lb-re-txt', 'Request for Fully Itemized Statement - ' + c.accountRef + ' - Date of Service: ' + c.dateOfService, bodies[0]);
-      setHTML('.lb-para', 'I am writing to request a complete, fully itemized statement for medical services rendered on <strong>' + h(c.dateOfService) + '</strong>, account reference ' + h(c.accountRef) + ', at ' + h(c.provider) + '. My current intake lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, and payment status as <strong>' + h(c.paymentStatus) + '</strong>. I am reviewing this statement before accepting the patient responsibility.', bodies[0]);
+      setHTML('.lb-para', 'I am writing to request a complete, fully itemized statement for medical services rendered on <strong>' + h(c.dateOfService) + '</strong>, account reference ' + h(c.accountRef) + ', at ' + h(c.provider) + '. My current intake lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, payment status as <strong>' + h(c.paymentStatus) + '</strong>, and concerns including <strong>' + h(c.concernSummary) + '</strong>.' + (c.userDetail ? ' My additional note was: "' + h(c.userDetail) + '".' : '') + ' I am reviewing this statement before accepting the patient responsibility.', bodies[0]);
       setText('.lb-hl', 'Please provide every line item, CPT/HCPCS code, revenue code, units, dates of service, provider adjustments, insurer payments or denials, and the patient-responsibility amount for each individual item.', bodies[0]);
       setText('.lb-sm', 'This request is made so I can reconcile the statement against my EOB, coverage, and records. Please pause collection activity on any disputed portion while this written review is pending and provide a reference number for this request.', bodies[0]);
     }
@@ -1127,7 +1175,7 @@
       var issue = c.issues[0];
       setHTML('.lb-to-addr', h(c.provider) + ' - Billing Review Department<br>Billing address — see statement', bodies[1]);
       setText('.lb-re-txt', 'Billing Review Request - ' + issue.title + ' - DOS: ' + c.dateOfService + ' - Amount Under Review: ' + issue.amountText, bodies[1]);
-      setHTML('.lb-para', 'I am requesting a formal written review of my statement, account reference ' + h(c.accountRef) + '. Based on my intake and the documents available to me, the concern is: <strong>' + h(issue.title) + '</strong>. This review relates to services at ' + h(c.provider) + ' on ' + h(c.dateOfService) + ' with current amount listed as ' + h(c.amount.display) + '.', bodies[1]);
+      setHTML('.lb-para', 'I am requesting a formal written review of my statement, account reference ' + h(c.accountRef) + '. Based on my intake and the documents available to me, my concerns include: <strong>' + h(c.concernSummary) + '</strong>. The primary review point is <strong>' + h(issue.title) + '</strong>.' + (c.userDetail ? ' My additional note was: "' + h(c.userDetail) + '".' : '') + ' This review relates to services at ' + h(c.provider) + ' on ' + h(c.dateOfService) + ' with current amount listed as ' + h(c.amount.display) + '.', bodies[1]);
       setText('.lb-hl', issue.action + ' If the review changes the patient responsibility, please issue a corrected statement and written explanation.', bodies[1]);
       setText('.lb-sm', 'Please respond in writing within 30 days with the records, code details, EOB reconciliation, or corrected billing statement that supports your determination. Please pause collection activity on the reviewed amount while this request is pending.', bodies[1]);
     }
@@ -1135,7 +1183,7 @@
       var issue3 = c.issues[2];
       setHTML('.lb-to-addr', 'Billing Department - ' + h(c.provider) + '<br>Insurance / payer review contact if available', bodies[2]);
       setText('.lb-re-txt', 'Insurance / EOB / Rate Clarification - ' + issue3.title + ' - Account: ' + c.accountRef, bodies[2]);
-      setHTML('.lb-para', 'I am writing to request written clarification of the insurance, EOB, network, and rate handling for my <strong>' + h(c.dateOfService) + ' ' + h(c.billType) + '</strong> at ' + h(c.provider) + '. My coverage is listed as <strong>' + h(c.coverage) + '</strong>, and the patient balance requires confirmation before I accept responsibility.', bodies[2]);
+      setHTML('.lb-para', 'I am writing to request written clarification of the insurance, EOB, network, and rate handling for my <strong>' + h(c.dateOfService) + ' ' + h(c.billType) + '</strong> at ' + h(c.provider) + '. My coverage is listed as <strong>' + h(c.coverage) + '</strong>, payment status is <strong>' + h(c.paymentStatus) + '</strong>, and my intake concerns include <strong>' + h(c.concernSummary) + '</strong>. The patient balance requires confirmation before I accept responsibility.', bodies[2]);
       setText('.lb-hl', issue3.action + ' Please identify any payer denial codes, allowed amounts, adjustments, network status, consent documentation if relevant, and appeal or corrected-claim options.', bodies[2]);
       setText('.lb-sm', 'Please respond in writing with the EOB basis, payer responsibility, provider adjustment history, and the current patient-responsibility calculation. If the balance changes, please issue a corrected statement and refund or payment-plan adjustment instructions if applicable.', bodies[2]);
     }
@@ -1156,6 +1204,12 @@
       note.innerHTML = '<strong>Case specificity note:</strong> ' + h(c.noteText);
       firstPageHeader.parentNode.insertBefore(note, firstPageHeader.nextSibling);
     }
+    if(firstPageHeader && !one('.page .upa-intake-context')){
+      var ctx = document.createElement('div');
+      ctx.className = 'upa-intake-context';
+      ctx.innerHTML = contextHTML(c);
+      firstPageHeader.parentNode.insertBefore(ctx, firstPageHeader.nextSibling);
+    }
     applyLetterBodies(c);
     var pages = all('.page');
     if(pages[0]){
@@ -1170,6 +1224,14 @@
   function applyGuideHook(c){
     if(window.__upaGuidePersonalized) return;
     if(typeof window.showGuide !== 'function') return;
+    function ensureGuideContext(root, name){
+      if(!root || root.querySelector('.upa-intake-context')) return;
+      if(['callscripts','writtenrequests','nextsteps','starthere','checklist'].indexOf(name) === -1) return;
+      var note = document.createElement('div');
+      note.className = 'upa-intake-context';
+      note.innerHTML = contextHTML(c);
+      root.insertBefore(note, root.firstChild);
+    }
     var original = window.showGuide;
     window.showGuide = function(name){
       var result = original.apply(this, arguments);
@@ -1177,11 +1239,12 @@
         var root = document.getElementById('gd-body');
         if(root){
           replaceTextNodes(root, guideReplacements(c, name));
+          ensureGuideContext(root, name);
           var texts = all('.gd-card-text', root);
-          if(texts[0] && name === 'starthere') texts[0].innerHTML = 'Start with the <strong>Documents tab</strong>. Letter 1 is tailored to ' + h(c.provider) + ', ' + h(c.dateOfService) + ', ' + h(c.amount.display) + ', and the intake concern "' + h(c.primary.short) + '".';
+          if(texts[0] && name === 'starthere') texts[0].innerHTML = 'Start with the <strong>Documents tab</strong>. Letter 1 is tailored to ' + h(c.provider) + ', ' + h(c.dateOfService) + ', ' + h(c.amount.display) + ', ' + h(c.coverage) + ', and the concerns you entered: "' + h(c.concernSummary) + '".' + (c.userDetail ? ' Your added note is included in the packet: "' + h(c.userDetail) + '".' : '');
           if(name === 'checklist'){
             var checks = all('.gdc-text', root);
-            if(checks[0]) checks[0].innerHTML = '<strong>Bill review prepared.</strong> Your review organized ' + h(c.amount.display) + ' around ' + h(c.issueCount) + ' review areas from this intake.';
+            if(checks[0]) checks[0].innerHTML = '<strong>Bill review prepared.</strong> Your review organized ' + h(c.amount.display) + ' around ' + h(c.issueCount) + ' review areas from this intake: ' + h(c.concernSummary) + '.';
             if(checks[1]) checks[1].innerHTML = '<strong>Send the itemized statement request.</strong> Download Letter 1, sign it as ' + h(c.patientName) + ', and send it to ' + h(c.provider) + ' Patient Financial Services.';
           }
         }

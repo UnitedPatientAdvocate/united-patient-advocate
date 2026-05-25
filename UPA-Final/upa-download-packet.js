@@ -299,6 +299,29 @@
     return false;
   };
 
+  function printWindowHtml(html){
+    var w = window.open('', '_blank', 'width=900,height=1000');
+    if(!w) throw new Error('Print window blocked');
+    var printScript = '<script>window.addEventListener("load",function(){setTimeout(function(){window.focus();window.print();},350);});<\/script>';
+    w.document.open();
+    w.document.write(html.replace(/<\/body>/i, printScript + '</body>'));
+    w.document.close();
+    return w;
+  }
+
+  window.upaPrintFullPackage = async function(evt){
+    if(evt && evt.preventDefault) evt.preventDefault();
+    try {
+      var packet = await buildDownloadHtml();
+      printWindowHtml(packet.html);
+      notify('Print packet opened', 'Use your browser print dialog to print or save the tailored packet.');
+    } catch(e) {
+      notify('Opening packet', 'Use Print / Save PDF from the packet page if the print window is blocked.');
+      window.open(packetUrl(), '_blank');
+    }
+    return false;
+  };
+
   window.upaDownloadLetter = async function(evt, docId){
     if(evt && evt.preventDefault) evt.preventDefault();
     try {
@@ -346,9 +369,7 @@
   };
 
   window.upaPrintPacketPDF = function(evt){
-    if(evt && evt.preventDefault) evt.preventDefault();
-    window.print();
-    return false;
+    return window.upaPrintFullPackage(evt);
   };
 
   function escapeHTML(value){

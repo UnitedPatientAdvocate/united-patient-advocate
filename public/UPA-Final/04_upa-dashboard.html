@@ -2219,7 +2219,7 @@ body{display:block;background:var(--bg)}
 
 <!-- ═══════════ NAV ═══════════ -->
 <div class="topnav">
-  <a class="nav-brand" href="#">
+  <a class="nav-brand" href="/dashboard" aria-label="United Patient Advocate">
     <div class="nav-shield">
       <img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate">
     </div>
@@ -2229,12 +2229,11 @@ body{display:block;background:var(--bg)}
     </div>
   </a>
   <div class="nav-center">
-    <div class="nav-case-pill"><div class="ncp-dot"></div><span class="ncp-text">Active Case: Your Provider</span></div>
-    <span class="nav-ref">Account: account number &nbsp;|&nbsp; Case Opened: Preparation date</span>
+    <div class="nav-case-pill"><div class="ncp-dot"></div><span class="ncp-text">Your case · Your Provider</span></div>
+    <span class="nav-ref">Account: account number &nbsp;|&nbsp; Opened today</span>
   </div>
   <div class="nav-right">
-    <button class="btn-nv">Night</button>
-    <button class="btn-nv btn-nv-green">Review My Bill</button>
+    <button class="btn-nv btn-nv-green" onclick="showTab('overview');return false;">My Case</button>
   </div>
 </div>
 
@@ -2244,7 +2243,7 @@ body{display:block;background:var(--bg)}
 <!-- ═══════════ LEFT SIDEBAR ═══════════ -->
 <aside class="sidebar">
   <div class="sb-case">
-    <div class="sb-tag">Active Case</div>
+    <div class="sb-tag">Your case</div>
     <div class="sb-hospital">Your Provider</div>
     <div class="sb-sub">Operation: Medicare · Jan 2026</div>
   </div>
@@ -2258,13 +2257,13 @@ body{display:block;background:var(--bg)}
     <div>
       <div class="sb-kpi-lbl">Needs Review</div>
       <div class="sb-kpi-val green">Amount to review</div>
-      <div class="sb-kpi-sub">Identified across review areas</div>
+      <div class="sb-kpi-sub">Across the charges worth pressing on</div>
     </div>
   </div>
   <div class="sb-score">
     <div class="sb-score-row">
-      <span class="sb-score-lbl">Review Potential</span>
-      <span class="sb-score-num">Ready</span>
+      <span class="sb-score-lbl">Case Strength</span>
+      <span class="sb-score-num">Strong start</span>
     </div>
     <div class="sb-score-track"><div class="sb-score-fill" id="sb-fill"></div></div>
     <div class="sb-score-zones">
@@ -2278,8 +2277,8 @@ body{display:block;background:var(--bg)}
       <div class="sb-item-l">
         <div class="sb-num icon">🎯</div>
         <div class="sb-guide-text">
-          <span class="sb-name">Take the Tour</span>
-          <span class="sb-guide-sub">Quick guided walkthrough</span>
+          <span class="sb-name">How this page works</span>
+          <span class="sb-guide-sub">One-minute orientation</span>
         </div>
       </div>
     </a>
@@ -2409,7 +2408,7 @@ body{display:block;background:var(--bg)}
   </nav>
   <div class="sb-foot">
     <button class="btn-sb-dl" onclick="return upaDownloadPacket(event)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download Your Full Package</button>
-    <div class="sb-util-row"><button class="btn-util">Print</button><button class="btn-util">Share</button></div>
+    <div class="sb-util-row"><button class="btn-util" onclick="return upaPrintFullPackage(event)">Print</button><button class="btn-util" onclick="return upaShareAccess(event)">Share</button></div>
     <div class="sb-secure">Secure · Private · Confidential</div>
   </div>
 </aside>
@@ -2424,24 +2423,24 @@ body{display:block;background:var(--bg)}
       <div class="ch-meta-top">
         <div class="ch-case-indicator">
           <span class="chi-dot"></span>
-          Active Case: Your Provider
+          Your case · Your Provider
         </div>
         <div class="ch-sep"></div>
-        <span class="ch-ref">Account: account number &nbsp;|&nbsp; Case Opened: Preparation date</span>
+        <span class="ch-ref">Account: account number &nbsp;|&nbsp; Opened today</span>
       </div>
-      <h1 class="ch-headline">We reviewed your bill.</h1>
-      <div class="ch-subline">We prepared the issues and questions to review before you pay.</div>
-      <p class="ch-deck">Our review identified bill <u>discrepancies</u> and <u>disputable</u> charges.<br>Below is what we found and exactly what we do, step by step.</p>
+      <h1 class="ch-headline">Here's what we found in your bill.</h1>
+      <div class="ch-subline">These are the questions we'd press on first, based on what you shared at intake.</div>
+      <p class="ch-deck">A few <u>charges</u> and <u>line items</u> look worth a closer look.<br>Below is what stood out, and the next step for each one.</p>
       <div class="ch-pills">
         <div class="ch-pill dark-pill">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Prepared for First Name Last Name
+          Drafted for First Name Last Name
         </div>
         <div class="ch-pill dark-pill">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Prepared: Preparation date
+          Drafted for your case
         </div>
-        <div class="ch-pill amber-pill">REVIEW READY ? NEXT STEPS PREPARED</div>
+        <div class="ch-pill amber-pill">YOUR CASE · NEXT STEPS DRAFTED</div>
       </div>
       <div class="ch-metadata">
         <div class="ch-meta-item"><div class="ch-meta-label">Provider</div><div class="ch-meta-val">Your Provider</div></div>
@@ -2559,8 +2558,8 @@ body{display:block;background:var(--bg)}
       <div class="fin-grid">
         <div class="forensic-card">
           <div class="fc-head">
-            <div><div class="fc-overline">Billing Review Tools</div><div class="fc-title">Billing Review Summary · account number</div><div class="fc-sub">Your Provider · Bill amount billed · Medicare primary · January 2026</div></div>
-            <div class="fc-badge-g">Forensic Review Complete</div>
+            <div><div class="fc-overline">Your Case Summary</div><div class="fc-title">Your case summary</div><div class="fc-sub">Your Provider · Bill amount billed · Medicare primary · January 2026</div></div>
+            <div class="fc-badge-g">Detailed Review · Ready for Your Sign-Off</div>
           </div>
           <div class="fc-body">
             <div class="fv-waterfall">
@@ -2618,7 +2617,7 @@ body{display:block;background:var(--bg)}
                 </div>
                 <div class="ev-str"><span class="ev-str-lbl">Review Status</span><div class="ev-str-track"><div class="ev-str-fill high" style="width:88%"></div></div><span class="ev-str-pct">Review</span></div>
               </div>
-              <a class="fi-link lc" href="#doc-letter-2" onclick="return openRequestDocument(event,'doc-letter-2','Dispute letter opened','Review the prepared dispute request for this finding.');">Open dispute letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+              <a class="fi-link lc" href="#doc-letter-2" onclick="return openRequestDocument(event,'doc-letter-2','Dispute letter opened','The dispute letter for this question is drafted — review it before sending.');">Open dispute letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
             </div>
             <div class="fi-right"><div class="fi-amount fa-crimson">To confirm</div><div class="fi-amount-lbl">Disputable</div></div>
           </div>
@@ -2664,7 +2663,7 @@ body{display:block;background:var(--bg)}
                 </div>
                 <div class="ev-str"><span class="ev-str-lbl">Review Status</span><div class="ev-str-track"><div class="ev-str-fill mod" style="width:74%"></div></div><span class="ev-str-pct">Review</span></div>
               </div>
-              <a class="fi-link lb" href="#doc-letter-3" onclick="return openRequestDocument(event,'doc-letter-3','Rate request opened','Review the prepared network/rate request for this finding.');">Open rate request <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+              <a class="fi-link lb" href="#doc-letter-3" onclick="return openRequestDocument(event,'doc-letter-3','Rate review letter opened','The network/rate review letter is drafted — give it a look before sending.');">Open rate review letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
             </div>
             <div class="fi-right"><div class="fi-amount fa-cobalt">To confirm</div><div class="fi-amount-lbl">Negotiable</div></div>
           </div>
@@ -2681,20 +2680,20 @@ body{display:block;background:var(--bg)}
           <div class="dsb-node ds-done">
             <div class="dsb-circle">01</div>
             <div class="dsb-name">Request Itemized Bill</div>
-            <div class="dsb-sub">Completed, May 16</div>
-            <div class="dsb-step-status">Done</div>
+            <div class="dsb-sub">Letter drafted</div>
+            <div class="dsb-step-status">Ready to send</div>
           </div>
           <div class="dsb-node ds-active">
             <div class="dsb-circle">02</div>
             <div class="dsb-name">Dispute Line-Item Review</div>
-            <div class="dsb-sub">In Progress</div>
-            <div class="dsb-step-status">Current Step</div>
+            <div class="dsb-sub">Where you are now</div>
+            <div class="dsb-step-status">Current step</div>
           </div>
           <div class="dsb-node ds-pending">
             <div class="dsb-circle">03</div>
             <div class="dsb-name">Request In-Network Rate</div>
-            <div class="dsb-sub">Pending</div>
-            <div class="dsb-step-status">Next Step</div>
+            <div class="dsb-sub">Next up</div>
+            <div class="dsb-step-status">After step 2</div>
           </div>
         </div>
 
@@ -2703,11 +2702,11 @@ body{display:block;background:var(--bg)}
           <div class="dph-left">
             <div class="dph-icon"><svg viewBox="0 0 24 24"><path d="M12 2L4 7v5c0 5.5 3.5 10.5 8 12 4.5-1.5 8-6.5 8-12V7L12 2z"/></svg></div>
             <div>
-              <div class="dph-title">Prepared Document Packet</div>
-              <div class="dph-sub">Professionally prepared for your case. Review, download, and send with confidence.</div>
+              <div class="dph-title">Your Letter Packet</div>
+              <div class="dph-sub">Three letters drafted from your case. Add your name and address, then download and send.</div>
             </div>
           </div>
-          <div class="dph-badge">Documents Ready</div>
+          <div class="dph-badge">Drafts ready for your name</div>
         </div>
 
         <!-- Three horizontal document preview cards -->
@@ -2762,7 +2761,7 @@ body{display:block;background:var(--bg)}
               </div>
             </div>
             <div class="dpc-footer">
-              <span class="dpc-prepared">Prepared: Preparation date</span>
+              <span class="dpc-prepared">Drafted for your case</span>
               <div class="dpc-actions">
                 <button class="btn-dpc-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
                 <button class="btn-dpc-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
@@ -2818,7 +2817,7 @@ body{display:block;background:var(--bg)}
               </div>
             </div>
             <div class="dpc-footer">
-              <span class="dpc-prepared">Prepared: Preparation date</span>
+              <span class="dpc-prepared">Drafted for your case</span>
               <div class="dpc-actions">
                 <button class="btn-dpc-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
                 <button class="btn-dpc-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
@@ -2874,7 +2873,7 @@ body{display:block;background:var(--bg)}
               </div>
             </div>
             <div class="dpc-footer">
-              <span class="dpc-prepared">Prepared: Preparation date</span>
+              <span class="dpc-prepared">Drafted for your case</span>
               <div class="dpc-actions">
                 <button class="btn-dpc-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
                 <button class="btn-dpc-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
@@ -2883,7 +2882,7 @@ body{display:block;background:var(--bg)}
           </div>
 
         </div>
-        <div class="doc-footer-note">All documents are prepared in the patient's name and ready for submission.</div>
+        <div class="doc-footer-note">Each letter is drafted from your case details. Add your name and signature, then they're ready to send.</div>
       </div>
     </div>
 
@@ -2902,27 +2901,27 @@ body{display:block;background:var(--bg)}
         <div class="tl-item">
           <div class="tl-date"><div class="tl-date-main">May 16</div><div class="tl-date-sub">Today</div></div>
           <div class="tl-line"><div class="tl-dot d-green"></div><div class="tl-connector"></div></div>
-          <div class="tl-content"><div class="tl-ev-title">Bill Review Completed</div><div class="tl-ev-desc">Your Bill amount statement was reviewed and review areas totaling Amount to review were identified. All dispute letters are prepared for your review.</div><span class="tl-ev-tag" style="background:var(--green-lt);color:var(--green-dk);border:1px solid rgba(30,184,122,.22)">Complete</span></div>
+          <div class="tl-content"><div class="tl-ev-title">Initial Review Complete</div><div class="tl-ev-desc">We've gone through the intake details and pulled out the charges worth pressing on first. Three letters are drafted — add your name and address to make them mail-ready.</div><span class="tl-ev-tag" style="background:var(--green-lt);color:var(--green-dk);border:1px solid rgba(30,184,122,.22)">Done</span></div>
         </div>
         <div class="tl-item">
           <div class="tl-date"><div class="tl-date-main">May 16</div><div class="tl-date-sub">Today</div></div>
           <div class="tl-line"><div class="tl-dot d-gold"></div><div class="tl-connector"></div></div>
-          <div class="tl-content"><div class="tl-ev-title">Send Itemized Statement Request</div><div class="tl-ev-desc">Mail or email the prepared letter to Your Provider Patient Financial Services. Keep a copy for your records.</div><span class="tl-ev-tag" style="background:var(--gold-lt);color:var(--gold-dk);border:1px solid rgba(240,165,0,.22)">Action Required</span></div>
+          <div class="tl-content"><div class="tl-ev-title">Send your itemized statement request</div><div class="tl-ev-desc">Mail or email Letter 1 to Patient Financial Services at Your Provider. Keep a copy for your records — certified mail is the strongest option, but the provider's portal is fine if you'd rather move quickly.</div><span class="tl-ev-tag" style="background:var(--gold-lt);color:var(--gold-dk);border:1px solid rgba(240,165,0,.22)">When you're ready</span></div>
         </div>
         <div class="tl-item">
           <div class="tl-date"><div class="tl-date-main">June 16</div><div class="tl-date-sub">+30 days</div></div>
           <div class="tl-line"><div class="tl-dot d-cobalt"></div><div class="tl-connector"></div></div>
-          <div class="tl-content"><div class="tl-ev-title">Itemized Bill Request Follow-Up</div><div class="tl-ev-desc">Follow up in writing around 30 days if you have not received a response. Use the itemized bill to review the line-item concern on the relevant itemized bill lines.</div><span class="tl-ev-tag" style="background:var(--cobalt-lt);color:var(--cobalt);border:1px solid rgba(59,110,224,.22)">Deadline</span></div>
+          <div class="tl-content"><div class="tl-ev-title">Follow up if you haven't heard back</div><div class="tl-ev-desc">Around the 30-day mark, follow up in writing. When the itemized bill arrives, work through the line items against the questions in your case.</div><span class="tl-ev-tag" style="background:var(--cobalt-lt);color:var(--cobalt);border:1px solid rgba(59,110,224,.22)">Soft deadline</span></div>
         </div>
         <div class="tl-item">
           <div class="tl-date"><div class="tl-date-main">June 16</div><div class="tl-date-sub">+30 days</div></div>
           <div class="tl-line"><div class="tl-dot d-crimson"></div><div class="tl-connector"></div></div>
-          <div class="tl-content"><div class="tl-ev-title">Submit Formal Dispute Letters</div><div class="tl-ev-desc">Send the line-item concern dispute and in-network rate request letters with your itemized bill attached as evidence.</div><span class="tl-ev-tag" style="background:var(--crimson-lt);color:var(--crimson-dk);border:1px solid rgba(224,59,59,.20)">Action Required</span></div>
+          <div class="tl-content"><div class="tl-ev-title">Send the dispute and rate-review letters</div><div class="tl-ev-desc">Mail Letter 2 (line-item question) and Letter 3 (network/rate review) with your itemized bill attached as evidence. Send them together so the billing department sees the full picture.</div><span class="tl-ev-tag" style="background:var(--crimson-lt);color:var(--crimson-dk);border:1px solid rgba(224,59,59,.20)">When you're ready</span></div>
         </div>
         <div class="tl-item">
           <div class="tl-date"><div class="tl-date-main">July 16</div><div class="tl-date-sub">+60 days</div></div>
           <div class="tl-line"><div class="tl-dot d-gray"></div><div class="tl-connector"></div></div>
-          <div class="tl-content"><div class="tl-ev-title">Expect Written Response from Hospital</div><div class="tl-ev-desc">Hospital billing departments typically respond within 30–45 days. If no response by this date, escalate using our escalation template.</div><span class="tl-ev-tag" style="background:rgba(17,28,46,.06);color:var(--ink-5);border:1px solid var(--bdr-md)">Pending</span></div>
+          <div class="tl-content"><div class="tl-ev-title">A written reply usually arrives by now</div><div class="tl-ev-desc">Most hospital billing departments respond within 30–45 days. If nothing has arrived by this point, your escalation letter is drafted in the case — that's the next step.</div><span class="tl-ev-tag" style="background:rgba(17,28,46,.06);color:var(--ink-5);border:1px solid var(--bdr-md)">Watching for reply</span></div>
         </div>
       </div>
     </div>
@@ -2975,8 +2974,8 @@ body{display:block;background:var(--bg)}
     </div>
     <div class="rpc-rows">
       <div class="rpc-row"><span class="rpc-row-label">Bill reviewed</span><span class="rpc-row-val">Bill amount</span></div>
-      <div class="rpc-row"><span class="rpc-row-label">Issues found</span><span class="rpc-row-val">3</span></div>
-      <div class="rpc-row"><span class="rpc-row-label">Case letters</span><span class="rpc-row-val check">3 prepared</span></div>
+      <div class="rpc-row"><span class="rpc-row-label">Questions worth pressing on</span><span class="rpc-row-val">3</span></div>
+      <div class="rpc-row"><span class="rpc-row-label">Case letters</span><span class="rpc-row-val check">3 drafted</span></div>
     </div>
   </div>
 
@@ -3008,7 +3007,7 @@ body{display:block;background:var(--bg)}
 
   <!-- Review Potential gauge -->
   <div class="rp-gauge-wrap">
-    <div class="rp-gauge-label">Review Potential</div>
+    <div class="rp-gauge-label">Case Strength</div>
     <div class="rp-gauge-svg-wrap">
       <svg class="rp-gauge-svg" viewBox="0 0 160 95" width="160" height="95" overflow="visible">
         <defs>
@@ -3070,10 +3069,10 @@ body{display:block;background:var(--bg)}
   <div class="rp-next">
     <div class="rp-next-head">
       <div class="rp-next-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-      <div class="rp-next-title">Send Your Dispute Packet While You Still Have the Advantage</div>
+      <div class="rp-next-title">Send your letters while you still have the strongest position</div>
     </div>
-    <div class="rp-next-desc">Your bill has not been paid. That is your strongest position. Every day you wait, the hospital's leverage grows. Send the prepared letters now. It takes 5 minutes and costs nothing.</div>
-    <button class="btn-rp-cta" onclick="return openActionPlanStep(event,'itemized')">Send My Dispute Packet</button>
+    <div class="rp-next-desc">You haven't paid this bill yet — that's the best place to be. Once a bill is paid, the conversation gets harder. Your letters are drafted; sending them takes about five minutes and costs nothing.</div>
+    <button class="btn-rp-cta" onclick="return openActionPlanStep(event,'itemized')">Open my letter packet</button>
   </div>
 
 </aside>
@@ -3101,13 +3100,13 @@ function openRequestDocument(evt, docId, title, sub) {
   setTimeout(() => {
     const doc = document.getElementById(docId);
     if (!doc) {
-      showToast('Request not found', 'Open the Documents tab to review the prepared requests.');
+      showToast('We couldn\'t find that letter', 'Open the Documents tab to see all the letters drafted for your case.');
       return;
     }
     document.querySelectorAll('.doc-preview-card.request-focus').forEach(el => el.classList.remove('request-focus'));
     doc.classList.add('request-focus');
     doc.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-    showToast(title || 'Request opened', sub || 'Review the prepared request in the Documents tab.');
+    showToast(title || 'Letter opened', sub || 'Take a look in the Documents tab — it\'s drafted from your case details.');
     setTimeout(() => doc.classList.remove('request-focus'), 2600);
   }, 90);
   return false;
@@ -3163,7 +3162,7 @@ function wireDocumentCardActions() {
     if (buttons[1]) {
       buttons[1].setAttribute('aria-label', 'Preview this letter');
       buttons[1].setAttribute('title', 'Preview this letter');
-      buttons[1].onclick = (event) => window.upaPreviewLetter ? window.upaPreviewLetter(event, docId) : openRequestDocument(event, docId, 'Request selected', 'This request is ready to review, print, or send.');
+      buttons[1].onclick = (event) => window.upaPreviewLetter ? window.upaPreviewLetter(event, docId) : openRequestDocument(event, docId, 'Letter selected', 'This letter is drafted for your case — ready to review, print, or send.');
     }
   });
 }
@@ -3173,10 +3172,10 @@ wireDocumentCardActions();
 const GC = {
   starthere: {
     title:'Start Here', sub:'New? Read this first.',
-    html:`<div class="gd-calm-banner"><span class="gcb-icon">🤝</span><div class="gcb-text"><div class="gcb-title">You're in a good position. Don't panic.</div><div class="gcb-body">Your bill hasn't been paid yet. That means you can question it, request documentation, and review potential issues before making payment decisions. We prepared the letters, scripts, and checklist for you to review and send.</div></div></div>
+    html:`<div class="gd-calm-banner"><span class="gcb-icon">🤝</span><div class="gcb-text"><div class="gcb-title">You're in a strong position. Take a breath.</div><div class="gcb-body">You haven't paid this bill yet, which means you can question it, ask for documentation, and look at the charges carefully before any money changes hands. Your letters, call scripts, and checklist are drafted and waiting for you — you're not doing this alone.</div></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">1</div><div class="gd-card-title">Download your first letter. It costs nothing to send</div></div><div class="gd-card-body"><p class="gd-card-text">Go to the <strong>Documents tab</strong>. Your first letter (Request for Itemized Statement) is ready. Print it, sign it, and mail or email it to the hospital billing department. This helps you request the detailed records needed before deciding what to pay. No lawyer required.</p></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">2</div><div class="gd-card-title">Don't pay the bill while your request is under review</div></div><div class="gd-card-body"><p class="gd-card-text">Once you've submitted a written dispute or itemization request, ask the provider to keep the reviewed amount on hold while they respond. <strong>Paying early can reduce your leverage.</strong> Consider holding payment on the reviewed portions while you request clarification.</p></div></div>
-    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">3</div><div class="gd-card-title">Use the Call Scripts if you prefer to call</div></div><div class="gd-card-body"><p class="gd-card-text">Some people prefer speaking to someone. Go to <strong>Call Scripts</strong> in this menu. We've written out exactly what to say, word for word, in plain conversational English. You can read it right off the screen.</p></div></div>
+    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">3</div><div class="gd-card-title">Use the Call Scripts if you'd rather pick up the phone</div></div><div class="gd-card-body"><p class="gd-card-text">Some people would rather just call. Open <strong>Call Scripts</strong> in this menu. We've written what to say in plain English, the way a calm patient would actually say it — you can read straight from the screen.</p></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">4</div><div class="gd-card-title">Be patient. This typically takes 30 to 60 days</div></div><div class="gd-card-body"><p class="gd-card-text">Hospital billing departments are slow. A 30-day wait is normal. If you haven't heard back in 30 days, follow up. Keep copies of everything you send.</p></div></div>`
   },
   nextsteps: {
@@ -3206,7 +3205,7 @@ const GC = {
       <div class="sc-header"><div class="sc-header-left"><div class="sc-when">Call 1: Do This First</div><div class="sc-title">Requesting Your Itemized Statement</div><div class="sc-goal">Goal: Get a complete line-by-line bill before making payment decisions.</div></div><div class="sc-actions"><button class="btn-sc-dl dl-navy" onclick="printScript('sc1')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Print</button></div></div>
       <div class="sc-coaching"><span class="sc-coaching-icon">💡</span><div class="sc-coaching-text"><strong>Before you call:</strong> Have your bill in front of you. Ask for "Patient Financial Services" when the main line picks up. Best times: Tuesday–Thursday, 10am–2pm.</div></div>
       <div class="sc-body" id="sc1">
-        <div class="sc-beat"><div class="sc-beat-label">When they answer</div><div class="sc-line"><div class="sc-line-inner">"Hi, my name is [your name] and I'm calling about a bill I received. My account number is [your account number]. I'd like to speak with someone in Patient Financial Services, please."</div></div></div>
+        <div class="sc-beat"><div class="sc-beat-label">When they answer</div><div class="sc-line"><div class="sc-line-inner">"Hi, this is [your name]. I'm calling about a bill — my account number is [your account number]. I'd like to ask a few questions about it before I pay, and I'd like to speak with someone in Patient Financial Services, please."</div></div></div>
         <div class="sc-divider"></div>
         <div class="sc-beat"><div class="sc-beat-label">Your request</div><div class="sc-line"><div class="sc-line-inner">"I received a billing statement and before I make any payment, I'd like to request a <span class="sc-hl">fully itemized statement</span>. A line-by-line breakdown with the CPT codes, the date of each service, and the charge for each item. I understand this is something I have a right to request, and I want to fully understand what I'm being charged for before I pay."</div></div></div>
         <div class="sc-pushback"><div><div class="sc-pushback-label">If they say "we already sent you a bill"</div><div class="sc-pushback-text"><strong>Say:</strong> "I appreciate that, but what I received was a summary statement. I'm specifically requesting the fully itemized version with individual procedure codes so I can review each charge and any applicable billing protections."</div></div></div>
@@ -3220,7 +3219,7 @@ const GC = {
       <div class="sc-header"><div class="sc-header-left"><div class="sc-when">Call 2: After You Have the Itemized Bill</div><div class="sc-title">Disputing the Line-Item Review</div><div class="sc-goal">Goal: Get the line-item billing review line item charge removed and receive written confirmation.</div></div><div class="sc-actions"><button class="btn-sc-dl dl-navy" onclick="printScript('sc2')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Print</button></div></div>
       <div class="sc-coaching"><span class="sc-coaching-icon">💡</span><div class="sc-coaching-text"><strong>Before you call:</strong> Have the itemized bill with the billing issue lines visible. Be calm and matter-of-fact. You're asking for a review, not accusing anyone. Billing questions are common, and many departments can review or correct issues when the request is clear.</div></div>
       <div class="sc-body" id="sc2">
-        <div class="sc-beat"><div class="sc-beat-label">Opening: after you reach Patient Financial Services</div><div class="sc-line"><div class="sc-line-inner">"Hi, my name is [your name] and I'm calling about account number [your account number]. I received my itemized statement and I wanted to go over one thing I noticed. I think there may be a billing issue I'd like reviewed."</div></div></div>
+        <div class="sc-beat"><div class="sc-beat-label">Opening: after you reach Patient Financial Services</div><div class="sc-line"><div class="sc-line-inner">"Hi, this is [your name], calling about account number [your account number]. I received my itemized statement and I'd like to go over something I noticed before I pay. I think there may be a billing issue worth a closer look."</div></div></div>
         <div class="sc-divider"></div>
         <div class="sc-beat"><div class="sc-beat-label">Explaining the issue: keep it simple and calm</div><div class="sc-line"><div class="sc-line-inner">"I'm looking at my itemized bill, and I can see that <span class="sc-hl">a billing line item, the emergency department visit, appears twice</span>, on the relevant itemized bill lines, both for the same date of service, the service date. It looks like it may have been entered twice by mistake. I just wanted to bring it to your attention so we can get it sorted out."</div></div></div>
         <div class="sc-pushback"><div><div class="sc-pushback-label">If they put you on hold to check</div><div class="sc-pushback-text">That's a good sign. They're looking into it. When they come back, ask: <strong>"Were you able to confirm the billing entry?"</strong></div></div></div>
@@ -3235,7 +3234,7 @@ const GC = {
       <div class="sc-header"><div class="sc-header-left"><div class="sc-when">Call 3: If No Response After 30 Days</div><div class="sc-title">Following Up on Your Dispute</div><div class="sc-goal">Goal: Get a status update and a clear timeline for resolution.</div></div><div class="sc-actions"><button class="btn-sc-dl dl-navy" onclick="printScript('sc3')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Print</button></div></div>
       <div class="sc-coaching"><span class="sc-coaching-icon">💡</span><div class="sc-coaching-text"><strong>Tone for this call:</strong> Friendly but firm. You've been patient. You're not angry. You're organized and following up on a legitimate request. Mention your previous call and the date.</div></div>
       <div class="sc-body" id="sc3">
-        <div class="sc-beat"><div class="sc-beat-label">Opening</div><div class="sc-line"><div class="sc-line-inner">"Hi, I'm following up on a billing dispute I submitted about 30 days ago. My name is [your name], account number [account number]. I have a reference number from my previous call: [reference number]. I just wanted to check on the status and make sure nothing fell through the cracks."</div></div></div>
+        <div class="sc-beat"><div class="sc-beat-label">Opening</div><div class="sc-line"><div class="sc-line-inner">"Hi, I'm following up on a billing dispute I submitted about 30 days ago. This is [your name], account number [account number]. My reference number from the previous call is [reference number]. I'm following up on what we discussed to make sure nothing fell through the cracks."</div></div></div>
         <div class="sc-divider"></div>
         <div class="sc-beat"><div class="sc-beat-label">If they say they have no record of your dispute</div><div class="sc-line"><div class="sc-line-inner">"No problem, let me give you the details again. On [date], I submitted a dispute about a line-item concern for a billing line item, which appears twice on my itemized statement for my the service date visit. I also sent this in writing. Is there a supervisor or patient advocate I could speak with to get this moving forward?"</div></div></div>
         <div class="sc-pushback"><div><div class="sc-pushback-label">If they say it's still "under review"</div><div class="sc-pushback-text"><strong>Say:</strong> "I appreciate that. Can you give me a specific date when I can expect a written response? And can you confirm whether collection activity can be paused while the dispute is active? I want to keep a clear record while this is reviewed."</div></div></div>
@@ -3397,7 +3396,7 @@ const GC = {
     <div class="gd-check-item"><div class="gdc-box" onclick="updateChecklist(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Marked both billing issue lines on a printed copy</strong> to attach to the dispute letter.</div></div>
     </div></div>
 
-    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num amber-num">Phase 3</div><div class="gd-card-title">Submit Dispute Letters</div></div><div class="gd-card-body">
+    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num amber-num">Phase 3</div><div class="gd-card-title">Send the Dispute Letters</div></div><div class="gd-card-body">
     <div class="gd-check-item"><div class="gdc-box" onclick="updateChecklist(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Sent the Formal Dispute letter (Letter 2)</strong> with itemized bill attached to Your Provider billing.</div></div>
     <div class="gd-check-item"><div class="gdc-box" onclick="updateChecklist(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Sent the In-Network Rate Request (Letter 3)</strong> for the Outside Service Provider lab charges.</div></div>
     <div class="gd-check-item"><div class="gdc-box" onclick="updateChecklist(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Set a 30-day follow-up reminder</strong> in your calendar from the date each letter was sent.</div></div>
@@ -3456,6 +3455,42 @@ function showToast(title, sub) {
   clearTimeout(t._timeout);
   t._timeout = setTimeout(() => t.classList.remove('show'), 2800);
 }
+
+function upaSecureAccessLink() {
+  try {
+    return new URL('/success', window.location.origin).href;
+  } catch(e) {
+    return 'https://unitedpatientadvocate.com/success';
+  }
+}
+
+async function upaShareAccess(evt) {
+  if (evt && evt.preventDefault) evt.preventDefault();
+  const link = upaSecureAccessLink();
+  const title = 'United Patient Advocate Secure Review';
+  const text = 'Open your secure review: ' + link;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text, url: link });
+      showToast('Secure link shared', 'Your secure review access link was shared.');
+      return false;
+    } catch(e) {
+      if (e && e.name === 'AbortError') return false;
+    }
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(link);
+      showToast('Secure link copied', 'This link opens the saved review on this device, or a resume step if case data is missing.');
+      return false;
+    } catch(e) {}
+  }
+  window.prompt('Copy your secure access link:', link);
+  showToast('Copy link shown', 'Copy the secure access link from the prompt.');
+  return false;
+}
+
+window.upaShareAccess = upaShareAccess;
 
 function updateChecklist(el) {
   el.classList.toggle('checked');
@@ -3984,7 +4019,7 @@ const FILM = [
     body: "This dashboard contains everything you need to dispute charges, talk to billing, and get your money back. The next scenes walk through every section so you know exactly where to go.",
     duration: 7000 },
   { title: "The case identity (top of sidebar)",
-    body: "On the left, the top of the sidebar shows your provider, total bill, and the amount needing review — along with a Review Potential meter showing how strong your case is.",
+    body: "On the left, the top of the sidebar shows your provider, total bill, and the amount worth pressing on — alongside a Case Strength meter showing how solid your position is.",
     duration: 8500 },
   { title: "Six tabs across the top",
     body: "Overview · Financials · Findings · Documents · Action Plan · Timeline. The active tab shows as a dark navy slot stamped into the brass. Click any tab to jump there.",
@@ -4110,14 +4145,14 @@ function filmStop(){
 /* ════════════════ INTERACTIVE TOUR ════════════════ */
 const TOUR_STEPS = [
   { mode: 'intro', icon: '👋',
-    title: "Welcome — let's take a quick tour",
-    body: "We'll spotlight every part of your dashboard one at a time so you know exactly where everything is. Takes about 30 seconds. You can stop anytime." },
+    title: "Welcome. Here's how your case is laid out.",
+    body: "We'll walk through each part of your case once, so you know where everything lives. Takes about 30 seconds. Stop any time." },
   { selector: '.sb-case', side: 'right',
     title: '👤 Your case identity',
     body: 'Right here is your provider, payor, and case reference. Always at the top of the sidebar so you never lose your place.' },
   { selectors: ['.sb-kpis', '.sb-score'], side: 'right',
     title: '📊 Your bill at a glance',
-    body: 'Total bill, the amount needing review, and a Review Potential meter showing how strong your case is. The greener the bar, the more we found.' },
+    body: 'Total bill, the amount worth pressing on, and a Case Strength meter showing how solid your position is. The greener the bar, the more we found worth pursuing.' },
   { selector: '.tab-bar', side: 'bottom',
     title: '🗂️ Six tabs across the top',
     body: 'Overview · Financials · Findings · Documents · Action Plan · Timeline. The active tab shows as a dark navy slot stamped into the brass strip. Click any to jump there.' },
@@ -4129,7 +4164,7 @@ const TOUR_STEPS = [
     body: 'New to disputing bills? Start Here. Then Mistakes To Avoid (read before paying anything). Then Your Rights for common billing protections and request paths.' },
   { mode: 'outro', icon: '✅',
     title: "You're ready",
-    body: "When you're ready, click Overview at the top, or Start Here in the sidebar. The Tour stays in your sidebar — open it anytime you want a refresher." }
+    body: "Click Overview at the top, or Start Here in the sidebar. This walkthrough stays in your sidebar — open it any time you want a refresher." }
 ];
 
 let tourIdx = 0;

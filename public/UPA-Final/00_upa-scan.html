@@ -665,6 +665,7 @@ if (typeof pdfjsLib !== 'undefined') {
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 </script>
+<script src="upa-state-persistence.js"></script>
 <script src="upa-scan-engine.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════════
@@ -702,6 +703,13 @@ function esc(s) {
 }
 function clearTimers() { animTimers.forEach(clearTimeout); animTimers = []; }
 function after(ms, fn) { const t = setTimeout(fn, ms); animTimers.push(t); return t; }
+function readStoredJSON(key) {
+  let raw = '';
+  try { raw = sessionStorage.getItem(key) || ''; } catch(e) {}
+  if (!raw) { try { raw = localStorage.getItem(key) || ''; } catch(e) {} }
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch(e) { return null; }
+}
 
 /* ─── FILE UPLOAD HANDLING ─── */
 const dropZone   = document.getElementById('drop-zone');
@@ -1164,6 +1172,20 @@ function renderFindings(data, findings) {
     '</div>';
 
   scroll.appendChild(upgradeBlock);
+
+  const upgradeLink = upgradeBlock.querySelector('.btn-upgrade');
+  if (upgradeLink) {
+    upgradeLink.addEventListener('click', function() {
+      try {
+        if (window.UPAState && window.UPAState.markCheckout) {
+          window.UPAState.markCheckout({ stage: 'checkout-started', source: 'scan', gumroadUrl: UPA_SCAN_CONFIG.gumroadURL });
+        }
+        if (window.UPAState && window.UPAState.checkoutUrlWithToken) {
+          upgradeLink.href = window.UPAState.checkoutUrlWithToken(UPA_SCAN_CONFIG.gumroadURL, { stage: 'gumroad-handoff', source: 'scan' });
+        }
+      } catch(e) {}
+    });
+  }
 }
 
 function scrollToUpgrade() {
@@ -1242,6 +1264,29 @@ function resetToUpload() {
   if (sevRow) sevRow.innerHTML = '';
   showState('state-upload');
 }
+
+function hydrateCurrentScanCase() {
+  if (typeof UPAScanEngine === 'undefined') return;
+  let active = null;
+  let intake = null;
+  try {
+    active = window.UPAState && window.UPAState.activeCase ? window.UPAState.activeCase() : null;
+    intake = window.UPAState && window.UPAState.getIntake ? window.UPAState.getIntake() : null;
+  } catch(e) {}
+  const activeCaseId = (active && active.caseId) || (intake && (intake._upa_case_id || intake.active_case_id)) || '';
+  const scan = (active && active.scan) || readStoredJSON('upa.scan.v1');
+  if (!scan || !scan._scan) return;
+  if (active && active.source && active.source !== 'scan') return;
+  if (activeCaseId && scan._upa_case_id && scan._upa_case_id !== activeCaseId) return;
+  if (scan.confidence === 'low' || scan.confidence === 'failed') return;
+
+  extractedData = scan;
+  scanFindings = UPAScanEngine.buildScanFindings(scan);
+  renderFindings(scan, scanFindings);
+  showState('state-findings');
+}
+
+hydrateCurrentScanCase();
 </script>
 </body>
 </html>

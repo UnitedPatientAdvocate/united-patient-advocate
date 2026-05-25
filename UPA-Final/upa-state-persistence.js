@@ -169,21 +169,20 @@
     return readJSON(ACTIVE_KEY) || {};
   }
 
-  function activateIntake(intake, meta){
+  function shouldClearDerivedState(active, prepared, meta, options){
+    options = options || {};
+    if(options.clearStale === false) return false;
+    var stage = meta && meta.stage ? String(meta.stage) : '';
+    var newWrite = /^(scan-complete|intake-complete|success-resume|token-intake-restore)$/.test(stage);
+    if(options.clearStale === true) return !!(newWrite || (active && active.caseId && active.caseId !== prepared._upa_case_id));
+    return !!(newWrite && active && active.caseId && active.caseId !== prepared._upa_case_id);
+  }
+
+  function activateIntake(intake, meta, options){
     if(!hasIntake(intake)) return intake || {};
     var active = activeEnvelope();
     var prepared = ensureActiveFields(intake, meta || {});
-    var caseChanged = active.caseId && active.caseId !== prepared._upa_case_id;
-    var paid = readJSON(PAID_KEY);
-    var checkout = readJSON(CHECKOUT_KEY);
-    var review = readJSON(REVIEW_KEY);
-    var existingIds = [
-      paid && paid.session && (paid.session.activeCaseId || paid.session.sessionId || caseIdFromIntake(paid.session.intake || {})),
-      checkout && (checkout.activeCaseId || checkout.sessionId || caseIdFromIntake(checkout.intake || {})),
-      review && (review.activeCaseId || review.sessionId || caseIdFromIntake(review.intake || {}))
-    ].filter(Boolean);
-    var staleExisting = existingIds.some(function(id){ return id && id !== prepared._upa_case_id; });
-    if(caseChanged || staleExisting){
+    if(shouldClearDerivedState(active, prepared, meta || {}, options || {})){
       removeJSON(CASE_KEY);
       removeJSON(DASHBOARD_KEY);
       removeJSON(PAID_KEY);
@@ -318,7 +317,7 @@
   function getIntake(){
     if(window.__UPA_PACKET_INTAKE__ && hasIntake(window.__UPA_PACKET_INTAKE__)) return window.__UPA_PACKET_INTAKE__;
     var candidate = newestIntakeCandidate();
-    if(candidate && hasIntake(candidate.intake)) return activateIntake(candidate.intake, { stage:'active-case-selected', source:candidate.source });
+    if(candidate && hasIntake(candidate.intake)) return activateIntake(candidate.intake, { stage:'active-case-selected', source:candidate.source }, { clearStale:false });
     var intake = readJSON(INTAKE_KEY);
     if(hasIntake(intake)) return intake;
     var paid = readJSON(PAID_KEY);
@@ -373,7 +372,7 @@
 
   function persistIntake(intake, meta){
     if(!hasIntake(intake)) return null;
-    intake = activateIntake(intake, meta || {});
+    intake = activateIntake(intake, meta || {}, { clearStale:true });
     var session = currentSession();
     session.version = 3;
     session.sessionId = intake._upa_case_id || session.sessionId || ('upa-' + Date.now() + '-' + Math.random().toString(16).slice(2));
@@ -523,7 +522,7 @@
     restoredSession.tokenMode = payload.mode || 'unknown';
     restoredSession.meta = Object.assign({}, restoredSession.meta || {}, payload.meta || {}, meta || {});
     if(hasIntake(intake)){
-      restoredSession.intake = activateIntake(intake, Object.assign({ stage:'token-intake-restore' }, meta || {}));
+      restoredSession.intake = activateIntake(intake, Object.assign({ stage:'token-intake-restore' }, meta || {}), { clearStale:true });
       restoredSession.activeCaseId = caseIdFromIntake(restoredSession.intake);
       writeJSON(INTAKE_KEY, restoredSession.intake);
     }

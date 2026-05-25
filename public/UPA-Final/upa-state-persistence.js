@@ -147,8 +147,18 @@
   }
 
   function newestIntakeCandidate(){
-    var list = [];
+    // ACTIVE_KEY is the explicitly managed "current case" slot.
+    // writeScanStateToStorage() and activateIntake() are the ONLY writers.
+    // If it holds scan-originated data, trust it absolutely — no timestamp race.
     var active = readJSON(ACTIVE_KEY);
+    if(active && active.intake && hasIntake(active.intake)){
+      var activeIsScanned = !!(active.source === 'scan' || (active.intake && active.intake._scan) || (active.intake && active.intake._upa_source === 'scan'));
+      if(activeIsScanned){
+        return { intake:active.intake, source:'active', time:timeValue(active), caseId:active.caseId || caseIdFromIntake(active.intake) };
+      }
+    }
+    // For non-scan active cases (manual intake, paid sessions) — compare timestamps so the newest wins
+    var list = [];
     if(active && active.intake) addIntakeCandidate(list, active.intake, active, 'active');
     addIntakeCandidate(list, readJSON(INTAKE_KEY), null, 'intake');
     addIntakeCandidate(list, normalizeScanIntake(readJSON(SCAN_KEY)), readJSON(SCAN_KEY), 'scan');

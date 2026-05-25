@@ -777,6 +777,27 @@ function startScan() {
   extractedData   = null;
   animHoldReached = false;
   animResumeFn    = null;
+
+  // ─── EVICT STALE ACTIVE CASE IMMEDIATELY ───────────────────────────────
+  // Write a provisional placeholder to upa.active.case.v1 RIGHT NOW,
+  // synchronously, before the async extraction runs and before any
+  // navigation/paywall/checkout can read the old case from storage.
+  // This guarantees the old data is gone before the upgrade CTA is ever shown.
+  if (typeof UPAScanEngine !== 'undefined' && UPAScanEngine.writeScanStateToStorage) {
+    try {
+      UPAScanEngine.writeScanStateToStorage({
+        provider: null, totalBilled: null, patientBalance: null,
+        serviceDate: null, serviceDateRaw: null, insuranceName: null,
+        claimNumber: null, cptCodes: [], hasDuplicateCodes: false,
+        duplicateCodes: [], denialDetected: false, allAmounts: [],
+        pageCount: 1, rawText: '', confidence: 'pending',
+        _scan: true, _scanTimestamp: Date.now(), _provisional: true
+      });
+      console.log('[UPA] 🟡 startScan() — provisional active case written; stale data evicted');
+    } catch(e) { console.warn('[UPA] Provisional active-case write failed', e); }
+  }
+  // ───────────────────────────────────────────────────────────────────────
+
   showState('state-scanning');
   renderDocumentPreview(selectedFile);
   runAnimationSequence();
@@ -1015,8 +1036,9 @@ function routeAfterScan(data) {
     showState('state-fallback');
     return;
   }
-  // Write to storage
+  // Write final scan data — overwrites the provisional placeholder written in startScan()
   UPAScanEngine.writeScanStateToStorage(data);
+  console.log('[UPA] 🟢 routeAfterScan() — final active case written | confidence:', data.confidence, '| provider:', data.provider || '—');
   // Generate and render findings
   scanFindings = UPAScanEngine.buildScanFindings(data);
   renderFindings(data, scanFindings);
@@ -1232,6 +1254,7 @@ document.getElementById('btn-fallback-submit').addEventListener('click', functio
   if (billType) syntheticData._inferredBillType = billType;
 
   UPAScanEngine.writeScanStateToStorage(syntheticData);
+  console.log('[UPA] 🟢 Fallback form → active case written | provider:', syntheticData.provider || '—', '| amount:', syntheticData.totalBilled || '—');
   scanFindings = UPAScanEngine.buildScanFindings(syntheticData);
   renderFindings(syntheticData, scanFindings);
   showState('state-findings');

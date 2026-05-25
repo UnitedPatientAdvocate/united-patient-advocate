@@ -703,6 +703,15 @@ function writeScanStateToStorage(ext) {
     localStorage.setItem(CHECKOUT_KEY,   JSON.stringify(session));
     sessionStorage.setItem(REVIEW_KEY, JSON.stringify(session));
     localStorage.setItem(REVIEW_KEY,   JSON.stringify(session));
+    console.log(
+      '[UPA] ✅ Active case written to storage' +
+      '\n  caseId:   ' + caseId +
+      '\n  provider: ' + (compat.provider || '—') +
+      '\n  amount:   ' + (compat.bill_amount || '—') +
+      '\n  source:   scan' +
+      '\n  ts:       ' + activeAt +
+      '\n  provisional: ' + !!(ext._provisional)
+    );
     // Wipe ALL stale-case keys so a new scan can never inherit a previous session's data
     [PAID_KEY, CASE_KEY, DASHBOARD_KEY,
      'upa.case.handoff.token.v1',   // encoded prior case token

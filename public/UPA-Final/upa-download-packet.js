@@ -116,6 +116,52 @@
     return 'upa-' + label + '-' + patient + '-' + stamp + '.html';
   }
 
+  function caseContext(intake){
+    var c = window.UPACase || {};
+    return {
+      patient: clean(c.patientName || intake.patient_name || intake.patientName || intake.full_name || intake.fullName || intake.name || 'Patient') || 'Patient',
+      provider: clean(c.provider || intake.provider || intake.providerName || ''),
+      amount: clean((c.amount && (c.amount.display || c.amount.reviewText)) || intake.bill_amount || intake.totalBilled || intake.balance || ''),
+      dos: clean(c.dateOfService || intake.date_of_service || intake.service_date || intake.serviceDate || ''),
+      account: clean(c.accountRef || intake.account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || ''),
+      coverage: clean(c.coverage || intake.insurance || intake.insuranceType || ''),
+      prepDate: clean(c.prepDate || new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})),
+      email: clean(c.email || intake.email || ''),
+      phone: clean(c.phone || intake.phone || '')
+    };
+  }
+
+  function scrubTemplateText(html, intake){
+    var ctx = caseContext(intake || {});
+    var provider = ctx.provider || 'Provider to confirm';
+    var amount = ctx.amount || 'Amount to confirm';
+    var dos = ctx.dos || 'Date to confirm';
+    var account = ctx.account || 'Account to confirm';
+    var coverage = ctx.coverage || 'Coverage to confirm';
+    var contact = [ctx.email, ctx.phone].filter(Boolean).join(' | ') || 'Contact not provided';
+    return String(html || '')
+      .replace(/First Name Last Name/g, ctx.patient)
+      .replace(/Your Provider/g, provider)
+      .replace(/Provider billing address/g, 'Billing address on statement')
+      .replace(/2847 Coral Springs Drive<br>Hollywood, FL 33021<br>phone number\s*(?:Â·|·|-)\s*patient@example\.com/g, contact)
+      .replace(/2847 Coral Springs Drive/g, '')
+      .replace(/Hollywood, FL 33021/g, '')
+      .replace(/phone number\s*(?:Â·|·|-)\s*patient@example\.com/g, contact)
+      .replace(/patient@example\.com/g, ctx.email || '')
+      .replace(/\bphone number\b/g, ctx.phone || '')
+      .replace(/date of service/g, dos)
+      .replace(/Preparation date/g, ctx.prepDate)
+      .replace(/Prepared Preparation date/g, 'Prepared ' + ctx.prepDate)
+      .replace(/Bill amount/g, amount)
+      .replace(/Bill Amount/g, amount)
+      .replace(/Account number/g, account)
+      .replace(/account number/g, account)
+      .replace(/billing reference/g, account)
+      .replace(/Medicare Beneficiary/g, coverage)
+      .replace(/Medicare primary/g, coverage)
+      .replace(/Medicare as the primary payer/g, coverage ? coverage + ' as the listed coverage' : 'the listed coverage');
+  }
+
   function addBase(html, sourceUrl){
     if(/<base\s/i.test(html)) return html;
     var base = sourceUrl.replace(/[^\/]*$/, '');
@@ -221,7 +267,31 @@
           .replace(/\bWe are disputing\b/g, 'I am disputing');
       });
     }
-    return clone.outerHTML;
+    return scrubTemplateText(clone.outerHTML, readIntake());
+  }
+
+  function packetLetterPair(doc, letterNo){
+    var wanted = new RegExp('Letter\\s*0?' + letterNo + '\\b', 'i');
+    var children = Array.prototype.slice.call(doc.body ? doc.body.children : []);
+    var currentLabel = null;
+    for(var i = 0; i < children.length; i++){
+      var el = children[i];
+      if(el.classList && el.classList.contains('pg-lbl')){
+        currentLabel = el;
+        continue;
+      }
+      if(el.classList && el.classList.contains('page')){
+        var labelText = currentLabel ? clean(currentLabel.textContent) : '';
+        var titleText = clean((el.querySelector('.ltb-title') || el.querySelector('.lb-re-txt') || {}).textContent || '');
+        var stepText = clean((el.querySelector('.ltb-step') || {}).textContent || '');
+        var combined = [labelText, titleText, stepText].join(' ');
+        if(wanted.test(combined) && !/Closing/i.test(combined)){
+          return { label: currentLabel, page: el };
+        }
+        currentLabel = null;
+      }
+    }
+    return null;
   }
 
   async function buildDownloadHtml(){
@@ -237,6 +307,7 @@
     html = addIntake(html, intake);
     html = inlinePersonalization(html, personalization);
     html = stripDownloadScript(html);
+    html = scrubTemplateText(html, intake);
     return { html: html, filename: packetFilename(intake) };
   }
 
@@ -251,12 +322,15 @@
     var base = window.location.href.replace(/[^\/]*$/, '');
     var letterBody = sanitizeLetterElement(paper || card);
     var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><base href="' + base + '"><title>' + escapeHTML(title) + '</title><style>' + styles + '\nbody{padding:28px 24px;background:#E9EEF5;font-family:"Plus Jakarta Sans",system-ui,sans-serif}.single-letter-wrap{max-width:840px;margin:0 auto}.single-letter-card{background:white;border:1px solid rgba(28,43,72,.12);border-radius:14px;padding:28px 32px 32px;box-shadow:0 16px 48px rgba(17,28,46,.14)}.single-letter-title{font:800 26px Georgia,serif;color:#1C2B48;margin:0 0 4px;letter-spacing:-0.01em}.single-letter-sub{font:700 12px system-ui,sans-serif;color:#6E8898;margin-bottom:22px;letter-spacing:0.06em;text-transform:uppercase}.single-letter-actions{display:flex;justify-content:flex-end;margin-bottom:14px}.single-letter-actions button{font:700 13px system-ui,sans-serif;border:1px solid rgba(28,43,72,.16);background:#fff;color:#1C2B48;border-radius:7px;padding:9px 14px;cursor:pointer}.single-letter-actions button:hover{background:#1C2B48;color:#fff}\n/* === Letter — readable sizes (override tiny card preview) === */\n.dpc-paper{height:auto!important;min-height:auto!important;max-width:none!important;width:auto!important;margin:0 auto!important;border-radius:10px!important;border:1px solid rgba(17,28,46,.08)!important;box-shadow:none!important;overflow:visible!important;position:relative!important;font-family:"Plus Jakarta Sans",system-ui,sans-serif!important;color:#1C2B48!important;background:#FFFEFB!important}\n.dpc-paper::before{height:5px!important}\n.mini-lh{padding:24px 36px 18px!important;align-items:flex-start!important;background:linear-gradient(180deg,#FEFDFB,#FAFAF7)!important}\n.mini-lh-left{gap:12px!important;align-items:center!important}\n.mini-shield{width:46px!important;height:46px!important;flex-shrink:0!important}\n.mini-org{font-size:15.5px!important;font-weight:700!important;line-height:1.25!important;color:#1C2B48!important;letter-spacing:-0.005em!important}\n.mini-org-sub{font-size:9.5px!important;letter-spacing:0.18em!important;margin-top:3px!important;color:#6E8898!important;text-transform:uppercase!important;font-weight:600!important}\n.mini-date{font-size:12.5px!important;text-align:right!important;color:#42546B!important;font-weight:600!important}\n.mini-ref{font-family:"DM Mono",ui-monospace,monospace!important;font-size:11px!important;margin-top:3px!important;color:#7A8AA0!important}\n.mini-body{padding:28px 36px 44px!important;position:relative!important}\n.mini-to{font-size:14px!important;line-height:1.65!important;margin-bottom:18px!important;color:#2E4060!important;white-space:pre-line!important}\n.mini-re{font-family:"DM Mono",ui-monospace,monospace!important;font-size:13.5px!important;padding:11px 14px!important;margin-bottom:22px!important;border-left-width:4px!important;line-height:1.55!important;background:rgba(17,28,46,.045)!important;font-weight:700!important;color:#1C2B48!important}\n.mini-salut{font-size:15px!important;margin-bottom:14px!important;font-weight:600!important;color:#1C2B48!important}\n.mini-text{font-size:14.5px!important;line-height:1.78!important;margin-bottom:16px!important;color:#324560!important}\n.mini-highlight{display:block!important;font-size:14.5px!important;line-height:1.78!important;padding:12px 14px!important;margin-bottom:18px!important;background:#FFF6BF!important;border-radius:5px!important;border-left:4px solid #E6C84A!important;color:#1C2B48!important;font-weight:500!important}\n.mini-text-2{font-size:13.5px!important;line-height:1.72!important;margin-bottom:28px!important;color:#42546B!important}\n.mini-sig{padding-top:22px!important;border-top:1px dashed rgba(17,28,46,0.16)!important;justify-content:flex-start!important;display:block!important}\n.mini-sig-close{font-size:13.5px!important;margin-bottom:8px!important;color:#42546B!important}\n.mini-sig-name{font-family:Georgia,serif!important;font-size:28px!important;font-style:italic!important;color:#1C2B48!important;line-height:1.1!important}\n.mini-sig-sub{font-size:10.5px!important;margin-top:6px!important;letter-spacing:0.14em!important;text-transform:uppercase!important;color:#6E8898!important;font-weight:600!important;display:block!important}\n.mini-stamp{position:absolute!important;right:32px!important;bottom:32px!important;width:96px!important;height:96px!important;display:block!important;opacity:0.92!important}\n.mini-stamp svg{width:100%!important;height:100%!important}\n@media print{body{padding:0;background:white}.single-letter-actions{display:none}.single-letter-card{box-shadow:none;border:none;padding:0}.single-letter-title,.single-letter-sub{display:none}.dpc-paper{transform:none!important;border:none!important;border-radius:0!important}}<\/style></head><body><div class="single-letter-actions"><button onclick="window.print()">Print / Save PDF</button></div><div class="single-letter-wrap"><div class="single-letter-card"><h1 class="single-letter-title">' + escapeHTML(title) + '</h1><div class="single-letter-sub">' + escapeHTML(prepared ? prepared.textContent : 'Prepared letter') + '</div>' + letterBody + '</div></div></body></html>';
-    return { html: html, filename: letterFilename(intake, letterNo, title), title: title, letterNo: letterNo };
+    return { html: scrubTemplateText(html, intake), filename: letterFilename(intake, letterNo, title), title: title, letterNo: letterNo };
   }
 
   async function buildLetterHtml(docId){
     var letterNo = letterNumberFromId(docId);
     var intake = readIntake();
+    if(document.getElementById(docId)){
+      return buildCardLetterHtml(docId, intake, letterNo);
+    }
     try {
       var sourceUrl = absoluteUrl(packetUrl());
       var packet = await loadText(sourceUrl);
@@ -266,11 +340,9 @@
       } catch(e) {}
       var parser = new DOMParser();
       var doc = parser.parseFromString(packet, 'text/html');
-      var pages = Array.prototype.slice.call(doc.querySelectorAll('.page'));
-      var labels = Array.prototype.slice.call(doc.querySelectorAll('.pg-lbl'));
-      var pageIndex = 7 + letterNo;
-      var page = pages[pageIndex];
-      var label = labels[pageIndex];
+      var pair = packetLetterPair(doc, letterNo);
+      var page = pair && pair.page;
+      var label = pair && pair.label;
       if(!page) throw new Error('Letter page not found');
       var titleNode = page.querySelector('.ltb-title') || page.querySelector('.lb-re-txt') || label;
       var title = titleNode ? clean(titleNode.textContent) : 'Letter ' + letterNo;
@@ -279,7 +351,7 @@
       var intakeScript = '<script>window.__UPA_PACKET_INTAKE__=' + JSON.stringify(intake || {}).replace(/</g, '\\u003c') + ';try{sessionStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));localStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));}catch(e){}<\/script>';
       var personalizationScript = personalization ? '<script>' + personalization.replace(/<\/script/gi, '<\\/script') + '<\/script>' : '';
       var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><base href="' + base + '"><title>' + escapeHTML(title) + '</title><style>' + styles + '\nbody{padding:20px;background:#E9EEF5}.single-letter-wrap{max-width:900px;margin:0 auto}.single-letter-actions{display:flex;justify-content:flex-end;gap:8px;margin:0 auto 12px;max-width:820px}.single-letter-actions button{font:700 12px system-ui,sans-serif;border:1px solid rgba(28,43,72,.16);background:#fff;color:#1C2B48;border-radius:6px;padding:8px 12px;cursor:pointer}@media print{body{padding:0;background:white}.single-letter-actions{display:none}.pg-lbl{display:block}}<\/style>' + intakeScript + '</head><body><div class="single-letter-actions"><button onclick="window.print()">Print / Save PDF</button></div><div class="single-letter-wrap">' + (label ? sanitizeLetterElement(label) : '') + sanitizeLetterElement(page) + '</div>' + personalizationScript + '</body></html>';
-      return { html: html, filename: letterFilename(intake, letterNo, title), title: title, letterNo: letterNo };
+      return { html: scrubTemplateText(html, intake), filename: letterFilename(intake, letterNo, title), title: title, letterNo: letterNo };
     } catch(e) {
       if(window.console && console.warn) console.warn('UPA full letter extraction fell back to card preview', e);
       return buildCardLetterHtml(docId, intake, letterNo);

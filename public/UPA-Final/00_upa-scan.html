@@ -659,6 +659,9 @@ body{background:var(--navy)}
      SCRIPTS
 ═══════════════════════════════════ -->
 <script>
+// BFCache guard — if browser serves this page from back/forward cache, force a fresh load
+// so scan state is always re-initialized from storage (not a frozen DOM snapshot)
+window.addEventListener('pageshow', function(e){ if(e.persisted){ window.location.reload(); } });
 // Set PDF.js worker before any extraction runs
 if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc =

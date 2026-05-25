@@ -316,44 +316,20 @@
 
   function getIntake(){
     if(window.__UPA_PACKET_INTAKE__ && hasIntake(window.__UPA_PACKET_INTAKE__)) return window.__UPA_PACKET_INTAKE__;
+    // newestIntakeCandidate() already checks ALL storage keys (active, intake, scan, checkout, review, paid, case)
+    // and picks the most recent by timestamp — do NOT add per-key fallbacks below or stale paid data can resurface
     var candidate = newestIntakeCandidate();
-    if(candidate && hasIntake(candidate.intake)) return activateIntake(candidate.intake, { stage:'active-case-selected', source:candidate.source }, { clearStale:false });
-    var intake = readJSON(INTAKE_KEY);
-    if(hasIntake(intake)) return intake;
-    var paid = readJSON(PAID_KEY);
-    if(paid && paid.session && hasIntake(paid.session.intake)) return paid.session.intake;
-    if(paid && hasIntake(paid.intake)) return paid.intake;
-    var checkout = readJSON(CHECKOUT_KEY);
-    if(checkout && hasIntake(checkout.intake)) return checkout.intake;
-    var review = readJSON(REVIEW_KEY);
-    if(review && hasIntake(review.intake)) return review.intake;
-    var savedCase = readJSON(CASE_KEY);
-    if(savedCase && hasIntake(savedCase.raw)) return savedCase.raw;
-    // Final fallback: scan session — normalize scan fields into intake-compatible shape
-    var scan = readJSON('upa.scan.v1');
-    if(scan && (scan.provider || scan.totalBilled != null || scan.patientBalance != null)){
-      var scanAmt = scan.patientBalance != null ? scan.patientBalance : (scan.totalBilled != null ? scan.totalBilled : null);
-      var fmtAmt = scanAmt != null ? ('$' + Number(scanAmt).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})) : '';
-      return {
-        _scan:                           true,
-        provider:                        scan.provider || '',
-        bill_amount:                     fmtAmt,
-        bill_amount_other:               fmtAmt,
-        extracted_bill_amount:           scanAmt != null ? String(scanAmt) : '',
-        extracted_bill_amount_confidence: scanAmt != null ? 0.9 : 0,
-        date_of_service:                 scan.serviceDateRaw || scan.serviceDate || '',
-        insurance:                       scan.insuranceName || '',
-        _patient_balance:                scan.patientBalance,
-        _total_billed:                   scan.totalBilled,
-        _claim_number:                   scan.claimNumber || '',
-        _confidence:                     scan.confidence || '',
-        _denial:                         !!scan.denialDetected,
-        _has_duplicates:                 !!scan.hasDuplicateCodes,
-        _cpt_codes:                      scan.cptCodes || [],
-        _page_count:                     scan.pageCount || 1,
-        _scan_ts:                        scan._scanTimestamp || ''
-      };
+    if(candidate && hasIntake(candidate.intake)){
+      try{ window.__UPA_HYDRATION_DEBUG__ = { source:candidate.source, time:candidate.time, caseId:candidate.caseId }; }catch(e){}
+      return activateIntake(candidate.intake, { stage:'active-case-selected', source:candidate.source }, { clearStale:false });
     }
+    // Safety net: if all timed candidates are absent read INTAKE_KEY directly (written by activateIntake)
+    var intake = readJSON(INTAKE_KEY);
+    if(hasIntake(intake)){
+      try{ window.__UPA_HYDRATION_DEBUG__ = { source:'intake-key-fallback', time:timeValue(intake), caseId:caseIdFromIntake(intake) }; }catch(e){}
+      return intake;
+    }
+    try{ window.__UPA_HYDRATION_DEBUG__ = { source:'empty', time:0, caseId:'' }; }catch(e){}
     return {};
   }
 

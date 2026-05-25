@@ -155,6 +155,10 @@ html,body{height:100%;font-family:var(--sans);background:var(--navy-deep);color:
 
 <script src="/UPA-Final/upa-state-persistence.js"></script>
 <script>
+// BFCache guard — force fresh load if browser serves this page from back/forward cache
+window.addEventListener('pageshow', function(e){ if(e.persisted){ window.location.reload(); } });
+</script>
+<script>
 /* Store the license key from Gumroad if present */
 var resumeMode = false;
 var resumeRedirectTimer = null;

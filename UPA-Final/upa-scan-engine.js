@@ -703,7 +703,11 @@ function writeScanStateToStorage(ext) {
     localStorage.setItem(CHECKOUT_KEY,   JSON.stringify(session));
     sessionStorage.setItem(REVIEW_KEY, JSON.stringify(session));
     localStorage.setItem(REVIEW_KEY,   JSON.stringify(session));
-    [PAID_KEY, CASE_KEY, DASHBOARD_KEY].forEach(function(key){
+    // Wipe ALL stale-case keys so a new scan can never inherit a previous session's data
+    [PAID_KEY, CASE_KEY, DASHBOARD_KEY,
+     'upa.case.handoff.token.v1',   // encoded prior case token
+     'upa.dashboard.state.v1'       // redundant but explicit
+    ].forEach(function(key){
       try{ sessionStorage.removeItem(key); localStorage.removeItem(key); }catch(e){}
     });
     try{ sessionStorage.removeItem('upa.paid'); localStorage.removeItem('upa.paid'); }catch(e){}

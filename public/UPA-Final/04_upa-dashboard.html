@@ -4529,5 +4529,37 @@ window.addEventListener('load', function(){
 <script src="/UPA-Final/upa-state-persistence.js"></script>
 <script src="/UPA-Final/upa-download-packet.js"></script>
 <script src="/UPA-Final/upa-case-personalization.js"></script>
+<script>
+/* ── BFCache guard ── */
+window.addEventListener('pageshow', function(e){ if(e.persisted){ window.location.reload(); } });
+
+/* ── Hydration debug label (remove before launch) ── */
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    try{
+      var dbg  = window.__UPA_HYDRATION_DEBUG__ || {};
+      var raw  = (window.UPAState && window.UPAState.getIntake) ? window.UPAState.getIntake() : {};
+      var prov = raw.provider || raw.providerName || raw.extracted_provider || '—';
+      var amt  = raw.bill_amount_other || raw.bill_amount || (raw.extracted_bill_amount ? '$'+raw.extracted_bill_amount : '') || '—';
+      var src  = dbg.source || (raw._scan ? 'scan' : raw._upa_source || '—');
+      var cid  = (raw._upa_case_id || '—').slice(0, 22);
+      var ts   = dbg.time ? new Date(dbg.time).toLocaleTimeString() : '—';
+      var el   = document.getElementById('upa-hddbg');
+      if(el){
+        el.textContent = '';
+        el.style.display = 'block';
+        el.innerHTML =
+          '<b style="color:#f90;letter-spacing:.06em">HYDRATION</b><br>' +
+          'src: <b>' + src + '</b><br>' +
+          'provider: <b>' + prov + '</b><br>' +
+          'amount: <b>' + amt + '</b><br>' +
+          'id: ' + cid + '<br>' +
+          'ts: ' + ts;
+      }
+    }catch(e){}
+  }, 250);
+});
+</script>
+<div id="upa-hddbg" style="display:none;position:fixed;bottom:14px;left:14px;z-index:99999;background:rgba(15,15,15,.93);color:#cce;font:600 9.5px/1.55 monospace;padding:8px 11px;border-radius:7px;max-width:320px;pointer-events:none;box-shadow:0 2px 14px rgba(0,0,0,.6);border:1px solid rgba(255,153,0,.45)"></div>
 </body>
 </html>

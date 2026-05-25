@@ -2032,6 +2032,60 @@ body{display:block;background:var(--bg)}
   .tour-actions { gap: 6px; }
   .tour-btn { padding: 8px 12px; font-size: 11px; }
 }
+
+/* ═══════════════════════════ NIGHT / DARKER MODE ═══════════════════════════ */
+body.night {
+  --bg:         #0D1828;
+  --white:      #162036;
+  --ink:        rgba(220,235,255,0.92);
+  --ink-2:      rgba(220,235,255,0.70);
+  --ink-3:      rgba(220,235,255,0.50);
+  --ink-4:      rgba(220,235,255,0.34);
+  --ink-5:      rgba(220,235,255,0.20);
+  --bdr:        rgba(255,255,255,0.07);
+  --bdr-md:     rgba(255,255,255,0.12);
+  --sh-xs:      0 1px 2px rgba(0,0,0,0.25);
+  --sh-sm:      0 1px 5px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.20);
+  --sh-md:      0 3px 14px rgba(0,0,0,0.40), 0 1px 4px rgba(0,0,0,0.22);
+  --sh-lg:      0 6px 28px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.25);
+  --sh-paper:   0 2px 4px rgba(0,0,0,0.30), 0 6px 20px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.06);
+  --gold-lt:    rgba(240,165,0,0.14);
+  --green-lt:   rgba(30,184,122,0.14);
+  --crimson-lt: rgba(224,59,59,0.14);
+  --cobalt-lt:  rgba(59,110,224,0.14);
+  --amber-lt:   rgba(240,128,0,0.14);
+}
+/* ── Nav ── */
+body.night .topnav { background: #0D1828; border-bottom-color: rgba(255,255,255,0.08); }
+body.night .nav-brand-name { color: var(--on-dark); }
+body.night .nav-brand-sub  { color: var(--on-dark-3); }
+body.night .btn-nv:not(.btn-nv-green) { color: var(--on-dark-2); border-color: rgba(255,255,255,0.10); }
+body.night .btn-nv:not(.btn-nv-green):hover { background: rgba(255,255,255,0.06); }
+/* ── Right panel ── */
+body.night .right-panel { background: #162036; border-left-color: rgba(255,255,255,0.07); box-shadow: -2px 0 12px rgba(0,0,0,0.30); }
+body.night .right-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); }
+body.night .rp-charges { background: linear-gradient(160deg,#1C2D45,#142032); border-bottom-color: rgba(255,255,255,0.07); }
+body.night .rpc-row { border-bottom-color: rgba(255,255,255,0.05); }
+/* ── Calc panel hardcoded backgrounds ── */
+body.night .qc-disclaimer { background: #0D1828; border-top-color: rgba(255,255,255,0.07); }
+body.night .qc-bal-input  { background: #1C2D45 !important; color: var(--on-dark) !important; border-color: rgba(255,255,255,0.12) !important; }
+body.night .qc-bal-input:focus { border-color: var(--green) !important; }
+body.night .qc-scenarios  { background: #1C2D45; }
+body.night .qc-scenarios:hover { background: #243351; }
+body.night .qc-tab        { background: #162036; }
+body.night .qc-tab:hover  { background: #1C2D45; }
+/* ── Highlights ── */
+body.night .sc-hl        { background: rgba(240,200,60,0.14); color: var(--on-dark-2); }
+body.night .mini-highlight { background: rgba(240,200,60,0.14); color: var(--on-dark-2); }
+/* ── Guide drawer ── */
+body.night .gd-header   { background: #162036; border-bottom-color: rgba(255,255,255,0.07); }
+body.night .gd-back:hover { background: #1C2D45; }
+body.night .gd-faq-q:hover { background: #1C2D45; }
+/* ── Print: restore light mode ── */
+@media print {
+  body.night { --bg:#fff; --white:#fff; --ink:#111; --ink-2:rgba(17,28,46,0.72); --ink-3:rgba(17,28,46,0.52); }
+  body.night .topnav { background: #fff; }
+}
 </style>
 <script>function upaFinalPath(file){return window.location.protocol==='file:'?file:'/UPA-Final/'+file;}</script>
 </head>
@@ -2233,6 +2287,7 @@ body{display:block;background:var(--bg)}
     <span class="nav-ref">Account: account number &nbsp;|&nbsp; Opened today</span>
   </div>
   <div class="nav-right">
+    <button class="btn-nv" id="night-toggle" onclick="toggleNightMode()" title="Toggle night mode">🌙 Night</button>
     <button class="btn-nv btn-nv-green" onclick="showTab('overview');return false;">My Case</button>
   </div>
 </div>
@@ -3080,6 +3135,23 @@ body{display:block;background:var(--bg)}
 </div><!-- end shell -->
 
 <script>
+/* ════ NIGHT MODE ════ */
+(function(){
+  try {
+    if(localStorage.getItem('upa_night_mode')==='1'){
+      document.body.classList.add('night');
+      var btn = document.getElementById('night-toggle');
+      if(btn) btn.textContent = '☀️ Day';
+    }
+  }catch(e){}
+})();
+function toggleNightMode(){
+  var on = document.body.classList.toggle('night');
+  var btn = document.getElementById('night-toggle');
+  if(btn) btn.textContent = on ? '☀️ Day' : '🌙 Night';
+  try { localStorage.setItem('upa_night_mode', on ? '1' : '0'); }catch(e){}
+}
+
 /* ════ TAB SWITCHING ════ */
 function showTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -4431,10 +4503,13 @@ function ensureTourEls(){
 }
 
 window.addEventListener('load', function(){
-  let dismissed = false;
-  try { dismissed = localStorage.getItem('upa_tour_dismissed') === '1'; } catch(e){}
-  if (!dismissed){
-    setTimeout(tourStart, 1100);
+  // Use upa_tour_shown (set on first auto-trigger) so new users always see
+  // the tour once, regardless of any stale upa_tour_dismissed key from testing.
+  let shown = false;
+  try { shown = localStorage.getItem('upa_tour_shown') === '1'; } catch(e){}
+  if (!shown){
+    try { localStorage.setItem('upa_tour_shown', '1'); } catch(e){}
+    setTimeout(tourStart, 1400);
   }
 });
 </script>

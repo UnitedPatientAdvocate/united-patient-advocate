@@ -76,6 +76,8 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .hero-cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-size:.9375rem;font-weight:700;color:white;background:var(--teal);padding:15px 32px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .22s var(--ease);box-shadow:0 4px 20px rgba(30,107,90,.35),0 8px 40px rgba(30,107,90,.15);position:relative;z-index:1}
 .hero-cta:hover{background:var(--teal-lt);transform:translateY(-2px);box-shadow:0 6px 28px rgba(30,107,90,.45)}
 .hero-cta svg{width:16px;height:16px;stroke:white;stroke-width:2.2;fill:none}
+.hero-cta-secondary{display:block;font-size:.6875rem;color:var(--ink-3);margin-top:11px;text-decoration:none;position:relative;z-index:1}
+.hero-cta-secondary:hover{color:var(--teal);text-decoration:underline}
 .hero-microcopy{font-size:.5625rem;color:var(--ink-4);margin-top:10px;display:flex;align-items:center;justify-content:center;gap:14px;position:relative;z-index:1}
 .hero-microcopy span{display:flex;align-items:center;gap:5px}
 .hero-microcopy svg{width:11px;height:11px;stroke:var(--ink-4);stroke-width:1.8;fill:none}
@@ -447,6 +449,16 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .uz-badge svg{width:8px;height:8px;stroke:var(--green);stroke-width:2;fill:none}
 .uz-input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .uz-filename{font-family:var(--mono);font-size:.5rem;color:var(--green);margin-top:5px}
+.scan-result{display:none;margin-top:10px;border:1px solid rgba(30,184,122,.24);background:rgba(30,184,122,.07);border-radius:10px;padding:11px 13px;text-align:left}
+.scan-result.show{display:block}
+.scan-kicker{font-size:.43rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--green);margin-bottom:6px}
+.scan-title{font-size:.78rem;font-weight:800;color:var(--on-dark);line-height:1.35;margin-bottom:7px}
+.scan-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:7px}
+.scan-field{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:7px 8px}
+.scan-field span{display:block;font-size:.38rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:2px}
+.scan-field strong{display:block;font-size:.68rem;color:var(--on-dark-2);line-height:1.35;overflow-wrap:anywhere}
+.scan-result.warn{border-color:rgba(240,165,0,.28);background:rgba(240,165,0,.08)}
+.scan-result.warn .scan-kicker{color:var(--gold)}
 
 /* Calm banner */
 .calm-banner{background:rgba(30,107,90,.08);border:1px solid rgba(30,184,122,.18);border-radius:10px;padding:13px 14px;display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;position:relative;overflow:hidden}
@@ -545,27 +557,28 @@ html,body{max-width:100%;overflow-x:hidden}
   </a>
   <div class="nav-spacer"></div>
   <button class="nav-mode"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Night</button>
-  <a href="#begin-review" class="btn-primary">Review My Bill</a>
+  <a href="00_upa-scan.html" class="btn-primary"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;stroke-width:2.2;fill:none;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Scan My Bill Free</a>
 </div>
 
 <!-- ═══ HERO ═══ -->
 <div class="hero">
-  <div class="hero-eyebrow">Independent Billing Review &amp; Dispute Documentation Service</div>
-  <div class="hero-hl">Understand Your Medical Bill.<br><em>We Prepare Your Review.</em></div>
-  <div class="hero-sub">Medical bills may contain discrepancies such as coding inconsistencies, billing issue line items, or charges that appear above published Medicare benchmarks. We prepare an independent billing review and dispute documentation package you may reference when reviewing charges with your provider or insurer.</div>
-  <a href="#begin-review" class="hero-cta">
-    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg>
-    Begin My Billing Review
+  <div class="hero-eyebrow">Free AI Medical Bill Scan · Independent Dispute Documentation</div>
+  <div class="hero-hl">Upload Your Bill.<br><em>We Find The Errors.</em></div>
+  <div class="hero-sub">Upload your medical bill or EOB and our AI scanner reads it in seconds — identifying the specific charges, codes, and discrepancies that give you the best grounds for dispute. Then we prepare your complete documentation package.</div>
+  <a href="00_upa-scan.html" class="hero-cta">
+    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Upload My Bill — Free AI Scan
   </a>
+  <a href="#begin-review" class="hero-cta-secondary">No bill yet? Start with the review form →</a>
   <div class="hero-microcopy">
-    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> No upfront cost</span>
-    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> About 60 seconds</span>
+    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/></svg> No account required</span>
+    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Results in seconds</span>
     <span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 100% confidential</span>
   </div>
   <div class="hero-stats">
     <div class="hero-stat"><div class="hs-val">$88B</div><div class="hs-label">in billing errors on U.S. credit reports</div><div class="hs-source">CFPB · 2025</div></div>
     <div class="hero-stat"><div class="hs-val">45%</div><div class="hs-label">of insured patients reported unexpected bills</div><div class="hs-source">Commonwealth Fund · 2024</div></div>
-    <div class="hero-stat"><div class="hs-val">3 min</div><div class="hs-label">to complete your review submission</div><div class="hs-source">United Patient Advocate</div></div>
+    <div class="hero-stat"><div class="hs-val">&lt;30s</div><div class="hs-label">to scan your bill and identify findings</div><div class="hs-source">United Patient Advocate</div></div>
   </div>
 </div>
 
@@ -1176,6 +1189,7 @@ html,body{max-width:100%;overflow-x:hidden}
               <div class="uz-badge"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Encrypted &amp; Secure</div>
             </div>
             <div id="uz-filename" class="uz-filename"></div>
+            <div id="bill-scan-result" class="scan-result" aria-live="polite"></div>
           </div>
         </div>
       </div>
@@ -1240,6 +1254,8 @@ html,body{max-width:100%;overflow-x:hidden}
 </div>
 
 <script src="/UPA-Final/upa-state-persistence.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="/UPA-Final/upa-bill-scan.js"></script>
 <script>
 var currentStep=1,totalSteps=7;
 
@@ -1248,7 +1264,7 @@ var state={
   s1:null,s2:null,s3:null,s4:null,
   s5:[],
   other:{s1:'',s2:'',s3:'',s4:'',s5:''},
-  first:'',last:'',email:'',provider:'',dos:'',file:null
+  first:'',last:'',email:'',provider:'',dos:'',file:null,scan:null
 };
 
 function todayISO(){
@@ -1344,15 +1360,65 @@ function toggleChip(chip){
   document.getElementById('btn-next').disabled=!isStep5Valid();
 }
 
+function scanFieldHTML(label, value){
+  return '<div class="scan-field"><span>'+escapeHTML(label)+'</span><strong>'+escapeHTML(value || 'Needs confirmation')+'</strong></div>';
+}
+function scanValue(scan, key){
+  return scan && scan.fields && scan.fields[key] ? scan.fields[key].value : '';
+}
+function applyScanResult(scan){
+  state.scan=scan||null;
+  var panel=document.getElementById('bill-scan-result');
+  if(!panel)return;
+  var provider=scanValue(scan,'provider');
+  var amount=scanValue(scan,'amount');
+  var serviceDate=scanValue(scan,'serviceDate');
+  var account=scanValue(scan,'account');
+  var insurance=scanValue(scan,'insurance');
+  var strong=!!(provider||amount||serviceDate||account||insurance);
+  panel.className='scan-result show'+(strong?'':' warn');
+  panel.innerHTML='<div class="scan-kicker">'+(strong?'Bill scan extracted':'Confirmation needed')+'</div>'
+    + '<div class="scan-title">'+(strong?'We found specific values from your uploaded bill. Please confirm anything that looks off.':'We received the upload, but could not confidently read key bill values from this file.')+'</div>'
+    + '<div class="scan-fields">'
+    + scanFieldHTML('Provider',provider)
+    + scanFieldHTML('Amount',amount)
+    + scanFieldHTML('Service date',serviceDate)
+    + scanFieldHTML('Account / claim',account)
+    + scanFieldHTML('Insurance',insurance)
+    + '</div>';
+  if(provider&&!getFieldValue('f-provider')){
+    document.getElementById('f-provider').value=provider;
+    state.provider=provider;
+  }
+  if(serviceDate&&!getFieldValue('f-dos')){
+    document.getElementById('f-dos').value=serviceDate;
+    state.dos=serviceDate;
+  }
+  validateStep6();
+}
+
 /* File upload */
 function handleFile(input){
   if(!input.files||!input.files[0])return;
   var f=input.files[0];state.file=f;
   var zone=document.getElementById('upload-zone');
   zone.classList.add('has-file');
-  zone.querySelector('.uz-title').textContent='Bill uploaded';
-  zone.querySelector('.uz-sub').textContent=f.name;
+  zone.querySelector('.uz-title').textContent=/pdf/i.test(f.type||f.name)?'Scanning uploaded bill':'Bill uploaded';
+  zone.querySelector('.uz-sub').textContent=/pdf/i.test(f.type||f.name)?'Reading PDF text for provider, amount, service date, and account clues...':f.name;
   document.getElementById('uz-filename').textContent=f.name+' ('+Math.round(f.size/1024)+' KB)';
+  if(window.UPABillScan&&window.UPABillScan.extractFromFile){
+    window.__UPA_BILL_SCAN_PROMISE__=window.UPABillScan.extractFromFile(f).then(function(scan){
+      applyScanResult(scan);
+      zone.querySelector('.uz-title').textContent=scan&&scan.status==='extracted'?'Bill scan complete':'Bill uploaded';
+      zone.querySelector('.uz-sub').textContent=f.name;
+      return scan;
+    }).catch(function(){
+      applyScanResult(null);
+      zone.querySelector('.uz-title').textContent='Bill uploaded';
+      zone.querySelector('.uz-sub').textContent=f.name;
+      return null;
+    });
+  }
 }
 /* Drag events */
 document.addEventListener('DOMContentLoaded',function(){
@@ -1402,6 +1468,14 @@ function buildSummary(){
   enforceServiceDateLimit();
   state.dos=document.getElementById('f-dos').value;
   var description=getFieldValue('f-desc');
+  var scan=state.scan||(window.UPABillScan&&window.UPABillScan.readResult?window.UPABillScan.readResult():null);
+  var scanParts=[];
+  if(scan&&scan.fields){
+    if(scan.fields.provider)scanParts.push('Provider: '+scan.fields.provider.value);
+    if(scan.fields.amount)scanParts.push('Amount: '+scan.fields.amount.value);
+    if(scan.fields.serviceDate)scanParts.push('DOS: '+scan.fields.serviceDate.value);
+    if(scan.fields.account)scanParts.push('Account: '+scan.fields.account.value);
+  }
 
   var rows=[
     ['Patient Name',state.first+' '+state.last],
@@ -1412,6 +1486,7 @@ function buildSummary(){
     ['Provider',state.provider],
     ['Date of Service',state.dos||'Not provided'],
     ['Concerns',selectedConcernLabels().join(', ')],
+    ['Bill Scan',scanParts.length?scanParts.join(' | '):(state.file?'Uploaded - values need confirmation':'No PDF scan')],
     ['Bill Uploaded',state.file?state.file.name:'Not uploaded (optional)']
   ];
   if(description)rows.splice(rows.length-1,0,['Additional Details',description]);
@@ -1507,7 +1582,15 @@ function buildLeadPayload(){
   state.dos=getFieldValue('f-dos');
   var phone=getFieldValue('f-phone');
   var concerns=selectedConcernLabels();
-  return {
+  var scan=state.scan||(window.UPABillScan&&window.UPABillScan.readResult?window.UPABillScan.readResult():null);
+  var scanPatch=window.UPABillScan&&window.UPABillScan.toIntakePatch?window.UPABillScan.toIntakePatch(scan):{};
+  var provider=state.provider||scanPatch.extracted_provider||'';
+  var dos=state.dos||scanPatch.extracted_date_of_service||'';
+  var billAmount=selectedOptionLabel('s3',state.s3);
+  if((!billAmount||/not sure|unknown/i.test(billAmount))&&scanPatch.extracted_bill_amount)billAmount=scanPatch.extracted_bill_amount;
+  var insurance=selectedOptionLabel('s2',state.s2);
+  if((!insurance||/other|not listed/i.test(insurance))&&scanPatch.extracted_insurance)insurance=scanPatch.extracted_insurance;
+  return Object.assign({
     _subject:'New UPA intake lead',
     source:'UPA-Final standalone intake',
     submitted_at:new Date().toISOString(),
@@ -1517,12 +1600,12 @@ function buildLeadPayload(){
     last_name:state.last,
     email:state.email,
     phone:phone,
-    provider:state.provider,
-    balance:selectedOptionLabel('s3',state.s3),
-    bill_amount:selectedOptionLabel('s3',state.s3),
-    date_of_service:state.dos,
+    provider:provider,
+    balance:billAmount,
+    bill_amount:billAmount,
+    date_of_service:dos,
     bill_type:selectedOptionLabel('s1',state.s1),
-    insurance:selectedOptionLabel('s2',state.s2),
+    insurance:insurance,
     payment_status:selectedOptionLabel('s4',state.s4),
     concerns:concerns.join(', '),
     concerns_raw:state.s5.join(', '),
@@ -1537,7 +1620,7 @@ function buildLeadPayload(){
     insurance_other:state.s2==='other'?getOtherValue('s2'):'',
     bill_amount_other:state.s3==='other'?getOtherValue('s3'):'',
     payment_status_other:state.s4==='other'?getOtherValue('s4'):''
-  };
+  },scanPatch);
 }
 function appendHiddenField(form,name,value){
   var input=document.createElement('input');
@@ -1618,11 +1701,21 @@ function saveIntakeSession(){
   }catch(e){}
 }
 
+function waitForBillScan(){
+  if(window.__UPA_BILL_SCAN_PROMISE__&&typeof window.__UPA_BILL_SCAN_PROMISE__.then==='function'){
+    return Promise.race([
+      window.__UPA_BILL_SCAN_PROMISE__.catch(function(){return null;}),
+      new Promise(function(resolve){setTimeout(function(){resolve(null);},8500);})
+    ]);
+  }
+  return Promise.resolve(state.scan||(window.UPABillScan&&window.UPABillScan.readResult?window.UPABillScan.readResult():null));
+}
+
 /* Start analysis */
 function startAnalysis(){
   var btn=document.querySelector('.btn-submit');
   btn.disabled=true;
-  btn.innerHTML='<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:white;stroke-width:2;fill:none;animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Starting Your Review...';
+  btn.innerHTML='<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:white;stroke-width:2;fill:none;animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Starting Bill Scan...';
   var startedAt=Date.now();
   var navigated=false;
   function continueToAnalysis(){
@@ -1635,13 +1728,16 @@ function startAnalysis(){
     var remaining=Math.max(0,900-(Date.now()-startedAt));
     setTimeout(continueToAnalysis,remaining);
   }
-  submitLeadToFormspree().then(continueAfterMinimumDelay);
+  waitForBillScan().then(function(){
+    btn.innerHTML='<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:white;stroke-width:2;fill:none;animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Preparing Your Review...';
+    submitLeadToFormspree().then(continueAfterMinimumDelay);
+    setTimeout(continueToAnalysis,FORMSPREE_SUBMIT_TIMEOUT_MS+300);
+  });
   /* Fade the whole page out before navigating */
   var overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(8,14,24,0);z-index:9999;pointer-events:none;transition:background .85s ease';
   document.body.appendChild(overlay);
   requestAnimationFrame(function(){overlay.style.background='rgba(8,14,24,1)';});
-  setTimeout(continueToAnalysis,FORMSPREE_SUBMIT_TIMEOUT_MS+300);
 }
 </script>
 

@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>United Patient Advocate · AI Bill Scan</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://gumroad.com/js/gumroad.js"></script>
+<style>
+/* ─── RESET + ROOT ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:     #0D1828;
+  --navy-mid: #162036;
+  --navy-card:#1C2D45;
+  --dark:     #1C2B48;
+  --green:    #1EB87A;
+  --green-dk: #158A5C;
+  --green-lt: rgba(30,184,122,0.14);
+  --gold:     #F0A500;
+  --gold-dk:  #C07E00;
+  --gold-lt:  rgba(240,165,0,0.14);
+  --crimson:  #E03B3B;
+  --crimson-lt:rgba(224,59,59,0.14);
+  --bg:       #E8EDF4;
+  --white:    #FFFFFF;
+  --ink:      #111C2E;
+  --ink-2:    #263549;
+  --ink-3:    #425A72;
+  --ink-4:    #6E8898;
+  --on-dark:  rgba(235,244,255,0.94);
+  --on-dark-2:rgba(235,244,255,0.62);
+  --on-dark-3:rgba(235,244,255,0.32);
+  --bdr:      rgba(17,28,46,0.09);
+  --sh-sm:    0 1px 5px rgba(17,28,46,0.08),0 1px 2px rgba(17,28,46,0.04);
+  --sh-md:    0 3px 14px rgba(17,28,46,0.10),0 1px 4px rgba(17,28,46,0.05);
+  --sh-lg:    0 6px 28px rgba(17,28,46,0.13),0 2px 8px rgba(17,28,46,0.07);
+  --serif:    'Playfair Display',Georgia,serif;
+  --sans:     'Plus Jakarta Sans',system-ui,sans-serif;
+  --mono:     'DM Mono',monospace;
+  --ease:     cubic-bezier(0.22,1,0.36,1);
+}
+html,body{height:100%;font-family:var(--sans);-webkit-font-smoothing:antialiased;font-size:14px}
+
+/* ─── STATE MACHINE ─── */
+.scan-state{display:none}
+.scan-state.active{display:flex}
+body{background:var(--navy)}
+
+/* ═══════════════════════════════════════════
+   STATE 1: UPLOAD
+═══════════════════════════════════════════ */
+#state-upload{
+  min-height:100vh;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 16px;background:var(--navy);
+  background-image:
+    radial-gradient(ellipse 600px 400px at 70% 20%,rgba(30,184,122,0.06) 0%,transparent 60%),
+    radial-gradient(ellipse 500px 300px at 20% 80%,rgba(240,165,0,0.04) 0%,transparent 60%);
+}
+.upload-brand{
+  display:flex;align-items:center;gap:10px;margin-bottom:40px;text-decoration:none;
+}
+.upload-brand-logo{width:36px;height:36px;object-fit:contain}
+.upload-brand-name{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--on-dark);letter-spacing:-0.01em}
+.upload-brand-sub{display:block;font-size:0.425rem;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:var(--on-dark-3);margin-top:1px}
+
+.upload-card{
+  width:100%;max-width:560px;background:rgba(22,32,54,0.90);
+  border:1px solid rgba(255,255,255,0.08);border-radius:20px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.45);padding:40px 36px 32px;
+  backdrop-filter:blur(12px);
+}
+.upload-headline{
+  font-family:var(--serif);font-size:clamp(1.5rem,3vw,2rem);font-weight:700;
+  color:var(--on-dark);letter-spacing:-0.02em;line-height:1.15;text-align:center;margin-bottom:8px;
+}
+.upload-sub{
+  font-size:0.875rem;color:var(--on-dark-2);line-height:1.6;text-align:center;
+  margin-bottom:28px;max-width:420px;margin-left:auto;margin-right:auto;
+}
+
+/* Drop zone */
+.drop-zone{
+  border:2px dashed rgba(30,184,122,0.35);border-radius:14px;
+  padding:36px 24px;text-align:center;cursor:pointer;
+  transition:all 220ms var(--ease);background:rgba(30,184,122,0.04);
+  position:relative;
+}
+.drop-zone:hover,.drop-zone.drag-over{
+  border-color:rgba(30,184,122,0.70);background:rgba(30,184,122,0.09);
+  transform:translateY(-1px);box-shadow:0 8px 24px rgba(30,184,122,0.15);
+}
+.drop-icon{font-size:36px;margin-bottom:10px;display:block;line-height:1}
+.drop-label{font-size:0.9375rem;font-weight:700;color:var(--on-dark);margin-bottom:4px}
+.drop-sub{font-size:0.75rem;color:var(--on-dark-3)}
+.drop-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* Scan button */
+.btn-scan{
+  width:100%;margin-top:18px;padding:14px;
+  background:linear-gradient(135deg,var(--green) 0%,var(--green-dk) 100%);
+  color:#fff;font-family:var(--sans);font-size:0.9375rem;font-weight:800;
+  border:none;border-radius:10px;cursor:pointer;letter-spacing:0.01em;
+  box-shadow:0 4px 20px rgba(30,184,122,0.35);transition:all 180ms var(--ease);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-scan:disabled{opacity:0.45;cursor:not-allowed;transform:none!important;box-shadow:none}
+.btn-scan:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(30,184,122,0.45)}
+.btn-scan svg{width:18px;height:18px;stroke:white;stroke-width:2.2;fill:none;flex-shrink:0}
+
+/* Upload trust signals */
+.upload-trust{
+  display:flex;justify-content:center;gap:20px;flex-wrap:wrap;
+  margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.06);
+}
+.trust-item{display:flex;align-items:center;gap:5px;font-size:0.6875rem;color:var(--on-dark-3);font-weight:500}
+.trust-item svg{width:12px;height:12px;stroke:var(--green);stroke-width:2.2;fill:none;flex-shrink:0}
+
+/* Manual fallback link */
+.upload-manual{text-align:center;margin-top:20px}
+.upload-manual a{font-size:0.75rem;color:var(--on-dark-3);text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(235,244,255,0.20)}
+.upload-manual a:hover{color:var(--on-dark-2)}
+
+/* File selected state */
+.file-selected-badge{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(30,184,122,0.10);border:1px solid rgba(30,184,122,0.25);
+  border-radius:8px;padding:8px 12px;margin-top:12px;
+}
+.fsb-icon{font-size:16px}
+.fsb-name{font-size:0.75rem;font-weight:600;color:var(--on-dark-2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fsb-remove{background:none;border:none;color:var(--on-dark-3);cursor:pointer;font-size:14px;padding:0 2px;line-height:1}
+
+/* Error state */
+.upload-error{
+  background:rgba(224,59,59,0.10);border:1px solid rgba(224,59,59,0.25);
+  border-radius:8px;padding:10px 14px;margin-top:12px;
+  font-size:0.75rem;color:#FF9898;line-height:1.5;display:none;
+}
+
+/* ═══════════════════════════════════════════
+   STATE 2: SCANNING
+═══════════════════════════════════════════ */
+#state-scanning{
+  min-height:100vh;flex-direction:column;background:var(--navy);
+  background-image:radial-gradient(ellipse 800px 500px at 60% 0%,rgba(30,184,122,0.05) 0%,transparent 60%);
+}
+.scan-nav{
+  display:flex;align-items:center;gap:10px;padding:16px 24px;
+  border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0;
+}
+.scan-nav-logo{width:28px;height:28px;object-fit:contain}
+.scan-nav-name{font-family:var(--serif);font-size:0.875rem;font-weight:700;color:var(--on-dark);letter-spacing:-0.01em}
+.scan-nav-pill{
+  margin-left:auto;display:flex;align-items:center;gap:5px;
+  background:rgba(30,184,122,0.12);border:1px solid rgba(30,184,122,0.20);
+  border-radius:100px;padding:3px 10px;
+}
+.scan-pill-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:dpulse 2s ease-in-out infinite}
+@keyframes dpulse{0%,100%{opacity:1}50%{opacity:.3}}
+.scan-pill-label{font-size:0.5625rem;font-weight:700;color:var(--green);letter-spacing:0.06em;text-transform:uppercase}
+
+.scan-body{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0;overflow:hidden}
+
+/* Document preview panel */
+.scan-preview-panel{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px;border-right:1px solid rgba(255,255,255,0.05);position:relative;
+  background:rgba(13,24,40,0.60);
+}
+.scan-preview-label{
+  font-size:0.5rem;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;
+  color:var(--on-dark-3);margin-bottom:14px;
+}
+.scan-doc-wrap{
+  position:relative;width:100%;max-width:320px;
+}
+#scan-canvas{
+  width:100%;border-radius:8px;display:block;
+  filter:blur(5px) brightness(0.75);opacity:0;
+  transition:opacity 600ms ease;
+  box-shadow:0 12px 40px rgba(0,0,0,0.50);
+}
+#scan-canvas.visible{opacity:1}
+
+/* Callout boxes */
+.scan-callout{
+  position:absolute;border:1.5px solid rgba(30,184,122,0.80);border-radius:6px;
+  background:rgba(30,184,122,0.08);box-shadow:0 0 12px rgba(30,184,122,0.20);
+  opacity:0;transition:opacity 400ms ease;pointer-events:none;
+}
+.scan-callout.show{opacity:1}
+.scan-callout-label{
+  position:absolute;bottom:calc(100% + 4px);left:0;
+  font-size:0.4375rem;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;
+  color:var(--green);white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,0.50);
+}
+/* Heuristic positions — top-right (date area), top-left (provider), bottom-center (totals) */
+.callout-1{top:8%;right:5%;width:38%;height:10%}
+.callout-2{top:5%;left:3%;width:45%;height:12%}
+.callout-3{bottom:12%;left:5%;right:5%;height:8%}
+.callout-4{top:35%;left:3%;right:3%;height:20%}
+
+/* Analysis progress bar */
+.scan-progress-bar{
+  width:100%;max-width:320px;height:3px;background:rgba(255,255,255,0.07);
+  border-radius:2px;overflow:hidden;margin-top:20px;
+}
+.scan-progress-fill{
+  height:100%;border-radius:2px;width:0%;
+  background:linear-gradient(90deg,var(--green-dk),var(--green));
+  transition:width 600ms var(--ease);
+}
+
+/* Status panel */
+.scan-status-panel{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:40px 32px;
+}
+.scan-status-headline{
+  font-family:var(--serif);font-size:1.375rem;font-weight:700;
+  color:var(--on-dark);letter-spacing:-0.02em;line-height:1.2;margin-bottom:6px;
+}
+.scan-status-sub{font-size:0.8125rem;color:var(--on-dark-3);margin-bottom:28px;line-height:1.5}
+
+.scan-status-text{
+  font-size:0.875rem;font-weight:600;color:var(--green);
+  min-height:22px;transition:opacity 200ms ease;display:flex;align-items:center;gap:8px;
+}
+.scan-status-text::before{
+  content:'';width:6px;height:6px;border-radius:50%;background:var(--green);
+  flex-shrink:0;animation:dpulse 1.4s ease-in-out infinite;
+}
+
+/* Value feed */
+.scan-value-feed{
+  margin-top:24px;display:flex;flex-direction:column;gap:8px;min-height:120px;
+}
+.scan-value-item{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+  border-radius:8px;padding:8px 12px;opacity:0;
+  transform:translateX(-12px);transition:all 380ms var(--ease);
+}
+.scan-value-item.revealed{opacity:1;transform:translateX(0)}
+.svi-icon{font-size:14px;flex-shrink:0}
+.svi-text{font-size:0.75rem;color:var(--on-dark-2);flex:1}
+.svi-text strong{color:var(--on-dark);font-weight:700}
+.svi-badge{
+  font-size:0.375rem;font-weight:800;letter-spacing:0.10em;text-transform:uppercase;
+  padding:2px 7px;border-radius:3px;flex-shrink:0;
+}
+.svi-confirmed{background:rgba(30,184,122,0.20);color:var(--green)}
+.svi-flagged{background:rgba(240,165,0,0.20);color:var(--gold)}
+.svi-alert{background:rgba(224,59,59,0.20);color:#FF9898}
+
+.scan-finding-count{
+  display:none;margin-top:16px;padding:12px 16px;
+  background:rgba(240,165,0,0.10);border:1px solid rgba(240,165,0,0.22);
+  border-radius:10px;align-items:center;gap:10px;
+}
+.scan-finding-count.show{display:flex}
+.sfc-icon{font-size:18px}
+.sfc-text{font-size:0.8125rem;font-weight:700;color:var(--gold);flex:1}
+.sfc-sub{font-size:0.625rem;color:var(--gold-dk);margin-top:1px;font-weight:400}
+
+/* ═══════════════════════════════════════════
+   STATE 3: FINDINGS
+═══════════════════════════════════════════ */
+#state-findings{
+  min-height:100vh;flex-direction:column;background:var(--bg);
+}
+
+/* Findings nav */
+.findings-nav{
+  background:var(--navy);border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;padding:0 24px;height:52px;flex-shrink:0;
+  box-shadow:0 2px 12px rgba(0,0,0,0.20);
+}
+.findings-nav-brand{display:flex;align-items:center;gap:8px;text-decoration:none}
+.findings-nav-logo{width:28px;height:28px;object-fit:contain}
+.findings-nav-name{font-family:var(--serif);font-size:0.875rem;font-weight:700;color:var(--on-dark)}
+.findings-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.findings-scan-again{
+  font-family:var(--sans);font-size:0.6875rem;font-weight:600;
+  color:var(--on-dark-3);background:transparent;border:1px solid rgba(255,255,255,0.10);
+  border-radius:100px;padding:5px 12px;cursor:pointer;
+}
+.findings-scan-again:hover{border-color:rgba(255,255,255,0.20);color:var(--on-dark-2)}
+
+/* Findings header (dark case header) */
+.findings-header{
+  background:var(--navy);padding:24px 24px 0;position:relative;overflow:hidden;
+  flex-shrink:0;
+}
+.findings-header::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 400px 200px at 75% 40%,rgba(30,184,122,0.07) 0%,transparent 60%),
+             radial-gradient(ellipse 300px 150px at 15% 80%,rgba(240,165,0,0.05) 0%,transparent 60%);
+}
+.fh-top-line{position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,var(--green) 0%,var(--gold) 45%,transparent 100%)}
+.fh-inner{position:relative;z-index:1}
+.fh-eyebrow{
+  font-size:0.5rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--on-dark-3);display:flex;align-items:center;gap:6px;margin-bottom:8px;
+}
+.fh-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:dpulse 2.5s ease-in-out infinite}
+.fh-headline{
+  font-family:var(--serif);font-size:clamp(1.25rem,2.5vw,1.625rem);font-weight:700;
+  color:var(--on-dark);letter-spacing:-0.02em;line-height:1.15;margin-bottom:4px;
+}
+.fh-subline{
+  font-size:0.8125rem;color:var(--on-dark-2);line-height:1.6;margin-bottom:12px;
+}
+.fh-severity-row{display:flex;align-items:center;gap:8px;margin-bottom:0;flex-wrap:wrap}
+.fh-sev-pill{
+  display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;
+  font-size:0.5625rem;font-weight:700;letter-spacing:0.06em;
+}
+.fhsp-critical{background:rgba(224,59,59,0.18);border:1px solid rgba(224,59,59,0.30);color:#FF9898}
+.fhsp-high{background:rgba(240,165,0,0.16);border:1px solid rgba(240,165,0,0.28);color:var(--gold)}
+.fhsp-medium{background:rgba(30,184,122,0.14);border:1px solid rgba(30,184,122,0.24);color:var(--green)}
+.fhsp-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* Brass tab bar (matches dashboard) */
+.findings-tabbar{
+  background:linear-gradient(180deg,#121E35 0%,#3A2C12 5%,#6E5523 11%,#B9923E 22%,#D6B158 50%,#B9923E 78%,#7A5E29 92%,#4A3815 100%);
+  height:6px;flex-shrink:0;
+  box-shadow:inset 0 -1px 0 rgba(255,216,119,0.28),0 4px 12px -4px rgba(17,28,46,0.55);
+}
+
+/* Findings scroll area */
+.findings-scroll{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:14px;max-width:860px;width:100%;margin:0 auto}
+
+/* Finding cards */
+.finding-card{
+  background:var(--white);border:1px solid var(--bdr);border-radius:12px;
+  box-shadow:var(--sh-sm);overflow:hidden;display:grid;grid-template-columns:5px 1fr;
+}
+.fc-stripe-high{background:var(--gold)}
+.fc-stripe-critical{background:var(--crimson)}
+.fc-stripe-medium{background:var(--green)}
+.fc-body{padding:16px 18px 14px}
+.fc-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.fc-badge{
+  font-size:0.375rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;
+  padding:3px 8px;border-radius:3px;flex-shrink:0;margin-top:1px;
+}
+.fcb-critical{background:var(--crimson-lt,rgba(224,59,59,0.12));color:var(--crimson)}
+.fcb-high{background:var(--gold-lt,rgba(240,165,0,0.12));color:var(--gold-dk)}
+.fcb-medium{background:var(--green-lt,rgba(30,184,122,0.12));color:var(--green-dk)}
+.fc-title{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--ink);letter-spacing:-0.01em;line-height:1.2;flex:1}
+.fc-text{font-size:0.8125rem;color:var(--ink-3);line-height:1.65;margin-bottom:10px}
+.fc-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.fc-letter-badge{
+  display:flex;align-items:center;gap:5px;font-size:0.5625rem;font-weight:700;
+  color:var(--green-dk);letter-spacing:0.04em;
+}
+.fc-letter-badge svg{width:11px;height:11px;stroke:currentColor;stroke-width:2.2;fill:none}
+.fc-free-tag{font-size:0.4375rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--green-dk);background:var(--green-lt);border:1px solid rgba(30,184,122,0.24);border-radius:3px;padding:2px 7px}
+
+/* Gated finding */
+.fc-gated .fc-text{
+  position:relative;overflow:hidden;
+}
+.fc-gated .fc-text-blurred{
+  filter:blur(5px);user-select:none;pointer-events:none;
+  -webkit-filter:blur(5px);
+}
+.fc-lock-bar{
+  background:linear-gradient(90deg,var(--gold) 0%,#B9923E 100%);
+  padding:8px 14px;display:flex;align-items:center;gap:8px;
+  font-size:0.625rem;font-weight:700;color:#2A1F0B;letter-spacing:0.04em;cursor:pointer;
+}
+.fc-lock-bar svg{width:11px;height:11px;fill:none;stroke:#2A1F0B;stroke-width:2.5}
+
+/* Case value estimate */
+.case-value-block{
+  background:var(--navy);border-radius:12px;padding:20px 22px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  box-shadow:var(--sh-md);position:relative;overflow:hidden;
+}
+.case-value-block::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 300px 150px at 80% 50%,rgba(240,165,0,0.08) 0%,transparent 65%);
+}
+.cvb-left{position:relative;z-index:1}
+.cvb-label{font-size:0.45rem;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:6px}
+.cvb-amount{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2rem);font-weight:900;color:var(--gold);letter-spacing:-0.03em;line-height:1;margin-bottom:4px}
+.cvb-desc{font-size:0.75rem;color:var(--on-dark-2);line-height:1.55;max-width:340px}
+.cvb-right{position:relative;z-index:1;flex-shrink:0}
+
+/* Upgrade CTA */
+.upgrade-block{
+  background:var(--white);border:1px solid var(--bdr);border-radius:12px;
+  padding:22px 22px 18px;box-shadow:var(--sh-md);
+}
+.ub-title{font-family:var(--serif);font-size:1.125rem;font-weight:700;color:var(--ink);letter-spacing:-0.01em;margin-bottom:4px}
+.ub-sub{font-size:0.8125rem;color:var(--ink-3);line-height:1.55;margin-bottom:16px}
+.ub-includes{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.ub-include-item{display:flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--ink-3)}
+.ub-include-item svg{width:13px;height:13px;stroke:var(--green);stroke-width:2.5;fill:none;flex-shrink:0}
+.btn-upgrade{
+  width:100%;padding:15px;
+  background:linear-gradient(135deg,var(--dark) 0%,#0D1828 100%);
+  color:#FFE7B0;font-family:var(--sans);font-size:1rem;font-weight:800;
+  border:1px solid rgba(255,216,119,0.50);border-radius:10px;cursor:pointer;
+  letter-spacing:0.01em;box-shadow:0 4px 20px rgba(17,28,46,0.30);
+  transition:all 180ms var(--ease);display:flex;align-items:center;justify-content:center;gap:10px;
+  text-decoration:none;
+}
+.btn-upgrade:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(17,28,46,0.40)}
+.btn-upgrade svg{width:16px;height:16px;stroke:#FFE7B0;stroke-width:2.2;fill:none}
+.ub-price{font-size:0.875rem;opacity:0.75;margin-left:auto}
+.ub-loss{
+  margin-top:12px;padding:10px 12px;
+  background:rgba(240,165,0,0.07);border:1px solid rgba(240,165,0,0.16);
+  border-radius:8px;font-size:0.6875rem;color:var(--gold-dk);line-height:1.55;
+}
+.ub-trust-row{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.ub-trust-item{display:flex;align-items:center;gap:4px;font-size:0.5625rem;color:var(--ink-4);font-weight:500}
+.ub-trust-item svg{width:10px;height:10px;stroke:var(--green);stroke-width:2.5;fill:none}
+
+/* ═══════════════════════════════════════════
+   STATE 4: FALLBACK (3-question confirm)
+═══════════════════════════════════════════ */
+#state-fallback{
+  min-height:100vh;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 16px;background:var(--navy);
+}
+.fallback-card{
+  width:100%;max-width:480px;background:rgba(22,32,54,0.90);
+  border:1px solid rgba(255,255,255,0.08);border-radius:18px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.40);padding:36px 32px;
+}
+.fallback-eyebrow{font-size:0.5rem;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.fallback-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.fallback-title{font-family:var(--serif);font-size:1.375rem;font-weight:700;color:var(--on-dark);letter-spacing:-0.02em;line-height:1.2;margin-bottom:6px}
+.fallback-sub{font-size:0.8125rem;color:var(--on-dark-2);line-height:1.6;margin-bottom:24px}
+.fallback-field{margin-bottom:16px}
+.fallback-label{font-size:0.625rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--on-dark-3);display:block;margin-bottom:6px}
+.fallback-input,.fallback-select{
+  width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);
+  border-radius:8px;padding:11px 14px;color:var(--on-dark);font-family:var(--sans);
+  font-size:0.875rem;transition:border-color 150ms;
+}
+.fallback-input::placeholder{color:var(--on-dark-3)}
+.fallback-input:focus,.fallback-select:focus{outline:none;border-color:rgba(30,184,122,0.60);background:rgba(255,255,255,0.08)}
+.fallback-select option{background:#1C2D45;color:#fff}
+.btn-fallback{
+  width:100%;margin-top:8px;padding:13px;
+  background:linear-gradient(135deg,var(--green) 0%,var(--green-dk) 100%);
+  color:#fff;font-family:var(--sans);font-size:0.9375rem;font-weight:800;
+  border:none;border-radius:10px;cursor:pointer;letter-spacing:0.01em;
+  box-shadow:0 4px 16px rgba(30,184,122,0.30);transition:all 180ms var(--ease);
+}
+.btn-fallback:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(30,184,122,0.40)}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:680px){
+  .scan-body{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .scan-preview-panel{padding:20px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.05);min-height:200px}
+  #scan-canvas{max-height:180px;width:auto;margin:0 auto}
+  .scan-doc-wrap{display:flex;justify-content:center}
+  .scan-status-panel{padding:24px 20px}
+  .findings-scroll{padding:16px}
+  .upload-card{padding:28px 20px 24px}
+  .case-value-block{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     STATE 1: UPLOAD
+═══════════════════════════════════ -->
+<section id="state-upload" class="scan-state active">
+  <a href="/" class="upload-brand">
+    <img src="Transparent.png" alt="UPA" class="upload-brand-logo">
+    <div>
+      <div class="upload-brand-name">United Patient Advocate</div>
+      <span class="upload-brand-sub">Patient First · Billing Second</span>
+    </div>
+  </a>
+
+  <div class="upload-card">
+    <h1 class="upload-headline">Drop your bill.<br>We'll find what's wrong with it.</h1>
+    <p class="upload-sub">Works with hospital bills, doctor's office statements, and insurance Explanations of Benefits. No account needed. Results in about 60 seconds.</p>
+
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" accept=".pdf" class="drop-input" id="file-input">
+      <span class="drop-icon">📄</span>
+      <div class="drop-label">Drop your PDF here</div>
+      <div class="drop-sub">or click to browse your files</div>
+    </div>
+
+    <div class="file-selected-badge" id="file-badge" style="display:none">
+      <span class="fsb-icon">📄</span>
+      <span class="fsb-name" id="file-badge-name">document.pdf</span>
+      <button class="fsb-remove" id="file-remove" title="Remove">✕</button>
+    </div>
+
+    <div class="upload-error" id="upload-error"></div>
+
+    <button class="btn-scan" id="btn-scan" disabled>
+      <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Scan My Bill
+    </button>
+
+    <div class="upload-trust">
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Analyzed in your browser
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        No account required
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Private &amp; secure
+      </div>
+    </div>
+  </div>
+
+  <div class="upload-manual">
+    <a href="01_upa-landing.html">Don't have a PDF? Answer a few questions instead →</a>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     STATE 2: SCANNING
+═══════════════════════════════════ -->
+<section id="state-scanning" class="scan-state">
+  <div class="scan-nav">
+    <img src="Transparent.png" alt="UPA" class="scan-nav-logo">
+    <div class="scan-nav-name">United Patient Advocate</div>
+    <div class="scan-nav-pill">
+      <div class="scan-pill-dot"></div>
+      <span class="scan-pill-label">Analyzing</span>
+    </div>
+  </div>
+
+  <div class="scan-body">
+    <!-- Document preview -->
+    <div class="scan-preview-panel">
+      <div class="scan-preview-label">Your document</div>
+      <div class="scan-doc-wrap" id="scan-doc-wrap">
+        <canvas id="scan-canvas"></canvas>
+        <!-- Callout boxes (heuristic positions) -->
+        <div class="scan-callout callout-1" id="callout-1">
+          <div class="scan-callout-label">Date area</div>
+        </div>
+        <div class="scan-callout callout-2" id="callout-2">
+          <div class="scan-callout-label">Provider header</div>
+        </div>
+        <div class="scan-callout callout-3" id="callout-3">
+          <div class="scan-callout-label">Totals section</div>
+        </div>
+        <div class="scan-callout callout-4" id="callout-4">
+          <div class="scan-callout-label">Line items</div>
+        </div>
+      </div>
+      <div class="scan-progress-bar">
+        <div class="scan-progress-fill" id="scan-progress"></div>
+      </div>
+    </div>
+
+    <!-- Status + value feed -->
+    <div class="scan-status-panel">
+      <div class="scan-status-headline">Reviewing your bill</div>
+      <div class="scan-status-sub">Extracting charges, codes, and dates from your document.</div>
+
+      <div class="scan-status-text" id="scan-status-text">Reading document structure...</div>
+
+      <div class="scan-value-feed" id="scan-value-feed">
+        <!-- Value items injected here by JS -->
+      </div>
+
+      <div class="scan-finding-count" id="scan-finding-count">
+        <div class="sfc-icon">⚠️</div>
+        <div>
+          <div class="sfc-text" id="sfc-text">Items identified</div>
+          <div class="sfc-sub">Review ready in a moment</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     STATE 3: FINDINGS
+═══════════════════════════════════ -->
+<section id="state-findings" class="scan-state">
+  <nav class="findings-nav">
+    <a href="/" class="findings-nav-brand">
+      <img src="Transparent.png" alt="UPA" class="findings-nav-logo">
+      <div class="findings-nav-name">United Patient Advocate</div>
+    </a>
+    <div class="findings-nav-right">
+      <button class="findings-scan-again" onclick="resetToUpload()">Scan another bill</button>
+    </div>
+  </nav>
+
+  <div class="findings-header">
+    <div class="fh-top-line"></div>
+    <div class="fh-inner">
+      <div class="fh-eyebrow"><div class="fh-eyebrow-dot"></div>Scan complete · Case review ready</div>
+      <h1 class="fh-headline" id="fh-headline">Here's what we found in your bill.</h1>
+      <p class="fh-subline" id="fh-subline">Based on what we extracted, these items warrant formal review before payment is made or accepted as final.</p>
+      <div class="fh-severity-row" id="fh-severity-row"></div>
+    </div>
+  </div>
+  <div class="findings-tabbar"></div>
+
+  <div class="findings-scroll" id="findings-scroll">
+    <!-- Finding cards injected here -->
+    <!-- Case value block injected here -->
+    <!-- Upgrade block injected here -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     STATE 4: FALLBACK (low confidence)
+═══════════════════════════════════ -->
+<section id="state-fallback" class="scan-state">
+  <div class="fallback-card">
+    <div class="fallback-eyebrow"><div class="fallback-eyebrow-dot"></div>Your document was processed</div>
+    <h2 class="fallback-title">Confirm a few details to complete your review</h2>
+    <p class="fallback-sub">Your document was analyzed but we need a bit more context to generate accurate findings for your case.</p>
+
+    <div class="fallback-field">
+      <label class="fallback-label" for="fb-amount">What was the total amount on your bill?</label>
+      <input type="text" class="fallback-input" id="fb-amount" placeholder="e.g. $4,280.00" inputmode="decimal">
+    </div>
+    <div class="fallback-field">
+      <label class="fallback-label" for="fb-provider">Who was the provider or hospital?</label>
+      <input type="text" class="fallback-input" id="fb-provider" placeholder="e.g. St. Mary's Medical Center">
+    </div>
+    <div class="fallback-field">
+      <label class="fallback-label" for="fb-type">What type of document is this?</label>
+      <select class="fallback-select" id="fb-type">
+        <option value="">Select document type</option>
+        <option value="hospital bill">Hospital Bill</option>
+        <option value="doctor's office bill">Doctor's Office Bill</option>
+        <option value="EOB">Explanation of Benefits (EOB)</option>
+        <option value="emergency room bill">Emergency Room Bill</option>
+        <option value="radiology bill">Radiology / Imaging Bill</option>
+        <option value="lab bill">Lab Bill</option>
+        <option value="medical bill">Other Medical Bill</option>
+      </select>
+    </div>
+    <button class="btn-fallback" id="btn-fallback-submit">Complete My Review →</button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════ -->
+<script>
+// Set PDF.js worker before any extraction runs
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+</script>
+<script src="upa-scan-engine.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   UPA SCAN PAGE — Orchestration Layer
+   Coordinates: upload handling · animation timing · extraction ·
+                 fallback routing · findings render · CTA
+═══════════════════════════════════════════════════════════════ */
+
+/* ─── CONFIG ─── */
+const UPA_SCAN_CONFIG = {
+  // Replace with your actual Gumroad product URL
+  gumroadURL:  'https://YOUR_GUMROAD_PRODUCT_URL',
+  upgradePrice: '$97',
+  findingCount: 3  // shown in upgrade copy
+};
+
+/* ─── STATE ─── */
+let selectedFile    = null;
+let extractedData   = null;
+let scanFindings    = [];
+let animHoldReached = false;
+let animResumeFn    = null;
+let animTimers      = [];
+
+/* ─── HELPERS ─── */
+function showState(id) {
+  document.querySelectorAll('.scan-state').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function clearTimers() { animTimers.forEach(clearTimeout); animTimers = []; }
+function after(ms, fn) { const t = setTimeout(fn, ms); animTimers.push(t); return t; }
+
+/* ─── FILE UPLOAD HANDLING ─── */
+const dropZone   = document.getElementById('drop-zone');
+const fileInput  = document.getElementById('file-input');
+const fileBadge  = document.getElementById('file-badge');
+const badgeName  = document.getElementById('file-badge-name');
+const fileRemove = document.getElementById('file-remove');
+const btnScan    = document.getElementById('btn-scan');
+const uploadErr  = document.getElementById('upload-error');
+
+function showUploadError(msg) {
+  uploadErr.textContent = msg;
+  uploadErr.style.display = 'block';
+}
+function clearUploadError() { uploadErr.style.display = 'none'; uploadErr.textContent = ''; }
+
+function onFileSelected(file) {
+  clearUploadError();
+  if (!file) return;
+  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+    showUploadError('Please upload a PDF file. Hospital bills, EOBs, and doctor's office statements work best.');
+    fileInput.value = '';
+    return;
+  }
+  if (file.size > 30 * 1024 * 1024) {
+    showUploadError('File too large. Please upload a PDF under 30MB.');
+    return;
+  }
+  selectedFile = file;
+  badgeName.textContent = file.name;
+  fileBadge.style.display = 'flex';
+  dropZone.querySelector('.drop-label').textContent = 'File ready';
+  dropZone.querySelector('.drop-sub').textContent   = file.name;
+  btnScan.disabled = false;
+}
+
+fileInput.addEventListener('change', function() {
+  if (this.files && this.files[0]) onFileSelected(this.files[0]);
+});
+fileRemove.addEventListener('click', function() {
+  selectedFile = null;
+  fileInput.value = '';
+  fileBadge.style.display = 'none';
+  dropZone.querySelector('.drop-label').textContent = 'Drop your PDF here';
+  dropZone.querySelector('.drop-sub').textContent   = 'or click to browse your files';
+  btnScan.disabled = true;
+  clearUploadError();
+});
+dropZone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault(); this.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f) { fileInput.files = e.dataTransfer.files; onFileSelected(f); }
+});
+btnScan.addEventListener('click', startScan);
+
+/* ─── SCAN INITIATION ─── */
+function startScan() {
+  if (!selectedFile) return;
+  clearTimers();
+  extractedData   = null;
+  animHoldReached = false;
+  animResumeFn    = null;
+  showState('state-scanning');
+  renderDocumentPreview(selectedFile);
+  runAnimationSequence();
+  // Start extraction in parallel
+  if (typeof UPAScanEngine === 'undefined') {
+    console.error('[UPA] upa-scan-engine.js not loaded');
+    return;
+  }
+  UPAScanEngine.extractFromPDF(selectedFile).then(function(data) {
+    extractedData = data;
+    if (animHoldReached && animResumeFn) {
+      animResumeFn(data);
+    }
+  }).catch(function(err) {
+    console.warn('[UPA] Extraction failed:', err);
+    extractedData = { confidence: 'failed', pageCount: 1, _scan: true, _scanTimestamp: Date.now() };
+    if (animHoldReached && animResumeFn) animResumeFn(extractedData);
+  });
+}
+
+/* ─── DOCUMENT PREVIEW RENDER ─── */
+function renderDocumentPreview(file) {
+  if (typeof pdfjsLib === 'undefined') return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    pdfjsLib.getDocument({ data: e.target.result }).promise.then(function(pdf) {
+      pdf.getPage(1).then(function(page) {
+        const canvas  = document.getElementById('scan-canvas');
+        const wrap    = document.getElementById('scan-doc-wrap');
+        const maxW    = wrap.offsetWidth || 280;
+        const viewport = page.getViewport({ scale: 0.5 });
+        const scale   = Math.min(1, maxW / viewport.width);
+        const vp      = page.getViewport({ scale: scale * 0.9 });
+        canvas.width  = vp.width;
+        canvas.height = vp.height;
+        page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise.then(function() {
+          canvas.classList.add('visible');
+        });
+      });
+    }).catch(function(){
+      // Preview failed silently — animation still runs
+    });
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ─── ANIMATION SEQUENCE ─── */
+const STATUS_STEPS = [
+  'Reading document structure...',
+  'Identifying service codes and charge amounts...',
+  'Locating claim reference and account number...',
+  'Checking insurance payment application...',
+  'Reviewing charge patterns for discrepancies...',  // HOLD POINT
+  'Flagging items for review...',
+  'Analysis complete.'
+];
+
+function setStatus(text) {
+  const el = document.getElementById('scan-status-text');
+  if (!el) return;
+  el.style.opacity = '0';
+  setTimeout(function() { el.textContent = text; el.style.opacity = '1'; }, 200);
+}
+function setProgress(pct) {
+  const el = document.getElementById('scan-progress');
+  if (el) el.style.width = pct + '%';
+}
+function showCallout(id) {
+  const el = document.getElementById('callout-' + id);
+  if (el) el.classList.add('show');
+}
+
+function addValueFeedItem(icon, text, badgeClass, badgeLabel) {
+  const feed = document.getElementById('scan-value-feed');
+  if (!feed) return;
+  const item = document.createElement('div');
+  item.className = 'scan-value-item';
+  item.innerHTML =
+    '<div class="svi-icon">' + icon + '</div>' +
+    '<div class="svi-text">' + text + '</div>' +
+    '<div class="svi-badge ' + badgeClass + '">' + esc(badgeLabel) + '</div>';
+  feed.appendChild(item);
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() { item.classList.add('revealed'); });
+  });
+}
+
+function runAnimationSequence() {
+  setProgress(0);
+  // T+0
+  setStatus(STATUS_STEPS[0]);
+  // T+600: callout 1 (date area)
+  after(600, function() { showCallout(1); setProgress(12); });
+  // T+1400: status 2
+  after(1400, function() { setStatus(STATUS_STEPS[1]); setProgress(26); });
+  // T+2200: callout 2 (provider header)
+  after(2200, function() { showCallout(2); });
+  // T+3000: status 3
+  after(3000, function() { setStatus(STATUS_STEPS[2]); setProgress(40); showCallout(4); });
+  // T+4200: status 4 + callout 3
+  after(4200, function() { setStatus(STATUS_STEPS[3]); setProgress(55); showCallout(3); });
+  // T+5400: HOLD POINT — wait for extraction
+  after(5400, function() {
+    setStatus(STATUS_STEPS[4]);
+    setProgress(68);
+    animHoldReached = true;
+    if (extractedData !== null) {
+      resumeAnimation(extractedData);
+    } else {
+      animResumeFn = resumeAnimation;
+      // Safety valve: force-proceed after 9s regardless
+      after(9000, function() {
+        if (!extractedData) {
+          extractedData = { confidence: 'low', _scan: true, _scanTimestamp: Date.now() };
+          resumeAnimation(extractedData);
+        }
+      });
+    }
+  });
+}
+
+/* Resume after extraction promise resolves */
+function resumeAnimation(data) {
+  animResumeFn = null; // prevent double-call
+
+  // Inject real extracted values into the feed
+  let feedDelay = 0;
+  function feedItem(fn) { after(feedDelay, fn); feedDelay += 800; }
+
+  // Claim / account number
+  if (data.claimNumber) {
+    feedItem(function() {
+      addValueFeedItem('🔍',
+        'Claim / account <strong>' + esc(data.claimNumber) + '</strong> — confirmed',
+        'svi-confirmed', 'CONFIRMED ✓');
+    });
+  }
+  // Service date
+  if (data.serviceDate) {
+    feedItem(function() {
+      addValueFeedItem('📅',
+        'Service date: <strong>' + esc(data.serviceDate) + '</strong> — confirmed',
+        'svi-confirmed', 'CONFIRMED ✓');
+    });
+  }
+  // Patient balance
+  if (data.patientBalance !== null && data.patientBalance > 0) {
+    feedItem(function() {
+      addValueFeedItem('⚠️',
+        'Patient balance: <strong>' + esc(UPAScanEngine.formatCurrency(data.patientBalance)) + '</strong> — flagged for review',
+        'svi-flagged', 'FLAGGED ⚠');
+    });
+  } else if (data.totalBilled !== null && data.totalBilled > 0) {
+    feedItem(function() {
+      addValueFeedItem('💰',
+        'Total charges: <strong>' + esc(UPAScanEngine.formatCurrency(data.totalBilled)) + '</strong> — logged',
+        'svi-confirmed', 'LOGGED ✓');
+    });
+  }
+  // Denial flag
+  if (data.denialDetected) {
+    feedItem(function() {
+      addValueFeedItem('🚨', 'Denial language detected in document', 'svi-alert', 'ALERT 🚨');
+    });
+  }
+  // Page count if multi-page
+  if (data.pageCount > 1 && !data.claimNumber && !data.serviceDate) {
+    feedItem(function() {
+      addValueFeedItem('📄',
+        'Document processed — <strong>' + data.pageCount + ' pages</strong> reviewed',
+        'svi-confirmed', 'PROCESSED ✓');
+    });
+  }
+  // If nothing real to show
+  if (!data.claimNumber && !data.serviceDate && !data.patientBalance && !data.totalBilled && !data.denialDetected) {
+    feedItem(function() {
+      addValueFeedItem('🔎', 'Document reviewed — additional confirmation needed', 'svi-confirmed', 'PROCESSED ✓');
+    });
+  }
+
+  // Progress + status: "Flagging items"
+  after(feedDelay, function() {
+    setStatus(STATUS_STEPS[5]);
+    setProgress(84);
+  });
+  // Finding count reveal
+  after(feedDelay + 900, function() {
+    const findings = UPAScanEngine.buildScanFindings(data);
+    const countEl  = document.getElementById('scan-finding-count');
+    const textEl   = document.getElementById('sfc-text');
+    if (countEl && textEl) {
+      textEl.textContent = findings.length + ' item' + (findings.length !== 1 ? 's' : '') + ' flagged for review';
+      countEl.classList.add('show');
+    }
+    setProgress(95);
+  });
+  // "Analysis complete" + transition
+  after(feedDelay + 1900, function() {
+    setStatus(STATUS_STEPS[6]);
+    setProgress(100);
+  });
+  after(feedDelay + 3100, function() {
+    routeAfterScan(data);
+  });
+}
+
+/* ─── ROUTING AFTER SCAN ─── */
+function routeAfterScan(data) {
+  if (data.confidence === 'low' || data.confidence === 'failed') {
+    showState('state-fallback');
+    return;
+  }
+  // Write to storage
+  UPAScanEngine.writeScanStateToStorage(data);
+  // Generate and render findings
+  scanFindings = UPAScanEngine.buildScanFindings(data);
+  renderFindings(data, scanFindings);
+  showState('state-findings');
+}
+
+/* ─── FINDINGS RENDERING ─── */
+function severityStripeClass(sev) {
+  if (sev === 'CRITICAL') return 'fc-stripe-critical';
+  if (sev === 'HIGH')     return 'fc-stripe-high';
+  return 'fc-stripe-medium';
+}
+function severityBadgeClass(sev) {
+  if (sev === 'CRITICAL') return 'fcb-critical';
+  if (sev === 'HIGH')     return 'fcb-high';
+  return 'fcb-medium';
+}
+
+function renderFindings(data, findings) {
+  // Header
+  const provider = data.provider || null;
+  const date     = data.serviceDate || null;
+  const headlineEl = document.getElementById('fh-headline');
+  const sublineEl  = document.getElementById('fh-subline');
+  const sevRow     = document.getElementById('fh-severity-row');
+  const scroll     = document.getElementById('findings-scroll');
+
+  if (headlineEl) {
+    if (provider && date) {
+      headlineEl.textContent = 'Here’s what we found in your ' + provider + ' bill.';
+    } else if (provider) {
+      headlineEl.textContent = 'Here’s what we found in your ' + provider + ' statement.';
+    } else {
+      headlineEl.textContent = 'Here’s what we found in your bill.';
+    }
+  }
+  if (sublineEl && date) {
+    sublineEl.textContent = 'Scanned from your ' + (date ? date + ' ' : '') + 'document. These items warrant formal review before payment is made or accepted as final.';
+  }
+
+  // Severity summary pills
+  if (sevRow) {
+    sevRow.innerHTML = '';
+    const critCount = findings.filter(f => f.severity === 'CRITICAL').length;
+    const highCount = findings.filter(f => f.severity === 'HIGH').length;
+    const medCount  = findings.filter(f => f.severity === 'MEDIUM').length;
+    if (critCount > 0) sevRow.innerHTML += '<div class="fh-sev-pill fhsp-critical"><div class="fhsp-dot"></div>' + critCount + ' critical</div>';
+    if (highCount > 0) sevRow.innerHTML += '<div class="fh-sev-pill fhsp-high"><div class="fhsp-dot"></div>' + highCount + ' high priority</div>';
+    if (medCount  > 0) sevRow.innerHTML += '<div class="fh-sev-pill fhsp-medium"><div class="fhsp-dot"></div>' + medCount + ' medium priority</div>';
+  }
+
+  if (!scroll) return;
+  scroll.innerHTML = '';
+
+  // Finding cards
+  findings.forEach(function(f) {
+    const card = document.createElement('div');
+    card.className = 'finding-card' + (f.gated ? ' fc-gated' : '');
+
+    const bodyText = f.gated
+      ? '<span>' + esc(f.teaser) + '</span><span class="fc-text-blurred">' + esc(f.body.slice(f.teaser.length)) + '</span>'
+      : esc(f.body).replace(/\n\n/g, '</p><p class="fc-text">');
+
+    card.innerHTML =
+      '<div class="' + severityStripeClass(f.severity) + '"></div>' +
+      '<div class="fc-body">' +
+        '<div class="fc-header">' +
+          '<div class="fc-title">' + esc(f.title) + '</div>' +
+          '<div class="fc-badge ' + severityBadgeClass(f.severity) + '">' + esc(f.severity) + '</div>' +
+        '</div>' +
+        '<p class="fc-text">' + bodyText + '</p>' +
+        '<div class="fc-footer">' +
+          '<div class="fc-letter-badge"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Dispute letter included</div>' +
+          (!f.gated ? '<div class="fc-free-tag">FREE</div>' : '') +
+        '</div>' +
+      '</div>';
+
+    if (f.gated) {
+      const lockBar = document.createElement('div');
+      lockBar.className = 'fc-lock-bar';
+      lockBar.style.gridColumn = '1 / -1';
+      lockBar.innerHTML =
+        '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
+        'Unlock this finding — complete your case review';
+      lockBar.addEventListener('click', scrollToUpgrade);
+      // Append lock bar inside the grid
+      const wrapper = document.createElement('div');
+      wrapper.style.gridColumn = '1 / -1';
+      wrapper.appendChild(lockBar);
+      card.appendChild(wrapper);
+    }
+
+    scroll.appendChild(card);
+  });
+
+  // Case value block
+  const estimate = UPAScanEngine.buildCaseValueEstimate(data);
+  const caseValBlock = document.createElement('div');
+  caseValBlock.className = 'case-value-block';
+  caseValBlock.id = 'case-value-block';
+
+  if (estimate.display) {
+    caseValBlock.innerHTML =
+      '<div class="cvb-left">' +
+        '<div class="cvb-label">Estimated disputable charges</div>' +
+        '<div class="cvb-amount">' + esc(estimate.display) + '</div>' +
+        '<div class="cvb-desc">Based on the ' +
+          (estimate.basis === 'patient_balance'
+            ? 'patient balance identified in your document'
+            : 'charges identified in your document') +
+        '. Formal dispute documentation gives you the best chance of recovery.</div>' +
+      '</div>';
+  } else {
+    caseValBlock.innerHTML =
+      '<div class="cvb-left">' +
+        '<div class="cvb-label">Findings identified</div>' +
+        '<div class="cvb-amount" style="font-size:1.5rem">Review your case</div>' +
+        '<div class="cvb-desc">Based on what we identified, there are items in your bill worth formally reviewing before payment is accepted as final.</div>' +
+      '</div>';
+  }
+  scroll.appendChild(caseValBlock);
+
+  // Upgrade block
+  const gatedCount = findings.filter(f => f.gated).length;
+  const upgradeBlock = document.createElement('div');
+  upgradeBlock.className = 'upgrade-block';
+  upgradeBlock.id = 'upgrade-block';
+
+  const includeItems = [
+    'All ' + findings.length + ' findings fully unlocked with complete analysis',
+    gatedCount + ' additional dispute letter' + (gatedCount !== 1 ? 's' : '') + ' — ready to send',
+    'Step-by-step action plan with timeline',
+    'Call scripts for billing departments and insurance carriers',
+    'Downloadable patient packet — everything in one file'
+  ];
+
+  upgradeBlock.innerHTML =
+    '<div class="ub-title">Complete your case review</div>' +
+    '<div class="ub-sub">Your scan identified ' + findings.length + ' items. Unlock the full review to see every finding, get your dispute letters, and know exactly what to do next.</div>' +
+    '<div class="ub-includes">' +
+      includeItems.map(function(item) {
+        return '<div class="ub-include-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' + esc(item) + '</div>';
+      }).join('') +
+    '</div>' +
+    '<a class="btn-upgrade" href="' + esc(UPA_SCAN_CONFIG.gumroadURL) + '" target="_blank" rel="noopener">' +
+      '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' +
+      'Unlock your full case review' +
+      '<span class="ub-price">' + esc(UPA_SCAN_CONFIG.upgradePrice) + '</span>' +
+    '</a>' +
+    '<div class="ub-loss">⏱ Without formal dispute documentation, these findings expire unaddressed. Most insurers require written disputes within 180 days of the claim date.</div>' +
+    '<div class="ub-trust-row">' +
+      '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Instant access</div>' +
+      '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>One-time payment</div>' +
+      '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>No subscription</div>' +
+      '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>No account required</div>' +
+    '</div>';
+
+  scroll.appendChild(upgradeBlock);
+}
+
+function scrollToUpgrade() {
+  const el = document.getElementById('upgrade-block');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ─── FALLBACK SUBMISSION ─── */
+document.getElementById('btn-fallback-submit').addEventListener('click', function() {
+  const amtRaw  = document.getElementById('fb-amount').value.trim();
+  const prov    = document.getElementById('fb-provider').value.trim();
+  const billType= document.getElementById('fb-type').value;
+
+  if (!amtRaw && !prov) {
+    alert('Please fill in at least the amount or provider to continue.');
+    return;
+  }
+
+  // Parse amount
+  const amtNum = amtRaw ? parseFloat(amtRaw.replace(/[^0-9.]/g, '')) : null;
+
+  // Build synthetic extractedData from answers
+  const syntheticData = {
+    provider:      prov || null,
+    serviceDate:   null, serviceDateRaw: null,
+    totalBilled:   amtNum && amtNum > 0 ? amtNum : null,
+    patientBalance:null,
+    insurancePaid: null, adjustmentAmount: null,
+    allAmounts:    amtNum ? [amtNum] : [],
+    claimNumber:   null, insuranceName: null,
+    cptCodes: [], hasDuplicateCodes: false, duplicateCodes: [],
+    denialDetected: false,
+    pageCount: (extractedData && extractedData.pageCount) || 1,
+    rawText: '',
+    confidence: (amtNum || prov) ? 'medium' : 'low',
+    _scan: true, _scanTimestamp: Date.now(),
+    _fromFallback: true,
+    bill_type: billType
+  };
+
+  if (billType) syntheticData._inferredBillType = billType;
+
+  UPAScanEngine.writeScanStateToStorage(syntheticData);
+  scanFindings = UPAScanEngine.buildScanFindings(syntheticData);
+  renderFindings(syntheticData, scanFindings);
+  showState('state-findings');
+});
+
+/* ─── RESET ─── */
+function resetToUpload() {
+  clearTimers();
+  extractedData = null;
+  scanFindings  = [];
+  animHoldReached = false;
+  animResumeFn    = null;
+  // Reset canvas
+  const canvas = document.getElementById('scan-canvas');
+  if (canvas) { canvas.classList.remove('visible'); const ctx = canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
+  // Reset callouts
+  document.querySelectorAll('.scan-callout').forEach(c => c.classList.remove('show'));
+  // Reset value feed
+  const feed = document.getElementById('scan-value-feed');
+  if (feed) feed.innerHTML = '';
+  // Reset finding count
+  const fc = document.getElementById('scan-finding-count');
+  if (fc) fc.classList.remove('show');
+  // Reset progress
+  setProgress(0);
+  // Reset findings scroll
+  const scroll = document.getElementById('findings-scroll');
+  if (scroll) scroll.innerHTML = '';
+  // Reset header
+  const hl = document.getElementById('fh-headline');
+  if (hl) hl.textContent = 'Here’s what we found in your bill.';
+  const sevRow = document.getElementById('fh-severity-row');
+  if (sevRow) sevRow.innerHTML = '';
+  showState('state-upload');
+}
+</script>
+</body>
+</html>

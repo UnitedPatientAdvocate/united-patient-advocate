@@ -34,7 +34,34 @@
     if(!t || t.length < 8) return '';
     if(!/\s/.test(t)) return '';  // single token, probably garbage
     if(/^(idk|n\/a|na|nothing|none|no|yes|ok|okay|same|see above|other|not sure|unsure|unknown)$/i.test(t.trim())) return '';
+    // Common test strings and meaningless multi-word phrases
+    if(/^(test|testing|hello|hi there|foo\s|bar\s|lorem\s|ipsum|asdf|qwerty|click|skip|just\s+test|this\s+is\s+a\s+test|not\s+applicable|whatever|blah|stuff|things|anything|something)\b/i.test(t)) return '';
+    // Pure numbers or symbol-only input
+    if(/^[\d\s.,!@#$%^&*()\-_+=]+$/.test(t)) return '';
     return professionalBillingNote(t, maxLen || 140);
+  }
+
+  // Validates structured noun fields (provider name, insurance, bill type, payment status).
+  // Returns the input if it looks like genuine content; returns fallback if it appears to be
+  // garbage, a test string, profanity, or a non-meaningful placeholder.
+  function safeProperNoun(text, fallback){
+    var t = clean(text);
+    if(!t) return fallback || '';
+    // Must be at least 2 characters and contain at least one letter
+    if(t.length < 2 || !/[a-zA-Z]/.test(t)) return fallback || '';
+    // Pure numeric / price input that slipped into a name field
+    if(/^[\d\s,.$%-]+$/.test(t)) return fallback || '';
+    // Known test / placeholder strings (prefix match so "testing 123" also catches)
+    if(/^(test|testing|asdf|qwerty|foo|bar|baz|lorem\s+ipsum|hello|hi|sample|example|placeholder|dummy|fake|garbage|junk|random|xxx|zzz|aaa|bbb|abc|123|999|null|undefined|n\/a|na|none|other)\b/i.test(t)) return fallback || '';
+    // Single character repeated 3+ times (e.g. "aaaa", "hhhhh", "zzz zzz")
+    if(/^(.)\1{2,}(\s+\1+)*$/.test(t)) return fallback || '';
+    // Basic profanity / hostile text gate — don't let these into formal outputs
+    if(/\b(fuck|shit|ass|bitch|cunt|crap|piss|bastard|damn\s+it|wtf|lmao)\b/i.test(t)) return fallback || '';
+    // URL patterns pasted into a name field
+    if(/https?:\/\/|www\.[a-z]/i.test(t)) return fallback || '';
+    // All-caps keyboard mash longer than 8 chars that isn't a real acronym pattern
+    if(/^[A-Z]{9,}$/.test(t)) return fallback || '';
+    return t;
   }
 
   function billingConcernPhrases(text){
@@ -172,9 +199,23 @@
     return match ? parseFloat(match[0].replace(/,/g,'')) : null;
   }
 
+  function confidenceValue(value){
+    var n = parseFloat(value);
+    return isFinite(n) ? n : 0;
+  }
+
   function amountInfo(data){
     var rawKey = clean(data.bill_amount_raw || '');
     var rawText = clean(data.bill_amount_other || data.bill_amount || data.balance || '');
+    var extractedAmount = clean(data.extracted_bill_amount);
+    var extractedAmountNumber = parseNumber(extractedAmount);
+    var extractedAmountConfidence = confidenceValue(data.extracted_bill_amount_confidence);
+    if(extractedAmountNumber != null && extractedAmountConfidence >= 0.5){
+      var extractedInfo = {display:formatMoney(extractedAmountNumber), exact:extractedAmountNumber, low:extractedAmountNumber < 1000, extracted:true};
+      extractedInfo.reviewText = extractedInfo.display;
+      extractedInfo.calcValue = extractedAmountNumber;
+      return extractedInfo;
+    }
     var buckets = {
       under500:{display:'Under $500', low:true, range:true},
       '500-1k':{display:'$500 - $1,000', low:true, range:true},
@@ -192,7 +233,9 @@
       var hasRange = /-|to|under|over|not sure|unknown|approx|around|between/i.test(rawText);
       if(exact != null && !hasRange){
         info = {display:formatMoney(exact), exact:exact, low:exact < 1000};
-      }else if(rawText && !/^not uploaded$/i.test(rawText)){
+      }else if(rawText && !/^not uploaded$/i.test(rawText) && /\d/.test(rawText)){
+        // Only use rawText as the display amount if it contains at least one digit;
+        // otherwise prose like "I don't know" or "a lot" falls through to unknown.
         info = {display:rawText, range:true, low:/under|500|1,000/i.test(rawText)};
       }else{
         info = {display:'Amount not provided', unknown:true};
@@ -316,12 +359,13 @@
   }
 
   function fallbackIssueCandidates(data, amount, uploaded){
-    var provider = clean(data.provider);
+    var provider = safeProperNoun(clean(data.provider), '') || safeProperNoun(clean(data.extracted_provider), '');
     var billType = clean(data.bill_type_other || data.bill_type, 'medical bill');
-    var coverage = clean(data.insurance_other || data.insurance);
+    var coverage = safeProperNoun(clean(data.insurance_other || data.insurance), '') || safeProperNoun(clean(data.extracted_insurance), '');
     var payment = clean(data.payment_status_other || data.payment_status);
     var description = clean(data.description);
     var uploadedBill = clean(data.uploaded_bill);
+    var extractedParts = [];
     var list = [];
 
     if(uploaded){
@@ -335,6 +379,22 @@
       });
     }else{
       list.push(issueDefs()[0]);
+    }
+
+    var scanProvider = safeProperNoun(data.extracted_provider, '');
+    if(scanProvider) extractedParts.push('provider: ' + scanProvider);
+    if(clean(data.extracted_bill_amount)) extractedParts.push('amount: ' + clean(data.extracted_bill_amount));
+    if(clean(data.extracted_date_of_service)) extractedParts.push('service date: ' + formatDate(data.extracted_date_of_service, clean(data.extracted_date_of_service)));
+    if(clean(data.extracted_account_number)) extractedParts.push('account/reference: ' + clean(data.extracted_account_number));
+    if(extractedParts.length){
+      list.push({
+        key:'bill-scan-specificity',
+        type:'AI bill scan',
+        title:'Uploaded bill values were detected for case matching',
+        short:'bill-scan value match',
+        desc:'The scan detected ' + extractedParts.join(', ') + '. These values are being used as case anchors and should be confirmed against the statement and EOB before relying on them in a dispute.',
+        action:'Confirm the extracted provider, amount, date, and account details against the original bill, then use them in written requests.'
+      });
     }
 
     if(coverage){
@@ -515,7 +575,9 @@
     if(has(/not-received|didn't receive|did not receive|not receive|services i did not/ ) && primaryKey !== 'not-received'){
       add('service','service verification');
     }
-    if(clean(data.concern_other) && primaryKey !== 'custom'){
+    if(safeUserText(clean(data.concern_other), 80) && primaryKey !== 'custom'){
+      // Only add the custom letter if the concern_other text produces meaningful
+      // billing content (not garbage, test strings, or single-word throwaway input).
       add('custom','custom concern addendum');
     }
 
@@ -695,11 +757,12 @@
     var prepDate = formatDate(data.submitted_at || new Date().toISOString(), 'Today');
     var opened = data.submitted_at ? new Date(data.submitted_at) : new Date();
     if(isNaN(opened.getTime())) opened = new Date();
-    var provider = clean(data.provider, 'Provider not provided');
-    var dos = formatDate(data.date_of_service || data.dos, 'Date not provided');
-    var billType = clean(data.bill_type_other || data.bill_type, 'medical bill');
-    var coverage = clean(data.insurance_other || data.insurance, 'Coverage not provided');
-    var paymentStatus = clean(data.payment_status_other || data.payment_status, 'Payment status not provided');
+    var provider = safeProperNoun(clean(data.provider), '') || safeProperNoun(clean(data.extracted_provider), '') || 'Provider not provided';
+    var rawDos = data.date_of_service || data.dos || data.extracted_date_of_service;
+    var dos = formatDate(rawDos, 'Date not provided');
+    var billType = safeProperNoun(clean(data.bill_type_other || data.bill_type, 'medical bill'), 'medical bill');
+    var coverage = safeProperNoun(clean(data.insurance_other || data.insurance), '') || safeProperNoun(clean(data.extracted_insurance), '') || 'Coverage not provided';
+    var paymentStatus = safeProperNoun(clean(data.payment_status_other || data.payment_status, 'Payment status not provided'), 'Payment status not provided');
     var description = clean(data.description);
     var email = clean(data.email);
     var phone = clean(data.phone);
@@ -715,7 +778,7 @@
     var concernSummary = concernLabels.length ? concernLabels.join(', ') : 'General billing review';
     var userDetail = safeUserText(description, 220);
     if(!userDetail && clean(data.concern_other)) userDetail = safeUserText(data.concern_other, 220);
-    var uploadedBill = clean(data.uploaded_bill);
+    var uploadedBill = clean(data.uploaded_bill || data.scan_file_name);
     var uploaded = !!(uploadedBill && !/^not uploaded/i.test(uploadedBill));
     var issues = buildIssues(data, amount, uploaded);
     var detailScore = 28;
@@ -736,7 +799,7 @@
     var primary = issues[0];
     var status = paymentCopy(paymentStatus);
     var letterPlan = buildLetterPlan(data, issues);
-    var ref = clean(data.account_number || data.accountNumber || data.account || data.billing_reference || data.billingReference, 'in your case folder');
+    var ref = clean(data.account_number || data.accountNumber || data.account || data.billing_reference || data.billingReference || data.extracted_account_number, 'in your case folder');
     var basis = [
       'itemized statement request',
       'EOB and payer-responsibility comparison',
@@ -753,7 +816,7 @@
       phone:phone,
       contactLine:[email, phone].filter(Boolean).join(' | ') || 'Contact not provided',
       dateOfService:dos,
-      dateShort:shortDate(data.date_of_service || data.dos),
+      dateShort:shortDate(rawDos),
       prepDate:prepDate,
       openedShort:shortDate(data.submitted_at),
       deadline30:shortDate(addDays(opened,30).toISOString()),

@@ -324,6 +324,7 @@ html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
 </div>
 
 <script src="/UPA-Final/upa-state-persistence.js"></script>
+<script src="/UPA-Final/upa-bill-scan.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const body=$('card-body');
@@ -417,28 +418,43 @@ function intakeData(){
     return JSON.parse(sessionStorage.getItem('upa.intake.v1')||localStorage.getItem('upa.intake.v1')||'{}')||{};
   }catch(e){return {};}
 }
+function scanData(){
+  try{
+    return window.UPABillScan&&window.UPABillScan.readResult?window.UPABillScan.readResult():JSON.parse(sessionStorage.getItem('upa.billscan.v1')||localStorage.getItem('upa.billscan.v1')||'{}')||{};
+  }catch(e){return {};}
+}
 function clean(v,fallback){
   v=(v||'').toString().trim();
   return v?v:fallback;
+}
+function esc(v){
+  return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});
 }
 function reviewName(data){
   return clean(data.name,'Your billing review');
 }
 function reviewProvider(data){
-  return clean(data.provider,'your provider');
+  return clean(data.provider||data.extracted_provider,'your provider');
 }
 function reviewAmount(data){
-  return clean(data.bill_amount||data.balance,'bill amount to review');
+  return clean(data.extracted_bill_amount||data.bill_amount||data.balance,'bill amount to review');
 }
 function reviewCoverage(data){
-  return clean(data.insurance,'coverage details');
+  return clean(data.insurance||data.extracted_insurance,'coverage details');
 }
 
 async function run(){
   var data=intakeData();
+  var scan=scanData();
+  var scanFields=scan&&scan.fields?scan.fields:{};
   var provider=reviewProvider(data);
   var amount=reviewAmount(data);
   var coverage=reviewCoverage(data);
+  var scanProvider=scanFields.provider&&scanFields.provider.value;
+  var scanAmount=scanFields.amount&&scanFields.amount.value;
+  var scanDate=scanFields.serviceDate&&scanFields.serviceDate.value;
+  var scanAccount=scanFields.account&&scanFields.account.value;
+  var hasScan=!!(scanProvider||scanAmount||scanDate||scanAccount);
 
   setProg(8,800);
   var s1=await ins('<div class="srow active"><div class="sicon">&#128272;</div><div class="scontent"><div class="stitle">Verifying secure access</div><div class="sdetail">Private review session prepared</div></div><span class="sbadge sb-a">Active</span></div>');
@@ -447,31 +463,31 @@ async function run(){
 
   setProg(22,900);
   await wait(350);
-  setHdr('Preparing Review','Organizing Your Billing Details','We are using the information you provided to prepare a clear review path.');
-  var s2=await ins('<div class="srow active"><div class="sicon">&#128196;</div><div class="scontent"><div class="stitle">Preparing billing context</div><div class="sdetail">Provider: '+provider+' ? Amount: '+amount+'</div></div><span class="sbadge sb-a">Preparing</span></div>');
+  setHdr('Preparing Review',hasScan?'Reading Specific Bill Values':'Organizing Your Billing Details',hasScan?'We found real values in the uploaded bill and are tying them to your review workspace.':'We are using the information you provided to prepare a clear review path.');
+  var s2=await ins('<div class="srow active"><div class="sicon">&#128196;</div><div class="scontent"><div class="stitle">'+(hasScan?'Reading uploaded PDF text':'Preparing billing context')+'</div><div class="sdetail">Provider: '+esc(scanProvider||provider)+' - Amount: '+esc(scanAmount||amount)+'</div></div><span class="sbadge sb-a">Preparing</span></div>');
   await wait(900);
-  await ins('<div class="mrow"><div class="mcard" style="transition-delay:0s"><div class="mlabel">Bill Amount</div><div class="mval white" id="m-bill">'+amount+'</div><div class="msub">From intake</div></div><div class="mcard" style="transition-delay:.12s"><div class="mlabel">Provider</div><div class="mval gold" id="m-lines" style="font-size:.82rem;letter-spacing:0">'+provider+'</div><div class="msub">Billing party</div></div><div class="mcard" style="transition-delay:.24s"><div class="mlabel">Coverage</div><div class="mval white" style="font-size:.8125rem;margin-top:4px">'+coverage+'</div><div class="msub">From intake</div></div></div>');
+  await ins('<div class="mrow"><div class="mcard" style="transition-delay:0s"><div class="mlabel">Bill Amount</div><div class="mval white" id="m-bill">'+esc(scanAmount||amount)+'</div><div class="msub">'+(scanAmount?'Extracted from PDF':'From intake')+'</div></div><div class="mcard" style="transition-delay:.12s"><div class="mlabel">Provider</div><div class="mval gold" id="m-lines" style="font-size:.82rem;letter-spacing:0">'+esc(scanProvider||provider)+'</div><div class="msub">'+(scanProvider?'Extracted from PDF':'Billing party')+'</div></div><div class="mcard" style="transition-delay:.24s"><div class="mlabel">Coverage</div><div class="mval white" style="font-size:.8125rem;margin-top:4px">'+esc(coverage)+'</div><div class="msub">From intake</div></div></div>');
   await wait(1700);
   s2.className='srow done appear';s2.querySelector('.sbadge').className='sbadge sb-d';s2.querySelector('.sbadge').textContent='Ready';s2.querySelector('.sicon').textContent='\u2713';
 
   setProg(38,1100);
   await wait(350);
-  setHdr('Reviewing Details','Building Your Billing Review','We are checking the information you shared and organizing the next questions to ask.');
+  setHdr('Reviewing Details',hasScan?'Matching Extracted Values To Your Case':'Building Your Billing Review',hasScan?'The scan is using actual bill values where confidence is strong and flagging weak values for confirmation.':'We are checking the information you shared and organizing the next questions to ask.');
   var s3=await ins('<div class="srow active"><div class="sicon">&#128270;</div><div class="scontent"><div class="stitle">Reviewing available bill details</div><div class="sdetail" id="scan-d">Preparing review areas...</div></div><span class="sbadge sb-a">Reviewing</span></div>');
   var scEl=await ins('<div class="scanner"><div class="scan-hdr">Review Preparation</div><div class="scan-lines" id="scan-lines"></div></div>');
   var lines=[
-    {code:'Provider',desc:provider,amt:'Provided',t:'ok'},
-    {code:'Bill amount',desc:amount,amt:'Provided',t:'ok'},
-    {code:'Coverage',desc:coverage,amt:'Provided',t:'ok'},
-    {code:'Concerns',desc:clean(data.concerns,'General billing review'),amt:'Review',t:'ok'},
-    {code:'Documents',desc:data.uploaded_bill&&data.uploaded_bill!=='Not uploaded'?'Bill uploaded':'Itemized bill can be added later',amt:'Next step',t:'warn'}
+    {code:'Provider',desc:scanProvider||provider,amt:scanProvider?'Extracted':'Confirm',t:scanProvider?'ok':'warn'},
+    {code:'Bill amount',desc:scanAmount||amount,amt:scanAmount?'Extracted':'Confirm',t:scanAmount?'ok':'warn'},
+    {code:'Service date',desc:scanDate||clean(data.date_of_service,'Not found'),amt:scanDate?'Extracted':'Confirm',t:scanDate?'ok':'warn'},
+    {code:'Account',desc:scanAccount||clean(data.extracted_account_number,'Not found'),amt:scanAccount?'Extracted':'Optional',t:scanAccount?'ok':'warn'},
+    {code:'Concerns',desc:clean(data.concerns,'General billing review'),amt:'Review',t:'ok'}
   ];
   var scanLines=$('scan-lines'),scanDetail=$('scan-d');
   for(var i=0;i<lines.length;i++){
     var l=lines[i];
     scanDetail.textContent='Preparing '+l.code.toLowerCase()+'...';
     var lineEl=document.createElement('div');lineEl.className='sl '+l.t;
-    lineEl.innerHTML='<span class="sl-code">'+l.code+'</span><span class="sl-desc">'+l.desc+'</span><span class="sl-amt">'+l.amt+'</span><span class="sl-st '+(l.t==='ok'?'sl-ok':'sl-fl')+'">'+(l.t==='ok'?'READY':'ADD')+'</span>';
+    lineEl.innerHTML='<span class="sl-code">'+esc(l.code)+'</span><span class="sl-desc">'+esc(l.desc)+'</span><span class="sl-amt">'+esc(l.amt)+'</span><span class="sl-st '+(l.t==='ok'?'sl-ok':'sl-fl')+'">'+(l.t==='ok'?'READY':'CHECK')+'</span>';
     scanLines.appendChild(lineEl);
     await wait(30);lineEl.classList.add('appear');
     await wait(550);

@@ -833,6 +833,12 @@
       ['Bill amount', c.amount.display],
       ['Bill Amount', c.amount.display],
       ['Amount to review', c.amount.reviewText],
+      ['3 Prepared', c.letterCount + ' prepared'],
+      ['3 drafted', c.letterCount + ' drafted'],
+      ['Three letters', c.letterCount + ' letters'],
+      ['three letters', c.letterCount + ' letters'],
+      ['Review Areas', c.issueCount + ' review areas'],
+      ['2 Found', c.issueCount + ' found'],
       ['$20,267', confirmedText],
       ['$17,589.00', 'Awaiting itemized bill'],
       ['$5,863.00', 'Awaiting itemized bill'],
@@ -1094,12 +1100,141 @@
     if(window.calcUpdate) window.calcUpdate();
   }
 
+  function issueAt(c, idx){
+    return c.issues[idx] || c.issues[0] || c.primary || {title:'Billing documentation review', short:'billing review', type:'Billing review', amountText:'To confirm', action:'Request written documentation before accepting the balance.'};
+  }
+
+  function hydrateFinancials(c){
+    if(!one('#tab-financials')) return;
+    var amountNote = c.amount.exact ? 'Amount entered at intake' : 'Amount from intake or awaiting exact bill';
+    setText('.fc-sub', providerLabel(c) + ' - ' + c.amount.reviewText + ' - ' + coverageLabel(c) + ' - ' + serviceDateLabel(c));
+    setText('.fc-badge-g', c.uploaded ? 'Detailed review - uploaded bill on file' : 'Preliminary review - itemized bill needed');
+    var fvRows = all('.fv-row');
+    var fvData = [
+      ['Total Billed', 'All charges from intake', c.amount.display, 'Total', c.amount.display + ' - 100%'],
+      ['Review Baseline', coverageLabel(c), c.amount.exact ? 'Reconcile with EOB' : 'Awaiting EOB', 'Baseline', 'Compare to EOB'],
+      [issueAt(c,0).type, issueAt(c,0).short, issueAt(c,0).amountText, 'Review', issueAt(c,0).amountText],
+      [issueAt(c,1).type, issueAt(c,1).short, issueAt(c,1).amountText, 'Review', issueAt(c,1).amountText],
+      [issueAt(c,2).type, issueAt(c,2).short, issueAt(c,2).amountText, 'Review', issueAt(c,2).amountText]
+    ];
+    fvRows.forEach(function(row, idx){
+      var d = fvData[idx] || fvData[fvData.length - 1];
+      setText('.fvrl-name', d[0], row);
+      setText('.fvrl-code', d[1], row);
+      setText('.fvra-val', d[2], row);
+      setText('.fvra-lbl', d[3], row);
+      setText('.fv-fill-label', d[4], row);
+    });
+    var fvs = all('.fvs-item');
+    if(fvs[0]){ setText('.fvs-val', c.amount.display, fvs[0]); setText('.fvs-sub', amountNote, fvs[0]); }
+    if(fvs[1]){ setText('.fvs-val', c.uploaded ? 'Uploaded bill' : 'Needs itemized bill', fvs[1]); setText('.fvs-sub', c.uploaded ? c.uploadedBill : 'Request first', fvs[1]); }
+    if(fvs[2]){ setText('.fvs-val', c.amount.reviewText, fvs[2]); setText('.fvs-sub', c.issueCount + ' review areas', fvs[2]); }
+    if(fvs[3]){ setText('.fvs-label', 'Packet Status', fvs[3]); setText('.fvs-val', c.letterCount + ' letters', fvs[3]); setText('.fvs-sub', c.letterPlanSummary, fvs[3]); }
+
+    all('.intel-card').slice(0,2).forEach(function(card, idx){
+      var issue = issueAt(c, idx);
+      setText('.ic-lbl', issue.type, card);
+      var labels = all('.ic-row-lbl', card);
+      var values = all('.ic-row-val', card);
+      if(labels[0]) labels[0].textContent = 'Review area';
+      if(values[0]) values[0].textContent = issue.short;
+      if(labels[1]) labels[1].textContent = 'Case basis';
+      if(values[1]) values[1].textContent = c.uploaded ? 'Uploaded bill' : 'Itemized bill needed';
+      if(labels[2]) labels[2].textContent = 'Amount status';
+      if(values[2]) values[2].textContent = issue.amountText;
+      if(labels[3]) labels[3].textContent = 'Provider / payer';
+      if(values[3]) values[3].textContent = idx === 0 ? providerLabel(c) : coverageLabel(c);
+      if(labels[4]) labels[4].textContent = 'Review posture';
+      if(values[4]) values[4].textContent = issue.action ? 'Needs written response' : 'Needs review';
+    });
+
+    all('.fin-table tbody tr').forEach(function(row, idx){
+      var issue = issueAt(c, idx);
+      setText('.ft-code', issue.key || ('review-' + (idx + 1)), row);
+      setText('.ft-strong', issue.title, row);
+      setText('.ft-sub', issueCodeLine(c, issue), row);
+      var cells = row.children || [];
+      if(cells[2]) cells[2].textContent = c.uploaded ? 'Bill/EOB review' : 'Awaiting itemized bill';
+      var amt = row.querySelector('.ft-amount');
+      if(amt) amt.textContent = issue.amountText;
+      var badge = row.querySelector('.ft-badge');
+      if(badge) badge.textContent = idx === 0 ? 'Press first' : 'Review';
+      if(cells[5]) cells[5].textContent = issue.short;
+    });
+    setText('.ftr-label', 'Amount Needs Review');
+    setText('.ftr-ctx', c.issueCount + ' review areas - ' + c.letterCount + ' documents ready');
+    setText('.ftr-amt', c.amount.reviewText);
+  }
+
+  function hydrateDocuments(c){
+    if(!one('#tab-documents')) return;
+    setAllText('.sbp-num', function(el, idx){
+      if(idx === 0) return String(c.issueCount);
+      if(idx === 1) return String(Math.max(3, c.issueCount));
+      if(idx === 2) return String(Math.max(4, c.letterCount));
+      return el.textContent;
+    });
+    setAllText('.tab-pip', function(el, idx){
+      if(idx === 0) return c.amount.reviewText;
+      if(idx === 1) return c.issueCount + ' areas';
+      if(idx === 2) return c.letterCount + ' ready';
+      return el.textContent;
+    });
+    var dsb = all('.dsb-node');
+    if(dsb[0]){ setText('.dsb-name', 'Request itemized bill', dsb[0]); setText('.dsb-sub', 'Letter drafted for ' + providerLabel(c), dsb[0]); }
+    if(dsb[1]){ setText('.dsb-name', 'Review ' + issueAt(c,0).short, dsb[1]); setText('.dsb-sub', 'Primary review area', dsb[1]); }
+    if(dsb[2]){ setText('.dsb-name', 'Clarify EOB / coverage', dsb[2]); setText('.dsb-sub', 'Next supporting request', dsb[2]); }
+    setText('.dph-title', 'Your Letter Packet');
+    setText('.dph-sub', c.letterCount + ' letters drafted from ' + providerLabel(c) + ', ' + c.amount.reviewText + ', ' + coverageLabel(c) + ', and the concerns in this intake.');
+    setText('.dph-badge', c.letterCount + ' drafts ready');
+    all('.doc-preview-card').slice(0,3).forEach(function(card, idx){
+      var issue = issueAt(c, idx);
+      var titles = [
+        'Request for fully itemized statement',
+        'Billing review request - ' + issueAt(c,0).short,
+        'Insurance, EOB, and rate clarification request'
+      ];
+      var types = [
+        'Line-by-line itemization request for ' + providerLabel(c),
+        issueAt(c,0).type + ' for this case',
+        coverageLabel(c) + ' responsibility review'
+      ];
+      setText('.dpc-title', titles[idx], card);
+      setText('.dpc-type', types[idx], card);
+      setText('.dpc-prepared', 'Prepared for ' + c.patientName + ' - ' + c.accountRef);
+      setText('.dpc-step', 'Step ' + (idx + 1), card);
+      setText('.dpc-ready', idx < c.letterCount ? 'READY' : 'OPTIONAL', card);
+    });
+    setText('.doc-footer-note', c.letterCount + ' letters prepared for this case. Each uses the restored patient, provider, amount, coverage, and intake details.');
+  }
+
+  function hydrateTimeline(c){
+    if(!one('#tab-timeline')) return;
+    var rows = all('.tl-item');
+    var timeline = [
+      [c.openedShort, 'Today', 'Initial review complete', 'The restored intake for ' + providerLabel(c) + ' was organized around ' + c.issueCount + ' review areas and ' + c.letterCount + ' prepared letters.', 'Done'],
+      [c.openedShort, 'Today', 'Send your itemized statement request', 'Send Letter 1 to ' + providerLabel(c) + '. Keep a copy and ask for a written response tied to account ' + c.accountRef + '.', 'When ready'],
+      [c.deadline30, '+30 days', 'Follow up if you have not heard back', 'Follow up in writing around the 30-day mark. Ask for status, a reference number, and the expected response date.', 'Soft deadline'],
+      [c.deadline30, '+30 days', 'Send review letters when documentation arrives', 'Use the prepared review letters for ' + issueAt(c,0).short + ' and EOB, coverage, or rate clarification once the itemized bill is available.', 'Next step'],
+      [c.deadline60, '+60 days', 'Escalate if no written response arrives', 'If there is still no written answer, use the escalation guide with copies of your letters, account details, and proof of delivery.', 'Escalate if needed']
+    ];
+    rows.forEach(function(row, idx){
+      var d = timeline[idx] || timeline[timeline.length - 1];
+      setText('.tl-date-main', d[0], row);
+      setText('.tl-date-sub', d[1], row);
+      setText('.tl-ev-title', d[2], row);
+      setText('.tl-ev-desc', d[3], row);
+      setText('.tl-ev-tag', d[4], row);
+    });
+  }
+
   function applyDashboard(c){
     if(!one('.case-header') || !one('.right-panel')) return;
     insertNoteAfter('.kpi-strip', c, '');
     insertContextAfter('.kpi-strip', c, '');
     setText('.ncp-text', hasKnown(c.provider, 'Provider not provided') ? 'Your case · ' + c.provider : 'Your case · awaiting provider details');
     setText('.nav-ref', 'Account: ' + c.accountRef + ' | Opened ' + c.prepDate);
+    setText('.ch-case-indicator', hasKnown(c.provider, 'Provider not provided') ? 'Your case - ' + c.provider : 'Your case - provider details needed');
     setText('.sb-hospital', c.provider);
     setText('.sb-sub', c.billType + ' - ' + c.dateShort);
     setAllText('.sb-kpi-val', [c.amount.display, c.amount.reviewText]);
@@ -1185,6 +1320,9 @@
     setText('.rp-next-desc', c.statusCopy.sub);
     setText('.btn-rp-cta', c.uploaded ? 'Use My Review Packet' : 'Request Itemized Bill');
 
+    hydrateFinancials(c);
+    hydrateDocuments(c);
+    hydrateTimeline(c);
     injectExtraLetterCards(c);
     syncQuickCalc(c);
     window.setTimeout(function(){

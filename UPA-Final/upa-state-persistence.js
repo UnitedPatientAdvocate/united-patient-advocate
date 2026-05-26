@@ -562,10 +562,32 @@
     // Fallback: if no token in URL (e.g. user opened dashboard from Gumroad email link
     // rather than the post-purchase redirect), read the pre-checkout token we stored in
     // localStorage. markCheckout() writes this token before the user leaves for Gumroad.
+    //
+    // FRESHNESS GUARD: only accept the stored token if it was written within the last
+    // 48 hours. A stale stored token from a previous purchase (e.g. "Hospital Trinidad"
+    // from months ago) would otherwise get imported here and corrupt the active case —
+    // the exact bug that caused old data to resurface on every new purchase.
     if(!token){
-      try{ token = sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || ''; }catch(e){}
+      try{
+        var stored = sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || '';
+        if(stored){
+          var MAX_STORED_TOKEN_AGE = 48 * 60 * 60 * 1000; // 48 hours in ms
+          try{
+            var tp = JSON.parse(base64UrlDecode(stored));
+            var tokenAge = (tp && tp.createdAt) ? (Date.now() - Date.parse(tp.createdAt)) : Infinity;
+            if(tokenAge < MAX_STORED_TOKEN_AGE){
+              token = stored;
+            } else {
+              console.log('[UPA] restoreFromUrl: stored token is stale (' + Math.round(tokenAge / 3600000) + 'h old) — skipped');
+            }
+          }catch(pe){
+            // Cannot decode token to check age — use it and let importCaseToken validate
+            token = stored;
+          }
+        }
+      }catch(e){}
     }
-    return importCaseToken(token, Object.assign({ source: token ? 'stored-token' : 'url-token' }, meta || {}));
+    return importCaseToken(token, Object.assign({ source: token ? 'stored-token' : 'no-token' }, meta || {}));
   }
 
   function successUrlWithToken(meta){

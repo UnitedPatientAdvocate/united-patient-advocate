@@ -163,6 +163,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 var resumeMode = false;
 var resumeRedirectTimer = null;
 var tokenRestored = false;
+var hasRecentCheckout = false; // true only when checkout was started in this browser within 48 h
 
 (function() {
   try {
@@ -172,29 +173,55 @@ var tokenRestored = false;
       sessionStorage.setItem('upa.license.key', licenseKey);
       localStorage.setItem('upa.license.key', licenseKey);
     }
-    // ── RESTORE PRIORITY (most authoritative first) ─────────────────────────
-    // 1. URL token (?case=) or stored pre-checkout token in localStorage.
-    //    This is the only path that works cross-browser/cross-context (e.g.
-    //    purchase in incognito → email opened in regular Chrome). The token
-    //    was written to localStorage by markCheckout() AND is embedded in the
-    //    Gumroad redirect URL by checkoutUrlWithToken(). Either route works.
-    // 2. Same-browser localStorage fallback — only used when no token exists
-    //    (e.g. very old session where pre-checkout token write wasn't available).
-    //    This path can restore stale data if localStorage has an old session.
-    var storageRestored = false;
+
+    // ── STEP 1: Restore from URL token or fresh pre-checkout stored token ──────
+    // restoreFromUrl() now enforces a 48-hour freshness check on stored tokens so
+    // a stale token from a previous session is never imported. This is the only path
+    // that works cross-context (Incognito purchase → regular Chrome email link), because
+    // the token travels in the Gumroad ?redirect= URL built by checkoutUrlWithToken().
     if (window.UPAState && window.UPAState.restoreFromUrl) {
       tokenRestored = !!window.UPAState.restoreFromUrl({ stage: 'success-token-restore', source: 'success-url' });
     }
-    if (!tokenRestored && window.UPAState && window.UPAState.restoreSession) {
+
+    // ── STEP 2: If no token, check for a RECENT same-browser checkout (< 48 h) ──
+    // Only trust localStorage when the checkout was started in THIS browser context
+    // recently. An old checkout (days/months old, e.g. Hospital Trinidad from a prior
+    // session) must NOT be treated as authoritative — doing so is the root cause of
+    // stale data persisting across purchases (the Trinidad bug).
+    if (!tokenRestored) {
+      try {
+        var co = window.UPAState && window.UPAState.readJSON
+          ? window.UPAState.readJSON('upa.checkout.session.v2')
+          : null;
+        if (co && co.checkoutStartedAt) {
+          var coAge = Date.now() - Date.parse(co.checkoutStartedAt);
+          hasRecentCheckout = coAge < 48 * 60 * 60 * 1000;
+          if (!hasRecentCheckout) {
+            console.log('[UPA] success: checkout is stale (' + Math.round(coAge / 3600000) + 'h old) — resume form will be shown');
+          }
+        }
+      } catch(e) {}
+    }
+
+    // ── STEP 3: Restore session ONLY when we have a verified current session ────
+    if (!tokenRestored && hasRecentCheckout && window.UPAState && window.UPAState.restoreSession) {
       window.UPAState.restoreSession({ stage: 'success-storage-restore', source: 'same-browser-storage' });
-      storageRestored = !!(window.UPAState.hasIntake && window.UPAState.hasIntake(window.UPAState.getIntake()));
     }
-    if (window.UPAState && window.UPAState.markPaid) {
-      window.UPAState.markPaid({ stage: 'success', source: tokenRestored ? 'gumroad-return-token' : 'gumroad-return', licenseKey: licenseKey || '' });
-    } else if (window.UPAState && window.UPAState.restoreSession) {
-      window.UPAState.restoreSession({ stage: 'success' });
+
+    // ── STEP 4: Mark as paid ONLY when session is verified ─────────────────────
+    // Without a fresh token OR a recent same-browser checkout, calling markPaid()
+    // would read stale localStorage data (from a different patient/session) and stamp
+    // it back into EVERY storage key — making the stale data self-reinforcing. Instead,
+    // we set only the paid flag and let the resume form collect fresh case details.
+    if ((tokenRestored || hasRecentCheckout) && window.UPAState && window.UPAState.markPaid) {
+      window.UPAState.markPaid({
+        stage: 'success',
+        source: tokenRestored ? 'gumroad-return-token' : 'gumroad-return',
+        licenseKey: licenseKey || ''
+      });
     }
-    /* Mark as paid — dashboard reads this */
+
+    /* Always set the paid flag — dashboard reads this to unlock paid features */
     sessionStorage.setItem('upa.paid', '1');
     localStorage.setItem('upa.paid', '1');
   } catch(e) {}
@@ -202,6 +229,12 @@ var tokenRestored = false;
 
 function hasSavedCaseState() {
   try {
+    // We only consider case state "saved" when we can verify it belongs to the current
+    // purchase — either a fresh token was imported (cross-context safe) or the checkout
+    // was started in this browser context within the last 48 hours (same-context safe).
+    // Any intake data that exists purely in localStorage without those signals may be
+    // from a completely different session (stale data bug) and must not be trusted here.
+    if (!tokenRestored && !hasRecentCheckout) return false;
     return !!(window.UPAState && window.UPAState.hasIntake && window.UPAState.hasIntake(window.UPAState.getIntake()));
   } catch(e) {
     return false;

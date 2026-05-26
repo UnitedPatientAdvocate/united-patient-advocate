@@ -778,8 +778,11 @@
       return true;
     });
     var concernSummary = concernLabels.length ? concernLabels.join(', ') : 'General billing review';
+    // userDetail comes ONLY from the dedicated description textarea.
+    // concern_other is already captured in concernLabels → concernSummary, so using it
+    // here too causes it to print twice in the letter (highlighted concern list AND
+    // "Additional billing context"). Do not fall back to concern_other.
     var userDetail = safeUserText(description, 220);
-    if(!userDetail && clean(data.concern_other)) userDetail = safeUserText(data.concern_other, 220);
     var uploadedBill = clean(data.uploaded_bill || data.scan_file_name);
     var uploaded = !!(uploadedBill && !/^not uploaded/i.test(uploadedBill));
     var issues = buildIssues(data, amount, uploaded);

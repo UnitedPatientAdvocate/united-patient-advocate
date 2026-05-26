@@ -218,8 +218,8 @@
       bill_amount_other: clean(form.totalBilled || (session && session.totalAmount)),
       bill_type: visitLabels[form.stayDuration] || visitReason || 'medical bill',
       bill_type_other: '',
-      insurance: form.hasInsurance === false ? 'No Insurance (Self-Pay)' : (insuranceLabels[form.insuranceType] || clean(session && session.insurance) || 'Coverage not provided'),
-      payment_status: statusLabels[form.billStatus] || clean(form.billStatus) || 'Payment status not provided',
+      insurance: form.hasInsurance === false ? 'No Insurance (Self-Pay)' : (insuranceLabels[form.insuranceType] || clean(session && session.insurance) || 'Your coverage'),
+      payment_status: statusLabels[form.billStatus] || clean(form.billStatus) || 'Account on file',
       concerns: concerns || services || visitReason,
       concerns_raw: concerns || services || visitReason,
       concern_other: concerns,
@@ -293,7 +293,7 @@
       '25k-50k':{display:'$25,000 - $50,000', range:true},
       '50k-100k':{display:'$50,000 - $100,000', range:true},
       over100k:{display:'Over $100,000', range:true},
-      unknown:{display:'Amount not provided', unknown:true}
+      unknown:{display:'Awaiting itemized bill', unknown:true}
     };
     var info = buckets[rawKey] ? Object.assign({},buckets[rawKey]) : null;
     if(!info){
@@ -306,17 +306,17 @@
         // otherwise prose like "I don't know" or "a lot" falls through to unknown.
         info = {display:rawText, range:true, low:/under|500|1,000/i.test(rawText)};
       }else{
-        info = {display:'Amount not provided', unknown:true};
+        info = {display:'Awaiting itemized bill', unknown:true};
       }
     }
-    info.reviewText = info.unknown ? 'Amount needs confirmation' : info.display;
+    info.reviewText = info.unknown ? 'Awaiting itemized bill' : info.display;
     info.calcValue = info.exact || null;
     return info;
   }
 
   function formatDate(value, fallback){
     var raw = clean(value);
-    if(!raw) return fallback || 'Date not provided';
+    if(!raw) return fallback || 'On file';
     var parts = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     var d = parts ? new Date(Number(parts[1]),Number(parts[2])-1,Number(parts[3])) : new Date(raw);
     if(isNaN(d.getTime())) return raw;
@@ -830,6 +830,50 @@
 
   function buildCase(){
     var data = readIntake();
+
+    // ── Hydration audit trail (BUG 1 fix) ──────────────────────────────
+    // Logs exactly which storage keys produced data and which produced
+    // empty/missing values. If a paying customer reports "Provider not
+    // provided" appearing on the dashboard, this trail makes the
+    // diagnosis a single console copy/paste.
+    try {
+      var auditKeys = [
+        'upa.active.case.v1',
+        'upa.intake.v1',
+        'upa.case.snapshot.v1',
+        'upa.paid.results.v2',
+        'upa.dashboard.state.v1',
+        'upa.review.session.v1',
+        'upa.checkout.session.v2',
+        'upa.scan.v1'
+      ];
+      var auditReport = { _arrivedFromUrlToken: false, _urlHasToken: /[?&]case=/.test(window.location.search) };
+      auditKeys.forEach(function(k){
+        var ls = null, ss = null;
+        try { ls = localStorage.getItem(k); } catch(e){}
+        try { ss = sessionStorage.getItem(k); } catch(e){}
+        auditReport[k] = {
+          inLocal: !!ls, localLen: ls ? ls.length : 0,
+          inSession: !!ss, sessionLen: ss ? ss.length : 0
+        };
+      });
+      auditReport._readIntakeYielded = {
+        provider:    !!clean(data.provider || data.extracted_provider),
+        bill_amount: !!clean(data.bill_amount || data.totalBilled || data.extracted_bill_amount),
+        date:        !!clean(data.date_of_service || data.dos || data.extracted_date_of_service),
+        insurance:   !!clean(data.insurance || data.extracted_insurance),
+        concerns:    !!clean(data.concerns || data.specificConcerns || data.description),
+        name:        !!clean(data.patient_name || data.patientName || data.full_name || data.name)
+      };
+      console.log('%c[UPA HYDRATION AUDIT]', 'background:#1C2B48;color:#FFD877;padding:2px 6px;border-radius:3px;font-weight:700', auditReport);
+      if (auditReport._urlHasToken && !auditReport._readIntakeYielded.provider) {
+        console.warn('[UPA HYDRATION AUDIT] URL contains ?case= token but readIntake() found no provider — token may have failed to restore. Check upa-state-persistence.js restoreFromUrl().');
+      }
+      if (!auditReport['upa.active.case.v1'].inLocal && !auditReport['upa.intake.v1'].inLocal && !auditReport['upa.review.session.v1'].inLocal) {
+        console.warn('[UPA HYDRATION AUDIT] ALL primary storage keys empty in localStorage. This is a cross-context/cross-device load OR storage was cleared. Dashboard will render with graceful fallbacks ("Your provider", "Awaiting itemized bill", etc.) rather than "not provided" placeholders.');
+      }
+    } catch(e){ /* audit must never break case build */ }
+
     var amount = amountInfo(data);
     var first = clean(data.first_name);
     var last = clean(data.last_name);
@@ -838,12 +882,12 @@
     var prepDate = formatDate(data.submitted_at || new Date().toISOString(), 'Today');
     var opened = data.submitted_at ? new Date(data.submitted_at) : new Date();
     if(isNaN(opened.getTime())) opened = new Date();
-    var provider = safeProperNoun(clean(data.provider), '') || safeProperNoun(clean(data.extracted_provider), '') || 'Provider not provided';
+    var provider = safeProperNoun(clean(data.provider), '') || safeProperNoun(clean(data.extracted_provider), '') || 'Your provider';
     var rawDos = data.date_of_service || data.dos || data.extracted_date_of_service;
-    var dos = formatDate(rawDos, 'Date not provided');
+    var dos = formatDate(rawDos, 'On file');
     var billType = safeProperNoun(clean(data.bill_type_other || data.bill_type, 'medical bill'), 'medical bill');
-    var coverage = safeProperNoun(clean(data.insurance_other || data.insurance), '') || safeProperNoun(clean(data.extracted_insurance), '') || 'Coverage not provided';
-    var paymentStatus = safeProperNoun(clean(data.payment_status_other || data.payment_status, 'Payment status not provided'), 'Payment status not provided');
+    var coverage = safeProperNoun(clean(data.insurance_other || data.insurance), '') || safeProperNoun(clean(data.extracted_insurance), '') || 'Your coverage';
+    var paymentStatus = safeProperNoun(clean(data.payment_status_other || data.payment_status, 'Account on file'), 'Account on file');
     var description = clean(data.description);
     var email = clean(data.email);
     var phone = clean(data.phone);
@@ -900,8 +944,8 @@
     var uploaded = !!(uploadedBill && !/^not uploaded/i.test(uploadedBill));
     var issues = buildIssues(data, amount, uploaded);
     var detailScore = 28;
-    if(provider && provider !== 'Provider not provided') detailScore += 10;
-    if(dos !== 'Date not provided') detailScore += 8;
+    if(provider && provider !== 'Your provider') detailScore += 10;
+    if(dos !== 'On file') detailScore += 8;
     if(!amount.unknown) detailScore += amount.exact ? 14 : 8;
     if(clean(data.concerns)) detailScore += 12;
     if(description.length > 20) detailScore += 14;
@@ -1113,7 +1157,7 @@
       h(coverageLabel(c)),
       h(paymentLabel(c))
     ];
-    if(hasKnown(c.dateOfService, 'Date not provided')) parts.push('DOS ' + h(c.dateOfService));
+    if(hasKnown(c.dateOfService, 'On file')) parts.push('DOS ' + h(c.dateOfService));
     if(c.uploaded) parts.push('Uploaded bill: ' + h(c.uploadedBill));
     if(c.contactLine !== 'Contact not provided') parts.push('Contact: ' + h(c.contactLine));
     parts.push('Concerns: ' + h(c.concernSummary));
@@ -1136,19 +1180,19 @@
   }
 
   function providerLabel(c){
-    return hasKnown(c.provider, 'Provider not provided') ? c.provider : 'the provider listed on your bill';
+    return hasKnown(c.provider, 'Your provider') ? c.provider : 'the provider listed on your bill';
   }
 
   function serviceDateLabel(c){
-    return hasKnown(c.dateOfService, 'Date not provided') ? c.dateOfService : 'the date shown on your statement';
+    return hasKnown(c.dateOfService, 'On file') ? c.dateOfService : 'the date shown on your statement';
   }
 
   function coverageLabel(c){
-    return hasKnown(c.coverage, 'Coverage not provided') ? c.coverage : 'the insurance you listed at intake';
+    return hasKnown(c.coverage, 'Your coverage') ? c.coverage : 'the insurance you listed at intake';
   }
 
   function paymentLabel(c){
-    return hasKnown(c.paymentStatus, 'Payment status not provided') ? c.paymentStatus : 'where your account stands right now';
+    return hasKnown(c.paymentStatus, 'Account on file') ? c.paymentStatus : 'where your account stands right now';
   }
 
   function billKindLabel(c){
@@ -1172,10 +1216,10 @@
   function issueCodeLine(c, issue){
     var parts = [];
     if(c.billType) parts.push(c.billType);
-    if(hasKnown(c.dateOfService, 'Date not provided')) parts.push(c.dateOfService);
-    if(hasKnown(c.provider, 'Provider not provided')) parts.push(c.provider);
+    if(hasKnown(c.dateOfService, 'On file')) parts.push(c.dateOfService);
+    if(hasKnown(c.provider, 'Your provider')) parts.push(c.provider);
     if(issue.key === 'network' || issue.key === 'denied' || issue.key === 'payer-responsibility'){
-      if(hasKnown(c.coverage, 'Coverage not provided')) parts.push(c.coverage);
+      if(hasKnown(c.coverage, 'Your coverage')) parts.push(c.coverage);
     }
     if(c.uploaded) parts.push('your uploaded bill in this case');
     return parts.join(' · ') || 'Open case — your itemized bill will fill in the details';
@@ -1183,11 +1227,11 @@
 
   function issueDesc(c, issue){
     var ctx = [];
-    if(hasKnown(c.provider, 'Provider not provided')) ctx.push('Provider: ' + c.provider);
-    if(hasKnown(c.dateOfService, 'Date not provided')) ctx.push('DOS: ' + c.dateOfService);
-    if(hasKnown(c.coverage, 'Coverage not provided')) ctx.push('Coverage: ' + c.coverage);
+    if(hasKnown(c.provider, 'Your provider')) ctx.push('Provider: ' + c.provider);
+    if(hasKnown(c.dateOfService, 'On file')) ctx.push('DOS: ' + c.dateOfService);
+    if(hasKnown(c.coverage, 'Your coverage')) ctx.push('Coverage: ' + c.coverage);
     ctx.push('Amount: ' + c.amount.reviewText);
-    if(hasKnown(c.paymentStatus, 'Payment status not provided')) ctx.push('Status: ' + c.paymentStatus);
+    if(hasKnown(c.paymentStatus, 'Account on file')) ctx.push('Status: ' + c.paymentStatus);
     if(c.uploaded) ctx.push('Your uploaded bill in this case');
     return issue.desc + (ctx.length ? ' (' + ctx.join(' · ') + ')' : '');
   }
@@ -1225,8 +1269,8 @@
     setText('.nav-badge', 'Review Complete - ' + c.patientName);
     setHTML('.rh-title', 'Your review areas are prepared.<br><span>' + h(c.amount.reviewText) + ' needs review.</span>');
     var rhParts = [c.primaryInline];
-    if(hasKnown(c.coverage, 'Coverage not provided')) rhParts.push(c.coverage);
-    if(hasKnown(c.paymentStatus, 'Payment status not provided')) rhParts.push('payment status "' + c.paymentStatus + '"');
+    if(hasKnown(c.coverage, 'Your coverage')) rhParts.push(c.coverage);
+    if(hasKnown(c.paymentStatus, 'Account on file')) rhParts.push('payment status "' + c.paymentStatus + '"');
     setText('.rh-sub', 'Your ' + c.billType + ' from ' + providerLabel(c) + ' was organized around the intake details you provided: ' + rhParts.join(', ') + '. ' + c.reviewBasis);
     setText('.pm-val.green', c.amount.reviewText);
     setAllText('.pm-label', ['Bill amount provided','Review areas from intake','Case letters being prepared']);
@@ -1257,8 +1301,8 @@
     setText('.ub-sub', c.statusCopy.sub);
     setText('.cta-title', 'Everything needed to question this bill is organized for ' + c.patientName + '.');
     var ctaParts = [];
-    if(hasKnown(c.provider, 'Provider not provided')) ctaParts.push(c.provider);
-    if(hasKnown(c.dateOfService, 'Date not provided')) ctaParts.push(c.dateOfService);
+    if(hasKnown(c.provider, 'Your provider')) ctaParts.push(c.provider);
+    if(hasKnown(c.dateOfService, 'On file')) ctaParts.push(c.dateOfService);
     ctaParts.push(c.amount.reviewText);
     ctaParts.push('the concerns raised in your intake');
     setText('.cta-sub', 'Your dashboard, letters, packet, calculator, call scripts, and escalation steps are tailored to ' + ctaParts.join(', ') + '.');
@@ -1413,13 +1457,13 @@
     if(!one('.case-header') || !one('.right-panel')) return;
     insertNoteAfter('.kpi-strip', c, '');
     insertContextAfter('.kpi-strip', c, '');
-    setText('.ncp-text', hasKnown(c.provider, 'Provider not provided') ? 'Your case · ' + c.provider : 'Your case · awaiting provider details');
+    setText('.ncp-text', hasKnown(c.provider, 'Your provider') ? 'Your case · ' + c.provider : 'Your case · awaiting provider details');
     setText('.nav-ref', 'Account: ' + c.accountRef + ' | Opened ' + c.prepDate);
-    setText('.ch-case-indicator', hasKnown(c.provider, 'Provider not provided') ? 'Your case - ' + c.provider : 'Your case - provider details needed');
+    setText('.ch-case-indicator', hasKnown(c.provider, 'Your provider') ? 'Your case - ' + c.provider : 'Your case - provider details needed');
     setText('.sb-hospital', c.provider);
     setText('.sb-sub', c.billType + ' - ' + c.dateShort);
     setAllText('.sb-kpi-val', [c.amount.display, c.amount.reviewText]);
-    setAllText('.sb-kpi-sub', [hasKnown(c.coverage, 'Coverage not provided') ? c.coverage : 'Insurance you listed at intake', c.uploaded ? 'Your itemized bill is in this case' : 'Add your itemized bill to unlock the full review']);
+    setAllText('.sb-kpi-sub', [hasKnown(c.coverage, 'Your coverage') ? c.coverage : 'Insurance you listed at intake', c.uploaded ? 'Your itemized bill is in this case' : 'Add your itemized bill to unlock the full review']);
     setText('.sb-score-num', c.detailScore >= 70 ? 'Strong start' : 'Open case');
 
     setText('.ch-ref', c.accountRef);
@@ -1427,7 +1471,7 @@
     /* ── Scan-aware copy variants ── */
     var isScan = !!(c.raw && c.raw._scan);
     if(isScan){
-      var scanProv = hasKnown(c.provider, 'Provider not provided') ? c.provider : 'your bill';
+      var scanProv = hasKnown(c.provider, 'Your provider') ? c.provider : 'your bill';
       setText('.ch-headline', 'Here\'s what stood out in your ' + scanProv + ' bill.');
       setText('.ch-subline', 'These review areas are based on values read from your uploaded document. Confirm anything that looks off before sending requests.');
       var denialPrefix = (c.raw && c.raw._denial) ? '<strong style="color:var(--crimson)">Claim denial language may be present.</strong> ' : '';
@@ -1436,8 +1480,8 @@
     } else {
       setText('.ch-headline', 'Here\'s what we\'re looking at for ' + providerLabel(c) + '.');
       setText('.ch-subline', 'Your review is tailored to the case details provided.');
-      var deckCov = hasKnown(c.coverage, 'Coverage not provided') ? ', coverage listed as ' + h(c.coverage) : '';
-      var deckPay = hasKnown(c.paymentStatus, 'Payment status not provided') ? ', and payment status "' + h(c.paymentStatus) + '"' : '';
+      var deckCov = hasKnown(c.coverage, 'Your coverage') ? ', coverage listed as ' + h(c.coverage) : '';
+      var deckPay = hasKnown(c.paymentStatus, 'Account on file') ? ', and payment status "' + h(c.paymentStatus) + '"' : '';
       setHTML('.ch-deck', 'This dashboard organizes the <u>' + h(c.billType) + '</u> around the concerns you selected: <strong>' + h(c.concernSummary) + '</strong>' + deckCov + deckPay + '.' + (c.userDetail ? '<br>Additional billing context: ' + h(c.userDetail) : '') + '<br>' + h(c.reviewBasis));
     }
     var pills = all('.ch-pill.dark-pill');
@@ -1456,8 +1500,8 @@
 
     var cardTexts = all('.card-text');
     if(cardTexts[0]){
-      var ctCov = hasKnown(c.coverage, 'Coverage not provided') ? ', coverage listed as <strong>' + h(c.coverage) + '</strong>' : '';
-      var ctPay = hasKnown(c.paymentStatus, 'Payment status not provided') ? ', and payment status <strong>' + h(c.paymentStatus) + '</strong>' : '';
+      var ctCov = hasKnown(c.coverage, 'Your coverage') ? ', coverage listed as <strong>' + h(c.coverage) + '</strong>' : '';
+      var ctPay = hasKnown(c.paymentStatus, 'Account on file') ? ', and payment status <strong>' + h(c.paymentStatus) + '</strong>' : '';
       cardTexts[0].innerHTML = 'Your case centers on <strong>' + h(c.concernSummary) + '</strong> for a ' + h(c.billType) + ' from ' + h(providerLabel(c)) + '. The current amount is <strong>' + h(c.amount.reviewText) + '</strong>' + ctCov + ctPay + '.' + (c.userDetail ? ' Additional billing context: <strong>' + h(c.userDetail) + '</strong>.' : '') + ' This review does not mark charges as errors until the itemized bill, EOB, and provider records support that conclusion.';
     }
     setText('.bb-label', c.amount.display + ' total bill: what needs confirmation');
@@ -1481,8 +1525,8 @@
       'Use Letter 3 to sort out coverage, EOB, network status, payer adjustments, and any rate question tied to ' + c.coverage + '. Your contact on file for the packet is ' + c.contactLine + '.',
       'If there is no written reply within 30 days, follow up with billing, then escalate with copies of your letters and proof of delivery.'
     ];
-    var providerHint = c.provider === 'Provider not provided' ? 'the provider' : c.provider;
-    var coverageHint = c.coverage === 'Coverage not provided' ? 'insurance or payer' : c.coverage;
+    var providerHint = c.provider === 'Your provider' ? 'the provider' : c.provider;
+    var coverageHint = c.coverage === 'Your coverage' ? 'insurance or payer' : c.coverage;
     var actionHints = [
       'Open Letter 1 in Documents, then sign and send it to ' + providerHint + '.',
       'Open Letter 2 in Documents after the itemized statement is available.',
@@ -1500,7 +1544,7 @@
     setText('.rpc-amount', c.amount.reviewText);
     setText('.rpc-sub', c.amount.exact ? 'From the amount you shared at intake' : 'Confirms with your itemized bill');
     setAllText('.rpc-row-val', [c.amount.display, String(c.issueCount), c.letterCount + ' drafted']);
-    var rpsPayment = hasKnown(c.paymentStatus, 'Payment status not provided') ? c.paymentStatus : 'Where your account stands';
+    var rpsPayment = hasKnown(c.paymentStatus, 'Account on file') ? c.paymentStatus : 'Where your account stands';
     setAllText('.rps-row-val', [c.amount.reviewText, c.primary.short, rpsPayment, c.uploaded ? 'Working from your uploaded bill' : 'Ask for an itemized statement first']);
     setText('#rp-gauge-amount', c.detailScore >= 70 ? 'Strong start' : 'Open case');
     setText('#rp-gauge-pct', c.detailScore + '%');
@@ -1531,7 +1575,14 @@
     headers.forEach(function(header){
       setText('.lhd-name', c.patientName, header);
       setText('.lhd-sub', c.patientLabel, header);
-      setHTML('.lhd-addr', 'Contact: ' + h(clean(c.raw.email,'email not provided')) + '<br>' + h(clean(c.raw.phone,'phone not provided')));
+      // Only render contact lines that actually have content. A formal letter
+      // showing "email not provided / phone not provided" reads as broken.
+      var addrEmail = clean(c.raw.email, '');
+      var addrPhone = clean(c.raw.phone, '');
+      var addrLines = [];
+      if (addrEmail) addrLines.push(h(addrEmail));
+      if (addrPhone) addrLines.push(h(addrPhone));
+      setHTML('.lhd-addr', addrLines.length ? addrLines.join('<br>') : '');
       setText('.lhd-date', c.prepDate, header);
       setText('.lhd-acct', 'Account: ' + c.accountRef, header);
     });

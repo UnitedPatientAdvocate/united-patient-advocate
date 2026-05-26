@@ -1837,9 +1837,36 @@ body{display:block;background:var(--bg)}
 .ch-deck br{display:none}
 .ch-metadata{grid-template-columns:1fr 1fr;gap:10px;padding:12px 0}
 .ch-meta-item{border-right:none;margin-right:0;padding-right:0}
-.tab-bar{padding:0;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0;align-items:flex-end}
+/* BUG 3 fix: tabs must be ALL visible at once on mobile — no horizontal
+   scroll, no swiping. Use a fixed 3-column × 2-row grid so all 6 tabs
+   are reachable without any hidden affordances. Abbreviated labels via
+   ::after content keep each cell short enough to fit ~120px wide on a
+   360px viewport. */
+.tab-bar{padding:6px 8px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;overflow:visible;align-items:stretch}
 .tab-bar::-webkit-scrollbar{display:none}
-.tab-btn{flex:0 0 auto;justify-content:center;border-radius:7px 7px 0 0;padding:10px 16px;margin-bottom:0;white-space:nowrap;font-size:.5rem;letter-spacing:.04em}
+.tab-btn{flex:none;width:100%;justify-content:center;border-radius:7px 7px 0 0;padding:9px 6px;margin-bottom:0;white-space:nowrap;font-size:.5rem;letter-spacing:.04em;font-size:0;line-height:1}
+/* Replace each tab's full label with a tight mobile abbreviation. The
+   original text is hidden via font-size:0 and the abbreviation is shown
+   via ::before. Pip badges (the tab-pip spans) stay visible. */
+.tab-btn::before{font-size:.5625rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1}
+.tab-btn:nth-child(1)::before{content:'Overview'}
+.tab-btn:nth-child(2)::before{content:'Money'}
+.tab-btn:nth-child(3)::before{content:'Findings'}
+.tab-btn:nth-child(4)::before{content:'Docs'}
+.tab-btn:nth-child(5)::before{content:'Plan'}
+.tab-btn:nth-child(6)::before{content:'Timeline'}
+.tab-btn .tab-pip{font-size:.3125rem;padding:1px 5px;margin-left:4px}
+/* BUG 2 fix: the prominent green "Download Your Full Package" button was
+   the first thing users saw on mobile, making the app feel like a file-
+   download page. Hide the entire sidebar footer block on mobile — the
+   user reaches downloads contextually from the Documents tab and from
+   individual letter cards. */
+.sb-foot{display:none}
+/* Also hide the sidebar score widget and the multi-item nav drawer on
+   mobile — they appear as confusing "extra tabs" above the real tab bar.
+   The main tab-bar handles primary navigation; guides remain reachable
+   from within the Overview tab. */
+.sb-score,.sb-nav{display:none}
 .tab-content{display:block;overflow:visible}
 .tab-panel{overflow:visible}
 .kpi-strip{grid-template-columns:1fr}
@@ -2023,15 +2050,50 @@ body{display:block;background:var(--bg)}
 .tour-card.tour-center .tour-dontshow { justify-content: center; text-align: left; }
 
 @media (max-width: 760px) {
-  .tour-card { width: calc(100vw - 24px); padding: 18px 18px 14px; }
-  .tour-card.tour-center { width: calc(100vw - 24px); }
+  /* BUG 4 fix: tour card was overflowing the mobile viewport — when the
+     body content exceeded ~620px tall on a 667px-tall screen, the
+     translate(-50%,-50%) centering pushed the top of the card off the
+     top of the screen and the close/skip buttons off the bottom.
+     Constrain to 90dvh, enable internal scroll, and make the actions
+     row sticky so the user always has Next/Skip in reach without
+     scrolling. */
+  .tour-card {
+    width: calc(100vw - 20px);
+    padding: 16px 16px 0;
+    max-height: 90dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+  }
+  .tour-card.tour-center {
+    width: calc(100vw - 20px);
+    /* Override the desktop translate centering so max-height + scroll work
+       correctly. Keep horizontal centering only. */
+    top: 5dvh !important;
+    left: 50% !important;
+    transform: translateX(-50%);
+    max-height: 90dvh;
+  }
   .tour-title { font-size: 19px; }
-  .tour-card .tour-title { font-size: 18px!important; line-height: 1.2!important; }
-  .tour-card.tour-center .tour-title { font-size: 22px; }
-  .tour-icon-big { font-size: 44px; }
-  .tour-pointer { width: 40px; height: 40px; }
-  .tour-actions { gap: 6px; }
-  .tour-btn { padding: 8px 12px; font-size: 11px; }
+  .tour-card .tour-title { font-size: 18px !important; line-height: 1.2 !important; }
+  .tour-card.tour-center .tour-title { font-size: 20px; }
+  .tour-icon-big { font-size: 40px; margin-bottom: 6px; }
+  .tour-pointer { width: 36px; height: 36px; }
+  .tour-body { font-size: 13px; margin-bottom: 12px; }
+  .tour-dots { margin-bottom: 12px; }
+  /* Sticky actions row — always reachable, no scrolling required to find Next */
+  .tour-actions {
+    gap: 6px;
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 18%);
+    padding: 10px 0 14px;
+    margin: 0 -2px;
+    z-index: 2;
+  }
+  .tour-btn { padding: 9px 14px; font-size: 12px; }
+  .tour-dontshow { font-size: 11px; margin-top: 10px; padding-top: 10px; }
 }
 
 /* ═══════════════════════════ NIGHT / DARKER MODE ═══════════════════════════ */
@@ -4529,6 +4591,27 @@ window.addEventListener('load', function(){
 </script>
 <script src="/UPA-Final/upa-state-persistence.js"></script>
 <script src="/UPA-Final/upa-download-packet.js"></script>
+<script>
+/* ── Hydration boot (BUG 1 fix) ─────────────────────────────────────────
+   Before personalization runs, attempt every restoration path so the
+   dashboard hydrates regardless of how the user arrived:
+     1. URL token (cross-context email/app link → /dashboard?case=TOKEN)
+     2. Standard localStorage restore (same browser, same device)
+   This must run BEFORE upa-case-personalization.js so getIntake() sees
+   the freshly-restored data on its first call.
+   ──────────────────────────────────────────────────────────────────── */
+(function(){
+  try {
+    if (window.UPAState && window.UPAState.restoreFromUrl) {
+      var restored = window.UPAState.restoreFromUrl({ stage:'dashboard-boot', source:'dashboard-url' });
+      if (restored) console.log('[UPA] dashboard: URL token restored to localStorage');
+    }
+    if (window.UPAState && window.UPAState.restoreSession) {
+      window.UPAState.restoreSession({ stage:'dashboard-boot', source:'dashboard' });
+    }
+  } catch(e){ console.warn('[UPA] dashboard boot restore error:', e && e.message); }
+})();
+</script>
 <script src="/UPA-Final/upa-case-personalization.js"></script>
 <script>
 /* ── BFCache guard ── */

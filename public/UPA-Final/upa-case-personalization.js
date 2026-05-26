@@ -64,23 +64,61 @@
     return t;
   }
 
-  // Returns the user's actual typed words, sanitized and trimmed, for direct use in
-  // formal outputs — NO template-sentence wrapper.  Contrast with safeUserText() which
-  // wraps everything in "The patient is requesting written review of X, Y, Z…".
-  // Use this when you want the patient's own voice, not a generated billing phrase.
-  // Returns '' for garbage / test / single-token / meaningless input.
-  function describeUserInput(text, maxLen){
+  // ──────────────────────────────────────────────────────────────────────
+  // CRITICAL: User-facing outputs (finding cards, letter bodies, dashboard
+  // headers) MUST NEVER display raw user input verbatim. Raw text like
+  // "I don't know what im doing" or "It is horrible and every thing is
+  // soo confusing" reads as unprofessional and shatters the perceived
+  // legitimacy of the deliverable.
+  //
+  // professionalizeUserConcern() runs every piece of free-form user text
+  // through billingConcernPhrases() to extract the billing INTENT, then
+  // restates it in clean professional language. The user's original words
+  // are never returned.
+  //
+  // Returns '' when no billing intent can be extracted (vague/garbage
+  // input) — callers should suppress the corresponding UI element entirely
+  // when this returns empty, rather than fall back to raw text.
+  // ──────────────────────────────────────────────────────────────────────
+  function professionalizeUserConcern(text){
     var t = clean(text);
     if(!t || t.length < 8) return '';
     if(!/\s/.test(t)) return '';
     if(/^(idk|n\/a|na|nothing|none|no|yes|ok|okay|same|see above|other|not sure|unsure|unknown)$/i.test(t.trim())) return '';
     if(/^(test|testing|hello|hi there|foo\s|bar\s|lorem\s|ipsum|asdf|qwerty|click|skip|just\s+test|this\s+is\s+a\s+test|not\s+applicable|whatever|blah|stuff|things|anything|something)\b/i.test(t)) return '';
     if(/^[\d\s.,!@#$%^&*()\-_+=]+$/.test(t)) return '';
-    // Format pipe-joined multi-field descriptions as readable prose
-    var excerpt = t.replace(/\s*\|\s*/g, '; ').replace(/\s+/g,' ').trim();
-    var cap = maxLen || 160;
-    if(excerpt.length > cap) excerpt = excerpt.slice(0, cap - 3).trim() + '...';
-    return excerpt;
+
+    // Extract recognized billing intent — categorize what the user typed.
+    // Never return the user's literal words.
+    var phrases = billingConcernPhrases(t);
+    if(phrases.length === 0) return ''; // No recognizable intent → suppress entirely
+
+    var picked = phrases.slice(0, 2);
+    if(picked.length === 1){
+      return 'The intake indicates ' + picked[0] + ', which should be addressed in writing with supporting documentation.';
+    }
+    return 'The intake indicates ' + picked[0] + ' and ' + picked[1] + ', both of which should be addressed in writing with supporting documentation.';
+  }
+
+  // Returns a short professional concern LABEL (not a full sentence) suitable
+  // for finding card titles. Either a categorized billing phrase or a generic
+  // professional fallback — never the user's raw words.
+  function professionalConcernTitle(text){
+    var t = clean(text);
+    if(!t) return 'Additional billing concern raised at intake';
+    var phrases = billingConcernPhrases(t);
+    if(phrases.length){
+      var p = phrases[0];
+      return p.charAt(0).toUpperCase() + p.slice(1);
+    }
+    return 'Additional billing documentation concern';
+  }
+
+  // Legacy alias kept so any unrefactored call sites still get safe output
+  // (now returns professionalized text, never raw). Maintained only to
+  // prevent regressions if a call site is missed in a future refactor.
+  function describeUserInput(text /*, maxLen*/){
+    return professionalizeUserConcern(text);
   }
 
   function billingConcernPhrases(text){
@@ -463,11 +501,19 @@
     if(description.length > 12){
       list.push({
         key:'intake-detail',
-        type:'User-described concern',
+        type:'Additional intake concern',
         title:'Additional intake details need a written answer',
         short:'intake-detail review',
-        desc:(function(){ var sd = describeUserInput(description, 140); return sd ? '"' + sd + '" — the provider should address this specific concern in writing, not with a generic balance explanation.' : 'A specific concern was noted during intake. The provider should address it in writing.'; })(),
-        action:'Include the user-described detail in the request and ask billing to identify the exact records or line items that answer it.'
+        // Never echo the user's raw typed text. Always run it through
+        // professionalizeUserConcern() which produces a clean professional
+        // restatement, or returns '' (in which case we use a neutral fallback).
+        desc:(function(){
+          var pro = professionalizeUserConcern(description);
+          return pro
+            ? pro + ' The provider should address this specific concern in writing, not with a generic balance explanation.'
+            : 'A specific concern was noted at intake and should be addressed in writing, with the relevant records, codes, and adjustments identified.';
+        })(),
+        action:'Ask billing to identify the exact records or line items that answer the concern raised at intake.'
       });
     }
 
@@ -500,18 +546,20 @@
     }
 
     if(other){
-      // Use the patient's actual words (describeUserInput) rather than a generated
-      // billing-phrase sentence (safeUserText / professionalBillingNote). This makes
-      // the finding card specific to what the patient typed, not a recycled template.
-      var rawOther = describeUserInput(other, 140);
+      // Never publish raw user-typed text in finding card titles or descriptions.
+      // Always categorize via professionalConcernTitle() / professionalizeUserConcern()
+      // which produce clean professional billing-concern language or generic
+      // professional fallbacks. The user's literal words never appear.
+      var proTitle = professionalConcernTitle(other);
+      var proDesc  = professionalizeUserConcern(other);
       add({
         key:'custom',
-        type:'Custom concern',
-        title: rawOther ? titleFromText(rawOther, 80) : 'Additional billing concern raised in intake',
-        short: rawOther ? titleFromText(rawOther, 46) : 'Additional billing concern',
-        desc: rawOther
-          ? '"' + rawOther + '" — this specific concern should be addressed in writing, with the relevant records, codes, and adjustments identified.'
-          : 'A specific concern was noted during intake. The provider should address it in writing.',
+        type:'Additional billing concern',
+        title: proTitle,
+        short: titleFromText(proTitle, 46),
+        desc: proDesc
+          ? proDesc + ' The relevant records, codes, and adjustments should be identified.'
+          : 'A specific concern was noted at intake. The provider should address it in writing, with the relevant records, codes, and adjustments identified.',
         action:'Include this concern in the written request and ask billing to identify the specific records, codes, and adjustments that explain it.'
       });
     }
@@ -809,56 +857,44 @@
       return true;
     });
     var concernSummary = concernLabels.length ? concernLabels.join(', ') : 'General billing review';
-    // userDetail comes ONLY from the dedicated description textarea.
-    // concern_other is already captured in concernLabels → concernSummary, so using it
-    // here too causes it to print twice in the letter (highlighted concern list AND
-    // "Additional billing context"). Do not fall back to concern_other.
-    // ── userDetail: patient's own words, globally deduplicated ──────────────
-    // Strategy: use describeUserInput() (raw sanitized text, no template wrapper)
-    // instead of safeUserText() which generates "The patient is requesting written
-    // review of X, Y…" — a recycled sentence that echoes the concern labels.
+    // ── userDetail: professional restatement of the intake description ─────
+    // CRITICAL: This value flows into the letter body ("Additional billing
+    // context: …"), the dashboard case-header deck, and finding card decks.
+    // It MUST NEVER contain the user's raw typed words. Frustrated, informal,
+    // or broken text ("I don't know what im doing", "It is horrible and every
+    // thing is soo confusing idont know how to do this") in a formal letter
+    // destroys the perceived legitimacy of the deliverable.
     //
-    // Suppression logic (3 tiers):
-    //   1. No valid raw text → ''
-    //   2. ALL recognized billing phrases in the description are ALREADY present in
-    //      the concern labels (checkbox-driven) AND the text is short enough that it
-    //      can't carry meaningful extra narrative → '' (fully covered, no delta)
-    //   3. Text has unrecognized free-form content OR recognized-but-new phrases OR
-    //      a meaningful narrative beyond the phrase buckets → keep and surface it
+    // Strategy: run the description through professionalizeUserConcern() which
+    // categorizes the billing intent and emits a clean professional sentence.
+    // If no intent can be categorized, return '' so the "Additional billing
+    // context" line is suppressed entirely (rather than echoing vague text).
+    //
+    // Additional dedup: even when we have a clean professional restatement,
+    // suppress it if the underlying billing phrases are already fully covered
+    // by the user's selected concern labels — otherwise we'd say the same
+    // thing twice in the letter.
     var userDetail = '';
     (function(){
-      var rawDesc = describeUserInput(description, 200);
-      if(!rawDesc) return;
+      var pro = professionalizeUserConcern(description);
+      if(!pro) return; // No recognizable billing intent → suppress entirely
 
       var descPhrases = billingConcernPhrases(description);
-
-      // No recognized billing keywords at all → user typed genuinely personal context;
-      // always surface it (it is definitionally new vs the concern labels).
-      if(descPhrases.length === 0){
-        userDetail = rawDesc;
-        return;
-      }
+      if(descPhrases.length === 0) return; // (paranoia — pro would already be '')
 
       var concernText = concernLabels.join(' ').toLowerCase();
 
-      // At least one recognized phrase is NOT already in the concern labels → new topic.
+      // Surface only if the description introduces at least one billing phrase
+      // not already covered by the user's selected concern labels. This prevents
+      // the letter from restating the same topic twice.
       var hasNewPhrases = descPhrases.some(function(ph){
         return concernText.indexOf(ph.toLowerCase()) === -1;
       });
       if(hasNewPhrases){
-        userDetail = rawDesc;
+        userDetail = pro;
         return;
       }
-
-      // All recognized phrases are covered. Check whether the description carries a
-      // meaningful personal narrative (long enough + sentence-like punctuation).
-      // If so, the patient wrote more than just a topic name — keep the specifics.
-      var hasNarrative = rawDesc.length > 65 && /[,;.!]/.test(rawDesc);
-      if(hasNarrative){
-        userDetail = rawDesc;
-        return;
-      }
-      // Fully covered by concern labels, no extra narrative → suppress.
+      // Fully covered by concern labels → suppress.
     })();
     var uploadedBill = clean(data.uploaded_bill || data.scan_file_name);
     var uploaded = !!(uploadedBill && !/^not uploaded/i.test(uploadedBill));

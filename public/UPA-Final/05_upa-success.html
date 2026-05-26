@@ -226,15 +226,20 @@ window.addEventListener('load', function() {
   setTimeout(function() { if (progFl)  progFl.style.width = '100%'; },  600);
 
   if (!hasCaseData) {
-    // No intake data found in localStorage (genuinely empty / cross-context purchase).
-    // Do NOT show a re-entry form — route to intake start so the patient completes the
-    // flow properly. Their data will be collected and persisted from scratch.
-    if (progLbl) progLbl.textContent = 'Setting up your case…';
-    if (progFl)  setTimeout(function(){ progFl.style.width = '0%'; }, 700);
-    var btn = document.getElementById('open-btn');
-    if (btn) btn.href = '/';
-    console.warn('[UPA] success: no case data found — redirecting to intake start in 2.5 s');
-    setTimeout(function() { window.location.href = '/'; }, 2500);
+    // No intake data found in localStorage. This can happen on a cross-context
+    // purchase (bought in Incognito, returned in regular Chrome) or if storage
+    // was cleared between intake and return.
+    //
+    // CRITICAL: Post-payment users must NEVER be routed to the landing page.
+    // They have paid; sending them to the marketing page is a confidence and
+    // conversion catastrophe. Always route to the dashboard — it is designed
+    // to render gracefully with placeholder values when intake data is missing,
+    // and from there the user can complete their case.
+    if (progLbl) progLbl.textContent = 'Loading your case…';
+    console.warn('[UPA] success: no case data found in storage — routing to dashboard anyway (post-payment user must never see landing)');
+    // Button already points at /dashboard?unlock=1 — leave it. Auto-redirect to
+    // dashboard rather than to '/', matching the button behavior.
+    setTimeout(function() { window.location.href = '/dashboard?unlock=1'; }, 2500);
     return;
   }
 

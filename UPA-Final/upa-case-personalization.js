@@ -64,6 +64,25 @@
     return t;
   }
 
+  // Returns the user's actual typed words, sanitized and trimmed, for direct use in
+  // formal outputs — NO template-sentence wrapper.  Contrast with safeUserText() which
+  // wraps everything in "The patient is requesting written review of X, Y, Z…".
+  // Use this when you want the patient's own voice, not a generated billing phrase.
+  // Returns '' for garbage / test / single-token / meaningless input.
+  function describeUserInput(text, maxLen){
+    var t = clean(text);
+    if(!t || t.length < 8) return '';
+    if(!/\s/.test(t)) return '';
+    if(/^(idk|n\/a|na|nothing|none|no|yes|ok|okay|same|see above|other|not sure|unsure|unknown)$/i.test(t.trim())) return '';
+    if(/^(test|testing|hello|hi there|foo\s|bar\s|lorem\s|ipsum|asdf|qwerty|click|skip|just\s+test|this\s+is\s+a\s+test|not\s+applicable|whatever|blah|stuff|things|anything|something)\b/i.test(t)) return '';
+    if(/^[\d\s.,!@#$%^&*()\-_+=]+$/.test(t)) return '';
+    // Format pipe-joined multi-field descriptions as readable prose
+    var excerpt = t.replace(/\s*\|\s*/g, '; ').replace(/\s+/g,' ').trim();
+    var cap = maxLen || 160;
+    if(excerpt.length > cap) excerpt = excerpt.slice(0, cap - 3).trim() + '...';
+    return excerpt;
+  }
+
   function billingConcernPhrases(text){
     var t = clean(text).toLowerCase();
     var phrases = [];
@@ -107,7 +126,16 @@
     };
     var key = t.toLowerCase();
     if(known[key]) return known[key];
-    return professionalBillingNote(t, 120);
+    // Return a SHORT LABEL only — never a full "The patient is requesting..." sentence.
+    // Returning professionalBillingNote() here produces a complete sentence for each
+    // concern. When N concerns are selected those N sentences are joined with commas,
+    // creating cascading repetition across the intake summary, finding card, and letter.
+    var phrases = billingConcernPhrases(t);
+    if(phrases.length){
+      var p = phrases[0];
+      return p.charAt(0).toUpperCase() + p.slice(1);
+    }
+    return ''; // Unrecognised text — silently filtered by seenConcerns dedup
   }
 
   function readStorageJSON(key){
@@ -438,7 +466,7 @@
         type:'User-described concern',
         title:'Additional intake details need a written answer',
         short:'intake-detail review',
-        desc:(function(){ var sd = safeUserText(description, 140); return sd ? 'The intake includes this professionalized billing note: ' + sd + ' The provider should address this point directly rather than offering a generic balance explanation.' : 'A specific concern was noted during intake. The provider should address it in writing rather than offering a generic balance explanation.'; })(),
+        desc:(function(){ var sd = describeUserInput(description, 140); return sd ? '"' + sd + '" — the provider should address this specific concern in writing, not with a generic balance explanation.' : 'A specific concern was noted during intake. The provider should address it in writing.'; })(),
         action:'Include the user-described detail in the request and ask billing to identify the exact records or line items that answer it.'
       });
     }
@@ -472,14 +500,17 @@
     }
 
     if(other){
-      var safeOther = safeUserText(other, 140);
+      // Use the patient's actual words (describeUserInput) rather than a generated
+      // billing-phrase sentence (safeUserText / professionalBillingNote). This makes
+      // the finding card specific to what the patient typed, not a recycled template.
+      var rawOther = describeUserInput(other, 140);
       add({
         key:'custom',
         type:'Custom concern',
-        title: safeOther ? titleFromText(safeOther, 80) : 'Additional billing concern raised in intake',
-        short: safeOther ? titleFromText(safeOther, 46) : 'Additional billing concern',
-        desc: safeOther
-          ? 'The intake includes this professionalized billing note: ' + safeOther + ' The provider should address this point directly rather than giving a generic balance explanation.'
+        title: rawOther ? titleFromText(rawOther, 80) : 'Additional billing concern raised in intake',
+        short: rawOther ? titleFromText(rawOther, 46) : 'Additional billing concern',
+        desc: rawOther
+          ? '"' + rawOther + '" — this specific concern should be addressed in writing, with the relevant records, codes, and adjustments identified.'
           : 'A specific concern was noted during intake. The provider should address it in writing.',
         action:'Include this concern in the written request and ask billing to identify the specific records, codes, and adjustments that explain it.'
       });
@@ -782,7 +813,53 @@
     // concern_other is already captured in concernLabels → concernSummary, so using it
     // here too causes it to print twice in the letter (highlighted concern list AND
     // "Additional billing context"). Do not fall back to concern_other.
-    var userDetail = safeUserText(description, 220);
+    // ── userDetail: patient's own words, globally deduplicated ──────────────
+    // Strategy: use describeUserInput() (raw sanitized text, no template wrapper)
+    // instead of safeUserText() which generates "The patient is requesting written
+    // review of X, Y…" — a recycled sentence that echoes the concern labels.
+    //
+    // Suppression logic (3 tiers):
+    //   1. No valid raw text → ''
+    //   2. ALL recognized billing phrases in the description are ALREADY present in
+    //      the concern labels (checkbox-driven) AND the text is short enough that it
+    //      can't carry meaningful extra narrative → '' (fully covered, no delta)
+    //   3. Text has unrecognized free-form content OR recognized-but-new phrases OR
+    //      a meaningful narrative beyond the phrase buckets → keep and surface it
+    var userDetail = '';
+    (function(){
+      var rawDesc = describeUserInput(description, 200);
+      if(!rawDesc) return;
+
+      var descPhrases = billingConcernPhrases(description);
+
+      // No recognized billing keywords at all → user typed genuinely personal context;
+      // always surface it (it is definitionally new vs the concern labels).
+      if(descPhrases.length === 0){
+        userDetail = rawDesc;
+        return;
+      }
+
+      var concernText = concernLabels.join(' ').toLowerCase();
+
+      // At least one recognized phrase is NOT already in the concern labels → new topic.
+      var hasNewPhrases = descPhrases.some(function(ph){
+        return concernText.indexOf(ph.toLowerCase()) === -1;
+      });
+      if(hasNewPhrases){
+        userDetail = rawDesc;
+        return;
+      }
+
+      // All recognized phrases are covered. Check whether the description carries a
+      // meaningful personal narrative (long enough + sentence-like punctuation).
+      // If so, the patient wrote more than just a topic name — keep the specifics.
+      var hasNarrative = rawDesc.length > 65 && /[,;.!]/.test(rawDesc);
+      if(hasNarrative){
+        userDetail = rawDesc;
+        return;
+      }
+      // Fully covered by concern labels, no extra narrative → suppress.
+    })();
     var uploadedBill = clean(data.uploaded_bill || data.scan_file_name);
     var uploaded = !!(uploadedBill && !/^not uploaded/i.test(uploadedBill));
     var issues = buildIssues(data, amount, uploaded);
@@ -1506,7 +1583,7 @@
           replaceTextNodes(root, guideReplacements(c, name));
           ensureGuideContext(root, name);
           var texts = all('.gd-card-text', root);
-          if(texts[0] && name === 'starthere') texts[0].innerHTML = 'Start with the <strong>Documents tab</strong>. Letter 1 is tailored to ' + h(c.provider) + ', ' + h(c.dateOfService) + ', ' + h(c.amount.display) + ', ' + h(c.coverage) + ', and the concerns you entered: "' + h(c.concernSummary) + '".' + (c.userDetail ? ' A professionalized billing note is included in the packet: ' + h(c.userDetail) + '.' : '');
+          if(texts[0] && name === 'starthere') texts[0].innerHTML = 'Start with the <strong>Documents tab</strong>. Letter 1 is tailored to ' + h(c.provider) + ', ' + h(c.dateOfService) + ', ' + h(c.amount.display) + ', ' + h(c.coverage) + ', and the concerns you entered: "' + h(c.concernSummary) + '".' + (c.userDetail ? ' Your intake note is also included: ' + h(c.userDetail) + '.' : '');
           if(name === 'checklist'){
             var checks = all('.gdc-text', root);
             if(checks[0]) checks[0].innerHTML = '<strong>Bill review prepared.</strong> Your review organized ' + h(c.amount.display) + ' around ' + h(c.issueCount) + ' review areas from this intake: ' + h(c.concernSummary) + '.';

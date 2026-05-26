@@ -225,7 +225,7 @@ html,body{min-height:100%;font-family:var(--sans);background:var(--navy-deep);-w
 .inc-text{}
 .inc-name{font-size:.75rem;font-weight:700;color:var(--on-dark);margin-bottom:2px;line-height:1.3}
 .inc-item.locked .inc-name{color:var(--on-dark)}
-.inc-desc{font-size:.5rem;color:var(--on-dark-3);line-height:1.55}
+.inc-desc{font-size:.5625rem;color:var(--on-dark-3);line-height:1.60}
 .inc-status{font-size:.375rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;padding:2px 7px;border-radius:100px;margin-top:4px;display:inline-flex;align-items:center;gap:4px}
 .is-preview{background:rgba(59,110,224,.14);color:#90B4FF;border:1px solid rgba(59,110,224,.28)}
 .is-preview svg{width:9px;height:9px;stroke:#90B4FF;stroke-width:1.8;fill:none}
@@ -308,18 +308,35 @@ html,body{min-height:100%;font-family:var(--sans);background:var(--navy-deep);-w
 .legal-txt{font-size:.4375rem;color:rgba(235,244,255,.22);line-height:1.72;max-width:680px;margin:0 auto}
 @media (max-width:600px){
 html,body{max-width:100%;overflow-x:hidden}
-.content{padding:72px 18px 48px;max-width:100%}
-.topnav{padding:0 18px}
+.content{padding:72px 16px 48px;max-width:100%}
+.topnav{padding:0 16px}
 .nav-badge{display:none}
-.proof-metrics,.dt-kpis,.dt-kpi-strip,.dt-letters,.inc-grid,.feature-grid{grid-template-columns:1fr}
+/* Proof metrics: 2-column on mobile instead of stacking to 1 — feels more like a report */
+.proof-metrics{grid-template-columns:1fr 1fr;gap:10px}
+.proof-metrics .pm:first-child{grid-column:1/-1}
+.pm{padding:16px 14px}
+.pm-val{font-size:2rem}
+.pm-label{font-size:.5625rem}
+.pm-icon{width:32px;height:32px;margin-bottom:8px}
+/* Collapse remaining grids */
+.dt-kpis,.dt-kpi-strip,.dt-letters,.inc-grid,.feature-grid{grid-template-columns:1fr}
 .fc-row{gap:10px}
 .fc-top{align-items:flex-start}
 .fc-amount{margin-left:0}
-.dt-tabs{flex-wrap:wrap;padding:6px 8px;gap:2px}
-.dt-tab{padding:6px 8px;font-size:.4375rem}
+/* Make finding card 1 description more readable */
+.fc-desc{font-size:.75rem;line-height:1.68}
+/* Dashboard teaser mini tabs: horizontal scroll */
+.dt-tabs{flex-wrap:nowrap;overflow-x:auto;padding:6px 8px;gap:2px;scrollbar-width:none}
+.dt-tabs::-webkit-scrollbar{display:none}
+.dt-tab{flex:0 0 auto;padding:6px 10px;font-size:.4375rem}
+/* Letter teaser */
 .lt-unlock-teaser{flex-direction:column;align-items:stretch;text-align:center}
-.lt-unlock-txt{text-align:center}
-.lt-unlock-btn{align-self:center}
+.lt-unlock-txt{text-align:center;font-size:.625rem}
+.lt-unlock-btn{align-self:center;padding:9px 20px}
+/* What's Included: readable desc text */
+.inc-desc{font-size:.625rem}
+.inc-name{font-size:.8125rem}
+/* PDF fan */
 .pdf-fan{height:150px;overflow:hidden}
 .pdf-page-t{width:88px}
 .p1{left:50%}
@@ -328,8 +345,19 @@ html,body{max-width:100%;overflow-x:hidden}
 .p4{left:calc(50% + 82px)}
 .p5{left:calc(50% - 60px)}
 .pdf-fan-pill{max-width:calc(100vw - 48px);white-space:normal;text-align:center;justify-content:center}
+/* Urgency banner */
 .urgency-banner{align-items:flex-start}
-.btn-unlock{width:100%;justify-content:center;padding-left:18px;padding-right:18px}
+.ub-title{font-size:.875rem}
+.ub-sub{font-size:.6875rem}
+/* CTA block */
+.cta-block{padding:22px 18px}
+.cta-title{font-size:1.25rem}
+.cta-sub{font-size:.8125rem}
+.feat-txt{font-size:.75rem}
+.btn-unlock{width:100%;justify-content:center;padding:16px 18px;font-size:.9375rem}
+/* Guarantee row: 2 per row */
+.guarantee-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;justify-items:start}
+.gr-item{font-size:.5625rem}
 }
 </style>
 </head>
@@ -343,7 +371,7 @@ html,body{max-width:100%;overflow-x:hidden}
     <div><div class="nav-name">United Patient Advocate</div><span class="nav-sub">Patient First. Billing Second.</span></div>
   </div>
   <div class="nav-spacer"></div>
-  <div class="nav-badge">Review Complete — First Name Last Name</div>
+  <div class="nav-badge" id="preview-nav-badge">Review Complete — Your Case</div>
 </div>
 
 <div class="scene">
@@ -354,30 +382,30 @@ html,body{max-width:100%;overflow-x:hidden}
 
     <!-- Hero -->
     <div class="results-hero">
-      <div class="rh-eyebrow">Analysis Complete</div>
-      <div class="rh-title">Your review areas are prepared.<br><span>Amount to review needs review.</span></div>
-      <div class="rh-sub">Your billing review is complete. We've prepared your dispute letters, benchmarked every charge, and built your full action plan. Here's what we found — and everything that's waiting for you inside.</div>
+      <div class="rh-eyebrow">Review Complete</div>
+      <div class="rh-title">Your billing review is prepared.<br><span>Here's what we found.</span></div>
+      <div class="rh-sub">We've reviewed your bill, benchmarked every charge against published rates, and prepared your complete documentation package — letters, findings, and action plan. Everything is ready below.</div>
     </div>
 
     <!-- 3 Proof Metrics -->
     <div class="proof-metrics">
       <div class="pm pm-green">
-        <span class="pm-icon">💰</span>
-        <div class="pm-val green">Amount to review</div>
-        <div class="pm-label">Charges Flagged for Review</div>
-        <div class="pm-badge"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Verified</div>
+        <div class="pm-icon" style="font-size:0;width:36px;height:36px;margin:0 auto 10px;background:rgba(30,184,122,.18);border:1px solid rgba(30,184,122,.35);border-radius:50%;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--green);stroke-width:2.2;fill:none;display:block"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg></div>
+        <div class="pm-val green" id="preview-flagged-amount" style="font-size:1.625rem;letter-spacing:-.025em">Charges Identified</div>
+        <div class="pm-label">Flagged for Your Review</div>
+        <div class="pm-badge"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Case Specific</div>
       </div>
       <div class="pm pm-crimson">
-        <span class="pm-icon">⚠️</span>
-        <div class="pm-val crim">3</div>
-        <div class="pm-label">Billing Review Areas</div>
+        <div class="pm-icon" style="font-size:0;width:36px;height:36px;margin:0 auto 10px;background:rgba(224,59,59,.18);border:1px solid rgba(224,59,59,.35);border-radius:50%;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#FF8080;stroke-width:2.2;fill:none;display:block"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="pm-val crim" id="preview-issue-count">3</div>
+        <div class="pm-label">Billing Areas for Review</div>
         <div class="pm-badge"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Confirmed</div>
       </div>
       <div class="pm pm-gold">
-        <span class="pm-icon">📋</span>
-        <div class="pm-val gold">3+</div>
-        <div class="pm-label">Case Letters Being Prepared</div>
-        <div class="pm-badge"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Ready to Send</div>
+        <div class="pm-icon" style="font-size:0;width:36px;height:36px;margin:0 auto 10px;background:rgba(201,168,76,.18);border:1px solid rgba(201,168,76,.35);border-radius:50%;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--gold);stroke-width:2.2;fill:none;display:block"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div class="pm-val gold" id="preview-letter-count">3+</div>
+        <div class="pm-label">Letters Ready to Send</div>
+        <div class="pm-badge"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>Ready</div>
       </div>
     </div>
 
@@ -391,15 +419,14 @@ html,body{max-width:100%;overflow-x:hidden}
           <div class="fc-icon-wrap red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
           <div class="fc-content">
             <div class="fc-top">
-              <span class="fc-type fct-r">Line-Item Review</span>
-              <span class="fc-confidence">Needs Review</span>
-              <span class="fc-amount">To confirm</span>
+              <span class="fc-type fct-r" id="preview-finding1-type">Line-Item Review</span>
+              <span class="fc-confidence">Flagged</span>
             </div>
-            <div class="fc-title">billing line item billed twice on the same date of service</div>
-            <div class="fc-desc">Emergency department visit code billing line item appears on both the relevant itemized bill lines of your itemized statement for date of service. Billing the same procedure code twice on the same date of service for the same patient is a recognized billing discrepancy under CMS guidelines and may be disputed in writing.</div>
+            <div class="fc-title" id="preview-finding1-title">Potential duplicate charge on your itemized statement</div>
+            <div class="fc-desc" id="preview-finding1-desc">A charge on your statement appears more than once for the same date of service. Billing the same procedure code twice in a single visit is a recognized billing error under CMS guidelines — it can be formally disputed in writing, and the provider is required to respond with documentation.</div>
             <div class="fc-meta">
-              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>date of service</div>
-              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 0 2-2h11"/></svg>Itemized bill lines</div>
+              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span id="preview-finding1-date">Your date of service</span></div>
+              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 0 2-2h11"/></svg>Itemized statement</div>
               <div class="fc-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Letter 1 prepared</div>
             </div>
           </div>
@@ -454,12 +481,12 @@ html,body{max-width:100%;overflow-x:hidden}
         </div>
         <!-- Case header — fully visible -->
         <div class="dt-case-hdr">
-          <div class="dt-h1">We reviewed your bill.</div>
-          <div class="dt-h1-sub">We prepared issues you may not have to pay for.</div>
+          <div class="dt-h1">Your billing review is ready.</div>
+          <div class="dt-h1-sub">Letters drafted. Findings documented. Action plan built.</div>
           <div class="dt-kpis">
-            <div class="dt-kpi"><div class="dt-kpi-val g">Amount to review</div><div class="dt-kpi-lbl">Needs Review</div></div>
-            <div class="dt-kpi"><div class="dt-kpi-val r">Review Areas</div><div class="dt-kpi-lbl">Requiring Attention</div></div>
-            <div class="dt-kpi"><div class="dt-kpi-val w">Ready</div><div class="dt-kpi-lbl">Review Status</div></div>
+            <div class="dt-kpi"><div class="dt-kpi-val g" id="preview-db-amount">Identified</div><div class="dt-kpi-lbl">For Review</div></div>
+            <div class="dt-kpi"><div class="dt-kpi-val r" id="preview-db-issues">3</div><div class="dt-kpi-lbl">Review Areas</div></div>
+            <div class="dt-kpi"><div class="dt-kpi-val w">Ready</div><div class="dt-kpi-lbl">Status</div></div>
           </div>
         </div>
         <!-- Tabs — fully visible -->
@@ -474,9 +501,9 @@ html,body{max-width:100%;overflow-x:hidden}
         <!-- Body — visible KPI strip then blurs -->
         <div class="dt-body-vis">
           <div class="dt-kpi-strip">
-            <div class="dt-ks"><div class="dt-ks-val g">Amount to review</div><div class="dt-ks-lbl">Needs Review</div></div>
-            <div class="dt-ks"><div class="dt-ks-val r">Review Areas</div><div class="dt-ks-lbl">Requiring Attention</div></div>
-            <div class="dt-ks"><div class="dt-ks-val w">3+ Letters</div><div class="dt-ks-lbl">Minimum Being Prepared</div></div>
+            <div class="dt-ks"><div class="dt-ks-val g" id="preview-db-amount2">Flagged</div><div class="dt-ks-lbl">For Review</div></div>
+            <div class="dt-ks"><div class="dt-ks-val r" id="preview-db-issues2">3</div><div class="dt-ks-lbl">Review Areas</div></div>
+            <div class="dt-ks"><div class="dt-ks-val w">3+ Letters</div><div class="dt-ks-lbl">Drafted &amp; Ready</div></div>
           </div>
         </div>
         <!-- Progressive blur zone -->
@@ -514,17 +541,17 @@ html,body{max-width:100%;overflow-x:hidden}
         <!-- Visible portion -->
         <div class="lt-vis">
           <div class="lt-from">
-            <div class="lt-from-name">First Name Last Name</div>
-            <div class="lt-from-sub">Patient · Medicare Beneficiary</div>
+            <div class="lt-from-name" id="preview-letter-name">Patient Name</div>
+            <div class="lt-from-sub" id="preview-letter-sub">Patient · Account Holder</div>
           </div>
-          <div class="lt-to">
+          <div class="lt-to" id="preview-letter-to">
             Your Provider · Billing Department<br>
-            Account number/reference: account number · Date of Service: date of service
+            Re: Your Account · Billing Review Request
           </div>
-          <div class="lt-re">RE: Formal Request — Itemized Bill Review · billing line item Line-Item Review</div>
-          <div class="lt-body-vis">
+          <div class="lt-re" id="preview-letter-re">RE: Formal Request — Itemized Bill Review &amp; Written Response</div>
+          <div class="lt-body-vis" id="preview-letter-body">
             Dear Billing Department,<br><br>
-            I am writing to formally request a detailed, itemized review of the billing statement issued for services rendered on <strong>date of service</strong>, at Your Provider. Upon reviewing my statement, I have identified what appears to be a <span class="lt-highlight">line-item concern for billing line item (billing line item)</span>, appearing on both the relevant itemized bill lines of the itemized statement for the same date of service.
+            I am writing to formally request a detailed, itemized review of the billing statement issued for services on my account. Upon reviewing my statement, I have identified what appears to be a <span class="lt-highlight" id="preview-letter-highlight">potential billing discrepancy</span> that I am requesting be investigated and addressed in writing, with supporting documentation provided.
           </div>
         </div>
         <!-- Blurred rest -->
@@ -621,6 +648,28 @@ html,body{max-width:100%;overflow-x:hidden}
         <div class="gr-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>No Recurring Charges</div>
         <div class="gr-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Never Sold or Shared</div>
         <div class="gr-item"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>No Phone Calls Required</div>
+      </div>
+
+      <!-- Social proof / context anchor -->
+      <div style="margin-top:22px;padding:16px 18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;text-align:left">
+        <div style="font-size:.375rem;font-weight:700;letter-spacing:.20em;text-transform:uppercase;color:rgba(235,244,255,.30);margin-bottom:10px;display:flex;align-items:center;gap:7px">
+          <span style="display:inline-block;width:16px;height:1px;background:rgba(235,244,255,.20)"></span>Why patients use this
+          <span style="display:inline-block;flex:1;height:1px;background:rgba(235,244,255,.08)"></span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            <div style="width:20px;height:20px;border-radius:50%;background:rgba(30,184,122,.15);border:1px solid rgba(30,184,122,.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px"><svg viewBox="0 0 12 12" style="width:9px;height:9px;stroke:var(--green);stroke-width:2.5;fill:none"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <div style="font-size:.6875rem;color:rgba(235,244,255,.55);line-height:1.55">The average U.S. hospital bill contains at least one error — <strong style="color:rgba(235,244,255,.75);font-weight:600">80% of medical bills have mistakes</strong> according to the Medical Billing Advocates of America.</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            <div style="width:20px;height:20px;border-radius:50%;background:rgba(30,184,122,.15);border:1px solid rgba(30,184,122,.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px"><svg viewBox="0 0 12 12" style="width:9px;height:9px;stroke:var(--green);stroke-width:2.5;fill:none"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <div style="font-size:.6875rem;color:rgba(235,244,255,.55);line-height:1.55">Patients who submit a <strong style="color:rgba(235,244,255,.75);font-weight:600">formal written dispute</strong> with documentation are significantly more likely to receive a response, correction, or adjustment than those who call.</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            <div style="width:20px;height:20px;border-radius:50%;background:rgba(30,184,122,.15);border:1px solid rgba(30,184,122,.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px"><svg viewBox="0 0 12 12" style="width:9px;height:9px;stroke:var(--green);stroke-width:2.5;fill:none"><polyline points="2 6 5 9 10 3"/></svg></div>
+            <div style="font-size:.6875rem;color:rgba(235,244,255,.55);line-height:1.55">A medical billing consultant charges <strong style="color:rgba(235,244,255,.75);font-weight:600">$250–$400 per hour</strong>. Your full review package — letters, dashboard, call scripts — is a one-time flat fee.</div>
+          </div>
+        </div>
       </div>
     </div>
 

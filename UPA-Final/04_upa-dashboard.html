@@ -1837,8 +1837,9 @@ body{display:block;background:var(--bg)}
 .ch-deck br{display:none}
 .ch-metadata{grid-template-columns:1fr 1fr;gap:10px;padding:12px 0}
 .ch-meta-item{border-right:none;margin-right:0;padding-right:0}
-.tab-bar{padding:0 12px 10px;flex-wrap:wrap;align-items:stretch;gap:4px}
-.tab-btn{flex:1 1 calc(33.33% - 4px);justify-content:center;border-radius:7px;padding:9px 8px;margin-bottom:0;white-space:normal}
+.tab-bar{padding:0;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0;align-items:flex-end}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{flex:0 0 auto;justify-content:center;border-radius:7px 7px 0 0;padding:10px 16px;margin-bottom:0;white-space:nowrap;font-size:.5rem;letter-spacing:.04em}
 .tab-content{display:block;overflow:visible}
 .tab-panel{overflow:visible}
 .kpi-strip{grid-template-columns:1fr}
@@ -1859,7 +1860,7 @@ body{display:block;background:var(--bg)}
 .fin-table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .fin-table{min-width:640px}
 .tl-item{grid-template-columns:1fr;gap:8px;min-height:0}
-.right-panel{width:100%;border-left:none;border-top:1px solid var(--bdr);display:block;overflow:visible}
+.right-panel{display:none}
 .rp-gauge-svg-wrap{max-width:100%}
 .qc-fab{right:14px;bottom:14px}
 .qc-panel{left:12px;right:12px;bottom:84px;width:auto;max-width:none;max-height:calc(100vh - 100px);overflow-y:auto}
@@ -2283,8 +2284,8 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
     </div>
   </a>
   <div class="nav-center">
-    <div class="nav-case-pill"><div class="ncp-dot"></div><span class="ncp-text">Your case · Your Provider</span></div>
-    <span class="nav-ref">Account: account number &nbsp;|&nbsp; Opened today</span>
+    <div class="nav-case-pill"><div class="ncp-dot"></div><span class="ncp-text" id="nav-case-text">Your Active Case</span></div>
+    <span class="nav-ref" id="nav-case-ref">Review ready · Opened today</span>
   </div>
   <div class="nav-right">
     <button class="btn-nv" id="night-toggle" onclick="toggleNightMode()" title="Toggle night mode">🌙 Night</button>
@@ -2299,20 +2300,20 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
 <aside class="sidebar">
   <div class="sb-case">
     <div class="sb-tag">Your case</div>
-    <div class="sb-hospital">Your Provider</div>
-    <div class="sb-sub">Operation: Medicare · Jan 2026</div>
+    <div class="sb-hospital" id="sb-provider">Your Provider</div>
+    <div class="sb-sub" id="sb-sub">Review prepared · Billing dispute ready</div>
   </div>
   <div class="sb-kpis">
     <div>
       <div class="sb-kpi-lbl">Total Bill</div>
-      <div class="sb-kpi-val">Bill amount</div>
-      <div class="sb-kpi-sub">Medicare Primary</div>
+      <div class="sb-kpi-val" id="sb-bill-amount">—</div>
+      <div class="sb-kpi-sub" id="sb-coverage">Your coverage on file</div>
     </div>
     <div class="sb-div"></div>
     <div>
-      <div class="sb-kpi-lbl">Needs Review</div>
-      <div class="sb-kpi-val green">Amount to review</div>
-      <div class="sb-kpi-sub">Across the charges worth pressing on</div>
+      <div class="sb-kpi-lbl">Flagged for Review</div>
+      <div class="sb-kpi-val green" id="sb-review-amount">—</div>
+      <div class="sb-kpi-sub">Across charges worth pressing on</div>
     </div>
   </div>
   <div class="sb-score">
@@ -2478,38 +2479,38 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
       <div class="ch-meta-top">
         <div class="ch-case-indicator">
           <span class="chi-dot"></span>
-          Your case · Your Provider
+          <span id="db-case-name">Your Case</span>
         </div>
         <div class="ch-sep"></div>
-        <span class="ch-ref">Account: account number &nbsp;|&nbsp; Opened today</span>
+        <span class="ch-ref" id="db-case-ref">Review prepared · Opened today</span>
       </div>
-      <h1 class="ch-headline">Here's what we found in your bill.</h1>
-      <div class="ch-subline">These are the questions we'd press on first, based on what you shared at intake.</div>
-      <p class="ch-deck">A few <u>charges</u> and <u>line items</u> look worth a closer look.<br>Below is what stood out, and the next step for each one.</p>
+      <h1 class="ch-headline" id="db-headline">Here's what we found in your bill.</h1>
+      <div class="ch-subline" id="db-subline">These are the areas we'd press on first, based on what you shared at intake.</div>
+      <p class="ch-deck">The charges and line items flagged below may have grounds for a formal written dispute.<br>Each finding includes a prepared letter and step-by-step guidance.</p>
       <div class="ch-pills">
         <div class="ch-pill dark-pill">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Drafted for First Name Last Name
+          <span id="db-pill-name">Review prepared for your case</span>
         </div>
         <div class="ch-pill dark-pill">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Drafted for your case
+          <span id="db-pill-provider">Your provider</span>
         </div>
-        <div class="ch-pill amber-pill">YOUR CASE · NEXT STEPS DRAFTED</div>
+        <div class="ch-pill amber-pill" id="db-pill-status">DOCUMENTATION READY</div>
       </div>
       <div class="ch-metadata">
-        <div class="ch-meta-item"><div class="ch-meta-label">Provider</div><div class="ch-meta-val">Your Provider</div></div>
-        <div class="ch-meta-item"><div class="ch-meta-label">Date of Service</div><div class="ch-meta-val">date of service</div></div>
-        <div class="ch-meta-item"><div class="ch-meta-label">Coverage</div><div class="ch-meta-val">Medicare Primary</div></div>
-        <div class="ch-meta-item"><div class="ch-meta-label">Account</div><div class="ch-meta-val">account number</div></div>
+        <div class="ch-meta-item"><div class="ch-meta-label">Provider</div><div class="ch-meta-val" id="db-meta-provider">—</div></div>
+        <div class="ch-meta-item"><div class="ch-meta-label">Date of Service</div><div class="ch-meta-val" id="db-meta-dos">—</div></div>
+        <div class="ch-meta-item"><div class="ch-meta-label">Coverage</div><div class="ch-meta-val" id="db-meta-coverage">—</div></div>
+        <div class="ch-meta-item"><div class="ch-meta-label">Bill Amount</div><div class="ch-meta-val" id="db-meta-amount">—</div></div>
       </div>
     </div>
     <!-- Tab bar -->
     <div class="tab-bar">
-      <button class="tab-btn active" onclick="showTab('overview')">◎ Overview</button>
-      <button class="tab-btn" onclick="showTab('financials')">▦ Financials <span class="tab-pip tp-gold">Amount to review</span></button>
-      <button class="tab-btn" onclick="showTab('findings')">⚑ Findings <span class="tab-pip tp-red">Review Areas</span></button>
-      <button class="tab-btn" onclick="showTab('documents')">✉ Documents <span class="tab-pip tp-green">Ready</span></button>
+      <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+      <button class="tab-btn" onclick="showTab('financials')">Financials <span class="tab-pip tp-gold" id="tab-pip-financial">$</span></button>
+      <button class="tab-btn" onclick="showTab('findings')">Findings <span class="tab-pip tp-red" id="tab-pip-findings">!</span></button>
+      <button class="tab-btn" onclick="showTab('documents')">Documents <span class="tab-pip tp-green">Ready</span></button>
 <!-- ════ Scripts tab button addition ════ -->
       <button class="tab-btn" onclick="showTab('actionplan')">☑ Action Plan</button>
       <button class="tab-btn" onclick="showTab('timeline')">⏱ Timeline</button>
@@ -2519,19 +2520,19 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
   <!-- KPI strip -->
   <div class="kpi-strip">
     <div class="kpi kpi-hl">
-      <div class="kpi-label">Needs Review</div>
-      <div class="kpi-val kv-green">Amount to review</div>
-      <div class="kpi-ctx">Across review areas, <strong>before you've paid a cent</strong></div>
+      <div class="kpi-label">Flagged for Review</div>
+      <div class="kpi-val kv-green" id="kpi-flagged-amount">—</div>
+      <div class="kpi-ctx">Across identified review areas, <strong>before you've paid a cent</strong></div>
     </div>
     <div class="kpi">
-      <div class="kpi-label">Review Areas Requiring Action</div>
-      <div class="kpi-val kv-amber">2 Found</div>
-      <div class="kpi-ctx">Duplicate charge &amp; a charge your records may not support</div>
+      <div class="kpi-label">Review Areas Found</div>
+      <div class="kpi-val kv-amber" id="kpi-review-areas">—</div>
+      <div class="kpi-ctx" id="kpi-areas-ctx">Charges and line items worth formally disputing</div>
     </div>
     <div class="kpi">
-      <div class="kpi-label">Case Letters Prepared</div>
-      <div class="kpi-val">3 Prepared</div>
-      <div class="kpi-ctx">Minimum core set; case-specific add-ons appear when this intake requires them</div>
+      <div class="kpi-label">Letters Prepared</div>
+      <div class="kpi-val" id="kpi-letters">3+</div>
+      <div class="kpi-ctx">Tailored to your provider, coverage, and identified concerns</div>
     </div>
   </div>
 
@@ -2782,9 +2783,9 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
               <div class="mini-lh">
                 <div class="mini-lh-left">
                   <div class="mini-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-                  <div><div class="mini-org">First Name Last Name</div><span class="mini-org-sub">Patient · Medicare Beneficiary</span></div>
+                  <div><div class="mini-org" class="mini-patient-name">Your Name</div><span class="mini-org-sub">Patient · Account Holder</span></div>
                 </div>
-                <div><div class="mini-date">Preparation date</div><span class="mini-ref">Account: account number</span></div>
+                <div><div class="mini-date" id="mini-date-auto">Prepared for review</div><span class="mini-ref">Account: account number</span></div>
               </div>
               <div class="mini-body">
                 <div class="mini-to">Your Provider<br>Patient Financial Services<br>Provider billing address</div>
@@ -2796,8 +2797,8 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
                 <div class="mini-sig">
                   <div class="mini-sig-left">
                     <div class="mini-sig-close">Sincerely,</div>
-                    <div class="mini-sig-name">First Name Last Name</div>
-                    <span class="mini-sig-sub">Patient / Medicare Beneficiary</span>
+                    <div class="mini-sig-name">Your Name</div>
+                    <span class="mini-sig-sub">Patient</span>
                   </div>
                 </div>
               </div>
@@ -2838,9 +2839,9 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
               <div class="mini-lh">
                 <div class="mini-lh-left">
                   <div class="mini-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-                  <div><div class="mini-org">First Name Last Name</div><span class="mini-org-sub">Patient · Medicare Beneficiary</span></div>
+                  <div><div class="mini-org" class="mini-patient-name">Your Name</div><span class="mini-org-sub">Patient · Account Holder</span></div>
                 </div>
-                <div><div class="mini-date">Preparation date</div><span class="mini-ref">Account: account number</span></div>
+                <div><div class="mini-date" id="mini-date-auto">Prepared for review</div><span class="mini-ref">Account: account number</span></div>
               </div>
               <div class="mini-body">
                 <div class="mini-to">Your Provider<br>Patient Financial Services<br>Provider billing address</div>
@@ -2852,8 +2853,8 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
                 <div class="mini-sig">
                   <div class="mini-sig-left">
                     <div class="mini-sig-close">Sincerely,</div>
-                    <div class="mini-sig-name">First Name Last Name</div>
-                    <span class="mini-sig-sub">Patient / Medicare Beneficiary</span>
+                    <div class="mini-sig-name">Your Name</div>
+                    <span class="mini-sig-sub">Patient</span>
                   </div>
                 </div>
               </div>
@@ -2894,9 +2895,9 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
               <div class="mini-lh">
                 <div class="mini-lh-left">
                   <div class="mini-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-                  <div><div class="mini-org">First Name Last Name</div><span class="mini-org-sub">Patient · Medicare Beneficiary</span></div>
+                  <div><div class="mini-org" class="mini-patient-name">Your Name</div><span class="mini-org-sub">Patient · Account Holder</span></div>
                 </div>
-                <div><div class="mini-date">Preparation date</div><span class="mini-ref">Account: account number</span></div>
+                <div><div class="mini-date" id="mini-date-auto">Prepared for review</div><span class="mini-ref">Account: account number</span></div>
               </div>
               <div class="mini-body">
                 <div class="mini-to">Your Provider<br>Patient Financial Services<br>Provider billing address</div>
@@ -2908,8 +2909,8 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
                 <div class="mini-sig">
                   <div class="mini-sig-left">
                     <div class="mini-sig-close">Sincerely,</div>
-                    <div class="mini-sig-name">First Name Last Name</div>
-                    <span class="mini-sig-sub">Patient / Medicare Beneficiary</span>
+                    <div class="mini-sig-name">Your Name</div>
+                    <span class="mini-sig-sub">Patient</span>
                   </div>
                 </div>
               </div>
@@ -4722,6 +4723,6 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   });
 })();
 </script>
-<div id="upa-hddbg" style="display:none;position:fixed;bottom:14px;left:14px;z-index:99999;background:rgba(15,15,15,.93);color:#cce;font:600 9.5px/1.55 monospace;padding:8px 11px;border-radius:7px;max-width:320px;pointer-events:none;box-shadow:0 2px 14px rgba(0,0,0,.6);border:1px solid rgba(255,153,0,.45)"></div>
+<!-- forensic overlay removed for production -->
 </body>
 </html>

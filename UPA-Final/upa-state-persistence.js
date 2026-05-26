@@ -169,7 +169,23 @@
         return { intake:active.intake, source:'active', time:timeValue(active), caseId:active.caseId || caseIdFromIntake(active.intake) };
       }
     }
-    // For non-scan active cases (manual intake, paid sessions) — compare timestamps so the newest wins
+    // For non-scan cases with a properly stamped caseId: trust ACTIVE_KEY
+    // unconditionally, just as scan cases are trusted above.
+    //
+    // Rationale: every write path that establishes a new intake session
+    // (persistIntake, markCheckout, importCaseToken, markPaid) explicitly updates
+    // ACTIVE_KEY with the current intake. Old data left in CHECKOUT_KEY, REVIEW_KEY,
+    // or PAID_KEY from a previous session can have a newer `updatedAt` timestamp
+    // than the freshly-written ACTIVE_KEY (because restoreSession() re-stamps those
+    // keys on every page load), letting stale data win the timestamp race below.
+    // Trusting ACTIVE_KEY when it carries a valid caseId prevents this.
+    var activeCaseIdEarly = active && (active.caseId || caseIdFromIntake(active.intake || {})) || '';
+    if(activeCaseIdEarly && active && active.intake && hasIntake(active.intake)){
+      return { intake:active.intake, source:'active', time:timeValue(active), caseId:activeCaseIdEarly };
+    }
+
+    // Fallback timestamp race — used when ACTIVE_KEY has no caseId yet (e.g. legacy
+    // data written before caseId stamping was added, or a bare bootstrap envelope).
     var list = [];
     if(active && active.intake) addIntakeCandidate(list, active.intake, active, 'active');
     addIntakeCandidate(list, readJSON(INTAKE_KEY), null, 'intake');

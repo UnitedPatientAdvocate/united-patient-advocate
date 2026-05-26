@@ -65,28 +65,13 @@ html,body{height:100%;font-family:var(--sans);background:var(--navy-deep);color:
 .btn-open:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 6px 32px rgba(30,184,122,.55)}
 .btn-open svg{width:16px;height:16px;stroke:white;stroke-width:2.5;fill:none}
 .btn-sub{font-size:.5625rem;color:var(--on-dark-3);margin-top:10px;text-align:center}
-.resume-panel{display:none;margin:0 0 20px;text-align:left}
-.resume-mode{overflow:auto}
-.resume-mode .scene{justify-content:flex-start}
-.resume-mode .check-wrap,.resume-mode .feat-list{display:none}
-.resume-mode .card{max-width:480px}
-.resume-mode .resume-panel{display:block}
-.resume-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.resume-field.full{grid-column:1/-1}
-.resume-label{display:block;font-size:.5rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:5px}
-.resume-input{width:100%;border:1px solid rgba(255,255,255,.13);border-radius:9px;background:rgba(255,255,255,.07);color:var(--on-dark);font-family:var(--sans);font-size:.78rem;padding:10px 11px;outline:none}
-.resume-input:focus{border-color:rgba(30,184,122,.48);box-shadow:0 0 0 3px rgba(30,184,122,.10)}
-.resume-input::placeholder{color:rgba(235,244,255,.28)}
-.resume-input option{color:#1C2B48}
-.resume-file{padding:9px 11px}
-.resume-file-note{font-size:.58rem;line-height:1.45;color:var(--on-dark-3);margin-top:5px}
-.resume-error{display:none;color:#FFB0B0;font-size:.68rem;line-height:1.45;margin-top:4px;text-align:center}
-.resume-error.show{display:block}
+/* resume-form CSS removed — the re-entry form has been replaced by direct
+   session restore + fallback-to-intake routing. No form should ever appear
+   in the post-payment / email-link flow. */
 
 /* ── ENTRY ANIMATION ── */
 .card{opacity:0;transform:translateY(20px);transition:opacity .7s var(--pop) .1s,transform .7s var(--pop) .1s}
 .card.loaded{opacity:1;transform:translateY(0)}
-@media(max-width:520px){.resume-grid{grid-template-columns:1fr}.resume-field.full{grid-column:auto}}
 </style>
 </head>
 <body>
@@ -106,49 +91,35 @@ html,body{height:100%;font-family:var(--sans);background:var(--navy-deep);color:
       </div>
     </div>
 
-    <div class="card-eyebrow">You're In</div>
-    <div class="card-title">Your case is <span>open.</span></div>
-    <div class="card-sub">We've started your billing review. The next page is where we work through it together.</div>
+    <div class="card-eyebrow">Payment Confirmed</div>
+    <div class="card-title">Your review is <span>ready.</span></div>
+    <div class="card-sub">Your billing review package is prepared. Letters, findings, action plan — everything is built around your specific bill and waiting on the next screen.</div>
 
     <div class="feat-list">
       <div class="feat-item">
         <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-        <div class="feat-text"><strong>Letters drafted</strong> — for the providers you'll need to write to</div>
+        <div class="feat-text"><strong>Dispute letters, drafted</strong> — tailored to your bill, your provider, and your coverage</div>
       </div>
       <div class="feat-item">
         <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6.29 6.29l1.36-1.36a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
-        <div class="feat-text"><strong>What to say on the phone</strong> — written for you in plain English</div>
+        <div class="feat-text"><strong>Word-for-word call scripts</strong> — in plain English, no medical knowledge needed</div>
       </div>
       <div class="feat-item">
         <div class="feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-        <div class="feat-text"><strong>A clear path through it</strong> — at your pace, with no pressure</div>
+        <div class="feat-text"><strong>Step-by-step action plan</strong> — at your pace, nothing left unexplained</div>
       </div>
     </div>
 
     <div class="prog-wrap">
-      <div class="prog-label" id="prog-label">Opening your case…</div>
+      <div class="prog-label" id="prog-label">Loading your case…</div>
       <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
     </div>
 
-    <form class="resume-panel" id="resume-panel" onsubmit="saveResumeCase(event)" novalidate>
-      <div class="resume-grid">
-        <div class="resume-field full"><label class="resume-label" for="resume-name">Patient name</label><input class="resume-input" id="resume-name" required autocomplete="name" placeholder="Full name"></div>
-        <div class="resume-field full"><label class="resume-label" for="resume-provider">Provider / hospital</label><input class="resume-input" id="resume-provider" required placeholder="Hospital, clinic, or billing provider"></div>
-        <div class="resume-field"><label class="resume-label" for="resume-amount">Bill amount</label><input class="resume-input" id="resume-amount" required placeholder="$5,000 or $5,000 - $10,000"></div>
-        <div class="resume-field"><label class="resume-label" for="resume-dos">Service date</label><input class="resume-input" id="resume-dos" type="date"></div>
-        <div class="resume-field"><label class="resume-label" for="resume-insurance">Coverage</label><input class="resume-input" id="resume-insurance" placeholder="Medicare, private, self-pay"></div>
-        <div class="resume-field"><label class="resume-label" for="resume-status">Payment status</label><select class="resume-input" id="resume-status"><option value="">Select status</option><option>Not Paid Yet</option><option>On Payment Plan</option><option>Partial Payment</option><option>Sent to Collections</option><option>Paid</option></select></div>
-        <div class="resume-field full"><label class="resume-label" for="resume-concerns">Main billing concern</label><textarea class="resume-input" id="resume-concerns" rows="3" required placeholder="Example: charged twice, denied by insurance, surprise bill, amount higher than expected"></textarea></div>
-        <div class="resume-field full"><label class="resume-label" for="resume-upload">Itemized bill upload if available</label><input class="resume-input resume-file" id="resume-upload" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.heif,image/*,application/pdf"><div class="resume-file-note">Optional. Used to label this resumed case and keep the packet tied to your bill.</div></div>
-      </div>
-      <div class="resume-error" id="resume-error">Please enter the patient name, provider, bill amount, and main concern so we can reopen a personalized review.</div>
-    </form>
-
     <a href="/dashboard?unlock=1" class="btn-open" id="open-btn">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-      Open My Case
+      Open My Review
     </a>
-    <div class="btn-sub">You can come back to your case any time on this device. We'll keep your spot.</div>
+    <div class="btn-sub">Bookmark this page or save the link from your receipt email — your case is stored on this device.</div>
 
   </div>
 </div>
@@ -159,232 +130,133 @@ html,body{height:100%;font-family:var(--sans);background:var(--navy-deep);color:
 window.addEventListener('pageshow', function(e){ if(e.persisted){ window.location.reload(); } });
 </script>
 <script>
-/* Store the license key from Gumroad if present */
-var resumeMode = false;
-var resumeRedirectTimer = null;
+// ─────────────────────────────────────────────────────────────────────────────
+// SESSION RESTORE + PAID FLAG
+// The "Resume Your Review" re-entry form has been removed entirely.
+// Strategy:
+//   1. Try URL token (cross-context safe, 48-hour freshness guard).
+//   2. Check for recent same-browser checkout (< 48 h) for markPaid() gating.
+//   3. ALWAYS call restoreSession() for reading — even for email-link returns
+//      where the checkout is days old. We gate markPaid() (which WRITES) on
+//      freshness, but reading/displaying existing localStorage data is safe.
+//   4. After restore, check if any valid intake exists (no freshness gate).
+//   5. If case data found → auto-redirect to dashboard.
+//      If no case data at all → redirect to intake start (not a re-entry form).
+// ─────────────────────────────────────────────────────────────────────────────
 var tokenRestored = false;
-var hasRecentCheckout = false; // true only when checkout was started in this browser within 48 h
+var hasRecentCheckout = false;
+var hasCaseData = false;
 
 (function() {
   try {
     var params = new URLSearchParams(window.location.search);
-    var licenseKey = params.get('license_key') || params.get('key') || params.get('token');
+    var licenseKey = params.get('license_key') || params.get('key') || params.get('token') || '';
     if (licenseKey) {
       sessionStorage.setItem('upa.license.key', licenseKey);
       localStorage.setItem('upa.license.key', licenseKey);
     }
 
-    // ── STEP 1: Restore from URL token or fresh pre-checkout stored token ──────
-    // restoreFromUrl() now enforces a 48-hour freshness check on stored tokens so
-    // a stale token from a previous session is never imported. This is the only path
-    // that works cross-context (Incognito purchase → regular Chrome email link), because
-    // the token travels in the Gumroad ?redirect= URL built by checkoutUrlWithToken().
+    // STEP 1: URL token restore — 48-hour freshness guard baked into restoreFromUrl().
+    // This is the only path that works cross-context (Incognito purchase → regular
+    // Chrome email link) because the token travels in the Gumroad redirect URL.
     if (window.UPAState && window.UPAState.restoreFromUrl) {
       tokenRestored = !!window.UPAState.restoreFromUrl({ stage: 'success-token-restore', source: 'success-url' });
     }
 
-    // ── STEP 2: If no token, check for a RECENT same-browser checkout (< 48 h) ──
-    // Only trust localStorage when the checkout was started in THIS browser context
-    // recently. An old checkout (days/months old, e.g. Hospital Trinidad from a prior
-    // session) must NOT be treated as authoritative — doing so is the root cause of
-    // stale data persisting across purchases (the Trinidad bug).
+    // STEP 2: Check for a recent same-browser checkout (< 48 h).
+    // Used ONLY to gate markPaid() below — NOT to gate session reading.
     if (!tokenRestored) {
       try {
         var co = window.UPAState && window.UPAState.readJSON
-          ? window.UPAState.readJSON('upa.checkout.session.v2')
-          : null;
+          ? window.UPAState.readJSON('upa.checkout.session.v2') : null;
         if (co && co.checkoutStartedAt) {
           var coAge = Date.now() - Date.parse(co.checkoutStartedAt);
           hasRecentCheckout = coAge < 48 * 60 * 60 * 1000;
           if (!hasRecentCheckout) {
-            console.log('[UPA] success: checkout is stale (' + Math.round(coAge / 3600000) + 'h old) — resume form will be shown');
+            console.log('[UPA] success: checkout is stale (' + Math.round(coAge / 3600000) + 'h old) — reading all storage keys for case data');
           }
         }
       } catch(e) {}
     }
 
-    // ── STEP 3: Restore session ONLY when we have a verified current session ────
-    if (!tokenRestored && hasRecentCheckout && window.UPAState && window.UPAState.restoreSession) {
-      window.UPAState.restoreSession({ stage: 'success-storage-restore', source: 'same-browser-storage' });
+    // STEP 3: ALWAYS call restoreSession() — unconditionally.
+    // A customer clicking their email receipt link days after purchase has no URL
+    // token and a stale checkout timestamp, but their intake IS in localStorage on
+    // this device. Without this call, getIntake() returns {} and we'd show a blank
+    // dashboard. Reading existing localStorage data is always safe; the freshness
+    // guard only protects markPaid() (which WRITES back to all keys).
+    if (window.UPAState && window.UPAState.restoreSession) {
+      window.UPAState.restoreSession({ stage: 'success-storage-restore', source: 'success-page' });
     }
 
-    // ── STEP 4: Mark as paid ONLY when session is verified ─────────────────────
-    // Without a fresh token OR a recent same-browser checkout, calling markPaid()
-    // would read stale localStorage data (from a different patient/session) and stamp
-    // it back into EVERY storage key — making the stale data self-reinforcing. Instead,
-    // we set only the paid flag and let the resume form collect fresh case details.
+    // STEP 4: markPaid() ONLY when the session is verified.
+    // Without token or recent checkout, calling markPaid() would re-stamp whatever
+    // happens to be in localStorage (potentially stale data from a different patient)
+    // back into every key — the root of the "Trinidad bug" in prior sessions.
     if ((tokenRestored || hasRecentCheckout) && window.UPAState && window.UPAState.markPaid) {
       window.UPAState.markPaid({
         stage: 'success',
         source: tokenRestored ? 'gumroad-return-token' : 'gumroad-return',
-        licenseKey: licenseKey || ''
+        licenseKey: licenseKey
       });
     }
 
-    /* Always set the paid flag — dashboard reads this to unlock paid features */
+    // Always set the paid flag — dashboard personalization reads this.
     sessionStorage.setItem('upa.paid', '1');
     localStorage.setItem('upa.paid', '1');
-  } catch(e) {}
+
+    // STEP 5: Determine if any valid case data exists (no freshness gate).
+    // If localStorage is populated with this patient's intake, trust it.
+    hasCaseData = !!(window.UPAState && window.UPAState.hasIntake
+      && window.UPAState.hasIntake(window.UPAState.getIntake()));
+  } catch(e) {
+    console.warn('[UPA] success: session restore error —', e && e.message);
+  }
 })();
 
-function hasSavedCaseState() {
-  try {
-    // We only consider case state "saved" when we can verify it belongs to the current
-    // purchase — either a fresh token was imported (cross-context safe) or the checkout
-    // was started in this browser context within the last 48 hours (same-context safe).
-    // Any intake data that exists purely in localStorage without those signals may be
-    // from a completely different session (stale data bug) and must not be trusted here.
-    if (!tokenRestored && !hasRecentCheckout) return false;
-    return !!(window.UPAState && window.UPAState.hasIntake && window.UPAState.hasIntake(window.UPAState.getIntake()));
-  } catch(e) {
-    return false;
-  }
-}
-
-function setButtonText(text) {
-  var btn = document.getElementById('open-btn');
-  if (!btn) return;
-  btn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>' + text;
-}
-
-function showResumeReview() {
-  resumeMode = true;
-  document.body.classList.add('resume-mode');
-  document.documentElement.style.overflow = 'auto';
-  document.body.style.overflow = 'auto';
-  document.querySelector('.card-title').innerHTML = 'Resume Your <span>Review.</span>';
-  document.querySelector('.card-sub').textContent = 'We confirmed access, but could not restore a saved case token or browser session. Re-enter the key billing details below so your dashboard opens as your case instead of a generic example.';
-  var progLabel = document.getElementById('prog-label');
-  var progFill = document.getElementById('prog-fill');
-  var sub = document.querySelector('.btn-sub');
-  if (progLabel) progLabel.textContent = 'Case details required before dashboard access';
-  if (progFill) progFill.style.width = '0%';
-  if (sub) sub.textContent = 'This protects you from opening a blank or default dashboard.';
-  setButtonText('Save and Open My Dashboard');
-}
-
-function resumeValue(id) {
-  var el = document.getElementById(id);
-  return el ? el.value.replace(/\s+/g, ' ').trim() : '';
-}
-
-function resumeUploadDetails() {
-  var input = document.getElementById('resume-upload');
-  var file = input && input.files && input.files[0] ? input.files[0] : null;
-  if (!file) return null;
-  return {
-    name: file.name || 'Uploaded itemized bill',
-    size: file.size || 0,
-    type: file.type || '',
-    lastModified: file.lastModified || null,
-    capturedAt: new Date().toISOString()
-  };
-}
-
-function todayISO() {
-  var d = new Date();
-  var y = d.getFullYear();
-  var m = String(d.getMonth() + 1).padStart(2, '0');
-  var day = String(d.getDate()).padStart(2, '0');
-  return y + '-' + m + '-' + day;
-}
-
-function saveResumeCase(evt) {
-  if (evt && evt.preventDefault) evt.preventDefault();
-  var patient = resumeValue('resume-name');
-  var provider = resumeValue('resume-provider');
-  var amount = resumeValue('resume-amount');
-  var concern = resumeValue('resume-concerns');
-  var error = document.getElementById('resume-error');
-  if (error) error.textContent = 'Please enter the patient name, provider, bill amount, and main concern so we can reopen a personalized review.';
-  if (!patient || !provider || !amount || !concern) {
-    if (error) error.classList.add('show');
-    return false;
-  }
-  if (resumeValue('resume-dos') && resumeValue('resume-dos') > todayISO()) {
-    if (error) {
-      error.textContent = 'Please enter a service date that is today or earlier.';
-      error.classList.add('show');
-    }
-    return false;
-  }
-  if (error) error.classList.remove('show');
-  var serviceDate = resumeValue('resume-dos');
-  var insurance = resumeValue('resume-insurance') || 'Coverage not provided';
-  var status = resumeValue('resume-status') || 'Payment status not provided';
-  var upload = resumeUploadDetails();
-  var uploadedLabel = upload ? upload.name : 'Not uploaded';
-  var payload = {
-    _subject: 'UPA paid access resumed case',
-    source: 'UPA success resume fallback',
-    resume_source: 'generic success access link',
-    submitted_at: new Date().toISOString(),
-    name: patient,
-    patient_name: patient,
-    patientName: patient,
-    provider: provider,
-    providerName: provider,
-    bill_amount: amount,
-    bill_amount_raw: 'other',
-    bill_amount_other: amount,
-    totalBilled: amount,
-    date_of_service: serviceDate,
-    service_date: serviceDate,
-    insurance: insurance,
-    insuranceType: insurance,
-    hasInsurance: !/self-pay|no insurance/i.test(insurance),
-    payment_status: status,
-    billStatus: status,
-    bill_type: 'medical bill',
-    concerns: concern,
-    concerns_raw: concern,
-    concern_other: concern,
-    specificConcerns: concern,
-    servicesReceived: concern,
-    visitReason: concern,
-    description: concern,
-    uploaded_bill: uploadedLabel,
-    uploadedBill: uploadedLabel,
-    fileName: uploadedLabel,
-    uploaded_bill_file: upload
-  };
-  try {
-    if (window.UPAState && window.UPAState.persistIntake) window.UPAState.persistIntake(payload, { stage: 'success-resume', source: 'success-fallback' });
-    if (window.UPAState && window.UPAState.markPaid) window.UPAState.markPaid({ stage: 'success-resume-paid', source: 'success-fallback' });
-  } catch(e) {}
-  window.location.href = '/dashboard?unlock=1&resumed=1';
-  return false;
-}
-
-/* Entry animation */
+/* Entry animation + routing */
 window.addEventListener('load', function() {
-  var card = document.getElementById('main-card');
-  var checkSvg = document.getElementById('check-svg');
-  var progFill = document.getElementById('prog-fill');
-  var progLabel = document.getElementById('prog-label');
+  var card    = document.getElementById('main-card');
+  var checkSv = document.getElementById('check-svg');
+  var progFl  = document.getElementById('prog-fill');
+  var progLbl = document.getElementById('prog-label');
 
-  setTimeout(function() { card.classList.add('loaded'); }, 80);
-  setTimeout(function() { checkSvg.classList.add('show'); }, 300);
-  setTimeout(function() { progFill.style.width = '100%'; }, 600);
-  var btn = document.getElementById('open-btn');
-  var dateInput = document.getElementById('resume-dos');
-  if (dateInput) dateInput.max = todayISO();
-  if (btn) btn.addEventListener('click', function(e){
-    if (resumeMode) {
-      e.preventDefault();
-      saveResumeCase(e);
-    }
-  });
-  if (!hasSavedCaseState()) {
-    showResumeReview();
+  setTimeout(function() { if (card)    card.classList.add('loaded'); },  80);
+  setTimeout(function() { if (checkSv) checkSv.classList.add('show'); }, 300);
+  setTimeout(function() { if (progFl)  progFl.style.width = '100%'; },  600);
+
+  if (!hasCaseData) {
+    // No intake data found in localStorage (genuinely empty / cross-context purchase).
+    // Do NOT show a re-entry form — route to intake start so the patient completes the
+    // flow properly. Their data will be collected and persisted from scratch.
+    if (progLbl) progLbl.textContent = 'Setting up your case…';
+    if (progFl)  setTimeout(function(){ progFl.style.width = '0%'; }, 700);
+    var btn = document.getElementById('open-btn');
+    if (btn) btn.href = '/';
+    console.warn('[UPA] success: no case data found — redirecting to intake start in 2.5 s');
+    setTimeout(function() { window.location.href = '/'; }, 2500);
     return;
   }
-  setTimeout(function() { progLabel.textContent = 'Ready when you are.'; }, 2200);
 
-  /* Auto-redirect after 3.5 s */
-  resumeRedirectTimer = setTimeout(function() {
-    window.location.href = '/dashboard?unlock=1';
-  }, 3500);
+  // Case data loaded — audit fields and log warnings for anything missing.
+  try {
+    var intake = (window.UPAState && window.UPAState.getIntake) ? window.UPAState.getIntake() : {};
+    var missing = [];
+    if (!(intake.name || intake.patient_name || intake.patientName))       missing.push('patient name');
+    if (!(intake.provider || intake.providerName || intake.extracted_provider)) missing.push('provider');
+    if (!(intake.bill_amount || intake.bill_amount_other || intake.totalBilled || intake.extracted_bill_amount)) missing.push('bill amount');
+    if (!(intake.concerns || intake.specificConcerns || intake.description)) missing.push('concerns');
+    if (missing.length) {
+      console.warn('[UPA] success: case loaded but fields missing —', missing.join(', '), '(dashboard will use placeholders)');
+    } else {
+      console.log('[UPA] success: case fully loaded — name, provider, amount, concerns all present');
+    }
+  } catch(e) {}
+
+  if (progLbl) setTimeout(function() { progLbl.textContent = 'Ready when you are.'; }, 2200);
+
+  // Auto-redirect to dashboard after 3.5 s (button also works immediately).
+  setTimeout(function() { window.location.href = '/dashboard?unlock=1'; }, 3500);
 });
 </script>
 </body>

@@ -586,6 +586,24 @@
       captureReviewState(Object.assign({ stage:'checkout-local-handoff' }, meta || {}));
       var url = new URL(href, window.location.href);
       url.searchParams.set('upa_checkout', '1');
+
+      // ── EMBED CASE TOKEN IN GUMROAD REDIRECT URL ──────────────────────────
+      // Gumroad supports a ?redirect=URL parameter that overrides where the
+      // buyer lands after payment. We build our success URL with the case token
+      // already embedded (?case=TOKEN). This makes the token survive even when
+      // the user purchases in one browser context (incognito) and opens the
+      // dashboard from a Gumroad email link in another context (regular Chrome),
+      // because the token travels IN THE URL rather than in localStorage.
+      try{
+        var token = exportCaseToken(Object.assign({ stage:'checkout-url-token' }, meta || {}));
+        if(token && token.length <= MAX_CASE_PARAM_LENGTH){
+          var successBase = window.location.origin + '/UPA-Final/05_upa-success.html';
+          var successUrl = new URL(successBase);
+          successUrl.searchParams.set(TOKEN_PARAM, token);
+          url.searchParams.set('redirect', successUrl.href);
+        }
+      }catch(re){}
+
       return url.href.length <= MAX_CHECKOUT_URL_LENGTH ? url.href : href;
     }catch(e){
       return href;

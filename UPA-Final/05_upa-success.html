@@ -172,13 +172,22 @@ var tokenRestored = false;
       sessionStorage.setItem('upa.license.key', licenseKey);
       localStorage.setItem('upa.license.key', licenseKey);
     }
+    // ── RESTORE PRIORITY (most authoritative first) ─────────────────────────
+    // 1. URL token (?case=) or stored pre-checkout token in localStorage.
+    //    This is the only path that works cross-browser/cross-context (e.g.
+    //    purchase in incognito → email opened in regular Chrome). The token
+    //    was written to localStorage by markCheckout() AND is embedded in the
+    //    Gumroad redirect URL by checkoutUrlWithToken(). Either route works.
+    // 2. Same-browser localStorage fallback — only used when no token exists
+    //    (e.g. very old session where pre-checkout token write wasn't available).
+    //    This path can restore stale data if localStorage has an old session.
     var storageRestored = false;
-    if (window.UPAState && window.UPAState.restoreSession) {
+    if (window.UPAState && window.UPAState.restoreFromUrl) {
+      tokenRestored = !!window.UPAState.restoreFromUrl({ stage: 'success-token-restore', source: 'success-url' });
+    }
+    if (!tokenRestored && window.UPAState && window.UPAState.restoreSession) {
       window.UPAState.restoreSession({ stage: 'success-storage-restore', source: 'same-browser-storage' });
       storageRestored = !!(window.UPAState.hasIntake && window.UPAState.hasIntake(window.UPAState.getIntake()));
-    }
-    if (!storageRestored && window.UPAState && window.UPAState.restoreFromUrl) {
-      tokenRestored = !!window.UPAState.restoreFromUrl({ stage: 'success-token-restore', source: 'success-url' });
     }
     if (window.UPAState && window.UPAState.markPaid) {
       window.UPAState.markPaid({ stage: 'success', source: tokenRestored ? 'gumroad-return-token' : 'gumroad-return', licenseKey: licenseKey || '' });

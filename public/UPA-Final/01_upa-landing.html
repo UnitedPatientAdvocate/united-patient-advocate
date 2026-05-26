@@ -420,6 +420,15 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .chip.selected .chip-box svg{opacity:1;transform:scale(1)}
 .chip-name{font-size:.75rem;font-weight:600;color:var(--on-dark-2);line-height:1.35;transition:color .2s ease}
 .chip.selected .chip-name{color:var(--on-dark)}
+/* Recommended chip highlight */
+.chip.chip-rec{border-color:rgba(30,184,122,.22);background:rgba(30,107,90,.07)}
+.chip.chip-rec:hover{border-color:rgba(30,184,122,.40);background:rgba(30,107,90,.13)}
+/* Concern section headers (Recommended / Other) */
+.concern-sec-hdr{grid-column:1/-1;font-size:.4375rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:4px 2px 2px;display:flex;align-items:center;gap:6px;line-height:1}
+.csh-rec{color:var(--green);margin-top:4px}
+.csh-other{color:rgba(235,244,255,.28);margin-top:8px;border-top:1px solid rgba(255,255,255,.07);padding-top:10px}
+.csh-dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 6px rgba(30,184,122,.6)}
+.csh-ctx{font-weight:500;letter-spacing:.04em;text-transform:none;color:rgba(30,184,122,.70);font-size:.4rem}
 
 /* Form fields */
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:12px}
@@ -562,12 +571,12 @@ html,body{max-width:100%;overflow-x:hidden}
 
 <!-- ═══ HERO ═══ -->
 <div class="hero">
-  <div class="hero-eyebrow">Free AI Medical Bill Scan · Independent Dispute Documentation</div>
+  <div class="hero-eyebrow">Free Medical Bill Scan · Independent Dispute Documentation</div>
   <div class="hero-hl">Upload Your Bill.<br><em>We Find The Errors.</em></div>
-  <div class="hero-sub">Upload your medical bill or EOB and our AI scanner reads it in seconds — identifying the specific charges, codes, and discrepancies that give you the best grounds for dispute. Then we prepare your complete documentation package.</div>
+  <div class="hero-sub">Upload your medical bill or EOB and our bill scanner reads it in seconds — identifying the specific charges, codes, and discrepancies that give you the best grounds for dispute. Then we prepare your complete documentation package.</div>
   <a href="00_upa-scan.html" class="hero-cta">
     <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    Upload My Bill — Free AI Scan
+    Upload My Bill — Free Scan
   </a>
   <a href="#begin-review" class="hero-cta-secondary">No bill yet? Start with the review form →</a>
   <div class="hero-microcopy">
@@ -1360,6 +1369,144 @@ function toggleChip(chip){
   document.getElementById('btn-next').disabled=!isStep5Valid();
 }
 
+/* ── INTELLIGENT CONCERNS ──────────────────────────────────────────────────
+   Fires every time the user arrives at step 5. Scores each concern chip
+   based on what they selected in steps 1–4, then reorders the grid so the
+   most case-relevant concerns appear first under a "Recommended" header.
+   Already-selected chips are preserved. All chips remain selectable.
+   ────────────────────────────────────────────────────────────────────────*/
+function smartConcerns(){
+  var grid=document.getElementById('concern-grid');
+  if(!grid)return;
+
+  var s1=state.s1, s2=state.s2, s3=state.s3, s4=state.s4;
+
+  // Score table — each key matches a chip data-val
+  var score={
+    'too-high':0,'billing issue':0,'not-received':0,'out-of-network':0,
+    'lab-charges':0,'coding':0,'denied':0,'confusing':0,
+    'surprise-bill':0,'no-itemized':0,'other':0
+  };
+
+  // Bill type
+  var billScores={
+    hospital:{'too-high':3,'billing issue':2,'no-itemized':2,'coding':1},
+    er:{'surprise-bill':4,'out-of-network':3,'too-high':2,'billing issue':1},
+    doctor:{'billing issue':3,'coding':3,'too-high':1},
+    lab:{'lab-charges':4,'not-received':3,'billing issue':2,'coding':1},
+    surgery:{'too-high':3,'billing issue':3,'coding':2,'no-itemized':2},
+    ambulance:{'surprise-bill':4,'out-of-network':4,'too-high':2},
+    mental:{'denied':4,'out-of-network':2,'coding':2},
+    pharmacy:{'too-high':4,'not-received':2,'billing issue':1}
+  };
+  if(s1&&billScores[s1]){
+    Object.keys(billScores[s1]).forEach(function(k){score[k]+=(billScores[s1][k]||0);});
+  }
+
+  // Insurance
+  var insScores={
+    medicare:{'denied':2,'coding':2,'billing issue':1},
+    'medicare-advantage':{'denied':3,'out-of-network':2,'coding':1},
+    medigap:{'billing issue':2,'coding':2},
+    medicaid:{'denied':2,'confusing':2},
+    dual:{'denied':3,'confusing':1},
+    employer:{'out-of-network':2,'surprise-bill':2,'denied':1},
+    marketplace:{'out-of-network':2,'surprise-bill':2,'denied':1},
+    tricare:{'denied':3,'coding':2},
+    va:{'denied':3,'not-received':1},
+    chip:{'denied':2,'confusing':1},
+    'workers-comp':{'denied':2,'not-received':2},
+    uninsured:{'too-high':3,'no-itemized':3,'confusing':2}
+  };
+  if(s2&&insScores[s2]){
+    Object.keys(insScores[s2]).forEach(function(k){score[k]+=(insScores[s2][k]||0);});
+  }
+
+  // Payment status
+  var payScores={
+    'insurance-dispute':{'denied':4,'out-of-network':2},
+    collections:{'too-high':2,'confusing':2,'billing issue':1},
+    paid:{'billing issue':2,'no-itemized':2},
+    partial:{'confusing':1,'too-high':1},
+    'payment-plan':{'confusing':1}
+  };
+  if(s4&&payScores[s4]){
+    Object.keys(payScores[s4]).forEach(function(k){score[k]+=(payScores[s4][k]||0);});
+  }
+
+  // High bill amount
+  var bigAmounts=['10k-25k','25k-50k','50k-100k','over100k'];
+  if(s3&&bigAmounts.indexOf(s3)>-1){
+    score['no-itemized']+=2;score['too-high']+=1;score['billing issue']+=1;
+  }
+
+  // Sort by score; 'other' always last
+  var sorted=Object.keys(score).filter(function(v){return v!=='other';});
+  sorted.sort(function(a,b){return score[b]-score[a];});
+  sorted.push('other');
+
+  // Top 4 with score > 0 are "recommended"
+  var recommended=sorted.filter(function(v){return score[v]>0;}).slice(0,4);
+
+  // Collect existing chip elements (preserves event handlers and selected state)
+  var chips=Array.prototype.slice.call(grid.querySelectorAll('.chip'));
+  var chipMap={};
+  chips.forEach(function(c){chipMap[c.dataset.val]=c;});
+
+  // Remove old section headers
+  Array.prototype.slice.call(grid.querySelectorAll('.concern-sec-hdr')).forEach(function(el){
+    el.parentNode.removeChild(el);
+  });
+  // Detach all chips
+  chips.forEach(function(c){if(c.parentNode)c.parentNode.removeChild(c);});
+
+  function makeHdr(text,cls){
+    var d=document.createElement('div');
+    d.className='concern-sec-hdr '+(cls||'');
+    d.innerHTML=text;
+    return d;
+  }
+
+  if(recommended.length){
+    var contextMsg=buildConcernContext(s1,s2,s4);
+    grid.appendChild(makeHdr(
+      '<span class="csh-dot"></span>Recommended for your case'+(contextMsg?' <span class="csh-ctx">'+contextMsg+'</span>':''),
+      'csh-rec'
+    ));
+    recommended.forEach(function(v){
+      var c=chipMap[v];if(!c)return;
+      c.classList.add('chip-rec');
+      grid.appendChild(c);
+    });
+    var remaining=sorted.filter(function(v){return recommended.indexOf(v)===-1;});
+    if(remaining.length){
+      grid.appendChild(makeHdr('Other concerns','csh-other'));
+      remaining.forEach(function(v){
+        var c=chipMap[v];if(!c)return;
+        c.classList.remove('chip-rec');
+        grid.appendChild(c);
+      });
+    }
+  } else {
+    // No scoring data yet (user skipped earlier steps) — restore original order
+    sorted.forEach(function(v){var c=chipMap[v];if(c)grid.appendChild(c);});
+  }
+}
+
+function buildConcernContext(s1,s2,s4){
+  var parts=[];
+  var billMap={hospital:'hospital bill',er:'ER visit',doctor:"doctor's bill",
+    lab:'lab charges',surgery:'surgery bill',ambulance:'ambulance charge',
+    mental:'mental health bill',pharmacy:'pharmacy bill'};
+  if(s1&&billMap[s1])parts.push(billMap[s1]);
+  var insMap={medicare:'Medicare',uninsured:'self-pay',
+    'insurance-dispute':'insurance dispute','employer':'employer insurance'};
+  if(s2&&insMap[s2])parts.push(insMap[s2]);
+  if(s4==='insurance-dispute')parts.push('denied claim');
+  if(s4==='collections')parts.push('in collections');
+  return parts.length?'('+parts.join(' · ')+')':'';
+}
+
 function scanFieldHTML(label, value){
   return '<div class="scan-field"><span>'+escapeHTML(label)+'</span><strong>'+escapeHTML(value || 'Needs confirmation')+'</strong></div>';
 }
@@ -1513,6 +1660,8 @@ function goTo(n){
     next.classList.add('active');
     buildDots();
     updateNav();
+    /* Re-score and reorder concern chips whenever the user reaches step 5 */
+    if(n===5) smartConcerns();
     /* Scroll card into view, offset by sticky nav height */
     var card=document.querySelector('#begin-review .card');
     if(!card)card=document.querySelector('.card');

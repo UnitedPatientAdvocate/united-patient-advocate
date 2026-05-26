@@ -559,7 +559,13 @@
       var params = new URLSearchParams(window.location.search || '');
       token = params.get(TOKEN_PARAM) || params.get('upa_case') || params.get('state') || '';
     }catch(e){}
-    return importCaseToken(token, Object.assign({ source:'url-token' }, meta || {}));
+    // Fallback: if no token in URL (e.g. user opened dashboard from Gumroad email link
+    // rather than the post-purchase redirect), read the pre-checkout token we stored in
+    // localStorage. markCheckout() writes this token before the user leaves for Gumroad.
+    if(!token){
+      try{ token = sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || ''; }catch(e){}
+    }
+    return importCaseToken(token, Object.assign({ source: token ? 'stored-token' : 'url-token' }, meta || {}));
   }
 
   function successUrlWithToken(meta){
@@ -595,6 +601,11 @@
     writeJSON(CHECKOUT_KEY, session);
     writeJSON(REVIEW_KEY, session);
     writeJSON(ACTIVE_KEY, Object.assign({}, activeEnvelope(), { caseId:session.activeCaseId || caseIdFromIntake(session.intake || {}), updatedAt:session.updatedAt || session.checkoutStartedAt, intake:clone(session.intake || {}), session:clone(session) }));
+    // ── PRE-CHECKOUT TOKEN: write case token to localStorage NOW so it survives the
+    // Gumroad redirect and the email link (which carries no URL token). When the
+    // success page opens from the email, restoreFromUrl() will find it in localStorage
+    // even when the URL has no ?case= parameter.
+    try{ exportCaseToken({ stage:'pre-checkout-token', source:'mark-checkout' }); }catch(e){}
     return session;
   }
 

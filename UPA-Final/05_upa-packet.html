@@ -1032,6 +1032,12 @@ body{padding:12px 10px 40px;overflow-x:hidden}
   </div>
 
 </div>
+<script>
+// C1 — BFCache guard: packet page had no pageshow listener.
+// On back-navigation from a new case, BFCache would restore the OLD case DOM.
+// Force a full reload so personalization re-runs against current storage.
+window.addEventListener('pageshow', function(e){ if(e.persisted){ window.location.reload(); } });
+</script>
 <script src="/UPA-Final/upa-state-persistence.js"></script>
 <script src="/UPA-Final/upa-download-packet.js"></script>
 <script src="/UPA-Final/upa-case-personalization.js"></script>

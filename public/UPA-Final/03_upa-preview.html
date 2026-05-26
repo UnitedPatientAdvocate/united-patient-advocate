@@ -634,6 +634,9 @@ html,body{max-width:100%;overflow-x:hidden}
 
 <script src="/UPA-Final/upa-state-persistence.js"></script>
 <script>
+/* BFCache guard — back/forward navigation serves a frozen DOM; reload to re-run personalization */
+window.addEventListener('pageshow', function(e){ if(e.persisted){ window.location.reload(); } });
+
 /* ═══════════════════════════════════
    GUMROAD PRODUCT URL
 ═══════════════════════════════════ */

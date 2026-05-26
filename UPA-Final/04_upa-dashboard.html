@@ -4235,7 +4235,7 @@ function filmStop(){
 const TOUR_STEPS = [
   { mode: 'intro', icon: '👋',
     title: "Welcome. Here's how your case is laid out.",
-    body: "We'll walk through each part of your case once, so you know where everything lives. Takes about 30 seconds. Stop any time." },
+    body: "We'll walk through each part of your case once, so you know where everything lives. Takes less than 60 seconds. Stop any time." },
   { selector: '.sb-case', side: 'right',
     title: '👤 Your case identity',
     body: 'Right here is your provider, payor, and case reference. Always at the top of the sidebar so you never lose your place.' },
@@ -4533,32 +4533,194 @@ window.addEventListener('load', function(){
 /* ── BFCache guard ── */
 window.addEventListener('pageshow', function(e){ if(e.persisted){ window.location.reload(); } });
 
-/* ── Hydration debug label (remove before launch) ── */
-window.addEventListener('load', function(){
-  setTimeout(function(){
+/* ══════════════════════════════════════════════════════════════════
+   FORENSIC HYDRATION AUDIT  (remove before launch)
+   Reads every storage key RAW before and after getIntake() so we
+   can see exactly which key wins and whether Trinidad data persists
+   inside any individual key vs arriving through getIntake().
+   Run  window.__UPA_FORENSIC_DUMP__()  in DevTools at any time.
+   ══════════════════════════════════════════════════════════════════ */
+(function(){
+  var KEYS = {
+    active:   'upa.active.case.v1',
+    intake:   'upa.intake.v1',
+    snapshot: 'upa.case.snapshot.v1',
+    paid:     'upa.paid.results.v2',
+    dashboard:'upa.dashboard.state.v1',
+    review:   'upa.review.session.v1',
+    checkout: 'upa.checkout.session.v2',
+    scan:     'upa.scan.v1'
+  };
+
+  function safeRead(storeName, key){
     try{
-      var dbg  = window.__UPA_HYDRATION_DEBUG__ || {};
-      var raw  = (window.UPAState && window.UPAState.getIntake) ? window.UPAState.getIntake() : {};
-      var prov = raw.provider || raw.providerName || raw.extracted_provider || '—';
-      var amt  = raw.bill_amount_other || raw.bill_amount || (raw.extracted_bill_amount ? '$'+raw.extracted_bill_amount : '') || '—';
-      var src  = dbg.source || (raw._scan ? 'scan' : raw._upa_source || '—');
-      var cid  = (raw._upa_case_id || '—').slice(0, 22);
-      var ts   = dbg.time ? new Date(dbg.time).toLocaleTimeString() : '—';
-      var el   = document.getElementById('upa-hddbg');
-      if(el){
-        el.textContent = '';
-        el.style.display = 'block';
-        el.innerHTML =
-          '<b style="color:#f90;letter-spacing:.06em">HYDRATION</b><br>' +
-          'src: <b>' + src + '</b><br>' +
-          'provider: <b>' + prov + '</b><br>' +
-          'amount: <b>' + amt + '</b><br>' +
-          'id: ' + cid + '<br>' +
-          'ts: ' + ts;
-      }
+      var store = storeName === 'session' ? sessionStorage : localStorage;
+      var raw = store.getItem(key);
+      if(!raw) return null;
+      return { raw:raw, parsed: JSON.parse(raw) };
+    }catch(e){ return null; }
+  }
+
+  function providerOf(parsed){
+    if(!parsed || typeof parsed !== 'object') return '';
+    // direct intake fields
+    var direct = parsed.provider || parsed.providerName || parsed.extracted_provider || '';
+    if(direct) return direct;
+    // nested .intake
+    var i = parsed.intake || {};
+    var fromIntake = i.provider || i.providerName || i.extracted_provider || '';
+    if(fromIntake) return fromIntake;
+    // nested .raw (case snapshot)
+    var r = parsed.raw || {};
+    return r.provider || r.providerName || r.extracted_provider || '';
+  }
+
+  function caseIdOf(parsed){
+    if(!parsed || typeof parsed !== 'object') return '';
+    var direct = parsed._upa_case_id || parsed.caseId || parsed.activeCaseId || parsed.sessionId || '';
+    if(direct) return direct;
+    var i = parsed.intake || {};
+    var fromIntake = i._upa_case_id || i.caseId || '';
+    if(fromIntake) return fromIntake;
+    var r = parsed.raw || {};
+    return r._upa_case_id || '';
+  }
+
+  function tsOf(parsed){
+    if(!parsed || typeof parsed !== 'object') return 0;
+    var fields = [
+      parsed._upa_active_at, parsed.updatedAt, parsed.paidAt,
+      parsed.caseGeneratedAt, parsed.savedAt, parsed.createdAt,
+      parsed._scan_ts, parsed._scanTimestamp,
+      (parsed.intake||{})._upa_active_at, (parsed.intake||{}).updatedAt,
+      (parsed.raw||{})._upa_active_at
+    ];
+    for(var f=0;f<fields.length;f++){
+      if(!fields[f]) continue;
+      if(typeof fields[f]==='number') return fields[f];
+      var p=Date.parse(fields[f]);
+      if(!isNaN(p)) return p;
+    }
+    return 0;
+  }
+
+  function hasTrinidad(raw){ return raw && /trinidad|san trin/i.test(raw); }
+
+  function auditKey(name, storageKey){
+    var ss = safeRead('session', storageKey);
+    var ls = safeRead('local',   storageKey);
+    // prefer sessionStorage (mirrors what readJSON does)
+    var winner = ss || ls;
+    var result = {
+      key:      storageKey,
+      name:     name,
+      inSS:     !!ss,
+      inLS:     !!ls,
+      parsed:   winner ? winner.parsed : null,
+      provider: winner ? providerOf(winner.parsed) : '',
+      caseId:   winner ? caseIdOf(winner.parsed)   : '',
+      ts:       winner ? tsOf(winner.parsed)        : 0,
+      trinidad: !!(ss && hasTrinidad(ss.raw)) || !!(ls && hasTrinidad(ls.raw))
+    };
+    return result;
+  }
+
+  function run(){
+    var report = {};
+    var labels = Object.keys(KEYS);
+    labels.forEach(function(name){ report[name] = auditKey(name, KEYS[name]); });
+
+    // getIntake() result AFTER personalization has run
+    var finalIntake = {};
+    try{
+      if(window.UPAState && window.UPAState.getIntake) finalIntake = window.UPAState.getIntake() || {};
     }catch(e){}
-  }, 250);
-});
+    var hydrationDbg = window.__UPA_HYDRATION_DEBUG__ || {};
+
+    // ── Console group ────────────────────────────────────────────────
+    console.group('%c[UPA FORENSIC AUDIT] Storage key dump', 'color:#f90;font-weight:700;font-size:13px');
+    labels.forEach(function(name){
+      var r = report[name];
+      if(!r.inSS && !r.inLS){
+        console.log('%c' + name + ' (' + r.key + ')', 'color:#555', '— ABSENT');
+        return;
+      }
+      var flag = r.trinidad ? ' ⚠️ TRINIDAD' : '';
+      var provStr = r.provider || '(no provider field)';
+      var idStr   = (r.caseId||'(no caseId)').slice(0,28);
+      var tsStr   = r.ts ? new Date(r.ts).toLocaleTimeString()+' ('+r.ts+')' : '(no ts)';
+      console.log(
+        '%c' + name + ' (' + r.key + ')' + flag,
+        r.trinidad ? 'color:#f44;font-weight:700' : 'color:#8cf;font-weight:600',
+        '\n  SS:', r.inSS, '| LS:', r.inLS,
+        '\n  provider:', provStr,
+        '\n  caseId:  ', idStr,
+        '\n  ts:      ', tsStr
+      );
+      if(r.parsed) console.log('  raw parsed:', r.parsed);
+    });
+
+    console.groupCollapsed('%c[UPA] getIntake() winner', 'color:#0f9;font-weight:700');
+    console.log('  source (hydrationDbg):', hydrationDbg.source || '—');
+    console.log('  caseId (hydrationDbg):', hydrationDbg.caseId || '—');
+    console.log('  time   (hydrationDbg):', hydrationDbg.time ? new Date(hydrationDbg.time).toLocaleTimeString() : '—');
+    console.log('  provider (finalIntake):', finalIntake.provider || finalIntake.providerName || finalIntake.extracted_provider || '—');
+    console.log('  amount  (finalIntake):', finalIntake.bill_amount_other || finalIntake.bill_amount || finalIntake.extracted_bill_amount || '—');
+    console.log('  _upa_source:', finalIntake._upa_source || '—');
+    console.log('  _scan:', finalIntake._scan || false);
+    console.log('  _upa_case_id:', (finalIntake._upa_case_id||'—').slice(0,28));
+    console.log('  FULL finalIntake:', finalIntake);
+    console.groupEnd();
+
+    // Summary: which keys contain Trinidad?
+    var trinidadKeys = labels.filter(function(n){ return report[n].trinidad; });
+    if(trinidadKeys.length){
+      console.warn('[UPA] ⚠️ TRINIDAD DATA FOUND IN:', trinidadKeys.join(', '));
+    } else {
+      console.log('[UPA] ✅ No Trinidad data found in any storage key');
+    }
+
+    // getIntake provider
+    var finalProvider = finalIntake.provider || finalIntake.providerName || finalIntake.extracted_provider || '';
+    if(/trinidad|san trin/i.test(finalProvider)){
+      console.error('[UPA] ❌ TRINIDAD REACHED getIntake() — source was:', hydrationDbg.source);
+    } else {
+      console.log('[UPA] ✅ getIntake() provider is clean:', finalProvider || '(empty)');
+    }
+
+    console.groupEnd();
+
+    // ── Overlay ──────────────────────────────────────────────────────
+    var el = document.getElementById('upa-hddbg');
+    if(el){
+      var lines = ['<b style="color:#f90">FORENSIC AUDIT</b><br>'];
+      labels.forEach(function(name){
+        var r = report[name];
+        if(!r.inSS && !r.inLS){ lines.push('<span style="color:#555">'+name+': ABSENT</span>'); return; }
+        var flag = r.trinidad ? ' <span style="color:#f44">⚠TRINIDAD</span>' : '';
+        var prov = (r.provider||'—').slice(0,30);
+        lines.push('<span style="color:' + (r.trinidad?'#f44':'#8cf') + '">' + name + flag + '</span>: ' + prov);
+      });
+      lines.push('<hr style="border-color:#333;margin:3px 0">');
+      lines.push('winner: <b style="color:#0f9">' + (hydrationDbg.source||'—') + '</b>');
+      var fp = finalIntake.provider || finalIntake.providerName || finalIntake.extracted_provider || '—';
+      var fpColor = /trinidad|san trin/i.test(fp) ? '#f44' : '#0f9';
+      lines.push('getIntake: <b style="color:'+fpColor+'">'+fp.slice(0,30)+'</b>');
+      el.innerHTML = lines.join('<br>');
+      el.style.display = 'block';
+    }
+
+    // Expose for manual DevTools re-run
+    window.__UPA_FORENSIC_DUMP__ = run;
+    return report;
+  }
+
+  window.__UPA_FORENSIC_DUMP__ = run;
+
+  window.addEventListener('load', function(){
+    setTimeout(run, 400);
+  });
+})();
 </script>
 <div id="upa-hddbg" style="display:none;position:fixed;bottom:14px;left:14px;z-index:99999;background:rgba(15,15,15,.93);color:#cce;font:600 9.5px/1.55 monospace;padding:8px 11px;border-radius:7px;max-width:320px;pointer-events:none;box-shadow:0 2px 14px rgba(0,0,0,.6);border:1px solid rgba(255,153,0,.45)"></div>
 </body>

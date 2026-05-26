@@ -164,21 +164,23 @@
 
   function readIntake(){
     try{
-      if(window.UPAState && window.UPAState.restoreSession) window.UPAState.restoreSession({stage:'personalization-load'});
-      if(window.UPAState && window.UPAState.getIntake){
-        var restored = window.UPAState.getIntake();
-        if(restored && Object.keys(restored).length) return restored;
-      }
+      // C2 FIX: delegate exclusively to UPAState — it is the single source of truth.
+      // Do NOT implement a parallel fallback chain that reaches PAID_KEY or CHECKOUT_KEY.
+      // Those paths resurrect stale prior-session data when getIntake() returns empty.
+      //
+      // Priority order:
+      //   1. __UPA_PACKET_INTAKE__  — injected into downloaded HTML files by addIntake()
+      //   2. UPAState.getIntake()   — authoritative; returns {} when no valid case exists
+      //   3. INTAKE_KEY direct read — only when UPAState script failed to load entirely
+
       if(window.__UPA_PACKET_INTAKE__) return window.__UPA_PACKET_INTAKE__;
+      if(window.UPAState){
+        if(window.UPAState.restoreSession) window.UPAState.restoreSession({stage:'personalization-load'});
+        if(window.UPAState.getIntake) return window.UPAState.getIntake() || {};
+      }
+      // UPAState unavailable — read INTAKE_KEY directly as last resort
       var intake = readStorageJSON(STORE_KEY);
-      if(intake && Object.keys(intake).length) return intake;
-      var checkout = readStorageJSON('upa.checkout.session.v2');
-      if(checkout && checkout.intake) return (checkout.intake.provider || checkout.intake.name || checkout.intake.bill_amount) ? checkout.intake : normalizeAppIntake(checkout.intake, checkout);
-      var paid = readStorageJSON('upa.paid.results.v2');
-      if(paid && paid.session && paid.session.intake) return (paid.session.intake.provider || paid.session.intake.name || paid.session.intake.bill_amount) ? paid.session.intake : normalizeAppIntake(paid.session.intake, paid.session);
-      var savedCase = readStorageJSON('upa.case.snapshot.v1');
-      if(savedCase && savedCase.raw) return savedCase.raw;
-      return {};
+      return (intake && Object.keys(intake).length) ? intake : {};
     }catch(e){
       return {};
     }
@@ -1526,7 +1528,16 @@
     }
   }
 
+  // H2 FIX: guard against double-run. The IIFE calls run() immediately (readyState is
+  // 'interactive' since scripts are at end of body), then window.load+50ms fires a second
+  // call. If the second call reads different storage data (e.g. from restoreSession()
+  // side-effects of the first run), it overwrites DOM with subtly different values and
+  // triggers a second persistCase() write. One run per page load is sufficient.
+  var __upaPersonalizationRunDone = false;
+
   function run(){
+    if(__upaPersonalizationRunDone) return;
+    __upaPersonalizationRunDone = true;
     var c = buildCase();
     applyCommon(c);
     applyPreview(c);
@@ -1540,5 +1551,8 @@
   }else{
     run();
   }
+  // Keep the load+50ms listener as a safety net for cases where DOMContentLoaded
+  // fires before UPAState is available (e.g. a script loads async). The __upaPersonalizationRunDone
+  // guard above ensures it's a no-op if the first run already completed.
   window.addEventListener('load', function(){ window.setTimeout(run, 50); });
 })();

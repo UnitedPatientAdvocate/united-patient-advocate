@@ -117,17 +117,20 @@
   }
 
   function caseContext(intake){
-    var c = window.UPACase || {};
+    // H3 FIX: removed window.UPACase read. Using it caused scrubTemplateText() to
+    // diverge from the live dashboard when UPACase was from a prior personalization run
+    // (stale closure) or when called from the scan page before personalization ran (undefined).
+    // All needed fields are already in the intake object from readIntake().
     return {
-      patient: clean(c.patientName || intake.patient_name || intake.patientName || intake.full_name || intake.fullName || intake.name || 'Patient') || 'Patient',
-      provider: clean(c.provider || intake.provider || intake.providerName || ''),
-      amount: clean((c.amount && (c.amount.display || c.amount.reviewText)) || intake.bill_amount || intake.totalBilled || intake.balance || ''),
-      dos: clean(c.dateOfService || intake.date_of_service || intake.service_date || intake.serviceDate || ''),
-      account: clean(c.accountRef || intake.account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || ''),
-      coverage: clean(c.coverage || intake.insurance || intake.insuranceType || ''),
-      prepDate: clean(c.prepDate || new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})),
-      email: clean(c.email || intake.email || ''),
-      phone: clean(c.phone || intake.phone || '')
+      patient:   clean(intake.patient_name || intake.patientName || intake.full_name || intake.fullName || intake.name || 'Patient') || 'Patient',
+      provider:  clean(intake.provider || intake.providerName || intake.extracted_provider || ''),
+      amount:    clean(intake.bill_amount_other || intake.bill_amount || (intake.extracted_bill_amount ? '$' + intake.extracted_bill_amount : '') || intake.totalBilled || intake.balance || ''),
+      dos:       clean(intake.date_of_service || intake.extracted_date_of_service || intake.service_date || intake.serviceDate || ''),
+      account:   clean(intake.account_number || intake.extracted_account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || ''),
+      coverage:  clean(intake.insurance || intake.extracted_insurance || intake.insuranceType || ''),
+      prepDate:  clean(new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})),
+      email:     clean(intake.email || ''),
+      phone:     clean(intake.phone || '')
     };
   }
 

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Opening Secure Checkout</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0B1320;color:#EAF6F0;font-family:Arial,sans-serif}
+.box{width:min(420px,calc(100vw - 32px));border:1px solid rgba(46,204,113,.35);border-radius:14px;padding:22px;background:rgba(255,255,255,.04);text-align:center}
+.title{font-weight:800;margin-bottom:8px}.sub{font-size:13px;line-height:1.55;color:rgba(234,246,240,.72);margin-bottom:16px}
+a{display:inline-block;background:#20B875;color:#fff;text-decoration:none;font-weight:800;border-radius:10px;padding:12px 16px}
+.debug{margin-top:14px;font:10px/1.4 monospace;color:rgba(234,246,240,.55);word-break:break-all;text-align:left}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="title">Opening secure checkout...</div>
+  <div class="sub">Your case details are being saved on this device before payment.</div>
+  <a id="checkout-link" href="#">Continue to checkout</a>
+  <div class="debug" id="checkout-debug"></div>
+</div>
+<script src="/UPA-Final/upa-state-persistence.js"></script>
+<script>
+(function(){
+  var params = new URLSearchParams(window.location.search || '');
+  var to = params.get('to') || 'https://upadvocate.gumroad.com/l/busfn?wanted=true';
+  var r = params.get('r') || '';
+  try{
+    if(r){
+      sessionStorage.setItem('upa.recovery.params.v1', r);
+      localStorage.setItem('upa.recovery.params.v1', r);
+      window.name = 'UPA_RECOVERY:' + r;
+      if(window.UPAState && window.UPAState.restoreFromUrl){
+        window.UPAState.restoreFromUrl({ stage:'checkout-bridge-url-restore', source:'checkout-bridge' });
+      }
+    }
+    if(window.UPAState && window.UPAState.markCheckout){
+      window.UPAState.markCheckout({ stage:'checkout-bridge', source:'checkout-bridge', gumroadUrl:to });
+    }
+  }catch(e){}
+  var checkout = to;
+  try{
+    if(window.UPAState && window.UPAState.checkoutUrlWithToken){
+      checkout = window.UPAState.checkoutUrlWithToken(to, { stage:'checkout-bridge-handoff', source:'checkout-bridge' });
+    }
+  }catch(e){}
+  var link = document.getElementById('checkout-link');
+  var debug = document.getElementById('checkout-debug');
+  if(link) link.href = checkout;
+  if(debug){
+    debug.textContent = 'r=' + (r ? 'YES ' + r.length : 'NO') + ' | w.name=' + ((window.name || '').indexOf('UPA_RECOVERY:') === 0 ? 'YES ' + window.name.length : 'NO') + ' | checkout=' + checkout.slice(0,220);
+  }
+  setTimeout(function(){ window.location.replace(checkout); }, 350);
+})();
+</script>
+</body>
+</html>

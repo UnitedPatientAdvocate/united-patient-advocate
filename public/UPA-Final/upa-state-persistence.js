@@ -966,6 +966,22 @@
     }
   }
 
+  function checkoutBridgeUrl(gumroadUrl, meta){
+    try{
+      captureReviewState(Object.assign({ stage:'checkout-bridge-prepare' }, meta || {}));
+      var recoveryToken = checkoutRecoveryToken();
+      if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) {
+        try{ window.name = 'UPA_RECOVERY:' + recoveryToken; }catch(ne){}
+      }
+      var bridge = new URL('/UPA-Final/06_upa-checkout.html', window.location.origin);
+      bridge.searchParams.set('to', gumroadUrl || '');
+      if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) bridge.searchParams.set('r', recoveryToken);
+      return bridge.href;
+    }catch(e){
+      return gumroadUrl || '';
+    }
+  }
+
   function markCheckout(meta){
     var session = captureReviewState(Object.assign({ stage:'checkout-started' }, meta || {}));
     session.checkoutStartedAt = now();
@@ -1038,6 +1054,7 @@
     restoreFromUrl:restoreFromUrl,
     successUrlWithToken:successUrlWithToken,
     checkoutUrlWithToken:checkoutUrlWithToken,
+    checkoutBridgeUrl:checkoutBridgeUrl,
     markCheckout:markCheckout,
     markPaid:markPaid
   };

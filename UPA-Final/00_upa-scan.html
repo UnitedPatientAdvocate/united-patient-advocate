@@ -1166,6 +1166,14 @@ function renderFindings(data, findings) {
   const upgradeBlock = document.createElement('div');
   upgradeBlock.className = 'upgrade-block';
   upgradeBlock.id = 'upgrade-block';
+  let checkoutHref = UPA_SCAN_CONFIG.gumroadURL;
+  try {
+    if (window.UPAState && window.UPAState.checkoutBridgeUrl) {
+      checkoutHref = window.UPAState.checkoutBridgeUrl(UPA_SCAN_CONFIG.gumroadURL, { stage: 'scan-upgrade-render', source: 'scan' });
+    } else if (window.UPAState && window.UPAState.checkoutUrlWithToken) {
+      checkoutHref = window.UPAState.checkoutUrlWithToken(UPA_SCAN_CONFIG.gumroadURL, { stage: 'scan-upgrade-render', source: 'scan' });
+    }
+  } catch(e) {}
 
   const includeItems = [
     'All ' + findings.length + ' review items unlocked with complete explanations',
@@ -1183,7 +1191,7 @@ function renderFindings(data, findings) {
         return '<div class="ub-include-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' + esc(item) + '</div>';
       }).join('') +
     '</div>' +
-    '<a class="btn-upgrade" href="' + esc(UPA_SCAN_CONFIG.gumroadURL) + '">' +
+    '<a class="btn-upgrade" href="' + esc(checkoutHref) + '">' +
       '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' +
       'Unlock my full review' +
       '<span class="ub-price">' + esc(UPA_SCAN_CONFIG.upgradePrice) + '</span>' +
@@ -1205,7 +1213,9 @@ function renderFindings(data, findings) {
         if (window.UPAState && window.UPAState.markCheckout) {
           window.UPAState.markCheckout({ stage: 'checkout-started', source: 'scan', gumroadUrl: UPA_SCAN_CONFIG.gumroadURL });
         }
-        if (window.UPAState && window.UPAState.checkoutUrlWithToken) {
+        if (window.UPAState && window.UPAState.checkoutBridgeUrl) {
+          upgradeLink.href = window.UPAState.checkoutBridgeUrl(UPA_SCAN_CONFIG.gumroadURL, { stage: 'gumroad-handoff', source: 'scan' });
+        } else if (window.UPAState && window.UPAState.checkoutUrlWithToken) {
           upgradeLink.href = window.UPAState.checkoutUrlWithToken(UPA_SCAN_CONFIG.gumroadURL, { stage: 'gumroad-handoff', source: 'scan' });
         }
       } catch(e) {}

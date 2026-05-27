@@ -940,7 +940,7 @@
       + '<div class="mini-sig"><div class="mini-sig-left">'
       + '<div class="mini-sig-close">Sincerely,</div>'
       + '<div class="mini-sig-name">' + h(c.patientName) + '</div>'
-      + '<span class="mini-sig-sub">Patient / ' + h(c.coverage) + '</span>'
+      + '<span class="mini-sig-sub">' + h(c.lastName || c.patientName) + ' / ' + h(c.coverage) + '</span>'
       + '</div></div></div>'
       + '<div class="mini-stamp">' + makeExtraStampSVG(def.color, def.stamp[0], def.stamp[1]) + '</div>'
       + '</div>'
@@ -1032,6 +1032,8 @@
     // ("Odjdjt", "asdf", "aaaa") fall back to a neutral "Patient" label rather
     // than getting echoed across every letter, finding card, and dashboard pill.
     var name = safeProperNoun(clean(data.patient_name || data.patientName || data.full_name || data.fullName || data.name || joinedName), 'Patient');
+    var nameParts = name !== 'Patient' ? name.split(/\s+/).filter(Boolean) : [];
+    var lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : (nameParts[0] || 'Patient');
     var prepDate = formatDate(data.submitted_at || new Date().toISOString(), 'Today');
     var opened = data.submitted_at ? new Date(data.submitted_at) : new Date();
     if(isNaN(opened.getTime())) opened = new Date();
@@ -1088,7 +1090,7 @@
         return concernText.indexOf(ph.toLowerCase()) === -1;
       });
       if(hasNewPhrases){
-        userDetail = pro;
+        userDetail = name !== 'Patient' ? pro.replace(/^The patient\b/, name).replace(/^the patient\b/, name) : pro;
         return;
       }
       // Fully covered by concern labels → suppress.
@@ -1125,6 +1127,7 @@
     return {
       raw:data,
       patientName:name,
+      lastName:lastName,
       firstName:first || name.split(/\s+/)[0] || 'Patient',
       provider:provider,
       email:email,
@@ -1140,7 +1143,7 @@
       billType:billType,
       coverage:coverage,
       paymentStatus:paymentStatus,
-      patientLabel:'Patient - ' + coverage,
+      patientLabel:(lastName && lastName !== 'Patient' ? lastName : 'Patient') + ' - ' + coverage,
       amount:amount,
       issues:issues,
       primary:primary,
@@ -1200,6 +1203,9 @@
   function commonReplacements(c){
     var confirmedText = c.amount.exact ? 'Confirms once your itemized bill is added' : 'Awaiting itemized bill';
     return [
+      ['Patient: First Name Last Name', c.patientName],
+      ['Patient · Account Holder', c.patientLabel],
+      ['Your Name', c.patientName],
       ['First Name Last Name', c.patientName],
       ['Your Provider', c.provider],
       ['date of service', c.dateOfService],
@@ -1558,6 +1564,12 @@
       if(idx === 2) return c.letterCount + ' ready';
       return el.textContent;
     });
+    setAllText('.mtn-item-pip', function(el, idx){
+      if(idx === 0) return c.amount.reviewText;
+      if(idx === 1) return c.issueCount + ' areas';
+      if(idx === 2) return c.letterCount + ' letters';
+      return el.textContent;
+    });
     var dsb = all('.dsb-node');
     if(dsb[0]){ setText('.dsb-name', 'Request itemized bill', dsb[0]); setText('.dsb-sub', 'Letter drafted for ' + providerLabel(c), dsb[0]); }
     if(dsb[1]){ setText('.dsb-name', 'Review ' + issueAt(c,0).short, dsb[1]); setText('.dsb-sub', 'Primary review area', dsb[1]); }
@@ -1582,8 +1594,12 @@
       setText('.dpc-prepared', 'Prepared for ' + c.patientName + ' - ' + c.accountRef);
       setText('.dpc-step', 'Step ' + (idx + 1), card);
       setText('.dpc-ready', idx < c.letterCount ? 'READY' : 'OPTIONAL', card);
+      setText('.mini-org', c.patientName, card);
+      setText('.mini-org-sub', c.patientLabel, card);
+      setText('.mini-sig-name', c.patientName, card);
+      setText('.mini-sig-sub', (c.lastName || c.patientName) + ' / ' + c.coverage, card);
     });
-    setText('.doc-footer-note', c.letterCount + ' letters prepared for this case. Each uses the restored patient, provider, amount, coverage, and intake details.');
+    setText('.doc-footer-note', c.letterCount + ' letters prepared for this case. Each uses ' + c.patientName + ', provider, amount, coverage, and intake details.');
   }
 
   function hydrateTimeline(c){
@@ -1741,7 +1757,7 @@
       setText('.lhd-acct', 'Account: ' + c.accountRef, header);
     });
     setAllText('.lbs-name', c.patientName);
-    setAllText('.lbs-sub', 'Patient / ' + c.coverage + ' - ' + c.accountRef);
+    setAllText('.lbs-sub', (c.lastName || c.patientName) + ' / ' + c.coverage + ' - ' + c.accountRef);
     setAllText('.ltb-title', [
       'Request for fully itemized statement - send this first',
       'Billing review request - ' + c.issues[0].short,
@@ -1779,7 +1795,7 @@
 
   function applyPacket(c){
     if(!one('.toolbar') || all('.page').length < 4) return;
-    setText('.tb-sub', '- ' + c.accountRef + ' - ' + c.patientName + ' - patient packet');
+    setText('.tb-sub', '- ' + c.accountRef + ' - ' + c.patientName + ' packet');
     var firstPageHeader = one('.page .nh');
     if(c.noteText && firstPageHeader && !one('.page .upa-case-note')){
       var note = document.createElement('div');

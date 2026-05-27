@@ -619,6 +619,15 @@
     }
     if(!recovery){
       try{
+        var namedRecovery = (window.name || '').match(/^UPA_RECOVERY:(.+)$/);
+        if(namedRecovery && namedRecovery[1]){
+          var windowNameResult = importRecoveryToken(namedRecovery[1], Object.assign({ source:'window-name-recovery' }, meta || {}));
+          if(windowNameResult) return windowNameResult;
+        }
+      }catch(e){}
+    }
+    if(!recovery){
+      try{
         var storedRecovery = sessionStorage.getItem('upa.recovery.params.v1') || localStorage.getItem('upa.recovery.params.v1') || '';
         if(storedRecovery){
           var recoveryAgeOk = true;
@@ -781,6 +790,14 @@
       var successBase = window.location.origin + '/UPA-Final/05_upa-success.html';
       var successUrl = new URL(successBase);
       var hasHandoff = false;
+      var recoveryToken = checkoutRecoveryToken();
+
+      if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH){
+        successUrl.searchParams.set('r', recoveryToken);
+        url.searchParams.set('r', recoveryToken);
+        hasHandoff = true;
+        try{ window.name = 'UPA_RECOVERY:' + recoveryToken; }catch(ne){}
+      }
 
       // ── EMBED CASE TOKEN IN GUMROAD REDIRECT URL ──────────────────────────
       // Gumroad supports a ?redirect=URL parameter that overrides where the
@@ -789,23 +806,26 @@
       // the user purchases in one browser context (incognito) and opens the
       // dashboard from a Gumroad email link in another context (regular Chrome),
       // because the token travels IN THE URL rather than in localStorage.
-      try{
+      if(!hasHandoff) try{
         var token = exportCaseToken(Object.assign({ stage:'checkout-url-token' }, meta || {}));
         if(token && token.length <= MAX_CASE_PARAM_LENGTH){
           successUrl.searchParams.set(TOKEN_PARAM, token);
           hasHandoff = true;
         }
       }catch(re){}
-      if(!hasHandoff){
-        var recoveryToken = checkoutRecoveryToken();
-        if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH){
-          successUrl.searchParams.set('r', recoveryToken);
-          hasHandoff = true;
-        }
-      }
       if(hasHandoff) url.searchParams.set('redirect', successUrl.href);
 
-      return url.href.length <= MAX_CHECKOUT_URL_LENGTH ? url.href : href;
+      var finalHref = url.href;
+      if(finalHref.length > MAX_CHECKOUT_URL_LENGTH && recoveryToken){
+        url.searchParams.delete('r');
+        finalHref = url.href;
+      }
+      if(finalHref.length > MAX_CHECKOUT_URL_LENGTH && recoveryToken){
+        url.searchParams.delete('redirect');
+        url.searchParams.set('r', recoveryToken);
+        finalHref = url.href;
+      }
+      return finalHref.length <= MAX_CHECKOUT_URL_LENGTH ? finalHref : href;
     }catch(e){
       return href;
     }
@@ -825,6 +845,10 @@
     // success page opens from the email, restoreFromUrl() will find it in localStorage
     // even when the URL has no ?case= parameter.
     try{ exportCaseToken({ stage:'pre-checkout-token', source:'mark-checkout' }); }catch(e){}
+    try{
+      var recoveryToken = checkoutRecoveryToken();
+      if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) window.name = 'UPA_RECOVERY:' + recoveryToken;
+    }catch(e){}
     return session;
   }
 

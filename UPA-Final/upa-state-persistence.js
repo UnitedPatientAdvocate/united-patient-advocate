@@ -629,6 +629,10 @@
     if(!recovery){
       try{
         var storedRecovery = sessionStorage.getItem('upa.recovery.params.v1') || localStorage.getItem('upa.recovery.params.v1') || '';
+        // Cross-origin-survival fallback: cookie (set by checkoutRecoveryToken
+        // before the Gumroad redirect). Survives iOS Safari storage
+        // partitioning better than localStorage in cross-site reload contexts.
+        if(!storedRecovery) storedRecovery = readRecoveryCookie();
         if(storedRecovery){
           var recoveryAgeOk = true;
           try{
@@ -871,10 +875,32 @@
     return token && token.length <= MAX_CASE_PARAM_LENGTH ? token : '';
   }
 
+  // First-party cookie helpers for cross-origin-survival recovery channel.
+  // window.name and localStorage both have known iOS Safari failure modes
+  // post-Gumroad roundtrip. A first-party cookie on unitedpatientadvocate.com
+  // survives that roundtrip more reliably (ITP caps lifetime at 7 days but
+  // does not partition first-party cookies the same way).
+  function writeRecoveryCookie(token){
+    if(!token) return;
+    try{
+      // 24 h max-age, root path, Lax SameSite so it rides Gumroad's top-level
+      // redirect back to our origin. Secure flag added when on HTTPS.
+      var secure = (typeof location !== 'undefined' && location.protocol === 'https:') ? '; Secure' : '';
+      document.cookie = 'upa_r=' + encodeURIComponent(token) + '; path=/; max-age=86400; SameSite=Lax' + secure;
+    }catch(e){}
+  }
+  function readRecoveryCookie(){
+    try{
+      var m = (document.cookie || '').match(/(?:^|;\s*)upa_r=([^;]+)/);
+      return m ? decodeURIComponent(m[1]) : '';
+    }catch(e){ return ''; }
+  }
+
   function checkoutRecoveryToken(){
     var token = '';
     try{ token = sessionStorage.getItem('upa.recovery.params.v1') || ''; }catch(e){}
     if(!token){ try{ token = localStorage.getItem('upa.recovery.params.v1') || ''; }catch(e){} }
+    if(!token){ token = readRecoveryCookie(); } // cross-origin-survival fallback
     var storedIntake = intakeFromRecoveryToken(token);
     var storedScore = recoveryScore(storedIntake);
     var freshIntake = bestRecoveryIntake();
@@ -884,15 +910,20 @@
       if(freshToken){
         try{ sessionStorage.setItem('upa.recovery.params.v1', freshToken); }catch(e){}
         try{ localStorage.setItem('upa.recovery.params.v1', freshToken); }catch(e){}
+        writeRecoveryCookie(freshToken);
         return freshToken;
       }
     }
-    if(token && token.length <= MAX_CASE_PARAM_LENGTH && storedScore) return token;
+    if(token && token.length <= MAX_CASE_PARAM_LENGTH && storedScore){
+      writeRecoveryCookie(token);
+      return token;
+    }
     if(token){
       var compacted = compactRecoveryToken(storedIntake);
       if(compacted){
         try{ sessionStorage.setItem('upa.recovery.params.v1', compacted); }catch(e){}
         try{ localStorage.setItem('upa.recovery.params.v1', compacted); }catch(e){}
+        writeRecoveryCookie(compacted);
         return compacted;
       }
     }
@@ -900,6 +931,7 @@
     if(token){
       try{ sessionStorage.setItem('upa.recovery.params.v1', token); }catch(e){}
       try{ localStorage.setItem('upa.recovery.params.v1', token); }catch(e){}
+      writeRecoveryCookie(token);
     }
     return token;
   }

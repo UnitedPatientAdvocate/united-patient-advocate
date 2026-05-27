@@ -279,10 +279,11 @@
     try{
       var u = new URLSearchParams(window.location.search);
 
-      // Mode A: compact base64url recovery param (?r=<base64>)
-      // Written by saveIntakeSession() on the landing page. This is the
-      // primary cross-context recovery path because it survives Gumroad's
-      // redirect, email link sharing, and direct dashboard URLs.
+      // Mode A: compact base64url recovery param (?r=<base64>) — PRIMARY
+      // Written by saveIntakeSession() on the landing page. This is THE
+      // cross-context recovery path because it survives Gumroad's redirect,
+      // email-link reopening in a fresh browser tab, and direct sharing.
+      // Decodes the full case payload — every field the dashboard needs.
       var r = u.get('r');
       if(r){
         try{
@@ -290,15 +291,32 @@
           while(b64.length % 4) b64 += '=';
           var decoded = decodeURIComponent(escape(atob(b64)));
           var parsed = JSON.parse(decoded);
-          var fieldMap = { p:'provider', a:'bill_amount', d:'date_of_service',
-                           i:'insurance', s:'payment_status', n:'patient_name',
-                           c:'concerns', desc:'description' };
+          // Full field map — must mirror exactly the encoder in
+          // saveIntakeSession() on the landing page. Adding a field here
+          // without updating the encoder (or vice versa) leaves data
+          // unrecoverable, so they're commented to keep them in sync.
+          var fieldMap = {
+            p:    'provider',         // hospital / clinic / provider name
+            a:    'bill_amount',      // total or amount-range
+            d:    'date_of_service',  // DOS
+            i:    'insurance',        // coverage name
+            s:    'payment_status',   // unpaid / payment plan / collections
+            n:    'patient_name',     // patient full name
+            c:    'concerns',         // concern checklist values
+            desc: 'description',      // free-text concern description
+            bt:   'bill_type',        // ER / inpatient / outpatient
+            co:   'concern_other',    // free-text "other" concern
+            em:   'email',            // contact email
+            ph:   'phone',            // contact phone
+            cid:  '_upa_case_id',     // stable case identifier
+            ts:   'submitted_at'      // intake submission timestamp
+          };
           var fromB64 = {};
           Object.keys(fieldMap).forEach(function(k){
             if(parsed[k]) fromB64[fieldMap[k]] = parsed[k];
           });
           if(Object.keys(fromB64).length){
-            console.log('%c[UPA HYDRATION]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', 'Recovered intake from ?r= base64 param:', fromB64);
+            console.log('%c[UPA HYDRATION] ?r= URL param decoded — ' + Object.keys(fromB64).length + ' fields hydrated', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', fromB64);
             return fromB64;
           }
         }catch(e){ console.warn('[UPA HYDRATION] ?r= base64 decode failed:', e); }
@@ -320,40 +338,63 @@
 
   function readIntake(){
     try{
-      // C2 FIX: delegate exclusively to UPAState — it is the single source of truth.
-      // Do NOT implement a parallel fallback chain that reaches PAID_KEY or CHECKOUT_KEY.
-      // Those paths resurrect stale prior-session data when getIntake() returns empty.
+      // ═══════════════════════════════════════════════════════════════════
+      // P0 FIX: URL params come FIRST. Email-link recovery is the dominant
+      // failure mode — iOS Mail/Gmail/etc open every link in a fresh
+      // Safari/Chrome tab where the user's intake localStorage doesn't
+      // exist. The recovery `?r=<base64>` param riding in the URL is the
+      // ONLY reliable cross-context data channel. It MUST win over the
+      // empty localStorage of a fresh browser tab.
       //
       // Priority order:
-      //   1. __UPA_PACKET_INTAKE__  — injected into downloaded HTML files by addIntake()
-      //   2. UPAState.getIntake()   — authoritative; returns {} when no valid case exists
-      //   3. INTAKE_KEY direct read — only when UPAState script failed to load entirely
-      //   4. URL query params       — cross-context recovery (FIX 1)
-
+      //   1. __UPA_PACKET_INTAKE__   — downloaded HTML packets (offline)
+      //   2. readIntakeFromUrl()     — URL params (cross-context recovery) ← PROMOTED FROM LAST
+      //   3. UPAState.getIntake()    — localStorage (same-browser return)
+      //   4. STORE_KEY direct read   — UPAState script load failure
+      // ═══════════════════════════════════════════════════════════════════
       if(window.__UPA_PACKET_INTAKE__) return window.__UPA_PACKET_INTAKE__;
+
+      // PRIORITY 1: URL params. Single most important hydration channel.
+      // Always wins. Write through to localStorage so subsequent reads and
+      // the audit log see the hydrated state.
+      var urlIntake = readIntakeFromUrl();
+      if(urlIntake && Object.keys(urlIntake).length){
+        try{
+          console.log('%c[UPA HYDRATION] URL param hydration succeeded — case restored from email-link URL', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', urlIntake);
+        }catch(e){}
+        try{
+          if(window.UPAState && window.UPAState.persistIntake){
+            window.UPAState.persistIntake(urlIntake, {stage:'url-param-recovery', source:'dashboard-url'});
+          } else {
+            var json = JSON.stringify(urlIntake);
+            try { localStorage.setItem('upa.intake.v1', json); } catch(e){}
+            try { localStorage.setItem('upa.active.case.v1', json); } catch(e){}
+            try { sessionStorage.setItem('upa.intake.v1', json); } catch(e){}
+          }
+        }catch(e){ console.warn('[UPA HYDRATION] URL→storage write failed:', e); }
+        return urlIntake;
+      }
+
+      // PRIORITY 2: UPAState (localStorage) — same-browser return path
       if(window.UPAState){
         if(window.UPAState.restoreSession) window.UPAState.restoreSession({stage:'personalization-load'});
         if(window.UPAState.getIntake){
           var fromState = window.UPAState.getIntake() || {};
-          // If UPAState produced a usable intake, prefer it. Otherwise fall through
-          // to URL params so a paying customer with cleared localStorage still sees
-          // their data on the dashboard instead of "Your provider" placeholders.
-          if(fromState && Object.keys(fromState).length) return fromState;
+          if(fromState && Object.keys(fromState).length){
+            try{ console.log('[UPA HYDRATION] localStorage hydration succeeded (no URL param present)'); }catch(e){}
+            return fromState;
+          }
         }
       }
-      // UPAState unavailable OR produced empty — try INTAKE_KEY direct read
+
+      // PRIORITY 3: Direct localStorage read — UPAState script load failure
       var intake = readStorageJSON(STORE_KEY);
-      if(intake && Object.keys(intake).length) return intake;
-      // Last resort: URL params (cross-context recovery)
-      var urlIntake = readIntakeFromUrl();
-      if(urlIntake){
-        try{ console.log('[UPA HYDRATION] Recovered intake from URL params:', urlIntake); }catch(e){}
-        // Persist what we found so subsequent reads (and the audit) see it too
-        try{
-          if(window.UPAState && window.UPAState.persistIntake) window.UPAState.persistIntake(urlIntake, {stage:'url-param-recovery', source:'dashboard-url'});
-        }catch(e){}
-        return urlIntake;
+      if(intake && Object.keys(intake).length){
+        try{ console.log('[UPA HYDRATION] direct STORE_KEY hydration succeeded'); }catch(e){}
+        return intake;
       }
+
+      try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param AND localStorage was empty'); }catch(e){}
       return {};
     }catch(e){
       return {};

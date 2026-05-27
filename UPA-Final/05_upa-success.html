@@ -146,6 +146,13 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 var tokenRestored = false;
 var hasRecentCheckout = false;
 var hasCaseData = false;
+// P0 FIX: capture the compact ?r= recovery param so it can be FORWARDED
+// to /dashboard. Previously the success page consumed the param into
+// localStorage and then redirected to a bare /dashboard?unlock=1 URL.
+// When iOS Mail opens the email link in a fresh Safari tab, localStorage
+// is empty, so the param dying here = no recovery possible. We now
+// preserve it through every redirect.
+var recoveryParam = '';
 
 (function() {
   try {
@@ -154,6 +161,21 @@ var hasCaseData = false;
     if (licenseKey) {
       sessionStorage.setItem('upa.license.key', licenseKey);
       localStorage.setItem('upa.license.key', licenseKey);
+    }
+
+    // P0 FIX: grab the ?r= recovery param (base64-encoded case data) so we
+    // can append it to the dashboard redirect URL below. This is the
+    // backbone of cross-context email-link recovery.
+    recoveryParam = params.get('r') || '';
+    if (recoveryParam) {
+      try { sessionStorage.setItem('upa.recovery.params.v1', recoveryParam); } catch(e){}
+      try { localStorage.setItem('upa.recovery.params.v1', recoveryParam); } catch(e){}
+      console.log('%c[UPA] success: ?r= recovery param present (length ' + recoveryParam.length + ') — will forward to dashboard', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700');
+    } else {
+      // No URL param — try storage in case this is a same-browser return
+      try { recoveryParam = sessionStorage.getItem('upa.recovery.params.v1') || ''; } catch(e){}
+      if (!recoveryParam) { try { recoveryParam = localStorage.getItem('upa.recovery.params.v1') || ''; } catch(e){} }
+      if (recoveryParam) console.log('[UPA] success: recovery param recovered from storage (length ' + recoveryParam.length + ')');
     }
 
     // STEP 1: URL token restore — 48-hour freshness guard baked into restoreFromUrl().
@@ -214,36 +236,48 @@ var hasCaseData = false;
   }
 })();
 
+// P0 FIX: every redirect from this page MUST carry the ?r= recovery param
+// forward to the dashboard. The previous build dropped it, making
+// cross-context email-link recovery impossible. Single helper used by both
+// the auto-redirect setTimeout AND the explicit "Open My Review" button.
+function dashboardUrl() {
+  var base = '/dashboard?unlock=1';
+  if (recoveryParam) base += '&r=' + encodeURIComponent(recoveryParam);
+  return base;
+}
+
 /* Entry animation + routing */
 window.addEventListener('load', function() {
   var card    = document.getElementById('main-card');
   var checkSv = document.getElementById('check-svg');
   var progFl  = document.getElementById('prog-fill');
   var progLbl = document.getElementById('prog-label');
+  var openBtn = document.getElementById('open-btn');
+
+  // P0 FIX: rewrite the button href to include the ?r= param so clicking
+  // it manually also carries the recovery data forward.
+  if (openBtn) openBtn.href = dashboardUrl();
 
   setTimeout(function() { if (card)    card.classList.add('loaded'); },  80);
   setTimeout(function() { if (checkSv) checkSv.classList.add('show'); }, 300);
   setTimeout(function() { if (progFl)  progFl.style.width = '100%'; },  600);
 
-  if (!hasCaseData) {
-    // No intake data found in localStorage. This can happen on a cross-context
-    // purchase (bought in Incognito, returned in regular Chrome) or if storage
-    // was cleared between intake and return.
-    //
-    // CRITICAL: Post-payment users must NEVER be routed to the landing page.
-    // They have paid; sending them to the marketing page is a confidence and
-    // conversion catastrophe. Always route to the dashboard — it is designed
-    // to render gracefully with placeholder values when intake data is missing,
-    // and from there the user can complete their case.
+  // P0 FIX: If we have a recovery param in the URL, we have case data —
+  // the dashboard will hydrate from ?r= even if localStorage is empty.
+  // Don't gate redirect on hasCaseData (which only checks localStorage).
+  var canHydrate = hasCaseData || !!recoveryParam;
+
+  if (!canHydrate) {
+    // No localStorage AND no URL recovery param → genuinely empty session.
+    // Still redirect to dashboard (never to landing), where the
+    // session-expired overlay will offer recovery options.
     if (progLbl) progLbl.textContent = 'Loading your case…';
-    console.warn('[UPA] success: no case data found in storage — routing to dashboard anyway (post-payment user must never see landing)');
-    // Button already points at /dashboard?unlock=1 — leave it. Auto-redirect to
-    // dashboard rather than to '/', matching the button behavior.
-    setTimeout(function() { window.location.href = '/dashboard?unlock=1'; }, 2500);
+    console.warn('[UPA] success: no localStorage AND no ?r= URL param — dashboard will show session-expired UX');
+    setTimeout(function() { window.location.href = dashboardUrl(); }, 2500);
     return;
   }
 
-  // Case data loaded — audit fields and log warnings for anything missing.
+  // Case data available — audit field presence for diagnostics.
   try {
     var intake = (window.UPAState && window.UPAState.getIntake) ? window.UPAState.getIntake() : {};
     var missing = [];
@@ -252,7 +286,7 @@ window.addEventListener('load', function() {
     if (!(intake.bill_amount || intake.bill_amount_other || intake.totalBilled || intake.extracted_bill_amount)) missing.push('bill amount');
     if (!(intake.concerns || intake.specificConcerns || intake.description)) missing.push('concerns');
     if (missing.length) {
-      console.warn('[UPA] success: case loaded but fields missing —', missing.join(', '), '(dashboard will use placeholders)');
+      console.warn('[UPA] success: case loaded but fields missing —', missing.join(', '), '(dashboard will use placeholders, ?r= forward may fill them)');
     } else {
       console.log('[UPA] success: case fully loaded — name, provider, amount, concerns all present');
     }
@@ -261,7 +295,8 @@ window.addEventListener('load', function() {
   if (progLbl) setTimeout(function() { progLbl.textContent = 'Ready when you are.'; }, 2200);
 
   // Auto-redirect to dashboard after 3.5 s (button also works immediately).
-  setTimeout(function() { window.location.href = '/dashboard?unlock=1'; }, 3500);
+  // dashboardUrl() preserves ?r= so dashboard hydrates cross-context.
+  setTimeout(function() { window.location.href = dashboardUrl(); }, 3500);
 });
 </script>
 </body>

@@ -1956,15 +1956,30 @@ function saveIntakeSession(){
     }
   }
 
-  // Step 4: build a recovery URL for cross-context return. base64url-encoded
-  // core fields ride along on the checkout redirect so the success page (and
-  // dashboard) can rehydrate even when localStorage was cleared between
-  // sessions (Safari ITP, different browser, different device).
+  // P0 FIX: build a FULL recovery URL for cross-context return. base64url-
+  // encoded case data rides along on the checkout redirect AND can be
+  // copy-pasted by support to reconstitute a case in any browser/device.
+  // Includes EVERY field the dashboard needs to render — not just the seven
+  // core fields. This is the only mechanism that survives iOS Mail opening
+  // the receipt link in a fresh Safari tab.
   try {
     var core = {
-      p: snapshot.provider, a: snapshot.bill_amount, d: snapshot.date_of_service,
-      i: snapshot.insurance, s: payload.payment_status || '',
-      n: snapshot.patient_name, c: payload.concerns || payload.specificConcerns || ''
+      // Short-key mapping (mirror of readIntakeFromUrl's decoder)
+      p:  snapshot.provider,
+      a:  snapshot.bill_amount,
+      d:  snapshot.date_of_service,
+      i:  snapshot.insurance,
+      s:  payload.payment_status || '',
+      n:  snapshot.patient_name,
+      c:  payload.concerns || payload.specificConcerns || '',
+      desc: payload.description || '',
+      // Extended fields needed by the dashboard for full hydration
+      bt: payload.bill_type || payload.billType || '',
+      co: payload.concern_other || '',
+      em: payload.email || '',
+      ph: payload.phone || '',
+      cid: payload._upa_case_id || payload.caseId || (payload.session && payload.session.activeCaseId) || '',
+      ts: new Date().toISOString()
     };
     // Drop empty fields to keep the URL short
     Object.keys(core).forEach(function(k){ if(!core[k]) delete core[k]; });
@@ -1973,7 +1988,9 @@ function saveIntakeSession(){
       window.__UPA_RECOVERY_PARAMS__ = b64;
       try { sessionStorage.setItem('upa.recovery.params.v1', b64); } catch(e){}
       try { localStorage.setItem('upa.recovery.params.v1', b64); } catch(e){}
-      console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', 'Recovery params (base64) length:', b64.length, '(use as ?r=' + b64.substring(0, 20) + '...)');
+      console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700',
+        'Recovery URL built: ' + Object.keys(core).length + ' fields, base64 length ' + b64.length + ' chars',
+        '\nFull recovery URL: https://unitedpatientadvocate.com/dashboard?r=' + b64);
     }
   } catch(e) { console.warn('[UPA INTAKE SAVE] recovery params build failed:', e); }
 }

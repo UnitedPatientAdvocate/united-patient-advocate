@@ -156,7 +156,7 @@
     // is the authoritative signal that a new scan session has started. Without this,
     // a provisional that fails hasIntake() falls through to the timestamp list, where
     // old PAID_KEY or CHECKOUT_KEY data wins (they have newer updatedAt from markPaid).
-    var active = readJSON(ACTIVE_KEY);
+    var active = activeEnvelope();
     if(active && active.intake){
       var activeIsScanned = !!(active.source === 'scan' || active.intake._scan || active.intake._upa_source === 'scan');
       if(activeIsScanned && active.intake._upa_active_at){
@@ -216,7 +216,32 @@
   }
 
   function activeEnvelope(){
-    return readJSON(ACTIVE_KEY) || {};
+    var active = readJSON(ACTIVE_KEY) || {};
+    if(active && !active.intake && hasIntake(active)){
+      var prepared = ensureActiveFields(active, { source:active._upa_source || active.source || 'legacy-active', stage:'legacy-active-normalize' });
+      var session = {
+        version:4,
+        sessionId:prepared._upa_case_id,
+        activeCaseId:prepared._upa_case_id,
+        createdAt:prepared._upa_active_at,
+        updatedAt:now(),
+        stage:'legacy-active-normalize',
+        source:prepared._upa_source || 'legacy-active',
+        paid:false,
+        intake:clone(prepared)
+      };
+      active = {
+        version:1,
+        caseId:prepared._upa_case_id,
+        source:session.source,
+        updatedAt:session.updatedAt,
+        intake:clone(prepared),
+        session:clone(session)
+      };
+      writeJSON(ACTIVE_KEY, active);
+      writeJSON(INTAKE_KEY, prepared);
+    }
+    return active;
   }
 
   function shouldClearDerivedState(active, prepared, meta, options){
@@ -232,6 +257,9 @@
     if(!hasIntake(intake)) return intake || {};
     var active = activeEnvelope();
     var prepared = ensureActiveFields(intake, meta || {});
+    var sameCase = !!(active && active.caseId && active.caseId === prepared._upa_case_id);
+    var source = prepared._upa_source || (sameCase && active.source) || (meta && meta.source) || 'UPA';
+    var preservedPaid = !!(sameCase && (active.paid || (active.session && active.session.paid)));
     if(shouldClearDerivedState(active, prepared, meta || {}, options || {})){
       removeJSON(CASE_KEY);
       removeJSON(DASHBOARD_KEY);
@@ -245,19 +273,23 @@
       createdAt:prepared._upa_active_at,
       updatedAt:now(),
       stage:(meta && meta.stage) || 'active-case',
-      source:(meta && meta.source) || prepared._upa_source || 'UPA',
-      paid:false,
+      source:source,
+      paid:preservedPaid,
       intake:clone(prepared),
       meta:clone(meta || {})
     };
     var envelope = {
       version:1,
       caseId:prepared._upa_case_id,
-      source:session.source,
+      source:source,
       updatedAt:session.updatedAt,
       intake:clone(prepared),
       session:clone(session)
     };
+    if(preservedPaid) envelope.paid = true;
+    if(sameCase && active.scan) envelope.scan = clone(active.scan);
+    if(sameCase && active.case) envelope.case = clone(active.case);
+    if(sameCase && active.dashboard) envelope.dashboard = clone(active.dashboard);
     writeJSON(ACTIVE_KEY, envelope);
     writeJSON(INTAKE_KEY, prepared);
     return prepared;

@@ -715,6 +715,27 @@ function goToGumroad(){
     if(window.UPAState && window.UPAState.checkoutUrlWithToken){
       checkoutUrl = window.UPAState.checkoutUrlWithToken(GUMROAD_URL, {stage:'gumroad-handoff',source:'preview'});
     }
+    // FIX 3: ALSO append the compact ?r= recovery param to the Gumroad
+    // redirect destination so the dashboard can rehydrate from URL even if
+    // the case token is missing or the buyer arrives from a stale link.
+    try {
+      var rec = '';
+      try { rec = sessionStorage.getItem('upa.recovery.params.v1') || ''; } catch(e){}
+      if (!rec) { try { rec = localStorage.getItem('upa.recovery.params.v1') || ''; } catch(e){} }
+      if (rec && checkoutUrl.indexOf('r=') === -1) {
+        // Inject ?r=<base64> inside the existing ?redirect= URL if present
+        var redirectMatch = checkoutUrl.match(/([?&]redirect=)([^&]+)/);
+        if (redirectMatch) {
+          var inner = decodeURIComponent(redirectMatch[2]);
+          inner += (inner.indexOf('?') > -1 ? '&' : '?') + 'r=' + encodeURIComponent(rec);
+          checkoutUrl = checkoutUrl.replace(redirectMatch[0], redirectMatch[1] + encodeURIComponent(inner));
+        } else {
+          // No redirect parameter — append directly
+          checkoutUrl += (checkoutUrl.indexOf('?') > -1 ? '&' : '?') + 'r=' + encodeURIComponent(rec);
+        }
+        console.log('[UPA] Checkout URL includes recovery params (length:', rec.length, ')');
+      }
+    } catch(e) { console.warn('[UPA] recovery param injection failed:', e); }
   }catch(e){}
   /* Optional: fade page out before redirect */
   var ov = document.createElement('div');

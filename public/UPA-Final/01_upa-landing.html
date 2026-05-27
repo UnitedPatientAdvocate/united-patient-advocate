@@ -37,9 +37,6 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .nav-name{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:-.01em;line-height:1.15}
 .nav-name-sub{font-size:.3125rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);display:block;margin-top:1px}
 .nav-spacer{flex:1}
-.nav-mode{display:flex;align-items:center;gap:6px;font-size:.625rem;font-weight:600;color:var(--ink-3);padding:7px 14px;border:1px solid var(--bdr);border-radius:100px;cursor:pointer;background:none;transition:all .2s ease}
-.nav-mode:hover{border-color:var(--ink-4);color:var(--ink-2)}
-.nav-mode svg{width:13px;height:13px;stroke:currentColor;stroke-width:1.8;fill:none}
 .btn-primary{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-size:.875rem;font-weight:700;color:white;background:var(--teal);padding:10px 22px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .2s var(--ease);box-shadow:0 3px 12px rgba(30,107,90,.25);margin-left:10px}
 .btn-primary:hover{background:var(--teal-lt);transform:translateY(-1px);box-shadow:0 5px 18px rgba(30,107,90,.35)}
 .btn-primary svg{width:14px;height:14px;stroke:white;stroke-width:2.2;fill:none}
@@ -592,7 +589,6 @@ html,body{max-width:100%;overflow-x:hidden}
     </div>
   </a>
   <div class="nav-spacer"></div>
-  <button class="nav-mode"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Night</button>
   <a href="/UPA-Final/00_upa-scan.html" class="btn-primary"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;stroke-width:2.2;fill:none;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Scan My Bill Free</a>
 </div>
 
@@ -1867,18 +1863,119 @@ function upaFinalPath(file){
   return window.location.protocol==='file:'?file:'/UPA-Final/'+file;
 }
 function saveIntakeSession(){
-  try{
-    var payload=buildLeadPayload();
-    var persisted=null;
-    if(window.UPAState && window.UPAState.persistIntake){
-      persisted=window.UPAState.persistIntake(payload,{stage:'intake-complete',source:'landing'});
+  // FIX 3 (root): make the intake save loud and resilient. Three problems
+  // were converging: (1) silent try/catch swallowing storage failures,
+  // (2) localStorage write only happening when UPAState was absent, so a
+  // partial UPAState load would short-circuit the safety net, (3) no
+  // visibility into which keys actually got written.
+  var payload;
+  try { payload = buildLeadPayload(); }
+  catch(e) {
+    console.error('[UPA INTAKE SAVE] buildLeadPayload threw:', e);
+    return;
+  }
+
+  // Step 1: snapshot what we're about to save (sanitized for console)
+  var snapshot = {
+    provider: payload.provider || payload.providerName || '',
+    bill_amount: payload.bill_amount || payload.totalBilled || '',
+    date_of_service: payload.date_of_service || payload.dos || '',
+    insurance: payload.insurance || '',
+    payment_status: payload.payment_status || '',
+    patient_name: payload.patient_name || payload.full_name || '',
+    has_concerns: !!(payload.concerns || payload.specificConcerns),
+    has_description: !!payload.description,
+    field_count: Object.keys(payload).length
+  };
+  console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', 'Saving intake with fields:', snapshot);
+
+  // Step 2: persist via UPAState (writes to ALL canonical keys + manages timestamps)
+  var persisted = null;
+  try {
+    if (window.UPAState && window.UPAState.persistIntake) {
+      persisted = window.UPAState.persistIntake(payload, {stage:'intake-complete', source:'landing'});
     }
-    var activePayload=persisted&&persisted.intake?persisted.intake:payload;
-    if(!window.UPAState){
-      sessionStorage.setItem('upa.intake.v1',JSON.stringify(activePayload));
-      localStorage.setItem('upa.intake.v1',JSON.stringify(activePayload));
+  } catch(e) {
+    console.error('[UPA INTAKE SAVE] UPAState.persistIntake threw:', e);
+  }
+  var activePayload = (persisted && persisted.intake) ? persisted.intake : payload;
+
+  // Step 3: keep a raw intake backup. Canonical active/review keys must
+  // remain structured envelopes, so only the fallback below writes them.
+  var keys = ['upa.intake.v1'];
+  var json = '';
+  try { json = JSON.stringify(activePayload); }
+  catch(e) { console.error('[UPA INTAKE SAVE] JSON.stringify failed:', e); return; }
+
+  var writeReport = {};
+  keys.forEach(function(k){
+    var localOk = false, sessionOk = false;
+    try { localStorage.setItem(k, json); localOk = !!localStorage.getItem(k); } catch(e) { console.error('[UPA INTAKE SAVE] localStorage.setItem failed for ' + k + ':', e); }
+    try { sessionStorage.setItem(k, json); sessionOk = !!sessionStorage.getItem(k); } catch(e) { console.error('[UPA INTAKE SAVE] sessionStorage.setItem failed for ' + k + ':', e); }
+    writeReport[k] = { local: localOk, session: sessionOk };
+  });
+  console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', 'Write verification:', writeReport, '(payload size ' + json.length + ' bytes)');
+
+  if (!persisted) {
+    try {
+      var caseId = activePayload._upa_case_id || activePayload.active_case_id || ('upa-intake-' + Date.now());
+      var activeAt = activePayload._upa_active_at || activePayload.submitted_at || new Date().toISOString();
+      activePayload._upa_case_id = caseId;
+      activePayload.active_case_id = caseId;
+      activePayload._upa_active_at = activeAt;
+      activePayload._upa_source = activePayload._upa_source || 'landing';
+      var fallbackSession = {
+        version:4,
+        sessionId:caseId,
+        activeCaseId:caseId,
+        createdAt:activeAt,
+        updatedAt:new Date().toISOString(),
+        stage:'intake-complete',
+        source:'landing-fallback',
+        paid:false,
+        intake:activePayload
+      };
+      var fallbackActive = {
+        version:1,
+        caseId:caseId,
+        source:'landing-fallback',
+        updatedAt:fallbackSession.updatedAt,
+        intake:activePayload,
+        session:fallbackSession
+      };
+      var sessionJson = JSON.stringify(fallbackSession);
+      var activeJson = JSON.stringify(fallbackActive);
+      sessionStorage.setItem('upa.active.case.v1', activeJson);
+      localStorage.setItem('upa.active.case.v1', activeJson);
+      sessionStorage.setItem('upa.checkout.session.v2', sessionJson);
+      localStorage.setItem('upa.checkout.session.v2', sessionJson);
+      sessionStorage.setItem('upa.review.session.v1', sessionJson);
+      localStorage.setItem('upa.review.session.v1', sessionJson);
+    } catch(e) {
+      console.error('[UPA INTAKE SAVE] fallback session write failed:', e);
     }
-  }catch(e){}
+  }
+
+  // Step 4: build a recovery URL for cross-context return. base64url-encoded
+  // core fields ride along on the checkout redirect so the success page (and
+  // dashboard) can rehydrate even when localStorage was cleared between
+  // sessions (Safari ITP, different browser, different device).
+  try {
+    var core = {
+      p: snapshot.provider, a: snapshot.bill_amount, d: snapshot.date_of_service,
+      i: snapshot.insurance, s: payload.payment_status || '',
+      n: snapshot.patient_name, c: payload.concerns || payload.specificConcerns || ''
+    };
+    // Drop empty fields to keep the URL short
+    Object.keys(core).forEach(function(k){ if(!core[k]) delete core[k]; });
+    if (Object.keys(core).length) {
+      var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(core)))).replace(/=+$/,'').replace(/\+/g,'-').replace(/\//g,'_');
+      window.__UPA_RECOVERY_PARAMS__ = b64;
+      try { sessionStorage.setItem('upa.recovery.params.v1', b64); } catch(e){}
+      try { localStorage.setItem('upa.recovery.params.v1', b64); } catch(e){}
+      console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', 'Recovery params (base64) length:', b64.length, '(use as ?r=' + b64.substring(0, 20) + '...)');
+    }
+  } catch(e) { console.warn('[UPA INTAKE SAVE] recovery params build failed:', e); }
 }
 
 function waitForBillScan(){

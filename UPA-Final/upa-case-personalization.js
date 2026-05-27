@@ -278,6 +278,34 @@
   function readIntakeFromUrl(){
     try{
       var u = new URLSearchParams(window.location.search);
+
+      // Mode A: compact base64url recovery param (?r=<base64>)
+      // Written by saveIntakeSession() on the landing page. This is the
+      // primary cross-context recovery path because it survives Gumroad's
+      // redirect, email link sharing, and direct dashboard URLs.
+      var r = u.get('r');
+      if(r){
+        try{
+          var b64 = r.replace(/-/g,'+').replace(/_/g,'/');
+          while(b64.length % 4) b64 += '=';
+          var decoded = decodeURIComponent(escape(atob(b64)));
+          var parsed = JSON.parse(decoded);
+          var fieldMap = { p:'provider', a:'bill_amount', d:'date_of_service',
+                           i:'insurance', s:'payment_status', n:'patient_name',
+                           c:'concerns', desc:'description' };
+          var fromB64 = {};
+          Object.keys(fieldMap).forEach(function(k){
+            if(parsed[k]) fromB64[fieldMap[k]] = parsed[k];
+          });
+          if(Object.keys(fromB64).length){
+            console.log('%c[UPA HYDRATION]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', 'Recovered intake from ?r= base64 param:', fromB64);
+            return fromB64;
+          }
+        }catch(e){ console.warn('[UPA HYDRATION] ?r= base64 decode failed:', e); }
+      }
+
+      // Mode B: plain readable params (?p=Memorial&a=2400&…) used for support
+      // staff rebuilding a customer's case manually via a recovery URL.
       var map = { p:'provider', a:'bill_amount', d:'date_of_service',
                   i:'insurance', s:'payment_status', n:'patient_name',
                   c:'concerns',  desc:'description', acct:'account' };

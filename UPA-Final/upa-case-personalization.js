@@ -1033,7 +1033,7 @@
     // than getting echoed across every letter, finding card, and dashboard pill.
     var name = safeProperNoun(clean(data.patient_name || data.patientName || data.full_name || data.fullName || data.name || joinedName), 'Patient');
     var nameParts = name !== 'Patient' ? name.split(/\s+/).filter(Boolean) : [];
-    var lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : (nameParts[0] || 'Patient');
+    var lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : (nameParts[0] || 'Account Holder');
     var prepDate = formatDate(data.submitted_at || new Date().toISOString(), 'Today');
     var opened = data.submitted_at ? new Date(data.submitted_at) : new Date();
     if(isNaN(opened.getTime())) opened = new Date();
@@ -1128,7 +1128,7 @@
       raw:data,
       patientName:name,
       lastName:lastName,
-      firstName:first || name.split(/\s+/)[0] || 'Patient',
+      firstName:first || name.split(/\s+/)[0] || 'You',
       provider:provider,
       email:email,
       phone:phone,
@@ -1143,7 +1143,7 @@
       billType:billType,
       coverage:coverage,
       paymentStatus:paymentStatus,
-      patientLabel:(lastName && lastName !== 'Patient' ? lastName : 'Patient') + ' - ' + coverage,
+      patientLabel:(lastName && lastName !== 'Patient' ? lastName : 'Account Holder') + ' - ' + coverage,
       amount:amount,
       issues:issues,
       primary:primary,

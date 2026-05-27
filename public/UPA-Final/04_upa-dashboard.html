@@ -3059,7 +3059,7 @@ function seoTryRecover(){
               <div class="mini-lh">
                 <div class="mini-lh-left">
                   <div class="mini-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-                  <div><div class="mini-org" class="mini-patient-name">Your Name</div><span class="mini-org-sub">Patient · Account Holder</span></div>
+                  <div><div class="mini-org" class="mini-patient-name">Your Name</div><span class="mini-org-sub">Account Holder</span></div>
                 </div>
                 <div><div class="mini-date" id="mini-date-auto">Prepared for review</div><span class="mini-ref">Account: account number</span></div>
               </div>
@@ -3115,7 +3115,7 @@ function seoTryRecover(){
               <div class="mini-lh">
                 <div class="mini-lh-left">
                   <div class="mini-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-                  <div><div class="mini-org" class="mini-patient-name">Your Name</div><span class="mini-org-sub">Patient · Account Holder</span></div>
+                  <div><div class="mini-org" class="mini-patient-name">Your Name</div><span class="mini-org-sub">Account Holder</span></div>
                 </div>
                 <div><div class="mini-date" id="mini-date-auto">Prepared for review</div><span class="mini-ref">Account: account number</span></div>
               </div>
@@ -3171,7 +3171,7 @@ function seoTryRecover(){
               <div class="mini-lh">
                 <div class="mini-lh-left">
                   <div class="mini-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-                  <div><div class="mini-org" class="mini-patient-name">Your Name</div><span class="mini-org-sub">Patient · Account Holder</span></div>
+                  <div><div class="mini-org" class="mini-patient-name">Your Name</div><span class="mini-org-sub">Account Holder</span></div>
                 </div>
                 <div><div class="mini-date" id="mini-date-auto">Prepared for review</div><span class="mini-ref">Account: account number</span></div>
               </div>
@@ -4637,7 +4637,7 @@ const TOUR_STEPS = [
     body: "Quick Calc, Recovery, Escalation, Scripts, Checklist. These are the buttons you'll actually use to dispute charges and talk to billing." },
   { groupLabel: 'Patient Guidance', side: 'right',
     title: '📖 Patient Guidance — read first',
-    body: 'New to disputing bills? Start Here. Then Mistakes To Avoid (read before paying anything). Then Your Rights for common billing protections and request paths.' },
+    body: 'New to disputing a bill? Start with Start Here. Then Mistakes To Avoid — read this before paying anything. Then Your Rights for billing protections that apply to you.' },
   { mode: 'outro', icon: '✅',
     title: "You're ready",
     body: "Click Overview at the top, or Start Here in the sidebar. This walkthrough stays in your sidebar — open it any time you want a refresher." }
@@ -4903,13 +4903,15 @@ function ensureTourEls(){
 }
 
 window.addEventListener('load', function(){
-  // Use upa_tour_shown (set on first auto-trigger) so new users always see
-  // the tour once, regardless of any stale upa_tour_dismissed key from testing.
+  // Tour fires once for ALL new users — desktop AND mobile.
+  // upa_tour_shown flag prevents repeat on subsequent visits.
   let shown = false;
   try { shown = localStorage.getItem('upa_tour_shown') === '1'; } catch(e){}
   if (!shown){
     try { localStorage.setItem('upa_tour_shown', '1'); } catch(e){}
-    setTimeout(tourStart, 1400);
+    // Give mobile an extra 600ms for layout and sidebar to settle before spotlight calc
+    var isMobile = window.innerWidth <= 900;
+    setTimeout(tourStart, isMobile ? 2000 : 1400);
   }
 });
 </script>

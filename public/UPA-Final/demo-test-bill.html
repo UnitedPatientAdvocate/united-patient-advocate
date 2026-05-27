@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Lakewood Regional Medical Center — Explanation of Benefits</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Times New Roman',serif;background:#f5f0e8;color:#1a1a1a;font-size:13px;padding:24px}
+.page{background:#fff;max-width:820px;margin:0 auto;padding:40px 44px 48px;box-shadow:0 2px 20px rgba(0,0,0,.12);border:1px solid #d6cfc0}
+.letterhead{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:3px solid #1a3a5c;margin-bottom:22px}
+.hosp-name{font-size:20px;font-weight:bold;color:#1a3a5c;letter-spacing:-.01em;line-height:1.2}
+.hosp-addr{font-size:10.5px;color:#555;margin-top:4px;line-height:1.6}
+.doc-type-badge{background:#1a3a5c;color:#fff;font-size:9px;font-weight:bold;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:3px;margin-top:2px}
+.ref-block{font-size:10.5px;line-height:1.8;text-align:right;color:#333}
+.ref-block strong{color:#1a3a5c}
+.section-head{background:#1a3a5c;color:#fff;font-size:10px;font-weight:bold;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;margin:18px 0 10px}
+.patient-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:11px;line-height:1.9}
+.patient-grid .lbl{color:#666;font-weight:normal}
+.patient-grid .val{font-weight:bold;color:#111}
+table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px}
+thead tr{background:#1a3a5c;color:#fff}
+thead th{padding:6px 8px;text-align:left;font-size:10px;letter-spacing:.06em;font-weight:bold}
+tbody tr:nth-child(even){background:#f7f4ef}
+tbody tr:nth-child(odd){background:#fff}
+tbody td{padding:5.5px 8px;border-bottom:1px solid #e8e2d8;vertical-align:top}
+.code-cell{font-family:'Courier New',monospace;font-weight:bold;color:#1a3a5c;font-size:10.5px}
+.amount{text-align:right}
+.subtotal-row td{font-weight:bold;background:#e8f0f8!important;border-top:2px solid #1a3a5c}
+.total-row td{font-weight:bold;font-size:12px;background:#1a3a5c!important;color:#fff!important;border-top:none}
+.total-row td:first-child{border-radius:0}
+.summary-box{border:1.5px solid #1a3a5c;border-radius:4px;padding:16px 18px;margin:16px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.sum-item{text-align:center}
+.sum-label{font-size:9px;font-weight:bold;letter-spacing:.10em;text-transform:uppercase;color:#666;margin-bottom:4px}
+.sum-amount{font-size:18px;font-weight:bold;color:#1a3a5c}
+.sum-amount.owed{color:#c0392b}
+.sum-amount.covered{color:#1a7a4c}
+.notice-box{background:#fef9ec;border-left:4px solid #e8a020;padding:10px 14px;margin:14px 0;font-size:11px;line-height:1.65}
+.notice-box strong{color:#a06010}
+.eob-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dotted #ddd;font-size:11px}
+.eob-label{color:#555}
+.eob-val{font-weight:bold;text-align:right}
+.eob-val.adj{color:#1a7a4c}
+.eob-val.owed{color:#c0392b}
+.footer-disc{margin-top:24px;padding-top:14px;border-top:1px solid #ccc;font-size:9.5px;color:#777;line-height:1.7}
+.appeal-notice{margin-top:14px;background:#f0f6ff;border:1px solid #b0c8e8;border-radius:4px;padding:12px 14px;font-size:11px;line-height:1.65}
+.appeal-notice strong{color:#1a3a5c}
+.watermark{color:rgba(26,58,92,.06);font-size:80px;font-weight:bold;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);pointer-events:none;letter-spacing:.05em;z-index:0}
+.page{position:relative;z-index:1}
+@media print{body{background:#fff;padding:0}.page{box-shadow:none;border:none}.watermark{display:none}}
+</style>
+</head>
+<body>
+<div class="watermark">SAMPLE</div>
+<div class="page">
+
+  <!-- LETTERHEAD -->
+  <div class="letterhead">
+    <div>
+      <div class="hosp-name">Lakewood Regional Medical Center</div>
+      <div class="hosp-addr">
+        4200 Lakewood Blvd, Suite A · Fort Lauderdale, FL 33309<br>
+        Billing Services: (954) 882-3100 · Fax: (954) 882-3199<br>
+        billing@lakewoodregional.org · Tax ID: 59-2741885
+      </div>
+      <div style="margin-top:10px"><div class="doc-type-badge">Explanation of Benefits &amp; Itemized Statement</div></div>
+    </div>
+    <div class="ref-block">
+      <div><strong>Statement Date:</strong> October 14, 2024</div>
+      <div><strong>Account #:</strong> LRW-2024-087441</div>
+      <div><strong>Visit #:</strong> 8849-20241003</div>
+      <div><strong>NPI:</strong> 1487265930</div>
+      <div><strong>Due Date:</strong> November 14, 2024</div>
+      <div style="margin-top:6px;padding:6px 8px;background:#fef3f3;border:1px solid #e8b0b0;border-radius:3px;font-size:10px;font-weight:bold;color:#c0392b">AMOUNT DUE: $3,842.00</div>
+    </div>
+  </div>
+
+  <!-- PATIENT INFO -->
+  <div class="section-head">Patient &amp; Insurance Information</div>
+  <div class="patient-grid">
+    <div><span class="lbl">Patient Name:</span> <span class="val">Sarah M. Johnson</span></div>
+    <div><span class="lbl">Insurance Plan:</span> <span class="val">BlueCross BlueShield of Florida</span></div>
+    <div><span class="lbl">Date of Birth:</span> <span class="val">March 14, 1972</span></div>
+    <div><span class="lbl">Member ID:</span> <span class="val">BCBS-FL-774291038</span></div>
+    <div><span class="lbl">Address:</span> <span class="val">1847 Cypress Creek Rd, Apt 3B, Fort Lauderdale, FL 33309</span></div>
+    <div><span class="lbl">Group #:</span> <span class="val">GRP-88741-A</span></div>
+    <div><span class="lbl">Phone:</span> <span class="val">(954) 701-2248</span></div>
+    <div><span class="lbl">Plan Type:</span> <span class="val">PPO — In-Network</span></div>
+    <div><span class="lbl">Date of Service:</span> <span class="val">October 3, 2024</span></div>
+    <div><span class="lbl">Prior Auth #:</span> <span class="val">PA-2024-BCBS-60041</span></div>
+    <div><span class="lbl">Admit Type:</span> <span class="val">Emergency (Type 1)</span></div>
+    <div><span class="lbl">Discharge Status:</span> <span class="val">Home / Self Care (01)</span></div>
+    <div><span class="lbl">Attending Physician:</span> <span class="val">Dr. Raymond K. Osei, MD</span></div>
+    <div><span class="lbl">Physician NPI:</span> <span class="val">1932847561</span></div>
+  </div>
+
+  <!-- ITEMIZED CHARGES -->
+  <div class="section-head">Itemized Charges — Services Rendered</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>CPT / Rev Code</th>
+        <th>Service Description</th>
+        <th>Units</th>
+        <th>Unit Price</th>
+        <th class="amount">Billed</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>10/03/24</td>
+        <td class="code-cell">99285 / 0450</td>
+        <td>Emergency Dept Visit — Level 5 (High Complexity)<br><span style="color:#888;font-size:10px">Modifier: 25 — Significant, separately identifiable E&amp;M</span></td>
+        <td>1</td>
+        <td class="amount">$2,180.00</td>
+        <td class="amount">$2,180.00</td>
+      </tr>
+      <tr>
+        <td>10/03/24</td>
+        <td class="code-cell">93010 / 0730</td>
+        <td>Electrocardiogram (ECG/EKG) — Interpretation &amp; Report Only<br><span style="color:#888;font-size:10px">Note: Tracing performed by tech (see CPT 93005)</span></td>
+        <td>1</td>
+        <td class="amount">$312.00</td>
+        <td class="amount">$312.00</td>
+      </tr>
+      <tr>
+        <td>10/03/24</td>
+        <td class="code-cell">93005 / 0730</td>
+        <td>Electrocardiogram — Tracing Only (Technical Component)<br><span style="color:#888;font-size:10px">⚠ Duplicate component billing with CPT 93010 — both tracing and interpretation billed separately</span></td>
+        <td>1</td>
+        <td class="amount">$198.00</td>
+        <td class="amount">$198.00</td>
+      </tr>
+      <tr>
+        <td>10/03/24</td>
+        <td class="code-cell">80053 / 0300</td>
+        <td>Comprehensive Metabolic Panel (Blood Chemistry)</td>
+        <td>1</td>
+        <td class="amount">$287.00</td>
+        <td class="amount">$287.00</td>
+      </tr>
+      <tr>
+        <td>10/03/24</td>
+        <td class="code-cell">85025 / 0300</td>
+        <td>Complete Blood Count (CBC) with Differential</td>
+        <td>1</td>
+        <td class="amount">$214.00</td>
+        <td class="amount">$214.00</td>
+      </tr>
+      <tr>
+        <td>10/03/24</td>
+        <td class="code-cell">71046 / 0320</td>
+        <td>Chest X-Ray — 2 Views (PA and Lateral)</td>
+        <td>1</td>
+        <td class="amount">$843.00</td>
+        <td class="amount">$843.00</td>
+      </tr>
+      <tr>
+        <td>10/03/24</td>
+        <td class="code-cell">96360 / 0260</td>
+        <td>IV Infusion — Hydration, Initial (First Hour)<br><span style="color:#888;font-size:10px">Normal Saline 0.9% — 1L bag administered</span></td>
+        <td>1</td>
+        <td class="amount">$418.00</td>
+        <td class="amount">$418.00</td>
+      </tr>
+      <tr>
+        <td>10/03/24</td>
+        <td class="code-cell">J3490 / 0636</td>
+        <td>Ondansetron (Zofran) 4mg IV Push — Anti-Nausea Medication<br><span style="color:#888;font-size:10px">⚠ Chargemaster rate $94 vs. AWP benchmark $4.20 — significant markup</span></td>
+        <td>1</td>
+        <td class="amount">$94.00</td>
+        <td class="amount">$94.00</td>
+      </tr>
+      <tr>
+        <td>10/03/24</td>
+        <td class="code-cell">99213 / 0510</td>
+        <td>Clinic/Observation Follow-Up Visit — Level 3<br><span style="color:#888;font-size:10px">⚠ Possible upcoding — documentation may not support Level 3 complexity for brief medication check</span></td>
+        <td>1</td>
+        <td class="amount">$385.00</td>
+        <td class="amount">$385.00</td>
+      </tr>
+      <tr>
+        <td>10/03/24</td>
+        <td class="code-cell">A4550 / 0270</td>
+        <td>Medical/Surgical Supply — General (Itemization Not Provided)<br><span style="color:#888;font-size:10px">⚠ Vague description — itemization not included; request required</span></td>
+        <td>3</td>
+        <td class="amount">$47.00</td>
+        <td class="amount">$141.00</td>
+      </tr>
+      <tr class="subtotal-row">
+        <td colspan="5">TOTAL CHARGES BILLED</td>
+        <td class="amount">$4,872.00</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- EOB SUMMARY -->
+  <div class="section-head">Insurance Processing Summary</div>
+  <div class="eob-row"><span class="eob-label">Total Billed to Insurance</span><span class="eob-val">$4,872.00</span></div>
+  <div class="eob-row"><span class="eob-label">Contractual Adjustment (In-Network Rate Reduction)</span><span class="eob-val adj">−$782.00</span></div>
+  <div class="eob-row"><span class="eob-label">Non-Covered / Plan Exclusion (Medical Supply — A4550)</span><span class="eob-val adj">−$141.00</span></div>
+  <div class="eob-row"><span class="eob-label">BCBS BlueCare PPO Payment — Approved Claim</span><span class="eob-val adj">−$107.00</span></div>
+  <div class="eob-row" style="font-weight:bold;font-size:12px;padding-top:8px;border-bottom:2px solid #1a3a5c"><span class="eob-label" style="color:#c0392b">PATIENT BALANCE DUE</span><span class="eob-val owed">$3,842.00</span></div>
+
+  <!-- PAYMENT SUMMARY BOX -->
+  <div class="summary-box">
+    <div class="sum-item">
+      <div class="sum-label">Total Billed</div>
+      <div class="sum-amount">$4,872</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Insurance Paid</div>
+      <div class="sum-amount covered">$107</div>
+    </div>
+    <div class="sum-item">
+      <div class="sum-label">Your Balance</div>
+      <div class="sum-amount owed">$3,842</div>
+    </div>
+  </div>
+
+  <!-- BILLING NOTICES -->
+  <div class="notice-box">
+    <strong>⚠ Notice — Prior Authorization Concern:</strong> Our records indicate Prior Authorization #PA-2024-BCBS-60041 was issued for diagnostic imaging. However, the authorization documentation on file may not explicitly cover CPT 93005 (ECG Technical Component) when billed alongside CPT 93010. Patients have the right to request a review of authorization coverage decisions in writing.
+  </div>
+
+  <div class="notice-box" style="background:#f0fff4;border-left-color:#1a7a4c">
+    <strong style="color:#1a7a4c">ℹ Coverage Reminder:</strong> As a BlueCross BlueShield PPO member, you have the right to request a fully itemized statement at no charge, request medical records within 30 days, and file a formal billing dispute in writing. You also have the right to request an external review of any coverage denial under the No Surprises Act (2022).
+  </div>
+
+  <!-- BILLING FLAGS (visible guide) -->
+  <div class="section-head">Potential Billing Concerns Identified</div>
+  <table>
+    <thead>
+      <tr>
+        <th>CPT Code</th>
+        <th>Concern Type</th>
+        <th>What This Means</th>
+        <th class="amount">Est. Impact</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="code-cell">93005 + 93010</td>
+        <td>Duplicate Component Billing</td>
+        <td>Both technical tracing (93005) and interpretation (93010) were billed separately. If only one physician was involved, the global code 93000 should have been used. May result in double-billing.</td>
+        <td class="amount" style="color:#c0392b">$198–$312</td>
+      </tr>
+      <tr>
+        <td class="code-cell">J3490</td>
+        <td>Excessive Drug Markup</td>
+        <td>Ondansetron billed at $94. Average wholesale price (AWP) benchmark for 4mg IV is $4.20. Markup ratio approximately 22x. Formal written request for medication cost documentation is advisable.</td>
+        <td class="amount" style="color:#c0392b">$85–$90</td>
+      </tr>
+      <tr>
+        <td class="code-cell">99213</td>
+        <td>Possible Upcoding</td>
+        <td>Level 3 E&amp;M billed for what records describe as a brief medication effectiveness check following initial treatment. Level 2 (99212) may be more appropriate based on documented complexity.</td>
+        <td class="amount" style="color:#c0392b">$120–$180</td>
+      </tr>
+      <tr>
+        <td class="code-cell">A4550</td>
+        <td>Vague Supply Description</td>
+        <td>"Medical/Surgical Supply" billed 3 units at $47 each with no itemization. Under patient billing rights, you may request a full itemized breakdown of all supply charges before paying.</td>
+        <td class="amount" style="color:#c0392b">$141</td>
+      </tr>
+      <tr>
+        <td class="code-cell">0450 / 99285</td>
+        <td>Modifier 25 — Verify Necessity</td>
+        <td>Modifier 25 was applied to the Level 5 ED visit, indicating a separately identifiable E&amp;M service was performed. Confirm that a truly distinct, separately documentable service occurred beyond the primary reason for the visit.</td>
+        <td class="amount" style="color:#888">For review</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- APPEAL RIGHTS -->
+  <div class="appeal-notice">
+    <strong>Your Right to Appeal:</strong> If you believe any charge on this statement is incorrect, you have the right to submit a formal written dispute directly to the hospital billing department and/or your insurance carrier within 180 days of the statement date. You may also request an itemized bill, medical records, and coding documentation under federal patient rights law. The No Surprises Act (effective January 1, 2022) provides additional protections for unexpected out-of-network charges. For assistance, contact your state insurance commissioner or the CMS helpline at 1-800-MEDICARE.
+  </div>
+
+  <!-- PAYMENT INFO -->
+  <div class="section-head">Payment Options</div>
+  <div style="font-size:11px;line-height:2.0;display:grid;grid-template-columns:1fr 1fr;gap:4px 24px">
+    <div>Online: <strong>pay.lakewoodregional.org</strong></div>
+    <div>Phone: <strong>(954) 882-3100, ext. 5</strong></div>
+    <div>Mail check to: <strong>Lakewood Regional Medical Center, PO Box 47820, Fort Lauderdale, FL 33309</strong></div>
+    <div>Financial Assistance: <strong>(954) 882-3100, ext. 9</strong></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-disc">
+    This document is a sample Explanation of Benefits and Itemized Statement for educational and testing purposes. Lakewood Regional Medical Center is a fictional institution. All codes, names, amounts, and billing line items are illustrative examples based on common hospital billing patterns and are not real charges. CPT codes referenced are property of the American Medical Association. This document is intended solely for use in testing and demonstrating the United Patient Advocate billing review platform. Any resemblance to actual persons, providers, or billing accounts is coincidental.
+  </div>
+
+</div>
+</body>
+</html>

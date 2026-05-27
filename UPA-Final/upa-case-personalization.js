@@ -1622,13 +1622,45 @@
     });
   }
 
+  function syncMobileDashboardCase(c){
+    if(!one('#mobile-tab-nav') && !one('#nav-case-text') && !one('#sb-provider') && !one('#db-meta-provider')) return;
+    var providerKnown = hasKnown(c.provider, 'Your provider');
+    var providerText = providerKnown ? c.provider : 'Provider details needed';
+    var caseName = providerKnown ? 'Your case - ' + c.provider : 'Your case - provider details needed';
+    var coverageText = hasKnown(c.coverage, 'Your coverage') ? c.coverage : 'Insurance you listed at intake';
+    setText('#nav-case-text', providerKnown ? 'Your case \u00b7 ' + c.provider : 'Your case \u00b7 awaiting provider details');
+    setText('#nav-case-ref', 'Account: ' + c.accountRef + ' | Opened ' + c.prepDate);
+    setText('#sb-provider', providerText);
+    setText('#sb-sub', c.billType + ' - ' + c.dateShort);
+    setText('#sb-bill-amount', c.amount.display);
+    setText('#sb-review-amount', c.amount.reviewText);
+    setText('#sb-coverage', coverageText);
+    setText('#db-case-name', caseName);
+    setText('#db-case-ref', c.accountRef);
+    setText('#db-meta-provider', providerText);
+    setText('#db-meta-dos', c.dateOfService);
+    setText('#db-meta-coverage', coverageText);
+    setText('#db-meta-amount', c.amount.display);
+    setText('#kpi-flagged-amount', c.amount.reviewText);
+    setText('#kpi-review-areas', c.issueCount + ' areas');
+    setText('#kpi-letters', c.letterCount + ' prepared');
+    setText('#tab-pip-financial', c.amount.reviewText);
+    setText('#tab-pip-findings', c.issueCount + ' areas');
+    setAllText('.mtn-item-pip', function(el, idx){
+      if(idx === 0) return c.amount.reviewText;
+      if(idx === 1) return c.issueCount + ' areas';
+      if(idx === 2) return c.letterCount + ' letters';
+      return el.textContent;
+    });
+  }
+
   function applyDashboard(c){
-    if(!one('.case-header') || !one('.right-panel')) return;
+    if(!one('.case-header') && !one('#mobile-tab-nav') && !one('.sidebar')) return;
     insertNoteAfter('.kpi-strip', c, '');
     insertContextAfter('.kpi-strip', c, '');
     setText('.ncp-text', hasKnown(c.provider, 'Your provider') ? 'Your case · ' + c.provider : 'Your case · awaiting provider details');
     setText('.nav-ref', 'Account: ' + c.accountRef + ' | Opened ' + c.prepDate);
-    setText('.ch-case-indicator', hasKnown(c.provider, 'Your provider') ? 'Your case - ' + c.provider : 'Your case - provider details needed');
+    setText('#db-case-name', hasKnown(c.provider, 'Your provider') ? 'Your case - ' + c.provider : 'Your case - provider details needed');
     setText('.sb-hospital', c.provider);
     setText('.sb-sub', c.billType + ' - ' + c.dateShort);
     setAllText('.sb-kpi-val', [c.amount.display, c.amount.reviewText]);
@@ -1658,7 +1690,7 @@
     if(pills[1]) setIconText(pills[1], 'Prepared: ' + c.prepDate);
     // FIX 2: replace billing jargon with plain English the patient can act on.
     setText('.ch-pill.amber-pill', c.uploaded ? 'Review ready · Your bill is in this case' : 'Action needed · Request your itemized bill');
-    setAllText('.ch-meta-val', [c.provider, c.dateOfService, c.coverage, c.accountRef]);
+    setAllText('.ch-meta-val', [c.provider, c.dateOfService, c.coverage, c.amount.display]);
 
     setAllText('.kpi-val', [c.amount.reviewText, c.issueCount + ' areas', c.letterCount + ' prepared']);
     setAllText('.kpi-label', ['Amount needing confirmation','Review areas requiring action','Case letters prepared']);
@@ -1732,10 +1764,12 @@
     hydrateTimeline(c);
     injectExtraLetterCards(c);
     syncQuickCalc(c);
+    syncMobileDashboardCase(c);
     window.setTimeout(function(){
       setText('#rp-gauge-amount', c.detailScore >= 70 ? 'Review' : 'Prelim');
       setText('#rp-gauge-pct', c.detailScore + '%');
       syncQuickCalc(c);
+      syncMobileDashboardCase(c);
     },1400);
   }
 

@@ -1598,6 +1598,15 @@
       setText('.mini-org-sub', c.patientLabel, card);
       setText('.mini-sig-name', c.patientName, card);
       setText('.mini-sig-sub', (c.lastName || c.patientName) + ' / ' + c.coverage, card);
+      // Fix mini-re RE: line — replace placeholder name and account with real values
+      var reEl = card.querySelector('.mini-re');
+      if(reEl){
+        reEl.innerHTML = reEl.innerHTML
+          .replace(/Patient: First Name Last Name/g, c.patientName)
+          .replace(/First Name Last Name/g, c.patientName)
+          .replace(/Account: account number/g, 'Account: ' + (c.accountRef || ''))
+          .replace(/account number/g, c.accountRef || '');
+      }
     });
     setText('.doc-footer-note', c.letterCount + ' letters prepared for this case. Each uses ' + c.patientName + ', provider, amount, coverage, and intake details.');
   }

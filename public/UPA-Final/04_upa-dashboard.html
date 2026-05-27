@@ -4916,6 +4916,67 @@ window.addEventListener('load', function(){
 <script src="/UPA-Final/upa-state-persistence.js"></script>
 <script src="/UPA-Final/upa-download-packet.js"></script>
 <script>
+/* Mobile-only live hydration debug. Remove after the real phone flow is fixed. */
+(function(){
+  var ids = ['mobile-tab-nav','nav-case-text','nav-case-ref','sb-provider','sb-bill-amount','sb-review-amount','db-case-name','db-case-ref','db-meta-provider','db-meta-dos','db-meta-coverage','db-meta-amount'];
+  var before = {};
+  ids.forEach(function(id){ before[id] = !!document.getElementById(id); });
+  function short(value, fallback){
+    value = String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
+    if(!value) return fallback || '-';
+    return value.length > 48 ? value.slice(0,45) + '...' : value;
+  }
+  function direct(obj){
+    if(!obj || typeof obj !== 'object') return {};
+    var raw = obj.raw || {};
+    var intake = obj.intake || {};
+    return {
+      name: obj.patientName || obj.patient_name || obj.name || intake.patientName || intake.patient_name || intake.name || raw.patientName || raw.patient_name || raw.name || '',
+      provider: obj.provider || obj.providerName || obj.extracted_provider || intake.provider || intake.providerName || intake.extracted_provider || raw.provider || raw.providerName || raw.extracted_provider || '',
+      amount: (obj.amount && (obj.amount.display || obj.amount.reviewText)) || obj.bill_amount || obj.totalBilled || obj.extracted_bill_amount || intake.bill_amount || intake.totalBilled || intake.extracted_bill_amount || raw.bill_amount || raw.totalBilled || raw.extracted_bill_amount || '',
+      caseId: obj._upa_case_id || obj.active_case_id || obj.caseId || obj.activeCaseId || intake._upa_case_id || intake.active_case_id || intake.caseId || raw._upa_case_id || raw.active_case_id || raw.caseId || '',
+      source: obj._upa_source || obj.source || intake._upa_source || intake.source || raw._upa_source || raw.source || ''
+    };
+  }
+  function getIntake(){
+    try{ return window.UPAState && window.UPAState.getIntake ? window.UPAState.getIntake() : null; }
+    catch(e){ return { error:e && e.message }; }
+  }
+  function render(stage){
+    if(!window.matchMedia || !window.matchMedia('(max-width: 900px)').matches) return;
+    var el = document.getElementById('upa-mobile-debug');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'upa-mobile-debug';
+      el.style.cssText = 'position:fixed;left:6px;right:6px;bottom:6px;z-index:2147483647;background:rgba(8,14,24,.94);color:#dfffe9;border:1px solid rgba(46,204,113,.65);border-radius:8px;padding:7px 8px;font:10px/1.35 monospace;max-height:36vh;overflow:auto;box-shadow:0 8px 30px rgba(0,0,0,.45);text-align:left;white-space:normal';
+      document.body.appendChild(el);
+    }
+    var params = new URLSearchParams(window.location.search || '');
+    var intake = direct(getIntake());
+    var caseData = direct(window.UPACase || {});
+    var now = {};
+    ids.forEach(function(id){ now[id] = !!document.getElementById(id); });
+    var domBefore = ids.map(function(id){ return id + ':' + (before[id] ? 'Y' : 'N'); }).join(' ');
+    var domNow = ids.map(function(id){ return id + ':' + (now[id] ? 'Y' : 'N'); }).join(' ');
+    el.innerHTML =
+      '<strong>UPA MOBILE DEBUG ' + short(stage) + '</strong><br>' +
+      'URL: ' + short(window.location.href, '-') + '<br>' +
+      'r: ' + (params.get('r') ? 'YES len ' + params.get('r').length : 'NO') +
+      ' | case: ' + (params.get('case') ? 'YES len ' + params.get('case').length : 'NO') +
+      ' | w.name: ' + ((window.name || '').indexOf('UPA_RECOVERY:') === 0 ? 'YES len ' + window.name.length : (window.name ? 'OTHER len ' + window.name.length : 'NO')) + '<br>' +
+      'getIntake: ' + short(intake.name) + ' | ' + short(intake.provider) + ' | ' + short(intake.amount) + ' | id ' + short(intake.caseId) + ' | src ' + short(intake.source) + '<br>' +
+      'UPACase: ' + short(caseData.name) + ' | ' + short(caseData.provider) + ' | ' + short(caseData.amount) + ' | id ' + short(caseData.caseId) + ' | src ' + short(caseData.source) + '<br>' +
+      'DOM before hydration: ' + domBefore + '<br>' +
+      'DOM now: ' + domNow;
+  }
+  window.__UPA_MOBILE_DEBUG__ = { before:before, render:render };
+  render('before-restore');
+  window.addEventListener('load', function(){
+    setTimeout(function(){ render('load+1s'); }, 1000);
+    setTimeout(function(){ render('load+4s'); }, 4000);
+  });
+})();
+
 /* ── Hydration boot (BUG 1 fix) ─────────────────────────────────────────
    Before personalization runs, attempt every restoration path so the
    dashboard hydrates regardless of how the user arrived:
@@ -4933,6 +4994,7 @@ window.addEventListener('load', function(){
     if (window.UPAState && window.UPAState.restoreSession) {
       window.UPAState.restoreSession({ stage:'dashboard-boot', source:'dashboard' });
     }
+    if (window.__UPA_MOBILE_DEBUG__) window.__UPA_MOBILE_DEBUG__.render('after-dashboard-boot');
   } catch(e){ console.warn('[UPA] dashboard boot restore error:', e && e.message); }
 })();
 </script>

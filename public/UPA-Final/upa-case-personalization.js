@@ -1936,6 +1936,7 @@
     applyDashboard(c);
     applyPacket(c);
     applyGuideHook(c);
+    if(window.__UPA_MOBILE_DEBUG__) window.__UPA_MOBILE_DEBUG__.render('after-personalization');
   }
 
   if(document.readyState === 'loading'){

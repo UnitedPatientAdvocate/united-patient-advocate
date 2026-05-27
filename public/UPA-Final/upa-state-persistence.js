@@ -731,35 +731,93 @@
     return { ok:true, mode:'recovery', token:token, session:session, intake:restored };
   }
 
-  function compactRecoveryToken(intake){
-    if(!hasIntake(intake)) return '';
-    var core = {
-      p: clean(intake.provider || intake.providerName || intake.extracted_provider || ''),
-      a: clean(intake.bill_amount || intake.bill_amount_other || intake.balance || intake.totalBilled || intake.extracted_bill_amount || ''),
-      d: clean(intake.date_of_service || intake.dos || intake.extracted_date_of_service || ''),
-      i: clean(intake.insurance || intake.extracted_insurance || ''),
-      s: clean(intake.payment_status || ''),
-      n: clean(intake.patient_name || intake.patientName || intake.name || ''),
-      c: clean(intake.concerns || intake.specificConcerns || ''),
-      desc: clean(intake.description || ''),
-      bt: clean(intake.bill_type || intake.billType || ''),
-      co: clean(intake.concern_other || ''),
-      em: clean(intake.email || ''),
-      ph: clean(intake.phone || ''),
-      acct: clean(intake.account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || intake.extracted_account_number || ''),
-      cid: clean(intake._upa_case_id || intake.active_case_id || intake.caseId || ''),
-      ts: clean(intake.submitted_at || intake._upa_active_at || now())
+  function limitText(value, max){
+    value = clean(value);
+    max = max || 80;
+    return value.length > max ? value.slice(0, max) : value;
+  }
+
+  function intakeFromRecoveryToken(token){
+    if(!token) return {};
+    var text = base64UrlDecode(token);
+    if(!text) return {};
+    var parsed = null;
+    try{ parsed = JSON.parse(text); }catch(e){ return {}; }
+    if(!parsed || typeof parsed !== 'object') return {};
+    var map = {
+      p:'provider',
+      a:'bill_amount',
+      d:'date_of_service',
+      i:'insurance',
+      s:'payment_status',
+      n:'patient_name',
+      c:'concerns',
+      desc:'description',
+      bt:'bill_type',
+      co:'concern_other',
+      em:'email',
+      ph:'phone',
+      acct:'account_number',
+      cid:'_upa_case_id',
+      ts:'submitted_at'
     };
+    var intake = {};
+    Object.keys(map).forEach(function(key){
+      if(parsed[key]) intake[map[key]] = clean(parsed[key]);
+    });
+    if(intake._upa_case_id) intake.active_case_id = intake._upa_case_id;
+    return intake;
+  }
+
+  function encodeRecoveryCore(core){
     Object.keys(core).forEach(function(key){ if(!core[key]) delete core[key]; });
     if(!Object.keys(core).length) return '';
     try{ return base64UrlEncode(JSON.stringify(core)); }catch(e){ return ''; }
+  }
+
+  function compactRecoveryToken(intake){
+    if(!hasIntake(intake)) return '';
+    var core = {
+      p: limitText(intake.provider || intake.providerName || intake.extracted_provider || '', 80),
+      a: limitText(intake.bill_amount || intake.bill_amount_other || intake.balance || intake.totalBilled || intake.extracted_bill_amount || '', 40),
+      d: limitText(intake.date_of_service || intake.dos || intake.extracted_date_of_service || '', 40),
+      i: limitText(intake.insurance || intake.extracted_insurance || '', 70),
+      s: limitText(intake.payment_status || '', 70),
+      n: limitText(intake.patient_name || intake.patientName || intake.name || '', 70),
+      c: limitText(intake.concerns || intake.specificConcerns || '', 120),
+      desc: limitText(intake.description || '', 120),
+      bt: limitText(intake.bill_type || intake.billType || '', 60),
+      co: limitText(intake.concern_other || '', 80),
+      em: limitText(intake.email || '', 80),
+      ph: limitText(intake.phone || '', 30),
+      acct: limitText(intake.account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || intake.extracted_account_number || '', 50),
+      cid: limitText(intake._upa_case_id || intake.active_case_id || intake.caseId || '', 80),
+      ts: limitText(intake.submitted_at || intake._upa_active_at || now(), 40)
+    };
+    var token = encodeRecoveryCore(Object.assign({}, core));
+    if(token && token.length <= MAX_CASE_PARAM_LENGTH) return token;
+    delete core.desc;
+    delete core.co;
+    delete core.em;
+    delete core.ph;
+    core.c = limitText(core.c, 70);
+    token = encodeRecoveryCore(Object.assign({}, core));
+    return token && token.length <= MAX_CASE_PARAM_LENGTH ? token : '';
   }
 
   function checkoutRecoveryToken(){
     var token = '';
     try{ token = sessionStorage.getItem('upa.recovery.params.v1') || ''; }catch(e){}
     if(!token){ try{ token = localStorage.getItem('upa.recovery.params.v1') || ''; }catch(e){} }
-    if(token) return token;
+    if(token && token.length <= MAX_CASE_PARAM_LENGTH) return token;
+    if(token){
+      var compacted = compactRecoveryToken(intakeFromRecoveryToken(token));
+      if(compacted){
+        try{ sessionStorage.setItem('upa.recovery.params.v1', compacted); }catch(e){}
+        try{ localStorage.setItem('upa.recovery.params.v1', compacted); }catch(e){}
+        return compacted;
+      }
+    }
     var active = activeEnvelope();
     token = compactRecoveryToken((active && active.intake) || readJSON(INTAKE_KEY) || {});
     if(token){

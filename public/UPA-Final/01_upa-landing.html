@@ -1978,6 +1978,7 @@ function saveIntakeSession(){
       co: payload.concern_other || '',
       em: payload.email || '',
       ph: payload.phone || '',
+      acct: payload.account_number || payload.accountNumber || payload.account || payload.billing_reference || payload.billingReference || payload.extracted_account_number || '',
       cid: payload._upa_case_id || payload.caseId || (payload.session && payload.session.activeCaseId) || '',
       ts: new Date().toISOString()
     };

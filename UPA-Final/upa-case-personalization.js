@@ -308,6 +308,7 @@
             co:   'concern_other',    // free-text "other" concern
             em:   'email',            // contact email
             ph:   'phone',            // contact phone
+            acct: 'account_number',   // account / claim / billing reference
             cid:  '_upa_case_id',     // stable case identifier
             ts:   'submitted_at'      // intake submission timestamp
           };
@@ -996,7 +997,7 @@
         'upa.checkout.session.v2',
         'upa.scan.v1'
       ];
-      var auditReport = { _arrivedFromUrlToken: false, _urlHasToken: /[?&]case=/.test(window.location.search) };
+      var auditReport = { _arrivedFromUrlToken: false, _urlHasToken: /[?&](?:case|r)=/.test(window.location.search) };
       auditKeys.forEach(function(k){
         var ls = null, ss = null;
         try { ls = localStorage.getItem(k); } catch(e){}

@@ -603,10 +603,37 @@
 
   function restoreFromUrl(meta){
     var token = '';
+    var recovery = '';
     try{
       var params = new URLSearchParams(window.location.search || '');
       token = params.get(TOKEN_PARAM) || params.get('upa_case') || params.get('state') || '';
+      recovery = params.get('r') || '';
     }catch(e){}
+    if(token){
+      var tokenResult = importCaseToken(token, Object.assign({ source:'url-token' }, meta || {}));
+      if(tokenResult) return tokenResult;
+    }
+    if(recovery){
+      var recoveryResult = importRecoveryToken(recovery, Object.assign({ source:'url-recovery' }, meta || {}));
+      if(recoveryResult) return recoveryResult;
+    }
+    if(!recovery){
+      try{
+        var storedRecovery = sessionStorage.getItem('upa.recovery.params.v1') || localStorage.getItem('upa.recovery.params.v1') || '';
+        if(storedRecovery){
+          var recoveryAgeOk = true;
+          try{
+            var rp = JSON.parse(base64UrlDecode(storedRecovery));
+            var recoveryTime = rp && rp.ts ? Date.parse(rp.ts) : 0;
+            recoveryAgeOk = !recoveryTime || (Date.now() - recoveryTime < 48 * 60 * 60 * 1000);
+          }catch(re){}
+          if(recoveryAgeOk){
+            var storedRecoveryResult = importRecoveryToken(storedRecovery, Object.assign({ source:'stored-recovery' }, meta || {}));
+            if(storedRecoveryResult) return storedRecoveryResult;
+          }
+        }
+      }catch(e){}
+    }
     // Fallback: if no token in URL (e.g. user opened dashboard from Gumroad email link
     // rather than the post-purchase redirect), read the pre-checkout token we stored in
     // localStorage. markCheckout() writes this token before the user leaves for Gumroad.
@@ -638,6 +665,63 @@
     return importCaseToken(token, Object.assign({ source: token ? 'stored-token' : 'no-token' }, meta || {}));
   }
 
+  function importRecoveryToken(token, meta){
+    if(!token) return null;
+    var text = base64UrlDecode(token);
+    if(!text) return null;
+    var parsed = null;
+    try{ parsed = JSON.parse(text); }catch(e){ return null; }
+    if(!parsed || typeof parsed !== 'object') return null;
+    var map = {
+      p:'provider',
+      a:'bill_amount',
+      d:'date_of_service',
+      i:'insurance',
+      s:'payment_status',
+      n:'patient_name',
+      c:'concerns',
+      desc:'description',
+      bt:'bill_type',
+      co:'concern_other',
+      em:'email',
+      ph:'phone',
+      acct:'account_number',
+      cid:'_upa_case_id',
+      ts:'submitted_at'
+    };
+    var intake = {};
+    Object.keys(map).forEach(function(key){
+      if(parsed[key]) intake[map[key]] = clean(parsed[key]);
+    });
+    if(intake._upa_case_id) intake.active_case_id = intake._upa_case_id;
+    if(!hasIntake(intake)) return null;
+    intake._upa_source = intake._upa_source || 'recovery-url';
+    var restored = activateIntake(intake, Object.assign({ stage:'url-recovery-restore' }, meta || {}), { clearStale:true });
+    var session = currentSession();
+    session.version = session.version || 4;
+    session.sessionId = caseIdFromIntake(restored) || session.sessionId || simpleCaseId(restored, 'recovery');
+    session.activeCaseId = caseIdFromIntake(restored) || session.activeCaseId || session.sessionId;
+    session.createdAt = session.createdAt || restored._upa_active_at || now();
+    session.updatedAt = now();
+    session.stage = (meta && meta.stage) || 'url-recovery-restore';
+    session.source = (meta && meta.source) || 'url-recovery';
+    session.intake = clone(restored);
+    session.meta = Object.assign({}, session.meta || {}, meta || {});
+    writeJSON(INTAKE_KEY, restored);
+    writeJSON(CHECKOUT_KEY, session);
+    writeJSON(REVIEW_KEY, session);
+    writeJSON(ACTIVE_KEY, Object.assign({}, activeEnvelope(), {
+      caseId:session.activeCaseId,
+      updatedAt:session.updatedAt,
+      intake:clone(restored),
+      session:clone(session)
+    }));
+    try{ sessionStorage.setItem('upa.recovery.params.v1', token); }catch(e){}
+    try{ localStorage.setItem('upa.recovery.params.v1', token); }catch(e){}
+    try{ window.__UPA_HYDRATION_DEBUG__ = { source:'url-recovery', time:timeValue(restored), caseId:session.activeCaseId }; }catch(e){}
+    return { ok:true, mode:'recovery', token:token, session:session, intake:restored };
+  }
+
   function compactRecoveryToken(intake){
     if(!hasIntake(intake)) return '';
     var core = {
@@ -653,6 +737,7 @@
       co: clean(intake.concern_other || ''),
       em: clean(intake.email || ''),
       ph: clean(intake.phone || ''),
+      acct: clean(intake.account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || intake.extracted_account_number || ''),
       cid: clean(intake._upa_case_id || intake.active_case_id || intake.caseId || ''),
       ts: clean(intake.submitted_at || intake._upa_active_at || now())
     };

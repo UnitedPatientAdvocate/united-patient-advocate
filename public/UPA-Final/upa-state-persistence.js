@@ -638,6 +638,43 @@
     return importCaseToken(token, Object.assign({ source: token ? 'stored-token' : 'no-token' }, meta || {}));
   }
 
+  function compactRecoveryToken(intake){
+    if(!hasIntake(intake)) return '';
+    var core = {
+      p: clean(intake.provider || intake.providerName || intake.extracted_provider || ''),
+      a: clean(intake.bill_amount || intake.bill_amount_other || intake.balance || intake.totalBilled || intake.extracted_bill_amount || ''),
+      d: clean(intake.date_of_service || intake.dos || intake.extracted_date_of_service || ''),
+      i: clean(intake.insurance || intake.extracted_insurance || ''),
+      s: clean(intake.payment_status || ''),
+      n: clean(intake.patient_name || intake.patientName || intake.name || ''),
+      c: clean(intake.concerns || intake.specificConcerns || ''),
+      desc: clean(intake.description || ''),
+      bt: clean(intake.bill_type || intake.billType || ''),
+      co: clean(intake.concern_other || ''),
+      em: clean(intake.email || ''),
+      ph: clean(intake.phone || ''),
+      cid: clean(intake._upa_case_id || intake.active_case_id || intake.caseId || ''),
+      ts: clean(intake.submitted_at || intake._upa_active_at || now())
+    };
+    Object.keys(core).forEach(function(key){ if(!core[key]) delete core[key]; });
+    if(!Object.keys(core).length) return '';
+    try{ return base64UrlEncode(JSON.stringify(core)); }catch(e){ return ''; }
+  }
+
+  function checkoutRecoveryToken(){
+    var token = '';
+    try{ token = sessionStorage.getItem('upa.recovery.params.v1') || ''; }catch(e){}
+    if(!token){ try{ token = localStorage.getItem('upa.recovery.params.v1') || ''; }catch(e){} }
+    if(token) return token;
+    var active = activeEnvelope();
+    token = compactRecoveryToken((active && active.intake) || readJSON(INTAKE_KEY) || {});
+    if(token){
+      try{ sessionStorage.setItem('upa.recovery.params.v1', token); }catch(e){}
+      try{ localStorage.setItem('upa.recovery.params.v1', token); }catch(e){}
+    }
+    return token;
+  }
+
   function successUrlWithToken(meta){
     var fallback = '/success';
     try{
@@ -656,6 +693,9 @@
       captureReviewState(Object.assign({ stage:'checkout-local-handoff' }, meta || {}));
       var url = new URL(href, window.location.href);
       url.searchParams.set('upa_checkout', '1');
+      var successBase = window.location.origin + '/UPA-Final/05_upa-success.html';
+      var successUrl = new URL(successBase);
+      var hasHandoff = false;
 
       // ── EMBED CASE TOKEN IN GUMROAD REDIRECT URL ──────────────────────────
       // Gumroad supports a ?redirect=URL parameter that overrides where the
@@ -667,12 +707,18 @@
       try{
         var token = exportCaseToken(Object.assign({ stage:'checkout-url-token' }, meta || {}));
         if(token && token.length <= MAX_CASE_PARAM_LENGTH){
-          var successBase = window.location.origin + '/UPA-Final/05_upa-success.html';
-          var successUrl = new URL(successBase);
           successUrl.searchParams.set(TOKEN_PARAM, token);
-          url.searchParams.set('redirect', successUrl.href);
+          hasHandoff = true;
         }
       }catch(re){}
+      if(!hasHandoff){
+        var recoveryToken = checkoutRecoveryToken();
+        if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH){
+          successUrl.searchParams.set('r', recoveryToken);
+          hasHandoff = true;
+        }
+      }
+      if(hasHandoff) url.searchParams.set('redirect', successUrl.href);
 
       return url.href.length <= MAX_CHECKOUT_URL_LENGTH ? url.href : href;
     }catch(e){

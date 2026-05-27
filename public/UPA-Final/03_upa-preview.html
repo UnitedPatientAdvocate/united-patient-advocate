@@ -722,7 +722,12 @@ function goToGumroad(){
       var rec = '';
       try { rec = sessionStorage.getItem('upa.recovery.params.v1') || ''; } catch(e){}
       if (!rec) { try { rec = localStorage.getItem('upa.recovery.params.v1') || ''; } catch(e){} }
-      if (rec && checkoutUrl.indexOf('r=') === -1) {
+      if (rec && rec.length > 1200) {
+        console.warn('[UPA] Recovery params too large for checkout URL; relying on browser storage fallback.');
+        rec = '';
+      }
+      if (rec && checkoutUrl.indexOf('r=') === -1 && checkoutUrl.indexOf('r%3D') === -1 && checkoutUrl.indexOf('r%253D') === -1) {
+        var checkoutBeforeRecovery = checkoutUrl;
         // Inject ?r=<base64> inside the existing ?redirect= URL if present
         var redirectMatch = checkoutUrl.match(/([?&]redirect=)([^&]+)/);
         if (redirectMatch) {
@@ -731,7 +736,15 @@ function goToGumroad(){
           checkoutUrl = checkoutUrl.replace(redirectMatch[0], redirectMatch[1] + encodeURIComponent(inner));
         } else {
           // No redirect parameter — append directly
-          checkoutUrl += (checkoutUrl.indexOf('?') > -1 ? '&' : '?') + 'r=' + encodeURIComponent(rec);
+          var gumroadUrl = new URL(checkoutUrl, window.location.href);
+          var successUrl = new URL('/UPA-Final/05_upa-success.html', window.location.origin);
+          successUrl.searchParams.set('r', rec);
+          gumroadUrl.searchParams.set('redirect', successUrl.href);
+          checkoutUrl = gumroadUrl.href;
+        }
+        if (checkoutUrl.length > 1800) {
+          console.warn('[UPA] Checkout URL exceeded safe length after recovery params; relying on browser storage fallback.');
+          checkoutUrl = checkoutBeforeRecovery;
         }
         console.log('[UPA] Checkout URL includes recovery params (length:', rec.length, ')');
       }

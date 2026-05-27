@@ -1005,7 +1005,7 @@
       if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) {
         try{ window.name = 'UPA_RECOVERY:' + recoveryToken; }catch(ne){}
       }
-      var bridge = new URL('/UPA-Final/06_upa-checkout.html', window.location.origin);
+      var bridge = new URL('/checkout', window.location.origin);
       bridge.searchParams.set('to', gumroadUrl || '');
       if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) bridge.searchParams.set('r', recoveryToken);
       return bridge.href;

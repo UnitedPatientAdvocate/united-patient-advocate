@@ -17,6 +17,10 @@
       "dest": "/UPA-Final/05_upa-success.html"
     },
     {
+      "src": "/checkout/?",
+      "dest": "/UPA-Final/06_upa-checkout.html"
+    },
+    {
       "src": "/dashboard/?",
       "dest": "/UPA-Final/04_upa-dashboard.html"
     },

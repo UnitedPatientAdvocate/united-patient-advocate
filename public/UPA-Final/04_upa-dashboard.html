@@ -1854,7 +1854,11 @@ body{display:block;background:var(--bg)}
    the only layout that scales to 6+ tabs on 360-wide screens without
    compromise. */
 .tab-bar{display:none !important}
-.mobile-tab-nav{display:block;background:var(--dark-deep);padding:8px 12px;border-bottom:2px solid rgba(255,216,119,.30);position:relative;z-index:15}
+/* The desktop-default `.mobile-tab-nav{display:none}` rule appears LATER in
+   source order (outside the media query). Without !important here it would
+   win the cascade on mobile and hide the dropdown entirely, which is what
+   caused the "no tabs visible" regression. */
+.mobile-tab-nav{display:block !important;background:var(--dark-deep);padding:8px 12px;border-bottom:2px solid rgba(255,216,119,.30);position:relative;z-index:15}
 .mtn-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,#1C2B48,#121E35);color:#FFE7B0;border:1px solid rgba(255,216,119,.50);border-radius:8px;padding:11px 14px;cursor:pointer;font-family:var(--sans);font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 2px 8px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,216,119,.18);transition:all .18s ease}
 .mtn-toggle:active{transform:translateY(1px)}
 .mtn-toggle-label{display:flex;align-items:center;gap:8px}
@@ -1870,17 +1874,31 @@ body{display:block;background:var(--bg)}
 .mtn-item.on{background:rgba(255,216,119,.14);color:#FFD877;font-weight:700}
 .mtn-item-pip{font-family:var(--mono);font-size:.5625rem;color:rgba(235,244,255,.45);font-weight:500;letter-spacing:.04em}
 .mtn-item.on .mtn-item-pip{color:rgba(255,216,119,.85)}
-/* BUG 2 fix: the prominent green "Download Your Full Package" button was
-   the first thing users saw on mobile, making the app feel like a file-
-   download page. Hide the entire sidebar footer block on mobile — the
-   user reaches downloads contextually from the Documents tab and from
-   individual letter cards. */
+/* Hide the prominent "Download Your Full Package" sidebar footer button
+   on mobile — it dominated the first impression. Download still reachable
+   contextually from the Documents tab. */
 .sb-foot{display:none}
-/* Also hide the sidebar score widget and the multi-item nav drawer on
-   mobile — they appear as confusing "extra tabs" above the real tab bar.
-   The main tab-bar handles primary navigation; guides remain reachable
-   from within the Overview tab. */
-.sb-score,.sb-nav{display:none}
+/* Hide the sidebar score widget on mobile to save vertical space (KPIs
+   already carry the strength indication). */
+.sb-score{display:none}
+/* FIX 2B: RESTORE the secondary "Guides & Tools" nav section on mobile.
+   Previous turn fully hid .sb-nav which deleted half the navigation. The
+   primary brass tab nav is now handled by the dropdown above; this
+   secondary section gives the user access to the guide drawers
+   (Quick Calc, Recovery, Escalation, Scripts, Checklist, Start Here,
+   Written Requests, Mistakes, Rights, FAQ) as a horizontal scroll row.
+   The "How this page works" tour item and the "Overview"/"Findings"
+   items duplicate the primary nav, so they're hidden via specific
+   selectors below. */
+.sb-nav{display:flex;flex-direction:row;overflow-x:auto;gap:6px;padding:10px 12px 12px;scrollbar-width:none;background:rgba(14,24,40,.55);border-top:1px solid rgba(255,216,119,.14)}
+.sb-nav::-webkit-scrollbar{display:none}
+.sb-grp{display:none} /* group headings don't render well in a scroll row */
+.sb-item{flex:0 0 auto;min-width:120px;background:rgba(255,255,255,.04);padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.06)}
+.sb-badge-pill{display:none} /* badges overflow the chips */
+/* Hide items that duplicate the primary brass-tab nav so the user isn't
+   confused by two "Overview"/"Findings" buttons in two different styles. */
+.sb-nav .sb-item.sb-tour-item{display:none}        /* "How this page works" */
+.sb-nav .sb-item:not(.sb-guide-item):not(.sb-tour-item){display:none} /* "Overview" + "Findings" duplicates */
 .tab-content{display:block;overflow:visible}
 .tab-panel{overflow:visible}
 .kpi-strip{grid-template-columns:1fr}
@@ -2138,10 +2156,79 @@ abbr.upa-term::after{
   vertical-align: super;
   font-weight: 600;
 }
+
+/* FIX 2A: Session-expired overlay. Shown when the dashboard loads with
+   no recoverable intake data — neither localStorage nor sessionStorage
+   nor URL params produced anything. Replaces the previous behavior of
+   rendering the dashboard full of "Your provider" / "Awaiting itemized
+   bill" placeholder fallbacks, which felt broken to paying customers.
+   Display logic is toggled by the personalization JS, not CSS, so the
+   overlay defaults to hidden and only appears when explicitly opened. */
+.session-expired-overlay{
+  display:none;
+  position:fixed;inset:0;z-index:10000;
+  background:rgba(8,14,24,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;padding:24px;
+  font-family:var(--sans);
+}
+.session-expired-overlay.show{display:flex;animation:seoIn .35s cubic-bezier(.22,1,.36,1) both}
+@keyframes seoIn{from{opacity:0}to{opacity:1}}
+.seo-card{
+  max-width:440px;width:100%;background:#fff;border-radius:14px;
+  border:1px solid rgba(255,216,119,.30);
+  padding:32px 28px 26px;text-align:center;
+  box-shadow:0 24px 64px rgba(0,0,0,.55),0 0 0 1px rgba(255,216,119,.18);
+  position:relative;
+}
+.seo-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--green));border-radius:14px 14px 0 0;
+}
+.seo-icon{
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(240,165,0,.12);border:1.5px solid rgba(240,165,0,.30);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;font-size:24px;color:var(--gold-dk);
+}
+.seo-eyebrow{font-size:.5rem;font-weight:700;letter-spacing:.20em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:8px}
+.seo-title{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--ink);letter-spacing:-.01em;line-height:1.22;margin-bottom:10px}
+.seo-body{font-size:.875rem;color:var(--ink-3);line-height:1.65;margin-bottom:20px}
+.seo-actions{display:flex;flex-direction:column;gap:8px}
+.seo-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--sans);font-size:.875rem;font-weight:700;
+  padding:12px 20px;border-radius:8px;border:none;cursor:pointer;
+  text-decoration:none;transition:all .18s ease;
+}
+.seo-btn-primary{background:var(--green);color:#fff;box-shadow:0 2px 12px rgba(30,184,122,.30)}
+.seo-btn-primary:hover{background:var(--green-dk);transform:translateY(-1px)}
+.seo-btn-secondary{background:transparent;color:var(--ink-3);border:1px solid var(--bdr-md)}
+.seo-btn-secondary:hover{background:var(--bg)}
+.seo-note{font-size:.6875rem;color:var(--ink-5);margin-top:14px;line-height:1.55}
 </style>
 <script>function upaFinalPath(file){return window.location.protocol==='file:'?file:'/UPA-Final/'+file;}</script>
 </head>
 <body>
+<!-- FIX 2A: Session-expired overlay (shown by personalization JS when no
+     intake data is recoverable — replaces broken placeholder rendering) -->
+<div class="session-expired-overlay" id="session-expired-overlay" role="dialog" aria-modal="true" aria-labelledby="seo-title">
+  <div class="seo-card">
+    <div class="seo-icon">⏱</div>
+    <div class="seo-eyebrow">Session Not Found</div>
+    <div class="seo-title" id="seo-title">Your case data isn't on this device</div>
+    <div class="seo-body">
+      We can't find your billing review on this browser. This usually means you opened your dashboard link in a different browser or device than where you completed your intake, or your browser cleared its storage.
+    </div>
+    <div class="seo-actions">
+      <a href="/" class="seo-btn seo-btn-primary">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;stroke-width:2.2;fill:none"><polyline points="14 6 18 10 14 14"/><line x1="18" y1="10" x2="6" y2="10"/></svg>
+        Start a New Review
+      </a>
+      <button class="seo-btn seo-btn-secondary" onclick="document.getElementById('session-expired-overlay').classList.remove('show')">Continue Anyway</button>
+    </div>
+    <div class="seo-note">If you completed intake on this device and are still seeing this, try opening the original browser you used, or contact support with your purchase receipt.</div>
+  </div>
+</div>
 <!-- Completion toast -->
 <div class="completion-toast" id="completion-toast">
   <div class="toast-icon"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>

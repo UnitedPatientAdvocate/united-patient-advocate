@@ -61,7 +61,44 @@
     if(/https?:\/\/|www\.[a-z]/i.test(t)) return fallback || '';
     // All-caps keyboard mash longer than 8 chars that isn't a real acronym pattern
     if(/^[A-Z]{9,}$/.test(t)) return fallback || '';
+    // FIX 1: random gibberish keyboard mash ("Odjdjt", "Jdjdd")
+    if(looksLikeGibberish(t)) return fallback || '';
     return t;
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // FIX 1 (gibberish detection): When a user types random characters with
+  // no recognizable English/billing intent ("Odjdjt", "Jdjdd", "Aaaaa"),
+  // we must NEVER echo that text anywhere — not in the finding card title,
+  // not in the description, not in the letter body, not in the intake
+  // summary. Instead, the input is silently normalized to a generic
+  // professional concern category.
+  //
+  // Heuristic: a "word" (3+ alpha chars) is gibberish if it has no vowels
+  // at all, OR has 3+ identical characters in a row, OR has 4+ consecutive
+  // consonants. If ≥60% of 3+ letter words match these patterns, the whole
+  // input is treated as gibberish.
+  //
+  // Informal-but-meaningful inputs ("they charged me twice") pass through
+  // normally because they contain real English words with normal vowel
+  // patterns.
+  function looksLikeGibberish(text){
+    var t = clean(text).toLowerCase().trim();
+    if(!t) return true;
+    // Whole input is one character repeated ("aaaaa", "zzz zzz")
+    if(/^(.)\1+$/.test(t.replace(/\s+/g,''))) return true;
+    var words = t.split(/[^a-z]+/).filter(function(w){ return w.length >= 3; });
+    if(!words.length){
+      // No 3+ letter words at all → treat as gibberish unless input is dense
+      return t.replace(/[^a-z]/g,'').length < 6;
+    }
+    var bad = 0;
+    words.forEach(function(w){
+      if(!/[aeiouy]/.test(w)){ bad++; return; }                  // no vowels
+      if(/(.)\1{2,}/.test(w)){ bad++; return; }                  // 3+ same char in a row
+      if(/[bcdfghjklmnpqrstvwxz]{4,}/.test(w)){ bad++; return; } // 4+ consonants in a row
+    });
+    return (bad / words.length) >= 0.6;
   }
 
   // ──────────────────────────────────────────────────────────────────────
@@ -87,6 +124,7 @@
     if(/^(idk|n\/a|na|nothing|none|no|yes|ok|okay|same|see above|other|not sure|unsure|unknown)$/i.test(t.trim())) return '';
     if(/^(test|testing|hello|hi there|foo\s|bar\s|lorem\s|ipsum|asdf|qwerty|click|skip|just\s+test|this\s+is\s+a\s+test|not\s+applicable|whatever|blah|stuff|things|anything|something)\b/i.test(t)) return '';
     if(/^[\d\s.,!@#$%^&*()\-_+=]+$/.test(t)) return '';
+    if(looksLikeGibberish(t)) return ''; // FIX 1: random letters → suppress
 
     // Extract recognized billing intent — categorize what the user typed.
     // Never return the user's literal words.
@@ -105,13 +143,14 @@
   // professional fallback — never the user's raw words.
   function professionalConcernTitle(text){
     var t = clean(text);
-    if(!t) return 'Additional billing concern raised at intake';
+    // FIX 1: gibberish input → use the generic fallback, never echo the text
+    if(!t || looksLikeGibberish(t)) return 'General billing review';
     var phrases = billingConcernPhrases(t);
     if(phrases.length){
       var p = phrases[0];
       return p.charAt(0).toUpperCase() + p.slice(1);
     }
-    return 'Additional billing documentation concern';
+    return 'General billing review';
   }
 
   // Legacy alias kept so any unrefactored call sites still get safe output
@@ -149,6 +188,7 @@
   function professionalConcernLabel(text){
     var t = clean(text);
     if(!t) return '';
+    if(looksLikeGibberish(t)) return ''; // FIX 1: gibberish → filtered out of concern list
     var known = {
       'duplicate charge':'Possible duplicate charge',
       "i was billed for services i didn't receive":'Services may not match the bill',
@@ -918,7 +958,10 @@
     var first = clean(data.first_name);
     var last = clean(data.last_name);
     var joinedName = first && last ? first + ' ' + last : '';
-    var name = clean(data.patient_name || data.patientName || data.full_name || data.fullName || data.name || joinedName, 'Patient');
+    // FIX 1: route patient name through safeProperNoun so gibberish/test strings
+    // ("Odjdjt", "asdf", "aaaa") fall back to a neutral "Patient" label rather
+    // than getting echoed across every letter, finding card, and dashboard pill.
+    var name = safeProperNoun(clean(data.patient_name || data.patientName || data.full_name || data.fullName || data.name || joinedName), 'Patient');
     var prepDate = formatDate(data.submitted_at || new Date().toISOString(), 'Today');
     var opened = data.submitted_at ? new Date(data.submitted_at) : new Date();
     if(isNaN(opened.getTime())) opened = new Date();
@@ -1746,6 +1789,28 @@
   function run(){
     if(__upaPersonalizationRunDone) return;
     __upaPersonalizationRunDone = true;
+
+    // FIX 2A: Detect truly-empty intake (no localStorage, no sessionStorage,
+    // no URL params, no packet injection) and show the session-expired
+    // overlay on the dashboard rather than rendering placeholder fallbacks.
+    // Only triggers on the dashboard page (overlay element won't exist on
+    // the landing or preview pages, so the toggle is a no-op there).
+    var probe = readIntake();
+    var hasAnyIntake = probe && (
+      clean(probe.provider) || clean(probe.extracted_provider) ||
+      clean(probe.bill_amount) || clean(probe.totalBilled) || clean(probe.extracted_bill_amount) ||
+      clean(probe.patient_name) || clean(probe.patientName) || clean(probe.full_name) || clean(probe.name) ||
+      clean(probe.concerns) || clean(probe.specificConcerns) || clean(probe.description) ||
+      clean(probe.date_of_service) || clean(probe.dos) ||
+      clean(probe.insurance)
+    );
+    var overlay = document.getElementById('session-expired-overlay');
+    if(overlay && !hasAnyIntake){
+      overlay.classList.add('show');
+      console.warn('[UPA] No intake data found in storage or URL — showing session-expired overlay instead of placeholder dashboard.');
+      // Still render below so "Continue Anyway" reveals a (best-effort) dashboard
+    }
+
     var c = buildCase();
     applyCommon(c);
     applyPreview(c);

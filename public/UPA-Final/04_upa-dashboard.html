@@ -1830,32 +1830,46 @@ body{display:block;background:var(--bg)}
 .sb-badge-pill{display:none}
 .sb-foot{padding:10px 12px 14px}
 .main{display:block;min-height:auto;overflow:visible}
-.case-header{padding:20px 16px 0}
+.case-header{padding:18px 14px 0}
 .case-header::before{display:none}
-.ch-meta-top,.ch-pills{align-items:flex-start;gap:8px;flex-wrap:wrap}
+.ch-meta-top,.ch-pills{align-items:flex-start;gap:6px;flex-wrap:wrap}
 .ch-sep,.ch-ref{display:none}
-.ch-deck br{display:none}
-.ch-metadata{grid-template-columns:1fr 1fr;gap:10px;padding:12px 0}
+/* FIX 2: Compress dense intro copy on mobile — headline + one subline, no
+   deck paragraph. The deck text remains in DOM for desktop and screen
+   readers; it just doesn't compete for attention above the fold. */
+.ch-headline{font-size:1.0625rem;line-height:1.2;margin-bottom:3px}
+.ch-subline{font-size:.75rem;margin-bottom:8px}
+.ch-deck{display:none}
+.ch-pills{margin-bottom:10px}
+.ch-pill{font-size:.5rem;padding:3px 9px}
+.ch-metadata{grid-template-columns:1fr 1fr;gap:8px;padding:10px 0}
 .ch-meta-item{border-right:none;margin-right:0;padding-right:0}
-/* BUG 3 fix: tabs must be ALL visible at once on mobile — no horizontal
-   scroll, no swiping. Use a fixed 3-column × 2-row grid so all 6 tabs
-   are reachable without any hidden affordances. Abbreviated labels via
-   ::after content keep each cell short enough to fit ~120px wide on a
-   360px viewport. */
-.tab-bar{padding:6px 8px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;overflow:visible;align-items:stretch}
-.tab-bar::-webkit-scrollbar{display:none}
-.tab-btn{flex:none;width:100%;justify-content:center;border-radius:7px 7px 0 0;padding:9px 6px;margin-bottom:0;white-space:nowrap;font-size:.5rem;letter-spacing:.04em;font-size:0;line-height:1}
-/* Replace each tab's full label with a tight mobile abbreviation. The
-   original text is hidden via font-size:0 and the abbreviation is shown
-   via ::before. Pip badges (the tab-pip spans) stay visible. */
-.tab-btn::before{font-size:.5625rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1}
-.tab-btn:nth-child(1)::before{content:'Overview'}
-.tab-btn:nth-child(2)::before{content:'Money'}
-.tab-btn:nth-child(3)::before{content:'Findings'}
-.tab-btn:nth-child(4)::before{content:'Docs'}
-.tab-btn:nth-child(5)::before{content:'Plan'}
-.tab-btn:nth-child(6)::before{content:'Timeline'}
-.tab-btn .tab-pip{font-size:.3125rem;padding:1px 5px;margin-left:4px}
+.ch-meta-label{font-size:.34rem}
+.ch-meta-val{font-size:.75rem}
+/* FIX 3: Replace the horizontal scrolling/wrapping tab bar with a clean
+   dropdown menu on mobile. The previous grid approach broke when the
+   personalization JS set tab-pip badges to long phrases ("Awaiting
+   itemized bill", etc.) — they overflowed the 33%-width cells and
+   wrapped onto a second row with duplicated labels. The dropdown is
+   the only layout that scales to 6+ tabs on 360-wide screens without
+   compromise. */
+.tab-bar{display:none !important}
+.mobile-tab-nav{display:block;background:var(--dark-deep);padding:8px 12px;border-bottom:2px solid rgba(255,216,119,.30);position:relative;z-index:15}
+.mtn-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,#1C2B48,#121E35);color:#FFE7B0;border:1px solid rgba(255,216,119,.50);border-radius:8px;padding:11px 14px;cursor:pointer;font-family:var(--sans);font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 2px 8px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,216,119,.18);transition:all .18s ease}
+.mtn-toggle:active{transform:translateY(1px)}
+.mtn-toggle-label{display:flex;align-items:center;gap:8px}
+.mtn-toggle-current{color:#FFD877;font-weight:800}
+.mtn-toggle-chev{font-size:.625rem;color:rgba(255,216,119,.85);transition:transform .22s ease;line-height:1}
+.mobile-tab-nav.open .mtn-toggle-chev{transform:rotate(180deg)}
+.mtn-list{display:none;position:absolute;left:12px;right:12px;top:calc(100% - 2px);background:#0E1828;border:1px solid rgba(255,216,119,.40);border-radius:0 0 10px 10px;box-shadow:0 12px 40px rgba(0,0,0,.55);overflow:hidden;z-index:30}
+.mobile-tab-nav.open .mtn-list{display:block;animation:mtnSlide .22s cubic-bezier(.22,1,.36,1) both}
+@keyframes mtnSlide{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.mtn-item{display:flex;align-items:center;justify-content:space-between;width:100%;background:transparent;color:rgba(235,244,255,.85);border:none;border-bottom:1px solid rgba(255,255,255,.06);padding:13px 16px;font-family:var(--sans);font-size:.8125rem;font-weight:600;text-align:left;cursor:pointer;transition:background .15s ease}
+.mtn-item:last-child{border-bottom:none}
+.mtn-item:hover,.mtn-item:active{background:rgba(255,216,119,.08)}
+.mtn-item.on{background:rgba(255,216,119,.14);color:#FFD877;font-weight:700}
+.mtn-item-pip{font-family:var(--mono);font-size:.5625rem;color:rgba(235,244,255,.45);font-weight:500;letter-spacing:.04em}
+.mtn-item.on .mtn-item-pip{color:rgba(255,216,119,.85)}
 /* BUG 2 fix: the prominent green "Download Your Full Package" button was
    the first thing users saw on mobile, making the app feel like a file-
    download page. Hide the entire sidebar footer block on mobile — the
@@ -2096,58 +2110,33 @@ body{display:block;background:var(--bg)}
   .tour-dontshow { font-size: 11px; margin-top: 10px; padding-top: 10px; }
 }
 
-/* ═══════════════════════════ NIGHT / DARKER MODE ═══════════════════════════ */
-body.night {
-  --bg:         #0D1828;
-  --white:      #162036;
-  --ink:        rgba(220,235,255,0.92);
-  --ink-2:      rgba(220,235,255,0.70);
-  --ink-3:      rgba(220,235,255,0.50);
-  --ink-4:      rgba(220,235,255,0.34);
-  --ink-5:      rgba(220,235,255,0.20);
-  --bdr:        rgba(255,255,255,0.07);
-  --bdr-md:     rgba(255,255,255,0.12);
-  --sh-xs:      0 1px 2px rgba(0,0,0,0.25);
-  --sh-sm:      0 1px 5px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.20);
-  --sh-md:      0 3px 14px rgba(0,0,0,0.40), 0 1px 4px rgba(0,0,0,0.22);
-  --sh-lg:      0 6px 28px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.25);
-  --sh-paper:   0 2px 4px rgba(0,0,0,0.30), 0 6px 20px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.06);
-  --gold-lt:    rgba(240,165,0,0.14);
-  --green-lt:   rgba(30,184,122,0.14);
-  --crimson-lt: rgba(224,59,59,0.14);
-  --cobalt-lt:  rgba(59,110,224,0.14);
-  --amber-lt:   rgba(240,128,0,0.14);
+/* Night/Darker mode removed for launch — locked to single light theme. */
+
+/* FIX 3: Mobile dropdown tab nav — hidden on desktop, shown on mobile
+   (the desktop tab-bar handles desktop navigation). Class lives at body
+   scope so the active tab label can be styled on hover/open. */
+.mobile-tab-nav{display:none}
+
+/* FIX 2: Acronym tooltips. Native <abbr title="..."> works on all browsers
+   (mouse hover desktop, tap-and-hold on iOS Safari, long-press on Android).
+   The dotted underline cues the patient that the term is tappable. The
+   small ⓘ glyph after the abbreviation makes it even more discoverable
+   on mobile where hover doesn't exist. */
+abbr.upa-term, abbr.upa-term[title]{
+  text-decoration: none;
+  border-bottom: 1px dashed currentColor;
+  cursor: help;
+  font-variant: normal;
+  position: relative;
+  white-space: nowrap;
 }
-/* ── Nav ── */
-body.night .topnav { background: #0D1828; border-bottom-color: rgba(255,255,255,0.08); }
-body.night .nav-brand-name { color: var(--on-dark); }
-body.night .nav-brand-sub  { color: var(--on-dark-3); }
-body.night .btn-nv:not(.btn-nv-green) { color: var(--on-dark-2); border-color: rgba(255,255,255,0.10); }
-body.night .btn-nv:not(.btn-nv-green):hover { background: rgba(255,255,255,0.06); }
-/* ── Right panel ── */
-body.night .right-panel { background: #162036; border-left-color: rgba(255,255,255,0.07); box-shadow: -2px 0 12px rgba(0,0,0,0.30); }
-body.night .right-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); }
-body.night .rp-charges { background: linear-gradient(160deg,#1C2D45,#142032); border-bottom-color: rgba(255,255,255,0.07); }
-body.night .rpc-row { border-bottom-color: rgba(255,255,255,0.05); }
-/* ── Calc panel hardcoded backgrounds ── */
-body.night .qc-disclaimer { background: #0D1828; border-top-color: rgba(255,255,255,0.07); }
-body.night .qc-bal-input  { background: #1C2D45 !important; color: var(--on-dark) !important; border-color: rgba(255,255,255,0.12) !important; }
-body.night .qc-bal-input:focus { border-color: var(--green) !important; }
-body.night .qc-scenarios  { background: #1C2D45; }
-body.night .qc-scenarios:hover { background: #243351; }
-body.night .qc-tab        { background: #162036; }
-body.night .qc-tab:hover  { background: #1C2D45; }
-/* ── Highlights ── */
-body.night .sc-hl        { background: rgba(240,200,60,0.14); color: var(--on-dark-2); }
-body.night .mini-highlight { background: rgba(240,200,60,0.14); color: var(--on-dark-2); }
-/* ── Guide drawer ── */
-body.night .gd-header   { background: #162036; border-bottom-color: rgba(255,255,255,0.07); }
-body.night .gd-back:hover { background: #1C2D45; }
-body.night .gd-faq-q:hover { background: #1C2D45; }
-/* ── Print: restore light mode ── */
-@media print {
-  body.night { --bg:#fff; --white:#fff; --ink:#111; --ink-2:rgba(17,28,46,0.72); --ink-3:rgba(17,28,46,0.52); }
-  body.night .topnav { background: #fff; }
+abbr.upa-term::after{
+  content: 'ⓘ';
+  font-size: .55em;
+  margin-left: 2px;
+  opacity: .6;
+  vertical-align: super;
+  font-weight: 600;
 }
 </style>
 <script>function upaFinalPath(file){return window.location.protocol==='file:'?file:'/UPA-Final/'+file;}</script>
@@ -2350,7 +2339,6 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
     <span class="nav-ref" id="nav-case-ref">Review ready · Opened today</span>
   </div>
   <div class="nav-right">
-    <button class="btn-nv" id="night-toggle" onclick="toggleNightMode()" title="Toggle night mode">🌙 Night</button>
     <button class="btn-nv btn-nv-green" onclick="showTab('overview');return false;">My Case</button>
   </div>
 </div>
@@ -2567,7 +2555,22 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
         <div class="ch-meta-item"><div class="ch-meta-label">Bill Amount</div><div class="ch-meta-val" id="db-meta-amount">—</div></div>
       </div>
     </div>
-    <!-- Tab bar -->
+    <!-- Mobile dropdown tab nav (mobile only; desktop hides via .mobile-tab-nav{display:none}) -->
+    <div class="mobile-tab-nav" id="mobile-tab-nav">
+      <button class="mtn-toggle" type="button" onclick="toggleMobileTabMenu()" aria-expanded="false" aria-controls="mtn-list">
+        <span class="mtn-toggle-label">Section: <span class="mtn-toggle-current" id="mtn-current-label">Overview</span></span>
+        <span class="mtn-toggle-chev">▼</span>
+      </button>
+      <div class="mtn-list" id="mtn-list" role="menu">
+        <button class="mtn-item on" data-tab="overview"   onclick="mobileSelectTab('overview',  this)" role="menuitem"><span>Overview</span></button>
+        <button class="mtn-item"    data-tab="financials" onclick="mobileSelectTab('financials',this)" role="menuitem"><span>Money</span><span class="mtn-item-pip">Bill review</span></button>
+        <button class="mtn-item"    data-tab="findings"   onclick="mobileSelectTab('findings',  this)" role="menuitem"><span>Findings</span><span class="mtn-item-pip">Issues identified</span></button>
+        <button class="mtn-item"    data-tab="documents"  onclick="mobileSelectTab('documents', this)" role="menuitem"><span>Documents</span><span class="mtn-item-pip">Letters ready</span></button>
+        <button class="mtn-item"    data-tab="actionplan" onclick="mobileSelectTab('actionplan',this)" role="menuitem"><span>Action Plan</span></button>
+        <button class="mtn-item"    data-tab="timeline"   onclick="mobileSelectTab('timeline',  this)" role="menuitem"><span>Timeline</span></button>
+      </div>
+    </div>
+    <!-- Desktop tab bar (hidden on mobile via .tab-bar{display:none !important}) -->
     <div class="tab-bar">
       <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
       <button class="tab-btn" onclick="showTab('financials')">Financials <span class="tab-pip tp-gold" id="tab-pip-financial">$</span></button>
@@ -3198,22 +3201,108 @@ body.night .gd-faq-q:hover { background: #1C2D45; }
 </div><!-- end shell -->
 
 <script>
-/* ════ NIGHT MODE ════ */
-(function(){
-  try {
-    if(localStorage.getItem('upa_night_mode')==='1'){
-      document.body.classList.add('night');
-      var btn = document.getElementById('night-toggle');
-      if(btn) btn.textContent = '☀️ Day';
+/* Night mode removed for launch — single locked theme only. */
+
+/* ════ FIX 2: ACRONYM TOOLTIPS ════
+   After personalization renders all dynamic text, walk the visible text
+   nodes inside the dashboard and wrap EOB / CPT / HCPCS in <abbr> tags
+   so they get the dotted underline + tap-to-define tooltip. This is the
+   minimal-touch approach — we don't have to hand-edit every template
+   string in the personalization JS or the static HTML. */
+var UPA_TERMS = {
+  'EOB':   'Explanation of Benefits — the statement your insurance sends after they process a claim, showing what they paid and what you owe.',
+  'CPT':   'Current Procedural Terminology — the 5-digit codes that identify each medical service on your bill.',
+  'HCPCS': 'Healthcare Common Procedure Coding System — the codes used for supplies, drugs, and services beyond standard CPT codes.',
+  'CMS':   'Centers for Medicare & Medicaid Services — the federal agency that sets billing rules for Medicare and Medicaid.',
+  'DOS':   'Date of Service — the date the medical care was provided.'
+};
+function wrapUpaTerms(root){
+  if(!root) root = document.body;
+  var terms = Object.keys(UPA_TERMS);
+  // Use a single regex that matches any of the terms as whole words
+  var re = new RegExp('\\b(' + terms.join('|') + ')\\b','g');
+  var skip = { SCRIPT:1, STYLE:1, ABBR:1, BUTTON:1, INPUT:1, TEXTAREA:1, SELECT:1, OPTION:1, SVG:1 };
+  var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: function(node){
+      if(!node.nodeValue || !re.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+      re.lastIndex = 0;
+      var p = node.parentNode;
+      while(p){
+        if(p.nodeType === 1 && skip[p.tagName]) return NodeFilter.FILTER_REJECT;
+        if(p.nodeType === 1 && p.classList && p.classList.contains('upa-term-skip')) return NodeFilter.FILTER_REJECT;
+        p = p.parentNode;
+      }
+      return NodeFilter.FILTER_ACCEPT;
     }
-  }catch(e){}
-})();
-function toggleNightMode(){
-  var on = document.body.classList.toggle('night');
-  var btn = document.getElementById('night-toggle');
-  if(btn) btn.textContent = on ? '☀️ Day' : '🌙 Night';
-  try { localStorage.setItem('upa_night_mode', on ? '1' : '0'); }catch(e){}
+  });
+  var pending = [];
+  var n;
+  while((n = walker.nextNode())) pending.push(n);
+  pending.forEach(function(textNode){
+    var parts = textNode.nodeValue.split(re);
+    if(parts.length < 2) return;
+    var frag = document.createDocumentFragment();
+    parts.forEach(function(part){
+      if(UPA_TERMS[part]){
+        var abbr = document.createElement('abbr');
+        abbr.className = 'upa-term';
+        abbr.setAttribute('title', UPA_TERMS[part]);
+        abbr.textContent = part;
+        frag.appendChild(abbr);
+      } else if(part) {
+        frag.appendChild(document.createTextNode(part));
+      }
+    });
+    textNode.parentNode.replaceChild(frag, textNode);
+  });
 }
+// Run once after personalization has rendered (it runs on DOMContentLoaded /
+// script load order). Use rAF + setTimeout to schedule after the current
+// paint cycle.
+window.addEventListener('load', function(){
+  setTimeout(function(){ try { wrapUpaTerms(document.body); } catch(e){} }, 500);
+  // Re-wrap when tabs switch (guide drawers, action plan, etc. may inject more text)
+  setTimeout(function(){ try { wrapUpaTerms(document.body); } catch(e){} }, 2000);
+});
+
+/* ════ MOBILE DROPDOWN TAB NAV ════
+   Mirrors the desktop tab-bar but renders as a tap-to-open dropdown.
+   Replaces the previous horizontal-scroll/grid that broke on long pip
+   labels populated by personalization. */
+var MTN_LABELS = {
+  overview:'Overview', financials:'Money', findings:'Findings',
+  documents:'Documents', actionplan:'Action Plan', timeline:'Timeline'
+};
+function toggleMobileTabMenu(){
+  var nav = document.getElementById('mobile-tab-nav');
+  var btn = nav && nav.querySelector('.mtn-toggle');
+  if(!nav) return;
+  var open = nav.classList.toggle('open');
+  if(btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+function mobileSelectTab(name, itemEl){
+  showTab(name);
+  var nav = document.getElementById('mobile-tab-nav');
+  if(nav){
+    nav.classList.remove('open');
+    var toggleBtn = nav.querySelector('.mtn-toggle');
+    if(toggleBtn) toggleBtn.setAttribute('aria-expanded','false');
+  }
+  var label = document.getElementById('mtn-current-label');
+  if(label && MTN_LABELS[name]) label.textContent = MTN_LABELS[name];
+  document.querySelectorAll('.mtn-item').forEach(function(el){ el.classList.remove('on'); });
+  if(itemEl) itemEl.classList.add('on');
+}
+/* Close dropdown when tapping outside */
+document.addEventListener('click', function(e){
+  var nav = document.getElementById('mobile-tab-nav');
+  if(!nav || !nav.classList.contains('open')) return;
+  if(!nav.contains(e.target)) {
+    nav.classList.remove('open');
+    var t = nav.querySelector('.mtn-toggle');
+    if(t) t.setAttribute('aria-expanded','false');
+  }
+});
 
 /* ════ TAB SWITCHING ════ */
 function showTab(name) {

@@ -228,6 +228,28 @@
     };
   }
 
+  // FIX 1: Read case data from URL query params as a last-resort fallback.
+  // Used when a paying customer arrives at the dashboard with empty localStorage
+  // (cross-browser, cross-device, Safari ITP cleared storage, etc.). The success
+  // page already restores from a base64 token via UPAState.restoreFromUrl(); this
+  // adds a SECOND path that accepts plain readable params so we can also build
+  // recovery URLs that survive raw-text sharing (e.g. ?p=Memorial%20Hospital&a=2400).
+  // Keys are intentionally short to keep URLs under Gumroad's redirect limits.
+  function readIntakeFromUrl(){
+    try{
+      var u = new URLSearchParams(window.location.search);
+      var map = { p:'provider', a:'bill_amount', d:'date_of_service',
+                  i:'insurance', s:'payment_status', n:'patient_name',
+                  c:'concerns',  desc:'description', acct:'account' };
+      var out = {};
+      Object.keys(map).forEach(function(k){
+        var v = u.get(k);
+        if(v) out[map[k]] = decodeURIComponent(v);
+      });
+      return Object.keys(out).length ? out : null;
+    }catch(e){ return null; }
+  }
+
   function readIntake(){
     try{
       // C2 FIX: delegate exclusively to UPAState — it is the single source of truth.
@@ -238,15 +260,33 @@
       //   1. __UPA_PACKET_INTAKE__  — injected into downloaded HTML files by addIntake()
       //   2. UPAState.getIntake()   — authoritative; returns {} when no valid case exists
       //   3. INTAKE_KEY direct read — only when UPAState script failed to load entirely
+      //   4. URL query params       — cross-context recovery (FIX 1)
 
       if(window.__UPA_PACKET_INTAKE__) return window.__UPA_PACKET_INTAKE__;
       if(window.UPAState){
         if(window.UPAState.restoreSession) window.UPAState.restoreSession({stage:'personalization-load'});
-        if(window.UPAState.getIntake) return window.UPAState.getIntake() || {};
+        if(window.UPAState.getIntake){
+          var fromState = window.UPAState.getIntake() || {};
+          // If UPAState produced a usable intake, prefer it. Otherwise fall through
+          // to URL params so a paying customer with cleared localStorage still sees
+          // their data on the dashboard instead of "Your provider" placeholders.
+          if(fromState && Object.keys(fromState).length) return fromState;
+        }
       }
-      // UPAState unavailable — read INTAKE_KEY directly as last resort
+      // UPAState unavailable OR produced empty — try INTAKE_KEY direct read
       var intake = readStorageJSON(STORE_KEY);
-      return (intake && Object.keys(intake).length) ? intake : {};
+      if(intake && Object.keys(intake).length) return intake;
+      // Last resort: URL params (cross-context recovery)
+      var urlIntake = readIntakeFromUrl();
+      if(urlIntake){
+        try{ console.log('[UPA HYDRATION] Recovered intake from URL params:', urlIntake); }catch(e){}
+        // Persist what we found so subsequent reads (and the audit) see it too
+        try{
+          if(window.UPAState && window.UPAState.persistIntake) window.UPAState.persistIntake(urlIntake, {stage:'url-param-recovery', source:'dashboard-url'});
+        }catch(e){}
+        return urlIntake;
+      }
+      return {};
     }catch(e){
       return {};
     }
@@ -1487,7 +1527,8 @@
     var pills = all('.ch-pill.dark-pill');
     if(pills[0]) setIconText(pills[0], 'Prepared for ' + c.patientName);
     if(pills[1]) setIconText(pills[1], 'Prepared: ' + c.prepDate);
-    setText('.ch-pill.amber-pill', c.uploaded ? 'REVIEW READY - BILL UPLOADED' : 'PRELIMINARY - ITEMIZED BILL NEEDED');
+    // FIX 2: replace billing jargon with plain English the patient can act on.
+    setText('.ch-pill.amber-pill', c.uploaded ? 'Review ready · Your bill is in this case' : 'Action needed · Request your itemized bill');
     setAllText('.ch-meta-val', [c.provider, c.dateOfService, c.coverage, c.accountRef]);
 
     setAllText('.kpi-val', [c.amount.reviewText, c.issueCount + ' areas', c.letterCount + ' prepared']);

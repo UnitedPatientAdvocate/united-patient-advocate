@@ -1892,9 +1892,8 @@
     );
     var overlay = document.getElementById('session-expired-overlay');
     if(overlay && !hasAnyIntake){
-      overlay.classList.add('show');
-      console.warn('[UPA] No intake data found in storage or URL — showing session-expired overlay instead of placeholder dashboard.');
-      // Still render below so "Continue Anyway" reveals a (best-effort) dashboard
+      overlay.classList.remove('show');
+      console.warn('[UPA] No intake data found in storage or URL — keeping dashboard visible.');
     }
 
     var c = buildCase();

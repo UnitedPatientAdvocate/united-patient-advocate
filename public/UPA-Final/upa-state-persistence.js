@@ -737,6 +737,72 @@
     return value.length > max ? value.slice(0, max) : value;
   }
 
+  function isPlaceholderValue(value){
+    value = clean(value).toLowerCase();
+    return !value ||
+      value === 'provider details needed' ||
+      value === 'your provider' ||
+      value === 'awaiting itemized bill' ||
+      value === 'bill amount' ||
+      value === 'on file' ||
+      value === 'insurance you listed at intake' ||
+      value === 'your coverage' ||
+      value === 'account on file' ||
+      value.indexOf('provider listed on your bill') > -1;
+  }
+
+  function recoveryText(value, max){
+    return isPlaceholderValue(value) ? '' : limitText(value, max);
+  }
+
+  function recoveryAmount(intake){
+    return recoveryText(
+      intake.bill_amount || intake.bill_amount_other || intake.balance ||
+      intake.totalBilled || intake.patientBalance ||
+      intake._patient_balance || intake._total_billed ||
+      intake.extracted_bill_amount || '',
+      40
+    );
+  }
+
+  function recoveryScore(intake){
+    if(!intake || typeof intake !== 'object') return 0;
+    var score = 0;
+    if(recoveryText(intake.provider || intake.providerName || intake.extracted_provider || '', 80)) score += 5;
+    if(recoveryAmount(intake)) score += 4;
+    if(recoveryText(intake.patient_name || intake.patientName || intake.name || '', 70)) score += 3;
+    if(recoveryText(intake.date_of_service || intake.dos || intake.extracted_date_of_service || '', 40)) score += 2;
+    if(recoveryText(intake.insurance || intake.extracted_insurance || '', 70)) score += 2;
+    if(recoveryText(intake.account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || intake.extracted_account_number || '', 50)) score += 1;
+    if(recoveryText(intake.concerns || intake.specificConcerns || intake.description || '', 80)) score += 1;
+    return score;
+  }
+
+  function bestRecoveryIntake(){
+    var candidates = [];
+    function add(intake, container, source){
+      if(!intake || typeof intake !== 'object') return;
+      var score = recoveryScore(intake);
+      if(!score) return;
+      candidates.push({ intake:intake, score:score, time:Math.max(timeValue(intake), timeValue(container || {})), source:source || '' });
+    }
+    var active = activeEnvelope();
+    if(active && active.intake) add(active.intake, active, 'active');
+    if(active && active.scan) add(normalizeScanIntake(active.scan), active.scan, 'active-scan');
+    add(readJSON(INTAKE_KEY), null, 'intake');
+    var scan = readJSON(SCAN_KEY);
+    add(normalizeScanIntake(scan), scan, 'scan');
+    var checkout = readJSON(CHECKOUT_KEY);
+    if(checkout && checkout.intake) add(checkout.intake, checkout, 'checkout');
+    var review = readJSON(REVIEW_KEY);
+    if(review && review.intake) add(review.intake, review, 'review');
+    var paid = readJSON(PAID_KEY);
+    if(paid && paid.intake) add(paid.intake, paid, 'paid');
+    if(paid && paid.session && paid.session.intake) add(paid.session.intake, paid.session, 'paid-session');
+    candidates.sort(function(a,b){ return (b.score - a.score) || (b.time - a.time); });
+    return candidates[0] ? candidates[0].intake : {};
+  }
+
   function intakeFromRecoveryToken(token){
     if(!token) return {};
     var text = base64UrlDecode(token);
@@ -776,23 +842,23 @@
   }
 
   function compactRecoveryToken(intake){
-    if(!hasIntake(intake)) return '';
+    if(!intake || typeof intake !== 'object' || !recoveryScore(intake)) return '';
     var core = {
-      p: limitText(intake.provider || intake.providerName || intake.extracted_provider || '', 80),
-      a: limitText(intake.bill_amount || intake.bill_amount_other || intake.balance || intake.totalBilled || intake.extracted_bill_amount || '', 40),
-      d: limitText(intake.date_of_service || intake.dos || intake.extracted_date_of_service || '', 40),
-      i: limitText(intake.insurance || intake.extracted_insurance || '', 70),
-      s: limitText(intake.payment_status || '', 70),
-      n: limitText(intake.patient_name || intake.patientName || intake.name || '', 70),
-      c: limitText(intake.concerns || intake.specificConcerns || '', 120),
-      desc: limitText(intake.description || '', 120),
-      bt: limitText(intake.bill_type || intake.billType || '', 60),
-      co: limitText(intake.concern_other || '', 80),
-      em: limitText(intake.email || '', 80),
-      ph: limitText(intake.phone || '', 30),
-      acct: limitText(intake.account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || intake.extracted_account_number || '', 50),
-      cid: limitText(intake._upa_case_id || intake.active_case_id || intake.caseId || '', 80),
-      ts: limitText(intake.submitted_at || intake._upa_active_at || now(), 40)
+      p: recoveryText(intake.provider || intake.providerName || intake.extracted_provider || '', 80),
+      a: recoveryAmount(intake),
+      d: recoveryText(intake.date_of_service || intake.dos || intake.extracted_date_of_service || '', 40),
+      i: recoveryText(intake.insurance || intake.extracted_insurance || '', 70),
+      s: recoveryText(intake.payment_status || '', 70),
+      n: recoveryText(intake.patient_name || intake.patientName || intake.name || '', 70),
+      c: recoveryText(intake.concerns || intake.specificConcerns || '', 120),
+      desc: recoveryText(intake.description || '', 120),
+      bt: recoveryText(intake.bill_type || intake.billType || '', 60),
+      co: recoveryText(intake.concern_other || '', 80),
+      em: recoveryText(intake.email || '', 80),
+      ph: recoveryText(intake.phone || '', 30),
+      acct: recoveryText(intake.account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || intake.extracted_account_number || '', 50),
+      cid: recoveryText(intake._upa_case_id || intake.active_case_id || intake.caseId || '', 80),
+      ts: recoveryText(intake.submitted_at || intake._upa_active_at || now(), 40)
     };
     var token = encodeRecoveryCore(Object.assign({}, core));
     if(token && token.length <= MAX_CASE_PARAM_LENGTH) return token;
@@ -809,17 +875,28 @@
     var token = '';
     try{ token = sessionStorage.getItem('upa.recovery.params.v1') || ''; }catch(e){}
     if(!token){ try{ token = localStorage.getItem('upa.recovery.params.v1') || ''; }catch(e){} }
-    if(token && token.length <= MAX_CASE_PARAM_LENGTH) return token;
+    var storedIntake = intakeFromRecoveryToken(token);
+    var storedScore = recoveryScore(storedIntake);
+    var freshIntake = bestRecoveryIntake();
+    var freshScore = recoveryScore(freshIntake);
+    if(freshScore >= storedScore && freshScore > 0){
+      var freshToken = compactRecoveryToken(freshIntake);
+      if(freshToken){
+        try{ sessionStorage.setItem('upa.recovery.params.v1', freshToken); }catch(e){}
+        try{ localStorage.setItem('upa.recovery.params.v1', freshToken); }catch(e){}
+        return freshToken;
+      }
+    }
+    if(token && token.length <= MAX_CASE_PARAM_LENGTH && storedScore) return token;
     if(token){
-      var compacted = compactRecoveryToken(intakeFromRecoveryToken(token));
+      var compacted = compactRecoveryToken(storedIntake);
       if(compacted){
         try{ sessionStorage.setItem('upa.recovery.params.v1', compacted); }catch(e){}
         try{ localStorage.setItem('upa.recovery.params.v1', compacted); }catch(e){}
         return compacted;
       }
     }
-    var active = activeEnvelope();
-    token = compactRecoveryToken((active && active.intake) || readJSON(INTAKE_KEY) || {});
+    token = compactRecoveryToken(freshIntake);
     if(token){
       try{ sessionStorage.setItem('upa.recovery.params.v1', token); }catch(e){}
       try{ localStorage.setItem('upa.recovery.params.v1', token); }catch(e){}

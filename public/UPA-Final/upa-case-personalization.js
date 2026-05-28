@@ -1857,7 +1857,12 @@
 
   function applyPacket(c){
     if(!one('.toolbar') || all('.page').length < 4) return;
-    setText('.tb-sub', '- ' + c.accountRef + ' - ' + c.patientName + ' packet');
+    // Set ALL name fields globally first — catches elements outside .lhd wrappers
+    // (e.g. the "Prepared For" block on page 1) that applyLetterBodies misses.
+    var displayName = c.patientName || 'Account Holder';
+    setAllText('.lhd-name', displayName);
+    setAllText('.lbs-name', displayName);
+    setText('.tb-sub', '- ' + c.accountRef + ' - ' + displayName + ' packet');
     var firstPageHeader = one('.page .nh');
     if(c.noteText && firstPageHeader && !one('.page .upa-case-note')){
       var note = document.createElement('div');

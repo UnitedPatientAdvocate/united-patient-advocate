@@ -215,10 +215,37 @@
   function stripDownloadScript(html){
     // Remove the download-packet script tag from the downloaded file
     html = html.replace(/<script\b[^>]*src=["'][^"']*upa-download-packet\.js[^"']*["'][^>]*>\s*<\/script>/ig, '');
-    // Inject a simple inline print fallback so the Print/Save PDF button still works
-    // even though upaPrintPacketPDF (which lives in upa-download-packet.js) is stripped out
-    var printFallback = '<script>window.upaPrintPacketPDF=function(){window.print();};window.upaPrintFullPackage=function(){window.print();};<\/script>';
-    html = html.replace(/<\/head>/i, printFallback + '</head>');
+    // Inject fallbacks so the downloaded file works standalone:
+    // 1. Print/Save PDF button works via window.print()
+    // 2. Key letter fields become click-to-edit so users can fill in any missing info
+    //    without needing a separate word processor
+    var inlineFallback = '<script>' +
+      'window.upaPrintPacketPDF=function(){window.print();};' +
+      'window.upaPrintFullPackage=function(){window.print();};' +
+      // Make editable fields on load
+      'window.addEventListener("load",function(){' +
+      '  var editSelectors=[".lhd-name",".lbs-name",".lhd-addr",".lb-to-addr",".lb-re-txt",".lhd-date",".lhd-acct",".lbs-sub"];' +
+      '  editSelectors.forEach(function(sel){' +
+      '    document.querySelectorAll(sel).forEach(function(el){' +
+      '      el.setAttribute("contenteditable","true");' +
+      '      el.style.cursor="text";' +
+      '      el.style.outline="none";' +
+      '      el.style.borderBottom="1px dashed rgba(28,43,72,0.25)";' +
+      '      el.title="Click to edit";' +
+      '    });' +
+      '  });' +
+      '  // Add a small "click fields to edit" hint above first letter' +
+      '  var firstLhd=document.querySelector(".lhd");' +
+      '  if(firstLhd&&!document.getElementById("upa-edit-hint")){' +
+      '    var hint=document.createElement("div");' +
+      '    hint.id="upa-edit-hint";' +
+      '    hint.style.cssText="font-family:system-ui,sans-serif;font-size:11px;color:#5A7A8A;background:#F0F7F3;border:1px solid rgba(30,184,122,0.25);border-radius:6px;padding:8px 12px;margin-bottom:12px;display:flex;align-items:center;gap:8px";' +
+      '    hint.innerHTML="<span style=\'font-size:14px\'>✏️</span> <span><strong>Your letters are ready to send.</strong> Click any underlined field to edit — your name, address, or any detail — then print or save as PDF.</span>";' +
+      '    firstLhd.parentNode.insertBefore(hint,firstLhd);' +
+      '  }' +
+      '});' +
+      '<\/script>';
+    html = html.replace(/<\/head>/i, inlineFallback + '</head>');
     return html;
   }
 

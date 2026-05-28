@@ -5023,9 +5023,11 @@ function ensureTourEls(){
 window.addEventListener('load', function(){
   // Tour fires once for ALL new users — desktop AND mobile.
   // upa_tour_shown flag prevents repeat on subsequent visits.
+  // Force-show with ?tour=1 in URL (for testing or returning users).
   let shown = false;
+  var forceTour = /[?&]tour=1/.test(window.location.search);
   try { shown = localStorage.getItem('upa_tour_shown') === '1'; } catch(e){}
-  if (!shown){
+  if (!shown || forceTour){
     try { localStorage.setItem('upa_tour_shown', '1'); } catch(e){}
     // Give mobile an extra 600ms for layout and sidebar to settle before spotlight calc
     var isMobile = window.innerWidth <= 900;
@@ -5062,6 +5064,166 @@ window.addEventListener('load', function(){
 <script>
 /* ── BFCache guard ── */
 window.addEventListener('pageshow', function(e){ if(e.persisted){ window.location.reload(); } });
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   🔥 UPA AI DOSSIER ENGINE
+   Fires after personalization. On paid/unlocked sessions, calls
+   /api/analyze (paid_dossier) with the real bill text and renders
+   the AI findings into the dashboard. Fully non-blocking.
+══════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  function isPaidSession(){
+    try {
+      var params = new URLSearchParams(window.location.search);
+      if(params.get('unlock') === '1') return true;
+      var active = JSON.parse(localStorage.getItem('upa.active.case.v1') || 'null');
+      if(active && active.paid) return true;
+      var paid = localStorage.getItem('upa.paid.results.v2');
+      if(paid) return true;
+    } catch(e){}
+    return false;
+  }
+
+  function getStoredIntake(){
+    try {
+      var raw = localStorage.getItem('upa.intake.v1') || sessionStorage.getItem('upa.intake.v1') || '{}';
+      return JSON.parse(raw);
+    } catch(e){ return {}; }
+  }
+
+  function getStoredScan(){
+    try {
+      var raw = localStorage.getItem('upa.scan.v1') || sessionStorage.getItem('upa.scan.v1') || '{}';
+      return JSON.parse(raw);
+    } catch(e){ return {}; }
+  }
+
+  function buildAIDossierIntake(intake, scan){
+    return {
+      providerName:     intake.provider || intake.extracted_provider || scan.provider || 'Unknown Provider',
+      totalBilled:      intake.bill_amount_raw || intake.totalBilled || (scan.totalBilled != null ? String(scan.totalBilled) : '') || intake.bill_amount || '',
+      amountOwed:       intake.bill_amount_raw || intake.totalBilled || (scan.patientBalance != null ? String(scan.patientBalance) : '') || '',
+      hasInsurance:     !!(intake.insurance || intake.insuranceName || scan.insuranceName),
+      insuranceType:    intake.insurance || intake.insuranceName || scan.insuranceName || '',
+      visitReason:      intake.bill_type || intake.visitReason || scan.billType || '',
+      servicesReceived: intake.concerns || intake.specificConcerns || (scan.cptCodes && scan.cptCodes.join(', ')) || '',
+      stayDuration:     intake.stay_type || '',
+      billStatus:       intake.bill_status || (scan.denialDetected ? 'denied' : 'received'),
+      specificConcerns: intake._aiIntake && intake._aiIntake.specificConcerns || intake.concerns || 'full billing review requested',
+      billText:         scan.rawText || intake._aiIntake && intake._aiIntake.billText || ''
+    };
+  }
+
+  /* Render AI executive overview into the dashboard finding card area */
+  function renderAIDossier(dossier){
+    if(!dossier) return;
+
+    // Update main headline
+    var headline = document.getElementById('db-headline');
+    if(headline && dossier.summary && dossier.summary.keyFindings){
+      headline.textContent = "Here's what we found in your bill.";
+    }
+
+    // Inject executive overview into the first finding card description
+    var cardText = document.querySelector('.card-text');
+    if(cardText && dossier.paidDossier && dossier.paidDossier.executiveOverview){
+      cardText.innerHTML = dossier.paidDossier.executiveOverview.replace(/\n/g,'<br>');
+    }
+
+    // Update risk badge
+    var kpiVal = document.querySelector('.kpi-val');
+    if(kpiVal && dossier.summary && dossier.summary.riskLevel){
+      var risk = dossier.summary.riskLevel;
+      var label = dossier.summary.severityLabel || risk;
+      kpiVal.textContent = label;
+    }
+
+    // Inject billing pattern analysis as finding points
+    if(dossier.paidDossier && dossier.paidDossier.billingPatternAnalysis && dossier.paidDossier.billingPatternAnalysis.length){
+      var container = document.querySelector('.finding-cards') || document.querySelector('[class*="finding"]');
+      if(!container){
+        // Try to inject into intel card
+        var icBodies = document.querySelectorAll('.ic-body');
+        if(icBodies.length){
+          var rows = dossier.paidDossier.billingPatternAnalysis.slice(0,3).map(function(obs){
+            return '<div class="ic-row"><span class="ic-row-lbl" style="white-space:normal;line-height:1.4">' + obs + '</span></div>';
+          }).join('');
+          icBodies[0].innerHTML = rows;
+        }
+      }
+    }
+
+    // Inject dispute letter
+    if(dossier.disputeLetter){
+      var letterMini = document.querySelector('.mini-text, .mini-text-2');
+      if(letterMini){
+        letterMini.textContent = dossier.disputeLetter.slice(0, 600);
+      }
+    }
+
+    // Store full dossier for download packet
+    try{
+      localStorage.setItem('upa.ai.dossier.v1', JSON.stringify(dossier));
+    }catch(e){}
+
+    console.log('[UPA] ✅ AI paid dossier rendered | risk:', dossier.summary && dossier.summary.riskLevel);
+  }
+
+  function runAIDossier(){
+    if(!isPaidSession()) return;
+
+    // Check if already loaded this session
+    try{
+      var existing = localStorage.getItem('upa.ai.dossier.v1');
+      if(existing){
+        var d = JSON.parse(existing);
+        if(d && d.generationMode === 'paid_dossier'){
+          console.log('[UPA] AI dossier already cached — rendering from storage');
+          renderAIDossier(d);
+          return;
+        }
+      }
+    }catch(e){}
+
+    var intake = getStoredIntake();
+    var scan = getStoredScan();
+    var aiIntake = buildAIDossierIntake(intake, scan);
+
+    console.log('[UPA] 🚀 Calling /api/analyze (paid_dossier) | provider:', aiIntake.providerName, '| hasRawText:', aiIntake.billText.length > 0);
+
+    fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ generationMode: 'paid_dossier', intake: aiIntake })
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(resp){
+      try{
+        var text = Array.isArray(resp.content) ? resp.content.map(function(p){ return p.text||''; }).join('') : '';
+        if(!text) return;
+        var dossier = JSON.parse(text);
+        if(!dossier) return;
+        renderAIDossier(dossier);
+      }catch(e){
+        console.warn('[UPA] AI dossier parse error', e);
+      }
+    })
+    .catch(function(e){
+      console.warn('[UPA] AI dossier call failed (non-blocking)', e);
+    });
+  }
+
+  // Run after personalization has completed
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ window.setTimeout(runAIDossier, 400); });
+  } else {
+    window.setTimeout(runAIDossier, 400);
+  }
+
+})();
 </script>
 <!-- forensic overlay removed for production -->
 </body>

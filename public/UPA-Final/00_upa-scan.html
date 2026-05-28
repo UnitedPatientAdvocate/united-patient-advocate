@@ -1039,10 +1039,72 @@ function routeAfterScan(data) {
   // Write final scan data — overwrites the provisional placeholder written in startScan()
   UPAScanEngine.writeScanStateToStorage(data);
   console.log('[UPA] 🟢 routeAfterScan() — final active case written | confidence:', data.confidence, '| provider:', data.provider || '—');
-  // Generate and render findings
+  // Generate local fallback findings (shown immediately while AI call runs)
   scanFindings = UPAScanEngine.buildScanFindings(data);
   renderFindings(data, scanFindings);
   showState('state-findings');
+  // 🔥 AI Enhancement: call /api/analyze with real bill text for personalized findings
+  callFreePreviewAI(data);
+}
+
+/* ─── AI FREE PREVIEW CALL ─── */
+function callFreePreviewAI(data) {
+  try {
+    var intake = {
+      providerName:      data.provider || '',
+      totalBilled:       data.totalBilled   != null ? String(data.totalBilled)   : '',
+      amountOwed:        data.patientBalance != null ? String(data.patientBalance) : (data.totalBilled != null ? String(data.totalBilled) : ''),
+      hasInsurance:      !!(data.insuranceName),
+      insuranceType:     data.insuranceName  || '',
+      visitReason:       data.billType       || '',
+      servicesReceived:  data.cptCodes && data.cptCodes.length ? data.cptCodes.join(', ') : '',
+      stayDuration:      '',
+      billStatus:        data.denialDetected ? 'denied' : 'received',
+      specificConcerns:  data.cptCodes && data.hasDuplicateCodes ? 'possible duplicate charges detected' : 'bill amount seems high',
+      billText:          data.rawText || ''
+    };
+    // Store intake for dashboard to use when running paid_dossier
+    try {
+      var stored = JSON.parse(localStorage.getItem('upa.intake.v1') || '{}');
+      stored._aiIntake = intake;
+      localStorage.setItem('upa.intake.v1', JSON.stringify(stored));
+    } catch(e) {}
+
+    fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ generationMode: 'free_preview', intake: intake })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(resp) {
+      try {
+        var text = Array.isArray(resp.content) ? resp.content.map(function(p){ return p.text||''; }).join('') : '';
+        if (!text) return;
+        var aiData = JSON.parse(text);
+        if (!aiData || !aiData.preview) return;
+        // Inject AI teaser into the findings heading area
+        var teaserEl = document.getElementById('fh-subline');
+        if (teaserEl && aiData.preview.teaserFinding) {
+          teaserEl.textContent = aiData.preview.teaserFinding;
+        }
+        // Store AI preview result for dashboard
+        try {
+          var stored2 = JSON.parse(localStorage.getItem('upa.intake.v1') || '{}');
+          stored2._aiPreview = aiData;
+          stored2._aiRiskLevel = aiData.summary && aiData.summary.riskLevel;
+          localStorage.setItem('upa.intake.v1', JSON.stringify(stored2));
+        } catch(e) {}
+        console.log('[UPA] ✅ AI free preview loaded | risk:', aiData.summary && aiData.summary.riskLevel);
+      } catch(e) {
+        console.warn('[UPA] AI preview parse error', e);
+      }
+    })
+    .catch(function(e) {
+      console.warn('[UPA] AI free preview call failed (non-blocking)', e);
+    });
+  } catch(e) {
+    console.warn('[UPA] callFreePreviewAI error (non-blocking)', e);
+  }
 }
 
 /* ─── FINDINGS RENDERING ─── */

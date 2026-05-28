@@ -19,3 +19,4 @@ upa-premium-v*.html
 upa-preview.html
 static-server*.log
 vite-dev*.log
+.vercel

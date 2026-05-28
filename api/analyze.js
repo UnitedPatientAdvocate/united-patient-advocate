@@ -19,6 +19,7 @@ Rules:
 - Do not accuse anyone or promise savings/outcomes.
 - Do not provide full scripts, letters, or tactics.
 - Output under 220 words total.
+- If RAW BILL TEXT is provided below, use the actual charges, CPT codes, amounts, and line items from it to make findings specific and real — not generic.
 
 Patient submission:
 ${formatIntake(intake)}
@@ -31,12 +32,12 @@ JSON schema:
     "severityLabel": "Short label",
     "estimatedSavingsMin": "",
     "estimatedSavingsMax": "",
-    "errorsFound": ["One cautious teaser finding"],
-    "keyFindings": "Two concise sentences."
+    "errorsFound": ["One cautious teaser finding referencing specific charges/codes from the bill if available"],
+    "keyFindings": "Two concise sentences referencing specifics from the actual bill."
   },
   "preview": {
     "screeningHeadline": "Short headline",
-    "teaserFinding": "One visible personalized teaser finding.",
+    "teaserFinding": "One visible personalized teaser finding referencing the actual bill details.",
     "cliffhanger": "One sentence about what unlocks.",
     "lockedModuleReferences": ["CPT review","Benchmark comparison","Call script","Action plan"]
   },
@@ -56,6 +57,7 @@ Framing rules:
 - Target roughly 1,800-3,500 words across the review content.
 - Include deep but measured analysis, not sensational claims.
 - JSON validity is critical: escape every quote inside string values, use \\n for line breaks inside long letters/scripts, do not include markdown fences, and do not put raw newline characters inside JSON strings.
+- CRITICAL: If RAW BILL TEXT is provided below, your entire analysis MUST be based on the actual charges, CPT codes, line items, dates, amounts, and billing patterns found in that text. Reference specific codes, amounts, and line items by name. This is a real bill — give a real review, not a template.
 
 Patient submission:
 ${formatIntake(intake)}
@@ -136,12 +138,13 @@ function normalizeIntake(input = {}) {
     servicesReceived: input.servicesReceived || '',
     stayDuration: input.stayDuration || '',
     billStatus: input.billStatus || '',
-    specificConcerns: input.specificConcerns || 'bill seems too high'
+    specificConcerns: input.specificConcerns || 'bill seems too high',
+    billText: input.billText || input.rawText || ''
   };
 }
 
 function formatIntake(intake) {
-  return [
+  const lines = [
     `- Provider: ${intake.providerName}`,
     `- Total billed: $${intake.totalBilled}`,
     `- Amount owed: $${intake.amountOwed}`,
@@ -151,7 +154,13 @@ function formatIntake(intake) {
     `- Visit type: ${intake.stayDuration}`,
     `- Bill status: ${intake.billStatus}`,
     `- Specific concerns: ${intake.specificConcerns}`
-  ].join('\n');
+  ];
+  if (intake.billText && intake.billText.trim().length > 20) {
+    // Truncate to ~6000 chars to stay within token budget
+    const text = intake.billText.trim().slice(0, 6000);
+    lines.push(`\nRAW BILL TEXT (extracted from uploaded PDF — use this to identify specific charges, CPT codes, dates, amounts, and billing patterns):\n---\n${text}\n---`);
+  }
+  return lines.join('\n');
 }
 
 function buildFallbackPreview(intake) {

@@ -206,12 +206,20 @@
   function addIntake(html, intake){
     var json = JSON.stringify(intake || {}).replace(/</g, '\\u003c');
     var script = '<script>window.__UPA_PACKET_INTAKE__=' + json + ';try{sessionStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));localStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));}catch(e){}<\/script>';
-    if(html.indexOf('window.__UPA_PACKET_INTAKE__') > -1) return html;
+    // Always force-inject fresh intake — remove any existing baked-in intake first
+    // so stale data from a previous session never bleeds into a new download.
+    html = html.replace(/<script[^>]*>[\s\S]*?window\.__UPA_PACKET_INTAKE__[\s\S]*?<\/script>/i, '');
     return html.replace(/<\/head>/i, script + '</head>');
   }
 
   function stripDownloadScript(html){
-    return html.replace(/<script\b[^>]*src=["'][^"']*upa-download-packet\.js[^"']*["'][^>]*>\s*<\/script>/ig, '');
+    // Remove the download-packet script tag from the downloaded file
+    html = html.replace(/<script\b[^>]*src=["'][^"']*upa-download-packet\.js[^"']*["'][^>]*>\s*<\/script>/ig, '');
+    // Inject a simple inline print fallback so the Print/Save PDF button still works
+    // even though upaPrintPacketPDF (which lives in upa-download-packet.js) is stripped out
+    var printFallback = '<script>window.upaPrintPacketPDF=function(){window.print();};window.upaPrintFullPackage=function(){window.print();};<\/script>';
+    html = html.replace(/<\/head>/i, printFallback + '</head>');
+    return html;
   }
 
   function inlinePersonalization(html, scriptText){

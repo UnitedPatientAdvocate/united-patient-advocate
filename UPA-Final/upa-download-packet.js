@@ -171,6 +171,38 @@
     return html.replace(/<head([^>]*)>/i, '<head$1><base href="' + base + '">');
   }
 
+  // Inline all images as base64 data URIs so the downloaded packet
+  // shows logos even when opened as a local file (no server = no relative paths).
+  async function inlineImages(html, sourceUrl){
+    var base = sourceUrl.replace(/[^\/]*$/, '');
+    var srcs = [];
+    var re = /src="([^"]+\.(png|jpg|jpeg|gif|svg|webp))"/gi;
+    var m;
+    while((m = re.exec(html)) !== null){
+      var src = m[1];
+      if(src.indexOf('data:') === 0) continue;
+      if(srcs.indexOf(src) === -1) srcs.push(src);
+    }
+    for(var i = 0; i < srcs.length; i++){
+      var src = srcs[i];
+      try{
+        var url = src.indexOf('http') === 0 ? src : (base + src.replace(/^\.\//, ''));
+        var res = await fetch(url, { cache: 'force-cache' });
+        if(!res.ok) continue;
+        var blob = await res.blob();
+        var reader = new FileReader();
+        var dataUri = await new Promise(function(resolve){
+          reader.onload = function(){ resolve(reader.result); };
+          reader.readAsDataURL(blob);
+        });
+        // Replace all occurrences of this src
+        var escaped = src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        html = html.replace(new RegExp('src="' + escaped + '"', 'g'), 'src="' + dataUri + '"');
+      }catch(e){}
+    }
+    return html;
+  }
+
   function addIntake(html, intake){
     var json = JSON.stringify(intake || {}).replace(/</g, '\\u003c');
     var script = '<script>window.__UPA_PACKET_INTAKE__=' + json + ';try{sessionStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));localStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));}catch(e){}<\/script>';
@@ -311,6 +343,7 @@
     html = inlinePersonalization(html, personalization);
     html = stripDownloadScript(html);
     html = scrubTemplateText(html, intake);
+    html = await inlineImages(html, sourceUrl);
     return { html: html, filename: packetFilename(intake) };
   }
 

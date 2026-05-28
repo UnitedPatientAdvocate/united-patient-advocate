@@ -102,6 +102,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); border-radius: 3px; }
 
 .sb-case { padding: 14px 12px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.sb-patient-name { font-size: 0.8125rem; font-weight: 700; color: #FFD877; letter-spacing: -0.01em; line-height: 1.2; margin-bottom: 3px; }
 .sb-tag  { font-size: 0.4rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--on-dark-3); display: flex; align-items: center; gap: 5px; margin-bottom: 6px; }
 .sb-tag::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
 .sb-hospital { font-family: var(--serif); font-size: 0.875rem; font-weight: 700; color: var(--on-dark); line-height: 1.2; margin-bottom: 2px; }
@@ -2153,6 +2154,48 @@ body{display:block;background:var(--bg)}
   .mtn-item.on .mtn-item-pip{color:rgba(255,216,119,.85)}
 }
 
+/* ── Mobile bottom next/back navigation bar ── */
+.mob-btm-nav{display:none}
+@media(max-width:900px){
+  .mob-btm-nav{
+    display:flex;align-items:center;justify-content:space-between;
+    position:fixed;bottom:0;left:0;right:0;z-index:120;
+    background:linear-gradient(180deg,#0E1828,#07101C);
+    border-top:2px solid rgba(255,216,119,.40);
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));
+    box-shadow:0 -4px 24px rgba(0,0,0,.45);
+  }
+  /* pad main content so last section isn't hidden behind bar */
+  .main{padding-bottom:80px!important}
+  .tab-panel{padding-bottom:80px}
+}
+.mbn-btn{display:flex;align-items:center;gap:5px;padding:9px 16px;border:1px solid rgba(255,216,119,.35);border-radius:8px;background:rgba(255,216,119,.06);color:#FFD877;font-family:var(--sans);font-size:.75rem;font-weight:700;letter-spacing:.04em;cursor:pointer;text-transform:uppercase;transition:background 120ms}
+.mbn-btn svg{width:16px;height:16px;stroke:#FFD877;stroke-width:2.4;fill:none}
+.mbn-btn:active,.mbn-btn:hover{background:rgba(255,216,119,.14)}
+.mbn-btn:disabled{opacity:.28;cursor:not-allowed}
+.mbn-center{text-align:center;flex:1;padding:0 8px}
+.mbn-pos{display:block;font-family:var(--mono);font-size:.5rem;letter-spacing:.16em;color:rgba(255,216,119,.55);text-transform:uppercase;margin-bottom:1px}
+.mbn-cur{display:block;font-size:.75rem;font-weight:700;color:rgba(235,244,255,.85);letter-spacing:.01em}
+
+/* ── Mobile overview download strip ── */
+.mob-ov-dl{display:none}
+@media(max-width:900px){
+  .mob-ov-dl{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    margin:16px 0 0;padding:14px 16px;
+    background:linear-gradient(135deg,#111C2E,#1C2B48);
+    border:1px solid rgba(30,184,122,.35);border-radius:10px;
+    box-shadow:0 4px 16px rgba(0,0,0,.20),inset 0 1px 0 rgba(30,184,122,.12);
+  }
+  .mod-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+  .mod-icon{font-size:1.5rem;flex-shrink:0}
+  .mod-title{font-size:.75rem;font-weight:700;color:rgba(235,244,255,.92);line-height:1.2;margin-bottom:2px}
+  .mod-sub{font-size:.625rem;color:rgba(235,244,255,.50);line-height:1.4}
+  .mod-btn{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:9px 14px;background:var(--green);color:#fff;font-family:var(--sans);font-size:.6875rem;font-weight:700;border:none;border-radius:7px;cursor:pointer;white-space:nowrap;box-shadow:var(--sh-green)}
+  .mod-btn svg{width:13px;height:13px;stroke:#fff;stroke-width:2.4;fill:none}
+  .mod-btn:active{transform:translateY(1px)}
+}
+
 /* FIX 4: Mobile-only inline Download CTA inside Findings tab. Hidden on
    desktop because the sidebar foot already has a download button. */
 .mobile-dl-cta{display:none}
@@ -2544,6 +2587,7 @@ function seoTryRecover(){
 <aside class="sidebar">
   <div class="sb-case">
     <div class="sb-tag">Your case</div>
+    <div class="sb-patient-name" id="sb-patient-name">Your Name</div>
     <div class="sb-hospital" id="sb-provider">Your Provider</div>
     <div class="sb-sub" id="sb-sub">Review prepared · Billing dispute ready</div>
   </div>
@@ -2642,8 +2686,8 @@ function seoTryRecover(){
         </div>
       </div>
     </a>
-    <!-- ── Patient Guidance ── -->
-    <div class="sb-grp">Patient Guidance</div>
+    <!-- ── Your Guidance ── -->
+    <div class="sb-grp">Your Guidance</div>
 
     <a class="sb-item sb-guide-item" onclick="showGuide('starthere');return false;" id="sg-starthere">
       <div class="sb-item-l">
@@ -2868,6 +2912,20 @@ function seoTryRecover(){
             <div class="ri"><div class="ri-title">No Surprises Act (2022)</div><div class="ri-desc">Federal protections may limit out-of-network balance billing for emergency and certain non-emergency services.</div></div>
             <div class="ri"><div class="ri-title">Right to a Payment Plan</div><div class="ri-desc">Requesting a plan does not waive your right to continue disputing charges on the same bill.</div></div>
           </div>
+        </div>
+        <!-- Mobile-only download strip inside overview -->
+        <div class="mob-ov-dl" role="region" aria-label="Download your full package">
+          <div class="mod-left">
+            <div class="mod-icon">📄</div>
+            <div>
+              <div class="mod-title">Take Your Package With You</div>
+              <div class="mod-sub">Letters, findings, checklist &amp; call scripts — all in one PDF</div>
+            </div>
+          </div>
+          <button type="button" class="mod-btn" onclick="return upaDownloadPacket(event)">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+          </button>
         </div>
       </div>
     </div>
@@ -3277,6 +3335,22 @@ function seoTryRecover(){
   </div>
 </main>
 
+<!-- ═══ MOBILE BOTTOM NAV BAR ═══ -->
+<div class="mob-btm-nav" id="mob-btm-nav" aria-label="Section navigation">
+  <button class="mbn-btn mbn-prev" id="mbn-prev" onclick="mbnNav(-1)" aria-label="Previous section">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    <span class="mbn-lbl">Back</span>
+  </button>
+  <div class="mbn-center">
+    <span class="mbn-pos" id="mbn-pos">1 / 6</span>
+    <span class="mbn-cur" id="mbn-cur">Overview</span>
+  </div>
+  <button class="mbn-btn mbn-next" id="mbn-next" onclick="mbnNav(1)" aria-label="Next section">
+    <span class="mbn-lbl">Next</span>
+    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+</div>
+
 <!-- ═══════════ RIGHT INTELLIGENCE PANEL ═══════════ -->
 <aside class="right-panel">
 
@@ -3552,6 +3626,50 @@ function showTab(name) {
   if (name === 'overview' || name === 'financials') setTimeout(animateBars, 80);
   if (name === 'financials') { setTimeout(animateWaterfall, 80); setTimeout(triggerShimmer, 600); }
 }
+
+/* ── Mobile bottom next/back bar logic ── */
+(function(){
+  var MBN_TABS = ['overview','financials','findings','documents','actionplan','timeline'];
+  var MBN_LABELS = {overview:'Overview',financials:'Financials',findings:'Findings',documents:'Documents',actionplan:'Action Plan',timeline:'Timeline'};
+  var mbnIdx = 0;
+  function mbnSync(){
+    var pos = document.getElementById('mbn-pos');
+    var cur = document.getElementById('mbn-cur');
+    var prev = document.getElementById('mbn-prev');
+    var next = document.getElementById('mbn-next');
+    if(pos) pos.textContent = (mbnIdx+1) + ' / ' + MBN_TABS.length;
+    if(cur) cur.textContent = MBN_LABELS[MBN_TABS[mbnIdx]] || '';
+    if(prev) prev.disabled = mbnIdx === 0;
+    if(next) next.disabled = mbnIdx === MBN_TABS.length - 1;
+  }
+  window.mbnNav = function(dir){
+    var newIdx = mbnIdx + dir;
+    if(newIdx < 0 || newIdx >= MBN_TABS.length) return;
+    mbnIdx = newIdx;
+    if(typeof showTab === 'function') showTab(MBN_TABS[mbnIdx]);
+    // Scroll main panel to top
+    var panel = document.getElementById('tab-' + MBN_TABS[mbnIdx]);
+    if(panel){ try{ panel.scrollTop = 0; window.scrollTo(0,0); }catch(e){} }
+    mbnSync();
+  };
+  // Keep mbnIdx in sync when user picks from the dropdown nav
+  var origShowTab = window.showTab;
+  window.showTab = function(name){
+    var r = origShowTab ? origShowTab.apply(this, arguments) : undefined;
+    var idx = MBN_TABS.indexOf(name);
+    if(idx !== -1){ mbnIdx = idx; mbnSync(); }
+    return r;
+  };
+  // Also intercept mobileSelectTab
+  var origMST = window.mobileSelectTab;
+  window.mobileSelectTab = function(name, btn){
+    var r = origMST ? origMST.apply(this, arguments) : undefined;
+    var idx = MBN_TABS.indexOf(name);
+    if(idx !== -1){ mbnIdx = idx; mbnSync(); }
+    return r;
+  };
+  window.addEventListener('load', mbnSync);
+})();
 
 function openRequestDocument(evt, docId, title, sub) {
   if (evt && evt.preventDefault) evt.preventDefault();
@@ -4053,7 +4171,7 @@ function downloadWrittenRequests() {
   }).join('\n');
 
   const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-  const pName = esc(cl(caseData.patientName) || 'Patient');
+  const pName = esc(cl(caseData.patientName) || 'Account Holder');
   const prov  = esc(cl(caseData.provider)    || 'Provider to confirm');
   const ref   = esc(cl(caseData.accountRef)  || 'To confirm');
   const dos   = esc(cl(caseData.dateOfService)|| 'To confirm');
@@ -4503,7 +4621,7 @@ const FILM = [
   { title: "Take Action — your working tools",
     body: "Under Take Action on the left: Quick Calc estimates your financial impact, Recovery shows how to claim money back, Escalation explains when to go further, Scripts give word-for-word call language, and Checklist tracks your progress.",
     duration: 10500 },
-  { title: "Patient Guidance — read these first",
+  { title: "Your Guidance — read these first",
     body: "Below Take Action: Start Here for new users, What To Do Next for the action checklist, Written Requests for portal/email follow-ups, Mistakes To Avoid (read this before paying anything), Your Rights, and FAQ for common questions.",
     duration: 10500 },
   { title: "The recommended order",
@@ -4635,8 +4753,8 @@ const TOUR_STEPS = [
   { groupLabel: 'Take Action', side: 'right',
     title: '🛠️ Take Action — your toolkit',
     body: "Quick Calc, Recovery, Escalation, Scripts, Checklist. These are the buttons you'll actually use to dispute charges and talk to billing." },
-  { groupLabel: 'Patient Guidance', side: 'right',
-    title: '📖 Patient Guidance — read first',
+  { groupLabel: 'Your Guidance', side: 'right',
+    title: '📖 Your Guidance — read first',
     body: 'New to disputing a bill? Start with Start Here. Then Mistakes To Avoid — read this before paying anything. Then Your Rights for billing protections that apply to you.' },
   { mode: 'outro', icon: '✅',
     title: "You're ready",

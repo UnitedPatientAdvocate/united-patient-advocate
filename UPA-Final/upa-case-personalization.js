@@ -1031,8 +1031,8 @@
     // FIX 1: route patient name through safeProperNoun so gibberish/test strings
     // ("Odjdjt", "asdf", "aaaa") fall back to a neutral "Patient" label rather
     // than getting echoed across every letter, finding card, and dashboard pill.
-    var name = safeProperNoun(clean(data.patient_name || data.patientName || data.full_name || data.fullName || data.name || joinedName), 'Patient');
-    var nameParts = name !== 'Patient' ? name.split(/\s+/).filter(Boolean) : [];
+    var name = safeProperNoun(clean(data.patient_name || data.patientName || data.full_name || data.fullName || data.name || joinedName), '');
+    var nameParts = name ? name.split(/\s+/).filter(Boolean) : [];
     var lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : (nameParts[0] || 'Account Holder');
     var prepDate = formatDate(data.submitted_at || new Date().toISOString(), 'Today');
     var opened = data.submitted_at ? new Date(data.submitted_at) : new Date();
@@ -1090,7 +1090,7 @@
         return concernText.indexOf(ph.toLowerCase()) === -1;
       });
       if(hasNewPhrases){
-        userDetail = name !== 'Patient' ? pro.replace(/^The patient\b/, name).replace(/^the patient\b/, name) : pro;
+        userDetail = name ? pro.replace(/^The patient\b/, name).replace(/^the patient\b/, name) : pro;
         return;
       }
       // Fully covered by concern labels → suppress.
@@ -1143,7 +1143,7 @@
       billType:billType,
       coverage:coverage,
       paymentStatus:paymentStatus,
-      patientLabel:(lastName && lastName !== 'Patient' ? lastName : 'Account Holder') + ' - ' + coverage,
+      patientLabel:(lastName && lastName !== 'Account Holder' ? lastName : 'Account Holder') + ' - ' + coverage,
       amount:amount,
       issues:issues,
       primary:primary,
@@ -1331,6 +1331,22 @@
     wrap.className = 'upa-intake-context' + (className ? ' ' + className : '');
     wrap.innerHTML = contextHTML(c);
     anchor.parentNode.insertBefore(wrap, anchor.nextSibling);
+  }
+
+  // Guidance hint: shown when intake is thin — not defensive, trust-building.
+  // Explains WHY more detail = better results without implying the product is broken.
+  function insertGuidanceHint(c){
+    if(!one('.kpi-strip')) return;
+    if(one('#upa-guidance-hint')) return; // one per page
+    var meetsThreshold = c.detailScore >= 50 || c.uploaded;
+    if(meetsThreshold) return; // enough detail — no hint needed
+    var hint = document.createElement('div');
+    hint.id = 'upa-guidance-hint';
+    hint.className = 'upa-case-note';
+    hint.style.cssText = 'margin:12px 0 4px;padding:11px 14px;border-radius:8px;border:1px solid rgba(240,165,0,.22);background:rgba(240,165,0,.05);color:#4A5060;font-size:.6875rem;line-height:1.65;display:flex;align-items:flex-start;gap:10px';
+    hint.innerHTML = '<span style="font-size:1rem;flex-shrink:0;margin-top:1px">💡</span><span><strong style="color:#1C2B48">Your review is ready.</strong> The more detail you can add — a bill photo, EOB, exact charges, dates, or provider notes — the more specific your letters and findings become. Right now everything is tailored to what you shared. Adding your itemized bill unlocks the full line-item analysis.</span>';
+    var kpi = one('.kpi-strip');
+    if(kpi && kpi.parentNode) kpi.parentNode.insertBefore(hint, kpi.nextSibling);
   }
 
   function hasKnown(value, placeholder){
@@ -1591,7 +1607,7 @@
       ];
       setText('.dpc-title', titles[idx], card);
       setText('.dpc-type', types[idx], card);
-      setText('.dpc-prepared', 'Prepared for ' + c.patientName + ' - ' + c.accountRef);
+      setText('.dpc-prepared', c.patientName ? 'Prepared for ' + c.patientName + ' - ' + c.accountRef : 'Prepared for your case - ' + c.accountRef);
       setText('.dpc-step', 'Step ' + (idx + 1), card);
       setText('.dpc-ready', idx < c.letterCount ? 'READY' : 'OPTIONAL', card);
       setText('.mini-org', c.patientName, card);
@@ -1639,6 +1655,7 @@
     var coverageText = hasKnown(c.coverage, 'Your coverage') ? c.coverage : 'Insurance you listed at intake';
     setText('#nav-case-text', providerKnown ? 'Your case \u00b7 ' + c.provider : 'Your case \u00b7 awaiting provider details');
     setText('#nav-case-ref', 'Account: ' + c.accountRef + ' | Opened ' + c.prepDate);
+    setText('#sb-patient-name', c.firstName && c.firstName !== 'You' ? c.firstName + (c.lastName && c.lastName !== 'Account Holder' ? ' ' + c.lastName : '') : '');
     setText('#sb-provider', providerText);
     setText('#sb-sub', c.billType + ' - ' + c.dateShort);
     setText('#sb-bill-amount', c.amount.display);
@@ -1667,8 +1684,10 @@
     if(!one('.case-header') && !one('#mobile-tab-nav') && !one('.sidebar')) return;
     insertNoteAfter('.kpi-strip', c, '');
     insertContextAfter('.kpi-strip', c, '');
+    insertGuidanceHint(c);
     setText('.ncp-text', hasKnown(c.provider, 'Your provider') ? 'Your case · ' + c.provider : 'Your case · awaiting provider details');
     setText('.nav-ref', 'Account: ' + c.accountRef + ' | Opened ' + c.prepDate);
+    setText('#sb-patient-name', c.firstName && c.firstName !== 'You' ? c.firstName + (c.lastName && c.lastName !== 'Account Holder' ? ' ' + c.lastName : '') : '');
     setText('#db-case-name', hasKnown(c.provider, 'Your provider') ? 'Your case - ' + c.provider : 'Your case - provider details needed');
     setText('.sb-hospital', c.provider);
     setText('.sb-sub', c.billType + ' - ' + c.dateShort);
@@ -1695,7 +1714,7 @@
       setHTML('.ch-deck', 'This dashboard organizes the <u>' + h(c.billType) + '</u> around the concerns you selected: <strong>' + h(c.concernSummary) + '</strong>' + deckCov + deckPay + '.' + (c.userDetail ? '<br>Additional billing context: ' + h(c.userDetail) : '') + '<br>' + h(c.reviewBasis));
     }
     var pills = all('.ch-pill.dark-pill');
-    if(pills[0]) setIconText(pills[0], 'Prepared for ' + c.patientName);
+    if(pills[0]) setIconText(pills[0], c.patientName ? 'Prepared for ' + c.patientName : 'Prepared for your case');
     if(pills[1]) setIconText(pills[1], 'Prepared: ' + c.prepDate);
     // FIX 2: replace billing jargon with plain English the patient can act on.
     setText('.ch-pill.amber-pill', c.uploaded ? 'Review ready · Your bill is in this case' : 'Action needed · Request your itemized bill');
@@ -1887,7 +1906,7 @@
           if(name === 'checklist'){
             var checks = all('.gdc-text', root);
             if(checks[0]) checks[0].innerHTML = '<strong>Bill review prepared.</strong> Your review organized ' + h(c.amount.display) + ' around ' + h(c.issueCount) + ' review areas from this intake: ' + h(c.concernSummary) + '.';
-            if(checks[1]) checks[1].innerHTML = '<strong>Send the itemized statement request.</strong> Download Letter 1, sign it as ' + h(c.patientName) + ', and send it to ' + h(c.provider) + ' Patient Financial Services.';
+            if(checks[1]) checks[1].innerHTML = '<strong>Send the itemized statement request.</strong> Download Letter 1' + (c.patientName ? ', sign it as ' + h(c.patientName) : '') + ', and send it to ' + h(c.provider) + ' Patient Financial Services.';
           }
         }
       },20);

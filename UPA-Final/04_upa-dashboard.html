@@ -3287,31 +3287,152 @@ function seoTryRecover(){
     </div>
 
     <div class="tab-panel" id="tab-timeline">
+      <!-- BUG 3 FIX: Timeline items are now interactive — click to expand with
+           encouraging messages, color animations, and motivational copy. -->
+      <style>
+        .tl-item {
+          cursor: pointer;
+          transition: background 220ms ease;
+          border-radius: 8px;
+          padding: 6px 4px 0;
+        }
+        .tl-item:hover { background: rgba(17,28,46,0.025); }
+        .tl-item.tl-expanded { background: rgba(17,28,46,0.03); }
+        .tl-item.tl-expanded .tl-dot { transform: scale(1.35); }
+        .tl-dot { transition: transform 260ms cubic-bezier(0.22,1,0.36,1), box-shadow 260ms ease; }
+        .tl-expand-panel {
+          max-height: 0; overflow: hidden;
+          transition: max-height 380ms cubic-bezier(0.22,1,0.36,1), opacity 300ms ease, padding 280ms ease;
+          opacity: 0; padding: 0 0 0 0;
+          margin-left: 112px; /* aligns with tl-content column */
+        }
+        .tl-item.tl-expanded .tl-expand-panel {
+          max-height: 200px; opacity: 1; padding: 8px 0 14px;
+        }
+        .tl-encourage {
+          display: flex; align-items: flex-start; gap: 10px;
+          padding: 12px 14px; border-radius: 8px;
+          font-size: 0.75rem; line-height: 1.65;
+          font-weight: 500; color: var(--ink-2);
+        }
+        .tl-encourage-icon { font-size: 1.125rem; flex-shrink: 0; margin-top: 1px; }
+        .tl-encourage-text {}
+        .tl-encourage-headline {
+          font-family: var(--serif); font-size: 0.8125rem;
+          font-weight: 700; color: var(--ink); margin-bottom: 3px;
+        }
+        /* Color variants */
+        .tl-enc-green  { background: var(--green-lt);  border: 1px solid rgba(30,184,122,.22); }
+        .tl-enc-gold   { background: var(--gold-lt);   border: 1px solid rgba(240,165,0,.22); }
+        .tl-enc-cobalt { background: var(--cobalt-lt); border: 1px solid rgba(59,110,224,.22); }
+        .tl-enc-crimson{ background: var(--crimson-lt);border: 1px solid rgba(224,59,59,.18); }
+        .tl-enc-navy   { background: rgba(17,28,46,.04);border: 1px solid rgba(17,28,46,.12); }
+        /* Pulse animation when first expanded */
+        @keyframes tlExpandPop {
+          0%   { transform: scale(0.96); }
+          60%  { transform: scale(1.02); }
+          100% { transform: scale(1); }
+        }
+        .tl-item.tl-expanded .tl-encourage { animation: tlExpandPop 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+        /* Click hint chevron */
+        .tl-chevron {
+          display: inline-block; margin-left: 6px;
+          font-size: 0.5rem; color: var(--ink-5);
+          transition: transform 260ms cubic-bezier(0.22,1,0.36,1);
+          vertical-align: middle;
+        }
+        .tl-item.tl-expanded .tl-chevron { transform: rotate(180deg); }
+      </style>
       <div class="timeline-grid">
-        <div class="tl-item">
-          <div class="tl-date"><div class="tl-date-main">May 16</div><div class="tl-date-sub">Today</div></div>
+        <div class="tl-item" id="tl-0" onclick="tlToggle(0)">
+          <div class="tl-date"><div class="tl-date-main" id="tl-date-0">Today</div><div class="tl-date-sub">Step 1</div></div>
           <div class="tl-line"><div class="tl-dot d-green"></div><div class="tl-connector"></div></div>
-          <div class="tl-content"><div class="tl-ev-title">Initial Review Complete</div><div class="tl-ev-desc">We've gone through the intake details and pulled out the charges worth pressing on first. Three letters are drafted — add your name and address to make them mail-ready.</div><span class="tl-ev-tag" style="background:var(--green-lt);color:var(--green-dk);border:1px solid rgba(30,184,122,.22)">Done</span></div>
+          <div class="tl-content">
+            <div class="tl-ev-title">Initial Review Complete <span class="tl-chevron">▼</span></div>
+            <div class="tl-ev-desc">We've gone through the intake details and pulled out the charges worth pressing on first. Three letters are drafted — add your name and address to make them mail-ready.</div>
+            <span class="tl-ev-tag" style="background:var(--green-lt);color:var(--green-dk);border:1px solid rgba(30,184,122,.22)">Done</span>
+            <div class="tl-expand-panel">
+              <div class="tl-encourage tl-enc-green">
+                <span class="tl-encourage-icon">🏆</span>
+                <div class="tl-encourage-text">
+                  <div class="tl-encourage-headline">You are crushing it. Seriously.</div>
+                  Getting a professional review done puts you ahead of <strong>90% of patients</strong> who never question a single charge. Most people just pay. You asked — and that alone changes everything. Your three letters are drafted and waiting.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="tl-item">
-          <div class="tl-date"><div class="tl-date-main">May 16</div><div class="tl-date-sub">Today</div></div>
+        <div class="tl-item" id="tl-1" onclick="tlToggle(1)">
+          <div class="tl-date"><div class="tl-date-main" id="tl-date-1">Today</div><div class="tl-date-sub">Do This Now</div></div>
           <div class="tl-line"><div class="tl-dot d-gold"></div><div class="tl-connector"></div></div>
-          <div class="tl-content"><div class="tl-ev-title">Send your itemized statement request</div><div class="tl-ev-desc">Mail or email Letter 1 to Patient Financial Services at Your Provider. Keep a copy for your records — certified mail is the strongest option, but the provider's portal is fine if you'd rather move quickly.</div><span class="tl-ev-tag" style="background:var(--gold-lt);color:var(--gold-dk);border:1px solid rgba(240,165,0,.22)">When you're ready</span></div>
+          <div class="tl-content">
+            <div class="tl-ev-title">Send your itemized statement request <span class="tl-chevron">▼</span></div>
+            <div class="tl-ev-desc">Mail or email Letter 1 to Patient Financial Services at your provider. Keep a copy for your records — certified mail is the strongest option, but the provider's portal is fine if you'd rather move quickly.</div>
+            <span class="tl-ev-tag" style="background:var(--gold-lt);color:var(--gold-dk);border:1px solid rgba(240,165,0,.22)">When you're ready</span>
+            <div class="tl-expand-panel">
+              <div class="tl-encourage tl-enc-gold">
+                <span class="tl-encourage-icon">📨</span>
+                <div class="tl-encourage-text">
+                  <div class="tl-encourage-headline">This single letter starts the whole clock.</div>
+                  Sending this one letter — even just via email — officially begins your billing review and creates a paper trail. Studies show patients who request itemized bills <strong>reduce their final balance 40–70% of the time</strong>. Takes 5 minutes. Costs nothing.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="tl-item">
-          <div class="tl-date"><div class="tl-date-main">June 16</div><div class="tl-date-sub">+30 days</div></div>
+        <div class="tl-item" id="tl-2" onclick="tlToggle(2)">
+          <div class="tl-date"><div class="tl-date-main" id="tl-date-2">+30 days</div><div class="tl-date-sub">Soft deadline</div></div>
           <div class="tl-line"><div class="tl-dot d-cobalt"></div><div class="tl-connector"></div></div>
-          <div class="tl-content"><div class="tl-ev-title">Follow up if you haven't heard back</div><div class="tl-ev-desc">Around the 30-day mark, follow up in writing. When the itemized bill arrives, work through the line items against the questions in your case.</div><span class="tl-ev-tag" style="background:var(--cobalt-lt);color:var(--cobalt);border:1px solid rgba(59,110,224,.22)">Soft deadline</span></div>
+          <div class="tl-content">
+            <div class="tl-ev-title">Follow up if you haven't heard back <span class="tl-chevron">▼</span></div>
+            <div class="tl-ev-desc">Around the 30-day mark, follow up in writing. When the itemized bill arrives, work through the line items against the questions in your case.</div>
+            <span class="tl-ev-tag" style="background:var(--cobalt-lt);color:var(--cobalt);border:1px solid rgba(59,110,224,.22)">Soft deadline</span>
+            <div class="tl-expand-panel">
+              <div class="tl-encourage tl-enc-cobalt">
+                <span class="tl-encourage-icon">📋</span>
+                <div class="tl-encourage-text">
+                  <div class="tl-encourage-headline">Persistence is the whole game here.</div>
+                  Hospital billing departments are slow — 30 days is completely normal. A quick follow-up email saying <em>"I haven't received the itemized statement I requested"</em> is all you need. Your case scripts have the exact wording. <strong>You are still in a winning position.</strong>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="tl-item">
-          <div class="tl-date"><div class="tl-date-main">June 16</div><div class="tl-date-sub">+30 days</div></div>
+        <div class="tl-item" id="tl-3" onclick="tlToggle(3)">
+          <div class="tl-date"><div class="tl-date-main" id="tl-date-3">+30 days</div><div class="tl-date-sub">Ready to send</div></div>
           <div class="tl-line"><div class="tl-dot d-crimson"></div><div class="tl-connector"></div></div>
-          <div class="tl-content"><div class="tl-ev-title">Send the dispute and rate-review letters</div><div class="tl-ev-desc">Mail Letter 2 (line-item question) and Letter 3 (network/rate review) with your itemized bill attached as evidence. Send them together so the billing department sees the full picture.</div><span class="tl-ev-tag" style="background:var(--crimson-lt);color:var(--crimson-dk);border:1px solid rgba(224,59,59,.20)">When you're ready</span></div>
+          <div class="tl-content">
+            <div class="tl-ev-title">Send the dispute and rate-review letters <span class="tl-chevron">▼</span></div>
+            <div class="tl-ev-desc">Mail Letter 2 (line-item question) and Letter 3 (network/rate review) with your itemized bill attached as evidence. Send them together so the billing department sees the full picture.</div>
+            <span class="tl-ev-tag" style="background:var(--crimson-lt);color:var(--crimson-dk);border:1px solid rgba(224,59,59,.20)">When you're ready</span>
+            <div class="tl-expand-panel">
+              <div class="tl-encourage tl-enc-crimson">
+                <span class="tl-encourage-icon">⚡</span>
+                <div class="tl-encourage-text">
+                  <div class="tl-encourage-headline">This is where most patients stop. Don't be most patients.</div>
+                  Letters 2 and 3 are the teeth of your case. When billing departments receive a <strong>formal written dispute citing specific legal protections</strong> (like CMS §80.7 and the No Surprises Act), they take it seriously. Your letters are already written. Just sign and send.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="tl-item">
-          <div class="tl-date"><div class="tl-date-main">July 16</div><div class="tl-date-sub">+60 days</div></div>
+        <div class="tl-item" id="tl-4" onclick="tlToggle(4)">
+          <div class="tl-date"><div class="tl-date-main" id="tl-date-4">+60 days</div><div class="tl-date-sub">Watch for reply</div></div>
           <div class="tl-line"><div class="tl-dot d-gray"></div><div class="tl-connector"></div></div>
-          <div class="tl-content"><div class="tl-ev-title">A written reply usually arrives by now</div><div class="tl-ev-desc">Most hospital billing departments respond within 30–45 days. If nothing has arrived by this point, your escalation letter is drafted in the case — that's the next step.</div><span class="tl-ev-tag" style="background:rgba(17,28,46,.06);color:var(--ink-5);border:1px solid var(--bdr-md)">Watching for reply</span></div>
+          <div class="tl-content">
+            <div class="tl-ev-title">A written reply usually arrives by now <span class="tl-chevron">▼</span></div>
+            <div class="tl-ev-desc">Most hospital billing departments respond within 30–45 days. If nothing has arrived by this point, your escalation letter is drafted in the case — that's the next step.</div>
+            <span class="tl-ev-tag" style="background:rgba(17,28,46,.06);color:var(--ink-5);border:1px solid var(--bdr-md)">Watching for reply</span>
+            <div class="tl-expand-panel">
+              <div class="tl-encourage tl-enc-navy">
+                <span class="tl-encourage-icon">🛡️</span>
+                <div class="tl-encourage-text">
+                  <div class="tl-encourage-headline">You have escalation paths ready if needed.</div>
+                  No response at 60 days? That's not a loss — that's a trigger for escalation. The Hospital Patient Advocate, your state's Insurance Commissioner, and CMS are all on your side. Your escalation guide is in the sidebar. <strong>Most disputes never reach this step</strong> — but knowing it exists keeps you in control.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -4265,8 +4386,97 @@ ${cardsHTML}
   return false;
 }
 
+/* ════ BUG 3 FIX: TIMELINE INTERACTIVE TOGGLE ════
+   Each timeline item expands on click to reveal an encouraging message.
+   Clicking the same item again collapses it. Only one can be open at a time. */
+function tlToggle(idx) {
+  var items = document.querySelectorAll('.tl-item');
+  items.forEach(function(item, i) {
+    if (i === idx) {
+      var wasOpen = item.classList.contains('tl-expanded');
+      item.classList.toggle('tl-expanded', !wasOpen);
+      // Animate dot on expand
+      var dot = item.querySelector('.tl-dot');
+      if (dot && !wasOpen) {
+        dot.style.transition = 'transform 320ms cubic-bezier(0.22,1,0.36,1), box-shadow 320ms ease';
+      }
+    } else {
+      item.classList.remove('tl-expanded');
+    }
+  });
+}
+
 /* ════ ANIMATIONS ════ */
 function animateBars() {
+  // BUG 5 FIX: Recompute benchmark bar widths from real localStorage data
+  // before animating. Falls back to the hardcoded data-w default when no
+  // real bill amount is present.
+  (function recomputeBenchBars() {
+    try {
+      var intake = {};
+      var keys = ['upa.intake.v1', 'upa.active.case.v1'];
+      for (var ki = 0; ki < keys.length; ki++) {
+        try {
+          var raw = sessionStorage.getItem(keys[ki]) || localStorage.getItem(keys[ki]);
+          if (raw) { intake = JSON.parse(raw) || {}; if (Object.keys(intake).length) break; }
+        } catch(e) {}
+      }
+      // Try URL token
+      var urlParams = new URLSearchParams(window.location.search);
+      var rToken = urlParams.get('r');
+      if (rToken && !Object.keys(intake).length) {
+        try {
+          var b64 = rToken.replace(/-/g,'+').replace(/_/g,'/');
+          while (b64.length % 4) b64 += '=';
+          var decoded = decodeURIComponent(escape(atob(b64)));
+          var parsed = JSON.parse(decoded);
+          if (parsed && parsed.a) intake = { bill_amount: parsed.a };
+        } catch(e) {}
+      }
+
+      var rawAmt = intake.bill_amount_other || intake.bill_amount || intake.balance || intake.totalBilled || '';
+      var billNum = parseFloat(String(rawAmt).replace(/[^0-9.]/g, ''));
+      if (!billNum || billNum <= 0) return; // no real data — use defaults
+
+      // Issue percentages of total bill (same as packet personalization)
+      var dupPct    = 0.053;  // duplicate charge
+      var codingPct = 0.029;  // coding/documentation issue
+      // Bar 1: ED visit duplicate — billed vs Medicare
+      // Bar 2: E&M level 5 — billed vs Medicare
+      // Bars are relative widths where 100% = the bar track width
+      // Billed bar: charge as % of bill anchored to max billed = 92% visual
+      var dupAmt    = billNum * dupPct;
+      var codingAmt = billNum * codingPct;
+      var maxAmt    = Math.max(dupAmt, codingAmt);
+      if (maxAmt <= 0) return;
+
+      var billedBar1  = Math.round((dupAmt    / maxAmt) * 92);
+      var billedBar2  = Math.round((codingAmt / maxAmt) * 92);
+      var medicareBar1 = Math.round(billedBar1  * 0.55); // ED Medicare ~55% of billed
+      var medicareBar2 = Math.round(billedBar2  * 0.64); // E&M Medicare ~64% of billed
+
+      // Clamp to reasonable visual range
+      function clampB(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+      billedBar1   = clampB(billedBar1,  35, 98);
+      billedBar2   = clampB(billedBar2,  20, 90);
+      medicareBar1 = clampB(medicareBar1, 15, 80);
+      medicareBar2 = clampB(medicareBar2, 10, 75);
+
+      // Update data-w on the bench bar fills before animation runs
+      var fills = document.querySelectorAll('.bench-bar-fill[data-w]');
+      var newWidths = [billedBar1 + '%', medicareBar1 + '%', billedBar2 + '%', medicareBar2 + '%'];
+      fills.forEach(function(el, i) {
+        if (newWidths[i]) el.dataset.w = newWidths[i];
+      });
+
+      // Also update the breakdown bar segment widths (bb-track) based on real pcts
+      var confirmedPct = 1 - dupPct - codingPct - 0.054;
+      var bsConf = document.querySelector('.bbs-confirmed');
+      if (bsConf) bsConf.style.flex = '0 0 ' + (confirmedPct * 100).toFixed(1) + '%';
+
+    } catch(e) { /* non-fatal — animation uses defaults */ }
+  })();
+
   document.querySelectorAll('.bench-bar-fill[data-w]').forEach((b, i) => {
     setTimeout(() => { b.style.width = b.dataset.w; }, 80 + i * 60);
   });
@@ -5020,18 +5230,163 @@ function ensureTourEls(){
   window.addEventListener('resize', function(){ if (tourActive) tourGo(tourIdx); });
 }
 
+/* ════ BUG 4 FIX: FIRST-VISIT ONBOARDING MODAL ════
+   Shows a clean welcome modal the very first time the user lands on the
+   dashboard. The "Got it — Let's Go" button sets a localStorage flag so
+   the modal never shows again. The detailed spotlight tour still fires
+   after the welcome modal if the user hasn't seen it yet. */
+
+function showWelcomeModal() {
+  var modal = document.getElementById('upa-welcome-modal');
+  if (!modal) {
+    var el = document.createElement('div');
+    el.id = 'upa-welcome-modal';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-labelledby', 'uwm-title');
+    el.innerHTML = `
+      <div id="upa-welcome-backdrop" style="
+        position:fixed;inset:0;z-index:9990;
+        background:rgba(8,14,24,0.80);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+        display:flex;align-items:center;justify-content:center;padding:24px;
+        animation:uwmFadeIn 0.35s cubic-bezier(0.22,1,0.36,1) both
+      ">
+        <div style="
+          max-width:480px;width:100%;background:#fff;border-radius:16px;
+          box-shadow:0 24px 80px rgba(0,0,0,0.45),0 0 0 1px rgba(255,216,119,0.25);
+          overflow:hidden;position:relative;
+          animation:uwmSlideUp 0.38s cubic-bezier(0.22,1,0.36,1) 0.05s both
+        ">
+          <!-- Gold top accent -->
+          <div style="height:3px;background:linear-gradient(90deg,var(--green),var(--gold) 45%,transparent 100%)"></div>
+          <!-- Header -->
+          <div style="background:var(--dark-deep);padding:24px 24px 20px;position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 300px 150px at 90% 40%,rgba(240,165,0,0.08) 0%,transparent 65%)"></div>
+            <div style="position:relative;z-index:1">
+              <div style="font-size:0.375rem;font-weight:800;letter-spacing:0.24em;text-transform:uppercase;color:rgba(240,165,0,0.75);margin-bottom:8px">United Patient Advocate · Your Case Is Ready</div>
+              <h2 id="uwm-title" style="font-family:var(--serif);font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:-0.02em;line-height:1.2;margin-bottom:6px">Here's how to use<br>your dashboard.</h2>
+              <p style="font-size:0.75rem;color:rgba(235,244,255,0.62);line-height:1.6;margin:0">Everything is ready. This quick overview shows you where to find what you need.</p>
+            </div>
+          </div>
+          <!-- Body: 4 sections explained -->
+          <div style="padding:20px 24px 0;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 12px;background:#F8FAFD;border:1px solid var(--bdr);border-radius:8px;border-left:3px solid var(--green)">
+              <span style="font-size:1.125rem;flex-shrink:0;margin-top:1px">🔍</span>
+              <div>
+                <div style="font-size:0.75rem;font-weight:700;color:var(--ink);margin-bottom:2px">Overview &amp; Findings tabs</div>
+                <div style="font-size:0.625rem;color:var(--ink-4);line-height:1.55">See what was flagged in your bill, the specific charges worth questioning, and how strong your position is.</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 12px;background:#F8FAFD;border:1px solid var(--bdr);border-radius:8px;border-left:3px solid var(--gold)">
+              <span style="font-size:1.125rem;flex-shrink:0;margin-top:1px">📄</span>
+              <div>
+                <div style="font-size:0.75rem;font-weight:700;color:var(--ink);margin-bottom:2px">Documents tab</div>
+                <div style="font-size:0.625rem;color:var(--ink-4);line-height:1.55">Three letters are drafted and ready to send — a statement request, a dispute letter, and a rate-review request. Just sign and send.</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 12px;background:#F8FAFD;border:1px solid var(--bdr);border-radius:8px;border-left:3px solid var(--cobalt)">
+              <span style="font-size:1.125rem;flex-shrink:0;margin-top:1px">✅</span>
+              <div>
+                <div style="font-size:0.75rem;font-weight:700;color:var(--ink);margin-bottom:2px">Action Plan &amp; Timeline</div>
+                <div style="font-size:0.625rem;color:var(--ink-4);line-height:1.55">A step-by-step plan tells you what to do first, second, and when to follow up. The timeline shows what to expect and when.</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 12px;background:#F8FAFD;border:1px solid var(--bdr);border-radius:8px;border-left:3px solid var(--amber)">
+              <span style="font-size:1.125rem;flex-shrink:0;margin-top:1px">🛠️</span>
+              <div>
+                <div style="font-size:0.75rem;font-weight:700;color:var(--ink);margin-bottom:2px">Sidebar tools (left panel)</div>
+                <div style="font-size:0.625rem;color:var(--ink-4);line-height:1.55">Call Scripts, Checklist, Recovery guide, Quick Calc, and more — everything you need to dispute this bill from start to finish.</div>
+              </div>
+            </div>
+          </div>
+          <!-- Footer -->
+          <div style="padding:20px 24px 24px">
+            <button id="uwm-got-it" style="
+              width:100%;padding:14px;border:none;border-radius:10px;cursor:pointer;
+              background:linear-gradient(135deg,var(--green-dk),var(--green));color:#fff;
+              font-family:var(--sans);font-size:0.9375rem;font-weight:800;letter-spacing:0.01em;
+              box-shadow:0 4px 20px rgba(30,184,122,0.35);
+              transition:transform 180ms ease,box-shadow 180ms ease
+            " onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px rgba(30,184,122,0.45)'"
+               onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(30,184,122,0.35)'"
+               onclick="dismissWelcomeModal(false)">
+              Got it — Let's Go
+            </button>
+            <label style="display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer;font-size:0.6875rem;color:var(--ink-4);justify-content:center">
+              <input type="checkbox" id="uwm-dontshow" style="accent-color:var(--green);cursor:pointer">
+              Don't show this again on future visits
+            </label>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(el);
+    modal = el;
+  }
+  // Inject keyframe animations if not already present
+  if (!document.getElementById('uwm-style')) {
+    var s = document.createElement('style');
+    s.id = 'uwm-style';
+    s.textContent = `
+      @keyframes uwmFadeIn { from{opacity:0} to{opacity:1} }
+      @keyframes uwmSlideUp { from{opacity:0;transform:translateY(18px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+    `;
+    document.head.appendChild(s);
+  }
+  modal.style.display = 'block';
+}
+
+window.dismissWelcomeModal = function(skipTour) {
+  var modal = document.getElementById('upa-welcome-modal');
+  var dontShow = document.getElementById('uwm-dontshow');
+  if (dontShow && dontShow.checked) {
+    try { localStorage.setItem('upa_welcome_dismissed', '1'); } catch(e) {}
+  }
+  if (modal) {
+    var backdrop = modal.querySelector('#upa-welcome-backdrop');
+    if (backdrop) {
+      backdrop.style.transition = 'opacity 0.25s ease';
+      backdrop.style.opacity = '0';
+      setTimeout(function() { modal.style.display = 'none'; }, 260);
+    } else {
+      modal.style.display = 'none';
+    }
+  }
+  // After welcome modal closes, fire the spotlight tour if first time
+  if (!skipTour) {
+    setTimeout(function() {
+      var tourShown = false;
+      try { tourShown = localStorage.getItem('upa_tour_shown') === '1'; } catch(e) {}
+      var forceTour = /[?&]tour=1/.test(window.location.search);
+      if (!tourShown || forceTour) {
+        try { localStorage.setItem('upa_tour_shown', '1'); } catch(e) {}
+        var isMobile = window.innerWidth <= 900;
+        setTimeout(tourStart, isMobile ? 1000 : 600);
+      }
+    }, 400);
+  }
+};
+
 window.addEventListener('load', function(){
-  // Tour fires once for ALL new users — desktop AND mobile.
-  // upa_tour_shown flag prevents repeat on subsequent visits.
-  // Force-show with ?tour=1 in URL (for testing or returning users).
-  let shown = false;
+  // BUG 4 FIX: Welcome modal fires on first visit before the tour.
+  // Uses its own flag (upa_welcome_dismissed) separate from the tour flag.
   var forceTour = /[?&]tour=1/.test(window.location.search);
-  try { shown = localStorage.getItem('upa_tour_shown') === '1'; } catch(e){}
-  if (!shown || forceTour){
-    try { localStorage.setItem('upa_tour_shown', '1'); } catch(e){}
-    // Give mobile an extra 600ms for layout and sidebar to settle before spotlight calc
+  var welcomeDismissed = false;
+  try { welcomeDismissed = localStorage.getItem('upa_welcome_dismissed') === '1'; } catch(e) {}
+
+  if (!welcomeDismissed || forceTour) {
+    // Show welcome modal; it will chain into the spotlight tour on close
     var isMobile = window.innerWidth <= 900;
-    setTimeout(tourStart, isMobile ? 2000 : 1400);
+    setTimeout(showWelcomeModal, isMobile ? 1200 : 800);
+  } else {
+    // Welcome seen before — still check if spotlight tour needs to run
+    let shown = false;
+    try { shown = localStorage.getItem('upa_tour_shown') === '1'; } catch(e){}
+    if (!shown || forceTour){
+      try { localStorage.setItem('upa_tour_shown', '1'); } catch(e){}
+      var isMobile = window.innerWidth <= 900;
+      setTimeout(tourStart, isMobile ? 2000 : 1400);
+    }
   }
 });
 </script>

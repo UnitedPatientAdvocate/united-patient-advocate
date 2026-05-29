@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appeal Your Insurance Denial | United Patient Advocate</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET + ROOT ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:     #0D1828;
+  --navy-mid: #162036;
+  --navy-card:#1C2D45;
+  --dark:     #1C2B48;
+  --green:    #1EB87A;
+  --green-dk: #158A5C;
+  --green-lt: rgba(30,184,122,0.14);
+  --teal:     #1E6B5A;
+  --teal-lt:  #2A8B74;
+  --gold:     #F0A500;
+  --gold-dk:  #C07E00;
+  --gold-lt:  rgba(240,165,0,0.14);
+  --crimson:  #E03B3B;
+  --crimson-lt:rgba(224,59,59,0.14);
+  --bg:       #E8EDF4;
+  --white:    #FFFFFF;
+  --ink:      #111C2E;
+  --ink-2:    #263549;
+  --ink-3:    #425A72;
+  --ink-4:    #6E8898;
+  --on-dark:  rgba(235,244,255,0.94);
+  --on-dark-2:rgba(235,244,255,0.62);
+  --on-dark-3:rgba(235,244,255,0.32);
+  --on-dark-4:rgba(235,244,255,0.13);
+  --bdr:      rgba(17,28,46,0.09);
+  --sh-sm:    0 1px 5px rgba(17,28,46,0.08),0 1px 2px rgba(17,28,46,0.04);
+  --sh-md:    0 3px 14px rgba(17,28,46,0.10),0 1px 4px rgba(17,28,46,0.05);
+  --sh-lg:    0 6px 28px rgba(17,28,46,0.13),0 2px 8px rgba(17,28,46,0.07);
+  --serif:    'Playfair Display',Georgia,serif;
+  --sans:     'Plus Jakarta Sans',system-ui,sans-serif;
+  --mono:     'DM Mono',monospace;
+  --ease:     cubic-bezier(0.22,1,0.36,1);
+  --pop:      cubic-bezier(0.16,1,0.3,1);
+}
+html{scroll-behavior:smooth}
+html,body{font-family:var(--sans);-webkit-font-smoothing:antialiased;font-size:14px;background:var(--navy);color:var(--on-dark)}
+
+/* ─── TOP ANNOUNCEMENT BANNER ─── */
+.banner{
+  background:linear-gradient(90deg,#7B1A1A,#9B2020,#7B1A1A);
+  padding:9px 20px;text-align:center;
+  font-size:0.6875rem;font-weight:600;
+  color:rgba(255,255,255,0.90);letter-spacing:0.02em;
+}
+.banner strong{color:white;font-weight:800}
+
+/* ─── NAV ─── */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(13,24,40,0.96);backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  padding:0 40px;height:62px;
+  display:flex;align-items:center;gap:0;
+}
+.nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-logo{width:34px;height:34px;object-fit:contain}
+.nav-name{font-family:var(--serif);font-size:0.9375rem;font-weight:700;color:var(--on-dark);letter-spacing:-0.01em;line-height:1.15}
+.nav-name-sub{font-size:0.3125rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--on-dark-3);display:block;margin-top:1px}
+.nav-spacer{flex:1}
+.nav-pill{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(224,59,59,0.15);border:1px solid rgba(224,59,59,0.30);
+  border-radius:100px;padding:5px 12px;
+  font-size:0.5rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  color:#FF9898;
+}
+.nav-pill-dot{width:5px;height:5px;border-radius:50%;background:#FF9898;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.nav-back{
+  font-family:var(--sans);font-size:0.6875rem;font-weight:600;
+  color:var(--on-dark-3);background:transparent;
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:100px;padding:6px 14px;cursor:pointer;
+  text-decoration:none;margin-left:12px;
+  transition:all 150ms var(--ease);
+}
+.nav-back:hover{border-color:rgba(255,255,255,0.22);color:var(--on-dark-2)}
+
+/* ─── HERO ─── */
+.hero{
+  background:var(--navy);
+  background-image:
+    radial-gradient(ellipse 700px 400px at 65% 0%,rgba(224,59,59,0.07) 0%,transparent 60%),
+    radial-gradient(ellipse 500px 300px at 20% 80%,rgba(30,184,122,0.05) 0%,transparent 60%);
+  padding:80px 40px 68px;text-align:center;position:relative;overflow:hidden;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:0.4375rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;
+  color:#FF9898;background:rgba(224,59,59,0.12);
+  border:1px solid rgba(224,59,59,0.24);
+  border-radius:100px;padding:5px 14px;margin-bottom:20px;
+}
+.hero-eyebrow::before{content:"•";color:#FF9898}
+.hero-hl{
+  font-family:var(--serif);font-size:clamp(2rem,5vw,3.25rem);font-weight:700;
+  color:var(--on-dark);letter-spacing:-0.035em;line-height:1.12;
+  margin-bottom:16px;position:relative;z-index:1;
+}
+.hero-hl em{font-style:italic;color:var(--green)}
+.hero-sub{
+  font-size:1rem;color:var(--on-dark-2);line-height:1.75;
+  max-width:560px;margin:0 auto 40px;position:relative;z-index:1;
+}
+
+/* ─── UPLOAD CARD ─── */
+.upload-section{
+  padding:0 40px 72px;display:flex;justify-content:center;
+  background:var(--navy);
+  background-image:radial-gradient(ellipse 600px 300px at 50% 0%,rgba(30,184,122,0.04) 0%,transparent 60%);
+}
+.upload-card{
+  width:100%;max-width:580px;
+  background:rgba(22,32,54,0.90);
+  border:1px solid rgba(255,255,255,0.08);border-radius:20px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.45);
+  padding:40px 38px 34px;backdrop-filter:blur(12px);
+}
+.upload-card-label{
+  font-size:0.45rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--on-dark-3);display:flex;align-items:center;gap:6px;margin-bottom:18px;justify-content:center;
+}
+.upload-card-label::before,.upload-card-label::after{content:"";width:18px;height:1px;background:rgba(255,255,255,0.10)}
+
+/* Drop zone */
+.drop-zone{
+  border:2px dashed rgba(30,184,122,0.35);border-radius:14px;
+  padding:40px 24px;text-align:center;cursor:pointer;
+  transition:all 220ms var(--ease);background:rgba(30,184,122,0.04);
+  position:relative;margin-bottom:0;
+}
+.drop-zone.coming-soon{cursor:default;opacity:0.6}
+.drop-zone:hover:not(.coming-soon){
+  border-color:rgba(30,184,122,0.70);background:rgba(30,184,122,0.09);
+  transform:translateY(-1px);box-shadow:0 8px 24px rgba(30,184,122,0.15);
+}
+.drop-icon{font-size:38px;margin-bottom:12px;display:block;line-height:1}
+.drop-label{font-size:0.9375rem;font-weight:700;color:var(--on-dark);margin-bottom:4px}
+.drop-sub{font-size:0.75rem;color:var(--on-dark-3)}
+.drop-input{position:absolute;inset:0;opacity:0;width:100%;height:100%}
+
+/* Coming soon overlay */
+.coming-soon-badge{
+  display:inline-flex;align-items:center;gap:6px;margin-top:14px;
+  background:rgba(240,165,0,0.14);border:1px solid rgba(240,165,0,0.28);
+  border-radius:8px;padding:8px 16px;
+  font-size:0.75rem;font-weight:700;color:var(--gold);
+}
+.coming-soon-badge svg{width:13px;height:13px;fill:none;stroke:var(--gold);stroke-width:2.2}
+
+/* Waitlist button */
+.btn-waitlist{
+  width:100%;margin-top:20px;padding:15px;
+  background:linear-gradient(135deg,var(--green) 0%,var(--green-dk) 100%);
+  color:#fff;font-family:var(--sans);font-size:0.9375rem;font-weight:800;
+  border:none;border-radius:10px;cursor:pointer;letter-spacing:0.01em;
+  box-shadow:0 4px 20px rgba(30,184,122,0.35);transition:all 180ms var(--ease);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-waitlist:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(30,184,122,0.45)}
+.btn-waitlist svg{width:17px;height:17px;stroke:white;stroke-width:2.2;fill:none;flex-shrink:0}
+
+/* Trust row under card */
+.upload-trust{
+  display:flex;justify-content:center;gap:20px;flex-wrap:wrap;
+  margin-top:18px;padding-top:18px;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+.trust-item{display:flex;align-items:center;gap:5px;font-size:0.6875rem;color:var(--on-dark-3);font-weight:500}
+.trust-item svg{width:12px;height:12px;stroke:var(--green);stroke-width:2.2;fill:none;flex-shrink:0}
+
+/* ─── SECTION SHARED ─── */
+.section{padding:72px 40px}
+.section-inner{max-width:880px;margin:0 auto}
+.section-inner.wide{max-width:1080px}
+.eyebrow{
+  font-size:0.4375rem;font-weight:700;letter-spacing:0.26em;text-transform:uppercase;
+  color:var(--green);margin-bottom:12px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.eyebrow::before,.eyebrow::after{content:"";width:20px;height:1px;background:var(--green);opacity:0.45}
+.section-hl{
+  font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.1rem);font-weight:700;
+  color:var(--on-dark);letter-spacing:-0.025em;line-height:1.18;
+  margin-bottom:10px;text-align:center;
+}
+.section-hl em{color:var(--green);font-style:italic}
+.section-sub{
+  font-size:0.9375rem;color:var(--on-dark-2);line-height:1.72;
+  text-align:center;max-width:560px;margin:0 auto 40px;
+}
+
+/* ─── STEPS SECTION ─── */
+.steps-section{
+  background:rgba(22,32,54,0.50);
+  border-top:1px solid rgba(255,255,255,0.06);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.steps-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  border:1px solid rgba(255,255,255,0.07);border-radius:16px;overflow:hidden;
+  background:rgba(13,24,40,0.60);
+}
+.step-item{
+  padding:32px 28px;position:relative;border-right:1px solid rgba(255,255,255,0.07);
+}
+.step-item:last-child{border-right:none}
+.step-arrow{
+  position:absolute;top:50%;right:-14px;transform:translateY(-50%);
+  width:28px;height:28px;background:var(--navy-card);
+  border:1px solid rgba(255,255,255,0.10);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;z-index:2;
+}
+.step-arrow svg{width:12px;height:12px;stroke:var(--green);stroke-width:2.5;fill:none}
+.step-num{
+  font-family:var(--mono);font-size:0.5rem;font-weight:700;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--on-dark-3);margin-bottom:12px;
+}
+.step-icon{font-size:28px;margin-bottom:12px;display:block;line-height:1}
+.step-title{
+  font-family:var(--serif);font-size:1.0625rem;font-weight:700;
+  color:var(--on-dark);letter-spacing:-0.01em;line-height:1.25;margin-bottom:8px;
+}
+.step-desc{font-size:0.8125rem;color:var(--on-dark-2);line-height:1.65}
+.step-badge{
+  display:inline-flex;align-items:center;gap:5px;margin-top:12px;
+  font-size:0.45rem;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;
+  padding:3px 9px;border-radius:4px;
+}
+.step-badge-green{background:rgba(30,184,122,0.18);color:var(--green)}
+.step-badge-gold{background:rgba(240,165,0,0.18);color:var(--gold)}
+.step-badge-teal{background:rgba(30,107,90,0.22);color:var(--teal-lt)}
+
+/* ─── PRICING SECTION ─── */
+.pricing-section{
+  background:var(--navy);
+}
+.pricing-card{
+  max-width:580px;margin:0 auto;
+  background:linear-gradient(145deg,rgba(28,45,69,0.95) 0%,rgba(22,32,54,0.95) 100%);
+  border:1px solid rgba(255,255,255,0.10);border-radius:20px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.45);overflow:hidden;
+}
+.pricing-card-top{
+  padding:36px 38px 28px;position:relative;
+  background-image:radial-gradient(ellipse 400px 200px at 80% 20%,rgba(30,184,122,0.08) 0%,transparent 60%);
+}
+.pricing-eyebrow{
+  font-size:0.45rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--on-dark-3);margin-bottom:14px;
+  display:flex;align-items:center;gap:6px;
+}
+.pricing-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.pricing-price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.pricing-amount{
+  font-family:var(--serif);font-size:3.5rem;font-weight:900;
+  color:var(--on-dark);letter-spacing:-0.04em;line-height:1;
+}
+.pricing-currency{
+  font-family:var(--serif);font-size:1.5rem;font-weight:700;
+  color:var(--on-dark-2);align-self:flex-start;margin-top:8px;
+}
+.pricing-label{font-size:0.875rem;color:var(--on-dark-2);margin-bottom:4px}
+.pricing-intro-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(240,165,0,0.16);border:1px solid rgba(240,165,0,0.28);
+  border-radius:6px;padding:4px 10px;
+  font-size:0.5rem;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:20px;
+}
+.pricing-card-divider{height:1px;background:rgba(255,255,255,0.07)}
+.pricing-card-bottom{padding:28px 38px 32px}
+.pricing-includes-title{
+  font-size:0.5rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--on-dark-3);margin-bottom:18px;
+  display:flex;align-items:center;gap:6px;
+}
+.includes-list{display:flex;flex-direction:column;gap:14px;margin-bottom:26px}
+.include-item{display:flex;align-items:flex-start;gap:12px}
+.include-icon{
+  width:30px;height:30px;border-radius:8px;flex-shrink:0;
+  background:rgba(30,184,122,0.14);border:1px solid rgba(30,184,122,0.20);
+  display:flex;align-items:center;justify-content:center;margin-top:1px;
+}
+.include-icon svg{width:14px;height:14px;stroke:var(--green);stroke-width:2.2;fill:none}
+.include-icon.gold-icon{background:rgba(240,165,0,0.12);border-color:rgba(240,165,0,0.20)}
+.include-icon.gold-icon svg{stroke:var(--gold)}
+.include-text{}
+.include-title{font-size:0.8125rem;font-weight:700;color:var(--on-dark);line-height:1.25;margin-bottom:2px}
+.include-desc{font-size:0.6875rem;color:var(--on-dark-3);line-height:1.55}
+
+/* CTA disabled / waitlist state */
+.btn-cta-disabled{
+  width:100%;padding:16px;margin-bottom:14px;
+  background:rgba(30,184,122,0.15);
+  color:rgba(30,184,122,0.60);font-family:var(--sans);font-size:0.9375rem;font-weight:800;
+  border:1px dashed rgba(30,184,122,0.30);border-radius:10px;cursor:not-allowed;letter-spacing:0.01em;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-cta-waitlist{
+  width:100%;padding:16px;
+  background:linear-gradient(135deg,var(--green) 0%,var(--green-dk) 100%);
+  color:#fff;font-family:var(--sans);font-size:0.9375rem;font-weight:800;
+  border:none;border-radius:10px;cursor:pointer;letter-spacing:0.01em;
+  box-shadow:0 4px 20px rgba(30,184,122,0.35);transition:all 180ms var(--ease);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-cta-waitlist:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(30,184,122,0.45)}
+.btn-cta-waitlist svg{width:17px;height:17px;stroke:white;stroke-width:2.2;fill:none}
+.pricing-micro{
+  text-align:center;font-size:0.6rem;color:var(--on-dark-3);line-height:1.6;margin-top:12px;
+}
+
+/* ─── TRUST SECTION ─── */
+.trust-section{
+  background:rgba(22,32,54,0.50);
+  border-top:1px solid rgba(255,255,255,0.06);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.trust-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;
+  margin-top:36px;
+}
+.trust-card{
+  background:rgba(13,24,40,0.60);border:1px solid rgba(255,255,255,0.07);
+  border-radius:14px;padding:22px 20px;text-align:center;
+}
+.trust-card-icon{font-size:26px;margin-bottom:10px;display:block;line-height:1}
+.trust-card-title{
+  font-family:var(--serif);font-size:0.9375rem;font-weight:700;
+  color:var(--on-dark);letter-spacing:-0.01em;margin-bottom:5px;
+}
+.trust-card-desc{font-size:0.75rem;color:var(--on-dark-3);line-height:1.65}
+.trust-stat{
+  font-family:var(--serif);font-size:1.5rem;font-weight:900;
+  color:var(--green);letter-spacing:-0.03em;line-height:1;margin-bottom:4px;display:block;
+}
+
+/* ─── FAQ SECTION ─── */
+.faq-section{background:var(--navy)}
+.faq-list{display:flex;flex-direction:column;gap:12px;max-width:680px;margin:36px auto 0}
+.faq-item{
+  background:rgba(22,32,54,0.80);border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;overflow:hidden;
+}
+.faq-q{
+  width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:16px 20px;cursor:pointer;background:transparent;border:none;
+  font-family:var(--sans);font-size:0.875rem;font-weight:700;
+  color:var(--on-dark);text-align:left;
+}
+.faq-q:hover{background:rgba(255,255,255,0.03)}
+.faq-q svg{width:16px;height:16px;stroke:var(--on-dark-3);stroke-width:2.2;fill:none;flex-shrink:0;transition:transform 220ms var(--ease)}
+.faq-item.open .faq-q svg{transform:rotate(45deg)}
+.faq-a{
+  max-height:0;overflow:hidden;transition:max-height 320ms var(--ease);
+}
+.faq-item.open .faq-a{max-height:300px}
+.faq-a-inner{
+  padding:0 20px 18px;
+  font-size:0.8125rem;color:var(--on-dark-2);line-height:1.72;
+}
+
+/* ─── DEADLINE BANNER ─── */
+.deadline-banner{
+  background:linear-gradient(135deg,rgba(28,43,72,0.90) 0%,rgba(22,32,54,0.90) 100%);
+  border:1px solid rgba(240,165,0,0.22);border-radius:14px;
+  padding:24px 28px;margin:36px auto 0;max-width:680px;
+  display:flex;align-items:center;gap:16px;
+}
+.db-icon{font-size:28px;flex-shrink:0}
+.db-text{}
+.db-title{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--gold);letter-spacing:-0.01em;margin-bottom:4px}
+.db-desc{font-size:0.8125rem;color:var(--on-dark-2);line-height:1.60}
+
+/* ─── FOOTER ─── */
+.footer{
+  background:rgba(13,24,40,0.90);border-top:1px solid rgba(255,255,255,0.07);
+  padding:32px 40px;text-align:center;
+}
+.footer-inner{max-width:800px;margin:0 auto}
+.footer-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
+.footer-logo-img{width:28px;height:28px;object-fit:contain}
+.footer-logo-name{
+  font-family:var(--serif);font-size:0.9375rem;font-weight:700;color:var(--on-dark);
+}
+.footer-logo-sub{display:block;font-size:0.35rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--on-dark-3);margin-top:1px}
+.footer-disc{font-size:0.4375rem;color:var(--on-dark-3);line-height:1.68;margin-bottom:8px;max-width:680px;margin-left:auto;margin-right:auto}
+.footer-copy{font-size:0.4375rem;color:var(--on-dark-3)}
+.footer-v2-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(240,165,0,0.12);border:1px solid rgba(240,165,0,0.20);
+  border-radius:4px;padding:2px 8px;
+  font-size:0.4rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--gold);margin-left:6px;vertical-align:middle;
+}
+
+/* ─── MODAL ─── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:rgba(22,32,54,0.98);border:1px solid rgba(255,255,255,0.10);
+  border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,0.60);
+  padding:40px 38px;width:100%;max-width:480px;position:relative;
+}
+.modal-close{
+  position:absolute;top:16px;right:16px;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);
+  border-radius:50%;width:30px;height:30px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--on-dark-3);font-size:16px;transition:all 150ms;
+}
+.modal-close:hover{background:rgba(255,255,255,0.10);color:var(--on-dark)}
+.modal-icon{font-size:36px;display:block;margin-bottom:14px}
+.modal-title{font-family:var(--serif);font-size:1.375rem;font-weight:700;color:var(--on-dark);letter-spacing:-0.02em;margin-bottom:6px}
+.modal-sub{font-size:0.8125rem;color:var(--on-dark-2);line-height:1.65;margin-bottom:22px}
+.modal-input{
+  width:100%;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);border-radius:8px;
+  padding:12px 14px;color:var(--on-dark);font-family:var(--sans);
+  font-size:0.9375rem;margin-bottom:12px;
+  transition:border-color 150ms;
+}
+.modal-input::placeholder{color:var(--on-dark-3)}
+.modal-input:focus{outline:none;border-color:rgba(30,184,122,0.60);background:rgba(255,255,255,0.08)}
+.btn-modal-submit{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--green) 0%,var(--green-dk) 100%);
+  color:#fff;font-family:var(--sans);font-size:0.9375rem;font-weight:800;
+  border:none;border-radius:10px;cursor:pointer;
+  box-shadow:0 4px 18px rgba(30,184,122,0.35);transition:all 180ms var(--ease);
+}
+.btn-modal-submit:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(30,184,122,0.45)}
+.modal-success{
+  display:none;text-align:center;padding:20px 0;
+}
+.modal-success.show{display:block}
+.modal-form{}
+.modal-form.hidden{display:none}
+.modal-success-icon{font-size:48px;display:block;margin-bottom:14px}
+.modal-success-title{font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--green);margin-bottom:6px}
+.modal-success-sub{font-size:0.8125rem;color:var(--on-dark-2);line-height:1.65}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:700px){
+  .nav{padding:0 20px}
+  .hero{padding:60px 20px 50px}
+  .upload-section{padding:0 20px 56px}
+  .upload-card{padding:28px 22px 24px}
+  .section{padding:56px 20px}
+  .steps-grid{grid-template-columns:1fr;gap:0}
+  .step-item{border-right:none;border-bottom:1px solid rgba(255,255,255,0.07)}
+  .step-item:last-child{border-bottom:none}
+  .step-arrow{display:none}
+  .pricing-card-top,.pricing-card-bottom{padding-left:24px;padding-right:24px}
+  .footer{padding:28px 20px}
+  .deadline-banner{flex-direction:column;text-align:center}
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- ═══ ANNOUNCEMENT BANNER ═══ -->
+<div class="banner">
+  <strong>Coming Soon:</strong> The Appeal System is in development — join the waitlist below to be first in line.
+</div>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav">
+  <a href="../UPA-Final/01_upa-landing.html" class="nav-brand">
+    <img src="../UPA-Final/Transparent.png" alt="UPA" class="nav-logo">
+    <div>
+      <div class="nav-name">United Patient Advocate<span class="nav-name-sub">Patient First · Billing Second</span></div>
+    </div>
+  </a>
+  <div class="nav-spacer"></div>
+  <div class="nav-pill">
+    <span class="nav-pill-dot"></span>
+    In Development
+  </div>
+  <a href="../UPA-Final/01_upa-landing.html" class="nav-back">← Back to Billing Review</a>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-eyebrow">Insurance Denied? Fight Back</div>
+  <h1 class="hero-hl">Insurance Denied Your Claim?<br><em>We'll Fight It Back.</em></h1>
+  <p class="hero-sub">Upload your denial letter. Our system analyzes the denial reason, identifies your strongest grounds for appeal, and generates a complete appeal packet — ready to submit.</p>
+</section>
+
+<!-- ═══ UPLOAD CARD ═══ -->
+<div class="upload-section">
+  <div class="upload-card">
+    <div class="upload-card-label">Upload Your Denial Letter</div>
+
+    <div class="drop-zone coming-soon" id="drop-zone">
+      <span class="drop-icon">📋</span>
+      <div class="drop-label">Drop your denial letter PDF here</div>
+      <div class="drop-sub">EOB, denial notice, or insurance explanation of benefits</div>
+      <div class="coming-soon-badge">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Coming Soon — Backend in development
+      </div>
+    </div>
+
+    <button class="btn-waitlist" onclick="openModal()">
+      <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+      Join the Waitlist — Get Early Access
+    </button>
+
+    <div class="upload-trust">
+      <span class="trust-item">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        256-bit encrypted
+      </span>
+      <span class="trust-item">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        No account required
+      </span>
+      <span class="trust-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        HIPAA-conscious design
+      </span>
+      <span class="trust-item">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        180-day ACA protection
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 3-STEP PROCESS ═══ -->
+<section class="section steps-section">
+  <div class="section-inner">
+    <div class="eyebrow">How It Works</div>
+    <h2 class="section-hl">Three Steps to Your <em>Appeal Packet</em></h2>
+    <p class="section-sub">From denial to submission-ready appeal in minutes — not days of research.</p>
+
+    <div class="steps-grid">
+      <!-- Step 1 -->
+      <div class="step-item">
+        <div class="step-arrow">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="step-num">Step 01</div>
+        <span class="step-icon">📄</span>
+        <div class="step-title">Upload Denial Letter</div>
+        <div class="step-desc">Drop your EOB or denial notice PDF. We extract the denial reason code, insurer, claim number, and denial date automatically.</div>
+        <span class="step-badge step-badge-green">Automatic extraction</span>
+      </div>
+      <!-- Step 2 -->
+      <div class="step-item">
+        <div class="step-arrow">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="step-num">Step 02</div>
+        <span class="step-icon">🧠</span>
+        <div class="step-title">AI Analyzes Denial Code</div>
+        <div class="step-desc">Our system cross-references the denial reason against the insurer's published clinical criteria, ACA regulations, and your state's appeal rules.</div>
+        <span class="step-badge step-badge-gold">Insurer criteria matched</span>
+      </div>
+      <!-- Step 3 -->
+      <div class="step-item">
+        <div class="step-num">Step 03</div>
+        <span class="step-icon">📦</span>
+        <div class="step-title">Get Complete Appeal Packet</div>
+        <div class="step-desc">Download your full appeal packet: internal appeal letter, physician statement template, call script, deadline tracker, and state-specific external appeal guide.</div>
+        <span class="step-badge step-badge-teal">Ready to submit</span>
+      </div>
+    </div>
+
+    <!-- Deadline warning -->
+    <div class="deadline-banner">
+      <div class="db-icon">⏱️</div>
+      <div class="db-text">
+        <div class="db-title">You Have 180 Days to Appeal — Don't Miss the Window</div>
+        <div class="db-desc">Under the ACA, you have the right to an internal appeal within 180 days of receiving your denial notice. After that, you can request an independent external review. Our deadline tracker keeps you on schedule from day one.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section class="section pricing-section">
+  <div class="section-inner">
+    <div class="eyebrow">Pricing</div>
+    <h2 class="section-hl">One Appeal. <em>Complete Packet.</em></h2>
+    <p class="section-sub">Everything you need to submit a professional, evidence-backed insurance appeal — for less than one hour with an attorney.</p>
+
+    <div class="pricing-card">
+      <div class="pricing-card-top">
+        <div class="pricing-eyebrow">
+          <span class="pricing-eyebrow-dot"></span>
+          Denial Appeal Package
+        </div>
+        <div class="pricing-price-row">
+          <span class="pricing-currency">$</span>
+          <span class="pricing-amount">67</span>
+        </div>
+        <div class="pricing-label">per appeal · instant download</div>
+        <div class="pricing-intro-tag">🎯 Introductory Price — Increases at Launch</div>
+      </div>
+
+      <div class="pricing-card-divider"></div>
+
+      <div class="pricing-card-bottom">
+        <div class="pricing-includes-title">
+          <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:var(--on-dark-3);stroke-width:2.2;fill:none"><polyline points="20 6 9 17 4 12"/></svg>
+          Everything Included
+        </div>
+
+        <div class="includes-list">
+          <div class="include-item">
+            <div class="include-icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="include-text">
+              <div class="include-title">Complete Internal Appeal Letter</div>
+              <div class="include-desc">Cites the insurer's own published clinical criteria against the denial reason — your strongest legal argument, drafted.</div>
+            </div>
+          </div>
+          <div class="include-item">
+            <div class="include-icon">
+              <svg viewBox="0 0 24 24"><path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/><polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/></svg>
+            </div>
+            <div class="include-text">
+              <div class="include-title">Letter of Medical Necessity Template</div>
+              <div class="include-desc">Pre-filled template for your doctor to sign and submit — tailored to your specific denial reason and procedure code.</div>
+            </div>
+          </div>
+          <div class="include-item">
+            <div class="include-icon gold-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="include-text">
+              <div class="include-title">Deadline Tracker</div>
+              <div class="include-desc">You have 180 days under the ACA. We calculate your exact deadline from the denial date and send you reminders.</div>
+            </div>
+          </div>
+          <div class="include-item">
+            <div class="include-icon">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="include-text">
+              <div class="include-title">What to Say When You Call</div>
+              <div class="include-desc">Word-for-word phone script for requesting a peer-to-peer review with the insurer's medical director — the fastest path to reversal.</div>
+            </div>
+          </div>
+          <div class="include-item">
+            <div class="include-icon gold-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="include-text">
+              <div class="include-title">External Appeal Instructions for Your State</div>
+              <div class="include-desc">If the internal appeal fails, we provide state-specific instructions, forms, and contact info for your state insurance commissioner's independent review.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA: Waitlist (live) / Disabled purchase (backend not ready) -->
+        <button class="btn-cta-disabled" disabled>
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Submit My Denial — Coming Soon
+        </button>
+        <button class="btn-cta-waitlist" onclick="openModal()">
+          <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          Join Waitlist — Be First in Line
+        </button>
+        <div class="pricing-micro">
+          Introductory pricing for early waitlist members. No payment until launch.
+          Full 180-day ACA appeal window covered. One-time fee per appeal case.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TRUST SIGNALS ═══ -->
+<section class="section trust-section">
+  <div class="section-inner">
+    <div class="eyebrow">Why It Works</div>
+    <h2 class="section-hl">The System Insurers <em>Don't Advertise</em></h2>
+    <p class="section-sub">Over 40% of denied claims are overturned on appeal — but most patients never appeal. We change that.</p>
+
+    <div class="trust-grid">
+      <div class="trust-card">
+        <span class="trust-stat">40%+</span>
+        <div class="trust-card-title">Appeal Success Rate</div>
+        <div class="trust-card-desc">Nationwide data shows over 40% of internal insurance appeals succeed — for patients who actually file one.</div>
+      </div>
+      <div class="trust-card">
+        <span class="trust-card-icon">⚖️</span>
+        <div class="trust-card-title">ACA Federal Rights</div>
+        <div class="trust-card-desc">Under the Affordable Care Act, you have a guaranteed right to an internal and independent external appeal for any denied claim.</div>
+      </div>
+      <div class="trust-card">
+        <span class="trust-stat">180</span>
+        <div class="trust-card-title">Days to File</div>
+        <div class="trust-card-desc">You have 180 days from your denial notice to file an internal appeal. Our tracker ensures you never miss that window.</div>
+      </div>
+      <div class="trust-card">
+        <span class="trust-card-icon">🏥</span>
+        <div class="trust-card-title">Insurer's Own Criteria</div>
+        <div class="trust-card-desc">We cite the insurer's own published medical policies against your denial — the most effective appeal argument available.</div>
+      </div>
+      <div class="trust-card">
+        <span class="trust-card-icon">👨‍⚕️</span>
+        <div class="trust-card-title">Peer-to-Peer Review</div>
+        <div class="trust-card-desc">We include a call script for your doctor to request a peer-to-peer review — a direct line to the insurer's medical director.</div>
+      </div>
+      <div class="trust-card">
+        <span class="trust-card-icon">🗺️</span>
+        <div class="trust-card-title">All 50 States Covered</div>
+        <div class="trust-card-desc">State-specific external appeal instructions for all 50 states and DC — because every state's commissioner process is different.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══ -->
+<section class="section faq-section">
+  <div class="section-inner">
+    <div class="eyebrow">Common Questions</div>
+    <h2 class="section-hl">What You're <em>Probably Wondering</em></h2>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What types of denials can this help with?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">Medical necessity denials, experimental/investigational denials, out-of-network disputes, prior authorization denials, and administrative denials (wrong codes, billing errors, authorization issues). The most common is medical necessity — representing over 60% of all denials — and it has the strongest grounds for appeal.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Do I need a lawyer to appeal my insurance denial?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">No. The ACA gives every patient the right to an internal appeal and an independent external review — no attorney required. A well-documented appeal citing the insurer's own clinical criteria is often more effective than a legal brief. We give you exactly that documentation.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How long does the appeal process take?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">Insurers are required by the ACA to respond to internal appeals within 30 days for non-urgent claims, and 72 hours for urgent/expedited appeals. If your internal appeal is denied, you can request an independent external review — those decisions are typically issued within 45 days and are legally binding on the insurer.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What if my plan is grandfathered or self-funded?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">Grandfathered plans may be exempt from some ACA appeal requirements, and self-funded employer plans follow ERISA appeal rules rather than ACA. Our system detects your plan type from the denial letter and applies the correct legal framework. ERISA appeals have different deadlines (60–180 days depending on plan documents) — we cover both.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Will my doctor need to do anything?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">We provide a pre-filled Letter of Medical Necessity template for your doctor to review and sign — it typically takes them under 5 minutes. We also include a call script for your doctor to request a peer-to-peer review with the insurer's medical director, which is one of the most effective escalation paths available.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Is my denial letter kept private?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">Yes. Documents are processed with 256-bit encryption and deleted from our servers after your appeal packet is generated. We do not store, sell, or share your health information. The system is designed with HIPAA principles in mind for security-conscious handling of sensitive medical documents.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <img src="../UPA-Final/Transparent.png" alt="United Patient Advocate" class="footer-logo-img">
+      <div class="footer-logo-name">
+        United Patient Advocate
+        <span class="footer-logo-sub">Patient First · Billing Second</span>
+      </div>
+      <span class="footer-v2-tag">v2 Preview</span>
+    </div>
+    <div class="footer-disc">United Patient Advocate is an independent medical billing review and appeal preparation service. We provide educational billing analysis, appeal documentation tools, and consumer dispute resources. Results vary based on provider policies, insurer determinations, and individual circumstances. Nothing on this site constitutes legal, medical, or financial advice. This page is for planning purposes — the appeal system is not yet deployed. © 2026 United Patient Advocate — unitedpatientadvocate.com</div>
+    <div class="footer-copy">2026 United Patient Advocate — unitedpatientadvocate.com</div>
+  </div>
+</footer>
+
+<!-- ═══ WAITLIST MODAL ═══ -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+
+    <div class="modal-form" id="modal-form">
+      <span class="modal-icon">📬</span>
+      <div class="modal-title">Join the Appeal System Waitlist</div>
+      <div class="modal-sub">We'll notify you the moment the appeal system launches — and you'll lock in the $67 introductory price before it goes up.</div>
+      <input type="email" class="modal-input" id="waitlist-email" placeholder="your@email.com" autocomplete="email">
+      <input type="text" class="modal-input" id="waitlist-insurer" placeholder="Your insurer (optional: e.g. UnitedHealth, Cigna, Aetna)">
+      <button class="btn-modal-submit" onclick="submitWaitlist()">
+        Notify Me at Launch →
+      </button>
+    </div>
+
+    <div class="modal-success" id="modal-success">
+      <span class="modal-success-icon">✅</span>
+      <div class="modal-success-title">You're on the list!</div>
+      <div class="modal-success-sub">We'll reach out the moment the appeal system goes live. Your introductory price of <strong style="color:var(--green)">$67</strong> is reserved.<br><br>In the meantime — if you have a billing dispute (not a denial), our <a href="../UPA-Final/01_upa-landing.html" style="color:var(--green);text-decoration:underline">Billing Review tool is live now</a>.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── Modal ─── */
+function openModal(){
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(function(){
+    var el=document.getElementById('waitlist-email');
+    if(el)el.focus();
+  },150);
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function handleOverlayClick(e){
+  if(e.target===document.getElementById('modal-overlay'))closeModal();
+}
+function submitWaitlist(){
+  var email=document.getElementById('waitlist-email').value.trim();
+  if(!email||!email.includes('@')){
+    document.getElementById('waitlist-email').style.borderColor='rgba(224,59,59,0.60)';
+    document.getElementById('waitlist-email').focus();
+    return;
+  }
+  /* TODO: wire to Formspree / Netlify form / Mailchimp at launch */
+  document.getElementById('modal-form').classList.add('hidden');
+  document.getElementById('modal-success').classList.add('show');
+}
+
+/* ─── FAQ accordion ─── */
+function toggleFaq(btn){
+  var item=btn.closest('.faq-item');
+  var isOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(function(i){i.classList.remove('open')});
+  if(!isOpen)item.classList.add('open');
+}
+
+/* ─── Keyboard close ─── */
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape')closeModal();
+});
+</script>
+
+</body>
+</html>

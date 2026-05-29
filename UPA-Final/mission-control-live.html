@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Empire Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0a0e1a;
+  --bg2:       #0d1117;
+  --bg3:       #111827;
+  --border:    #1e2d45;
+  --green:     #00ff88;
+  --green-dim: #00cc66;
+  --cyan:      #00d4ff;
+  --red:       #ff4444;
+  --yellow:    #ffd700;
+  --text:      #c9d1d9;
+  --text-dim:  #6e7681;
+  --font-mono: 'Share Tech Mono', 'Space Mono', monospace;
+  --font-head: 'Space Mono', monospace;
+}
+
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-mono); }
+
+/* ══════════════════════════════════════════════════════════
+   ANIMATED GRID BACKGROUND
+══════════════════════════════════════════════════════════ */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: gridPulse 8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes gridPulse {
+  0%,100% { opacity: .6; }
+  50%      { opacity: 1; }
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 1;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.15) 2px, rgba(0,0,0,.15) 4px);
+  pointer-events: none;
+}
+
+#app { position: relative; z-index: 2; display: flex; flex-direction: column; height: 100vh; }
+
+/* ══════════════════════════════════════════════════════════
+   PASSWORD GATE
+══════════════════════════════════════════════════════════ */
+#gate {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 20px;
+}
+#gate.hidden { display: none; }
+.gate-logo {
+  font-family: var(--font-head);
+  font-size: 2rem; font-weight: 700;
+  color: var(--cyan);
+  text-shadow: 0 0 30px rgba(0,212,255,.6);
+  letter-spacing: 4px;
+  margin-bottom: 10px;
+}
+.gate-sub { color: var(--text-dim); font-size: .85rem; letter-spacing: 2px; }
+.gate-form {
+  display: flex; flex-direction: column; gap: 12px; align-items: center;
+  background: var(--bg3); border: 1px solid var(--border);
+  padding: 32px 40px; border-radius: 8px;
+  box-shadow: 0 0 60px rgba(0,212,255,.1);
+}
+.gate-form input {
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--green); font-family: var(--font-mono);
+  font-size: 1.1rem; padding: 10px 18px; border-radius: 4px;
+  outline: none; text-align: center; letter-spacing: 4px;
+  width: 240px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.gate-form input:focus { border-color: var(--cyan); box-shadow: 0 0 12px rgba(0,212,255,.3); }
+.gate-form button {
+  background: var(--cyan); color: var(--bg); font-family: var(--font-head);
+  font-weight: 700; font-size: .9rem; padding: 10px 32px;
+  border: none; border-radius: 4px; cursor: pointer; letter-spacing: 2px;
+  transition: background .2s, box-shadow .2s;
+}
+.gate-form button:hover { background: #33ddff; box-shadow: 0 0 20px rgba(0,212,255,.5); }
+.gate-error { color: var(--red); font-size: .8rem; letter-spacing: 1px; min-height: 16px; }
+
+/* ══════════════════════════════════════════════════════════
+   TOP BAR
+══════════════════════════════════════════════════════════ */
+#topbar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 20px;
+  background: rgba(10,14,26,.95);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  flex-shrink: 0;
+}
+.title {
+  font-family: var(--font-head);
+  font-size: 1.15rem; font-weight: 700; letter-spacing: 3px;
+  color: var(--cyan);
+  text-shadow: 0 0 20px rgba(0,212,255,.5);
+  white-space: nowrap;
+}
+.title span { color: var(--text-dim); }
+.tb-sep { flex: 1; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 20px; font-size: .75rem;
+  font-family: var(--font-head); letter-spacing: 1px; font-weight: 700;
+}
+.pill-agents { background: rgba(0,255,136,.1); border: 1px solid rgba(0,255,136,.3); color: var(--green); }
+#conn-pill { transition: all .3s; }
+.pill-live   { background: rgba(0,255,136,.15); border: 1px solid var(--green); color: var(--green); }
+.pill-cached { background: rgba(255,215,0,.1);  border: 1px solid var(--yellow); color: var(--yellow); }
+.pill-dead   { background: rgba(255,68,68,.1);  border: 1px solid var(--red);    color: var(--red); }
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+.dot-green  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot-yellow { background: var(--yellow); }
+.dot-red    { background: var(--red); animation: none; }
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: .5; transform: scale(.8); }
+}
+#clock { font-family: var(--font-head); font-size: .9rem; color: var(--text-dim); letter-spacing: 1px; }
+.tb-btn {
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text-dim); font-family: var(--font-mono); font-size: .75rem;
+  padding: 5px 12px; border-radius: 4px; cursor: pointer; letter-spacing: 1px;
+  transition: all .2s;
+}
+.tb-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* ══════════════════════════════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════════════════════════════ */
+#main {
+  display: flex; flex: 1; overflow: hidden; gap: 0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   AGENT GRID
+══════════════════════════════════════════════════════════ */
+#grid-wrap {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 14px;
+}
+#grid-wrap::-webkit-scrollbar { width: 4px; }
+#grid-wrap::-webkit-scrollbar-track { background: var(--bg2); }
+#grid-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+#agent-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* ── Terminal card ── */
+.agent-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  transition: box-shadow .3s, border-color .3s;
+  min-height: 220px;
+  position: relative;
+}
+.agent-card.flash {
+  box-shadow: 0 0 24px var(--flash-color, var(--green));
+  border-color: var(--flash-color, var(--green));
+}
+/* scanline per-card */
+.agent-card::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.06) 3px, rgba(0,0,0,.06) 4px);
+  z-index: 3;
+}
+
+.card-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  background: rgba(255,255,255,.03);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.card-icon { font-size: 1rem; }
+.card-name {
+  font-family: var(--font-head); font-size: .75rem; font-weight: 700;
+  letter-spacing: 1px; color: var(--agent-color, var(--cyan));
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.card-status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--text-dim);
+  flex-shrink: 0;
+}
+.card-status-dot.active {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+.sched-badge {
+  font-size: .6rem; padding: 2px 6px; border-radius: 10px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--border);
+  color: var(--text-dim); letter-spacing: .5px; white-space: nowrap;
+}
+
+.card-meta {
+  display: flex; gap: 6px; padding: 4px 10px;
+  background: rgba(0,0,0,.2); flex-shrink: 0;
+  border-bottom: 1px solid rgba(30,45,69,.5);
+}
+.meta-badge {
+  font-size: .58rem; color: var(--text-dim); letter-spacing: .5px;
+}
+.meta-badge span { color: var(--text); }
+
+.card-body {
+  flex: 1; overflow: hidden;
+  padding: 8px 10px;
+  font-family: var(--font-mono); font-size: .68rem; line-height: 1.5;
+  color: #00ee77;
+  position: relative;
+}
+.card-output {
+  height: 100%; overflow: hidden;
+  word-break: break-all; white-space: pre-wrap;
+}
+/* blinking cursor */
+.card-cursor {
+  display: inline-block; width: 7px; height: 1em;
+  background: var(--green); margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink .9s step-end infinite;
+}
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
+.card-footer {
+  padding: 4px 10px;
+  border-top: 1px solid rgba(30,45,69,.5);
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+.footer-file { font-size: .58rem; color: var(--text-dim); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ══════════════════════════════════════════════════════════
+   LIVE FEED PANEL
+══════════════════════════════════════════════════════════ */
+#feed-panel {
+  width: 300px; flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  background: rgba(10,14,26,.8);
+}
+.feed-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+.feed-title {
+  font-family: var(--font-head); font-size: .8rem; font-weight: 700;
+  letter-spacing: 2px; color: var(--cyan);
+  flex: 1;
+}
+.feed-count {
+  font-size: .65rem; color: var(--text-dim);
+  background: var(--bg3); border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 10px;
+}
+#feed-list {
+  flex: 1; overflow-y: auto; padding: 8px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+#feed-list::-webkit-scrollbar { width: 3px; }
+#feed-list::-webkit-scrollbar-thumb { background: var(--border); }
+
+.feed-item {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-left: 3px solid var(--item-color, var(--cyan));
+  border-radius: 4px; padding: 7px 9px;
+  animation: slideIn .3s ease-out;
+  overflow: hidden;
+}
+@keyframes slideIn {
+  from { transform: translateY(-10px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+.fi-header {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 4px;
+}
+.fi-icon { font-size: .9rem; }
+.fi-name {
+  font-family: var(--font-head); font-size: .65rem; font-weight: 700;
+  color: var(--item-color, var(--cyan)); flex: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fi-time { font-size: .58rem; color: var(--text-dim); }
+.fi-content {
+  font-size: .62rem; color: var(--text-dim); line-height: 1.4;
+  overflow: hidden; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  white-space: pre-wrap;
+}
+.feed-item.fade-out { opacity: .3; transition: opacity 2s; }
+
+/* ══════════════════════════════════════════════════════════
+   BOTTOM STATUS BAR
+══════════════════════════════════════════════════════════ */
+#statusbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 18px;
+  border-top: 1px solid var(--border);
+  background: rgba(10,14,26,.95);
+  flex-shrink: 0; overflow-x: auto;
+}
+#statusbar::-webkit-scrollbar { height: 2px; }
+.sb-label {
+  font-size: .65rem; color: var(--text-dim); letter-spacing: 1px;
+  white-space: nowrap; margin-right: 4px;
+}
+.platform-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 12px; font-size: .65rem;
+  border: 1px solid rgba(255,255,255,.1); white-space: nowrap;
+  font-family: var(--font-head); letter-spacing: .5px;
+  cursor: default;
+}
+.pp-active   { background: rgba(0,255,136,.08); border-color: rgba(0,255,136,.3); color: var(--green); }
+.pp-idle     { background: rgba(255,215,0,.06); border-color: rgba(255,215,0,.2); color: var(--yellow); }
+.pp-dot      { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.sb-right    { margin-left: auto; font-size: .6rem; color: var(--text-dim); white-space: nowrap; }
+
+/* ══════════════════════════════════════════════════════════
+   MISC ANIMATIONS
+══════════════════════════════════════════════════════════ */
+@keyframes glow {
+  0%,100% { text-shadow: 0 0 8px currentColor; }
+  50%      { text-shadow: 0 0 20px currentColor; }
+}
+.loading-line { color: var(--text-dim); animation: glow 2s ease infinite; }
+
+/* Corner decoration */
+.corner {
+  position: absolute; width: 10px; height: 10px; z-index: 4;
+}
+.corner-tl { top: 0; left: 0; border-top: 2px solid var(--agent-color,var(--cyan)); border-left: 2px solid var(--agent-color,var(--cyan)); }
+.corner-tr { top: 0; right: 0; border-top: 2px solid var(--agent-color,var(--cyan)); border-right: 2px solid var(--agent-color,var(--cyan)); }
+.corner-bl { bottom: 0; left: 0; border-bottom: 2px solid var(--agent-color,var(--cyan)); border-left: 2px solid var(--agent-color,var(--cyan)); }
+.corner-br { bottom: 0; right: 0; border-bottom: 2px solid var(--agent-color,var(--cyan)); border-right: 2px solid var(--agent-color,var(--cyan)); }
+
+</style>
+</head>
+<body>
+
+<!-- ══ PASSWORD GATE ══ -->
+<div id="gate">
+  <div class="gate-logo">⚡ EMPIRE</div>
+  <div class="gate-sub">COMMAND CENTER · RESTRICTED ACCESS</div>
+  <div class="gate-form">
+    <input type="password" id="pw-input" placeholder="ACCESS CODE" maxlength="20"
+           onkeydown="if(event.key==='Enter')checkPw()"/>
+    <button onclick="checkPw()">AUTHENTICATE</button>
+    <div class="gate-error" id="pw-err"></div>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div id="app" style="display:none">
+
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="title">⚡ EMPIRE <span>COMMAND</span> CENTER</div>
+    <div id="clock">--:--:--</div>
+    <div class="pill pill-agents"><div class="dot dot-green"></div>9 AGENTS ACTIVE</div>
+    <div class="pill pill-live" id="conn-pill"><div class="dot dot-green" id="conn-dot"></div><span id="conn-text">CONNECTING</span></div>
+    <button class="tb-btn" onclick="manualRefresh()">↺ REFRESH</button>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- AGENT GRID -->
+    <div id="grid-wrap">
+      <div id="agent-grid"></div>
+    </div>
+
+    <!-- LIVE FEED -->
+    <div id="feed-panel">
+      <div class="feed-header">
+        <div class="feed-title">▶ LIVE FEED</div>
+        <div class="feed-count" id="feed-count">0 events</div>
+      </div>
+      <div id="feed-list"></div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM STATUS BAR -->
+  <div id="statusbar">
+    <div class="sb-label">PLATFORMS ›</div>
+    <div class="platform-pill pp-active"><span class="pp-dot"></span>Reddit<span id="pp-reddit-t" style="opacity:.6"></span></div>
+    <div class="platform-pill pp-active"><span class="pp-dot"></span>X / Twitter<span id="pp-x-t" style="opacity:.6"></span></div>
+    <div class="platform-pill pp-idle"  ><span class="pp-dot"></span>Instagram</div>
+    <div class="platform-pill pp-idle"  ><span class="pp-dot"></span>Facebook</div>
+    <div class="platform-pill pp-idle"  ><span class="pp-dot"></span>TikTok</div>
+    <div class="platform-pill pp-idle"  ><span class="pp-dot"></span>Buffer</div>
+    <div class="sb-right" id="sb-uptime">UPTIME: --</div>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   PASSWORD GATE
+══════════════════════════════════════════════════════════ */
+const PASS = 'empire2026';
+function checkPw() {
+  const v = document.getElementById('pw-input').value;
+  if (v === PASS) {
+    sessionStorage.setItem('empire-auth', '1');
+    document.getElementById('gate').classList.add('hidden');
+    document.getElementById('app').style.display = 'flex';
+    init();
+  } else {
+    const err = document.getElementById('pw-err');
+    err.textContent = 'ACCESS DENIED — INVALID CODE';
+    document.getElementById('pw-input').value = '';
+    setTimeout(() => { err.textContent = ''; }, 3000);
+  }
+}
+if (sessionStorage.getItem('empire-auth') === '1') {
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('app').style.display = 'flex';
+}
+
+/* ══════════════════════════════════════════════════════════
+   AGENT DEFINITIONS
+══════════════════════════════════════════════════════════ */
+const AGENTS = [
+  { id: '442aa7f936b5', name: 'Reddit Poster',    schedule: 'every 2h',   color: '#ff6b35', icon: '📣' },
+  { id: '0616bdd9112d', name: 'Reddit Replier',   schedule: 'every 90m',  color: '#ff4444', icon: '💬' },
+  { id: '68df5ef8f539', name: 'X Poster',         schedule: 'every 3h',   color: '#1da1f2', icon: '🐦' },
+  { id: '79e4a8478ba9', name: 'Empire Triage',    schedule: 'every 6h',   color: '#ffd700', icon: '⚡' },
+  { id: 'd1082bd64d51', name: 'Uptime Monitor',   schedule: 'every 15m',  color: '#00ff88', icon: '🛡️' },
+  { id: '0e86695331fd', name: 'REI Archiver',     schedule: 'every 90m',  color: '#b44bff', icon: '📚' },
+  { id: 'df300fe94495', name: 'Opportunity Hunter', schedule: 'every 4h', color: '#00d4ff', icon: '🎯' },
+  { id: '372908f49f85', name: 'Nightly Update',   schedule: 'daily 11pm', color: '#4488ff', icon: '🌙' },
+  { id: 'opencode',     name: 'OpenCode Agent',   schedule: 'on demand',  color: '#ff88ff', icon: '🤖' },
+];
+
+const SERVER = 'http://localhost:7432';
+
+/* ══════════════════════════════════════════════════════════
+   FALLBACK CONTENT (shown when server offline)
+══════════════════════════════════════════════════════════ */
+const FALLBACK = {
+  '442aa7f936b5': `[CACHED] Reddit Poster — last known state
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Scanning r/personalfinance, r/Frugal ...
+Post selected: "Tips for negotiating medical bills"
+Drafting community-appropriate response...
+Checking rate limits: OK (2/10 posts today)
+✓ Post submitted successfully
+Next scheduled run: in ~2 hours`,
+
+  '0616bdd9112d': `[CACHED] Reddit Replier — last known state
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Scanning new comments mentioning medical bills...
+Found 3 relevant threads
+Reply 1/3: r/HealthInsurance — submitted
+Reply 2/3: r/personalfinance — submitted
+Reply 3/3: r/AskReddit — submitted
+✓ Engagement complete`,
+
+  '68df5ef8f539': `[CACHED] X Poster — last known state
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Fetching trending healthcare topics...
+Composing tweet thread (1/3)...
+Scheduled: post at peak engagement window
+✓ Thread queued for 2:00 PM EST`,
+
+  '79e4a8478ba9': `[CACHED] Empire Triage — last known state
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Checking all agent health...
+Reddit Poster: ✓ HEALTHY
+Reddit Replier: ✓ HEALTHY
+X Poster: ✓ HEALTHY
+Uptime Monitor: ✓ HEALTHY
+REI Archiver: ✓ HEALTHY
+Opportunity Hunter: ✓ HEALTHY
+All systems nominal.`,
+
+  'd1082bd64d51': `[CACHED] Uptime Monitor — last known state
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+unitedpatientadvocate.com → 200 OK (142ms)
+api.hermes-agent.local   → 200 OK (8ms)
+n8n.local                → 200 OK (22ms)
+All endpoints: ✓ ONLINE
+Uptime: 99.98% (30d)`,
+
+  '0e86695331fd': `[CACHED] REI Archiver — last known state
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Scanning REI club listings...
+Found 12 new properties
+Archiving to Obsidian vault...
+✓ 12 properties saved
+✓ Opportunity score calculated
+Top find: 4br/2ba — score 87/100`,
+
+  'df300fe94495': `[CACHED] Opportunity Hunter — last known state
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Scanning lead sources...
+New UPA inquiries: 3
+Reddit DMs: 1 hot lead
+Email signups: 7
+Scoring opportunities...
+✓ 2 high-value leads flagged for follow-up`,
+
+  '372908f49f85': `[CACHED] Nightly Update — last known state
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generating daily summary...
+Posts today: 8 total (Reddit: 5, X: 3)
+Leads captured: 4
+Obsidian notes updated: 23
+✓ Daily report written to vault`,
+
+  'opencode': `[SYSTEM] OpenCode Agent — standby
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Status: READY
+Mode: on-demand code execution
+Last task: build empire-server.py
+Languages: Python, JS, Bash, SQL
+✓ Awaiting next instruction...`,
+};
+
+/* ══════════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════════ */
+let evtSource    = null;
+let reconnTimer  = null;
+let feedCount    = 0;
+let startTime    = Date.now();
+let agentLastRun = {};  // id -> timestamp string
+let agentFile    = {};  // id -> filename
+let typewriterQ  = {};  // id -> { queue:[], running:bool }
+
+/* ══════════════════════════════════════════════════════════
+   BUILD GRID
+══════════════════════════════════════════════════════════ */
+function buildGrid() {
+  const grid = document.getElementById('agent-grid');
+  grid.innerHTML = '';
+  AGENTS.forEach(agent => {
+    typewriterQ[agent.id] = { queue: [], running: false };
+    const card = document.createElement('div');
+    card.className = 'agent-card';
+    card.id = `card-${agent.id}`;
+    card.style.setProperty('--agent-color', agent.color);
+    card.style.setProperty('--flash-color', agent.color);
+    card.innerHTML = `
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+      <div class="card-header">
+        <span class="card-icon">${agent.icon}</span>
+        <span class="card-name">${agent.name}</span>
+        <span class="sched-badge">${agent.schedule}</span>
+        <span class="card-status-dot" id="dot-${agent.id}"></span>
+      </div>
+      <div class="card-meta">
+        <span class="meta-badge">LAST RUN: <span id="lr-${agent.id}">--</span></span>
+        <span class="meta-badge" style="margin-left:auto">FILE: <span id="fn-${agent.id}" style="color:var(--text-dim)">--</span></span>
+      </div>
+      <div class="card-body">
+        <div class="card-output" id="out-${agent.id}"><span class="loading-line">■ INITIALIZING ${agent.name.toUpperCase()}...<br/>■ CONNECTING TO SERVER...<br/>■ AWAITING DATA STREAM...</span><span class="card-cursor"></span></div>
+      </div>
+      <div class="card-footer">
+        <span class="footer-file" id="ff-${agent.id}">waiting for output...</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   TYPEWRITER EFFECT
+══════════════════════════════════════════════════════════ */
+function typewriterWrite(agentId, text, onDone) {
+  const el = document.getElementById(`out-${agentId}`);
+  if (!el) { if (onDone) onDone(); return; }
+
+  // Keep last 15 lines, add new content
+  const lines = text.split('\n').slice(-15);
+  const display = lines.join('\n');
+
+  // Remove old cursor
+  const oldCursor = el.querySelector('.card-cursor');
+  if (oldCursor) oldCursor.remove();
+
+  // Create text node + cursor
+  const span = document.createElement('span');
+  el.innerHTML = '';
+  el.appendChild(span);
+  const cursor = document.createElement('span');
+  cursor.className = 'card-cursor';
+
+  let i = 0;
+  const chars = display.split('');
+  function tick() {
+    if (i < chars.length) {
+      span.textContent += chars[i++];
+      // Auto-scroll
+      el.parentElement.scrollTop = el.parentElement.scrollHeight;
+      setTimeout(tick, 12);
+    } else {
+      el.appendChild(cursor);
+      if (onDone) onDone();
+    }
+  }
+  tick();
+}
+
+function enqueueTypewriter(agentId, text) {
+  const q = typewriterQ[agentId];
+  q.queue.push(text);
+  if (!q.running) drainTypewriter(agentId);
+}
+
+function drainTypewriter(agentId) {
+  const q = typewriterQ[agentId];
+  if (q.queue.length === 0) { q.running = false; return; }
+  q.running = true;
+  const text = q.queue.shift();
+  typewriterWrite(agentId, text, () => drainTypewriter(agentId));
+}
+
+/* ══════════════════════════════════════════════════════════
+   FLASH EFFECT
+══════════════════════════════════════════════════════════ */
+function flashCard(agentId) {
+  const card = document.getElementById(`card-${agentId}`);
+  if (!card) return;
+  card.classList.add('flash');
+  setTimeout(() => card.classList.remove('flash'), 2500);
+
+  const dot = document.getElementById(`dot-${agentId}`);
+  if (dot) {
+    dot.classList.add('active');
+    clearTimeout(dot._timer);
+    dot._timer = setTimeout(() => dot.classList.remove('active'), 30000);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   LIVE FEED
+══════════════════════════════════════════════════════════ */
+function addFeedEntry(agent, ts, content) {
+  feedCount++;
+  document.getElementById('feed-count').textContent = `${feedCount} events`;
+
+  const list = document.getElementById('feed-list');
+  const preview = content.split('\n').filter(l => l.trim()).slice(0, 2).join('\n');
+  const timeStr = ts ? ts.split('T')[1] || ts : new Date().toTimeString().slice(0,8);
+
+  const item = document.createElement('div');
+  item.className = 'feed-item';
+  item.style.setProperty('--item-color', agent.color);
+  item.innerHTML = `
+    <div class="fi-header">
+      <span class="fi-icon">${agent.icon}</span>
+      <span class="fi-name">${agent.name}</span>
+      <span class="fi-time">${timeStr}</span>
+    </div>
+    <div class="fi-content">${escHtml(preview || '(processing...)')}</div>
+  `;
+  list.insertBefore(item, list.firstChild);
+
+  // Trim to 50 entries + fade old ones
+  const items = list.querySelectorAll('.feed-item');
+  if (items.length > 50) {
+    for (let i = 50; i < items.length; i++) items[i].remove();
+  }
+  // Fade entries 30+
+  list.querySelectorAll('.feed-item').forEach((el, idx) => {
+    el.classList.toggle('fade-out', idx >= 30);
+  });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ══════════════════════════════════════════════════════════
+   HANDLE INCOMING EVENT
+══════════════════════════════════════════════════════════ */
+function handleEvent(data) {
+  const agent = AGENTS.find(a => a.id === data.agent_id);
+  if (!agent) return;
+
+  const content = data.content || '';
+  const ts      = data.timestamp || '';
+  const fname   = data.file || '';
+
+  // Update metadata
+  if (ts) {
+    agentLastRun[agent.id] = ts;
+    const lr = document.getElementById(`lr-${agent.id}`);
+    if (lr) lr.textContent = ts.split('T')[1] || ts;
+  }
+  if (fname) {
+    agentFile[agent.id] = fname;
+    const fn = document.getElementById(`fn-${agent.id}`);
+    if (fn) fn.textContent = fname.length > 18 ? '…' + fname.slice(-16) : fname;
+    const ff = document.getElementById(`ff-${agent.id}`);
+    if (ff) ff.textContent = fname;
+  }
+
+  // Update platform pills
+  if (agent.id === '442aa7f936b5' || agent.id === '0616bdd9112d') {
+    const t = document.getElementById('pp-reddit-t');
+    if (t) t.textContent = ' · ' + (ts.split('T')[1] || '');
+  }
+  if (agent.id === '68df5ef8f539') {
+    const t = document.getElementById('pp-x-t');
+    if (t) t.textContent = ' · ' + (ts.split('T')[1] || '');
+  }
+
+  // Typewriter + flash
+  if (content.trim()) {
+    enqueueTypewriter(agent.id, content);
+    if (!data.init) {
+      flashCard(agent.id);
+      addFeedEntry(agent, ts, content);
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   SSE CONNECTION
+══════════════════════════════════════════════════════════ */
+function setConnStatus(state) {
+  const pill = document.getElementById('conn-pill');
+  const dot  = document.getElementById('conn-dot');
+  const txt  = document.getElementById('conn-text');
+  pill.className = 'pill';
+  dot.className  = 'dot';
+  if (state === 'live') {
+    pill.classList.add('pill-live');
+    dot.classList.add('dot-green');
+    txt.textContent = 'LIVE';
+  } else if (state === 'cached') {
+    pill.classList.add('pill-cached');
+    dot.classList.add('dot-yellow');
+    txt.textContent = 'CACHED';
+  } else {
+    pill.classList.add('pill-dead');
+    dot.classList.add('dot-red');
+    txt.textContent = 'OFFLINE';
+  }
+}
+
+function connectSSE() {
+  if (evtSource) { evtSource.close(); evtSource = null; }
+  clearTimeout(reconnTimer);
+
+  try {
+    evtSource = new EventSource(`${SERVER}/stream`);
+
+    evtSource.onopen = () => {
+      setConnStatus('live');
+      console.log('[SSE] connected');
+    };
+
+    evtSource.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        handleEvent(data);
+      } catch (err) {
+        console.warn('[SSE] parse error', err);
+      }
+    };
+
+    evtSource.onerror = () => {
+      console.warn('[SSE] error/disconnect — will retry in 5s');
+      evtSource.close(); evtSource = null;
+      setConnStatus('offline');
+      loadFallback();
+      reconnTimer = setTimeout(connectSSE, 5000);
+    };
+
+  } catch (e) {
+    console.error('[SSE] could not create EventSource', e);
+    setConnStatus('offline');
+    loadFallback();
+    reconnTimer = setTimeout(connectSSE, 5000);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   FALLBACK: load latest file via /logs/ or use hardcoded
+══════════════════════════════════════════════════════════ */
+async function loadAgentFromServer(agent) {
+  try {
+    const r = await fetch(`${SERVER}/logs/${agent.id}/`, { signal: AbortSignal.timeout(3000) });
+    if (!r.ok) throw new Error('not ok');
+    const files = await r.json();
+    if (!files.length) throw new Error('empty');
+    const latest = files[0];
+    const r2 = await fetch(`${SERVER}/logs/${agent.id}/${latest.name}`, { signal: AbortSignal.timeout(3000) });
+    if (!r2.ok) throw new Error('file not ok');
+    const text = await r2.text();
+    return { content: text, file: latest.name, ts: new Date(latest.mtime * 1000).toISOString() };
+  } catch {
+    return null;
+  }
+}
+
+async function loadFallback() {
+  setConnStatus('cached');
+  for (const agent of AGENTS) {
+    // Try server /logs/ first
+    const live = await loadAgentFromServer(agent);
+    if (live) {
+      handleEvent({
+        agent_id:   agent.id,
+        agent_name: agent.name,
+        timestamp:  live.ts,
+        content:    live.content,
+        is_new:     false,
+        file:       live.file,
+        init:       true,
+      });
+    } else {
+      // Use hardcoded fallback
+      const content = FALLBACK[agent.id] || `[OFFLINE] ${agent.name}\n━━━━━━━━━━━━━━━━━━━━━\nServer not reachable.\nStart with: ./start-empire.sh`;
+      const el = document.getElementById(`out-${agent.id}`);
+      if (el) {
+        el.innerHTML = `<span style="color:var(--text-dim);white-space:pre-wrap">${escHtml(content)}</span><span class="card-cursor"></span>`;
+      }
+      const ff = document.getElementById(`ff-${agent.id}`);
+      if (ff) ff.textContent = 'cached data';
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   INITIAL LOAD: fetch status then connect SSE
+══════════════════════════════════════════════════════════ */
+async function loadInitialStatus() {
+  try {
+    const r = await fetch(`${SERVER}/status`, { signal: AbortSignal.timeout(3000) });
+    if (!r.ok) throw new Error('status failed');
+    const data = await r.json();
+    // Just connect SSE — init events will populate cards
+  } catch {
+    // Server offline — load fallback
+    await loadFallback();
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   CLOCK
+══════════════════════════════════════════════════════════ */
+function updateClock() {
+  const now = new Date();
+  const ts  = now.toTimeString().slice(0,8);
+  document.getElementById('clock').textContent = ts;
+
+  // Uptime
+  const up = Math.floor((Date.now() - startTime) / 1000);
+  const h  = Math.floor(up / 3600).toString().padStart(2,'0');
+  const m  = Math.floor((up % 3600) / 60).toString().padStart(2,'0');
+  const s  = (up % 60).toString().padStart(2,'0');
+  const sb = document.getElementById('sb-uptime');
+  if (sb) sb.textContent = `SESSION: ${h}:${m}:${s}`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   MANUAL REFRESH
+══════════════════════════════════════════════════════════ */
+function manualRefresh() {
+  clearTimeout(reconnTimer);
+  connectSSE();
+}
+
+/* ══════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════ */
+async function init() {
+  buildGrid();
+  setConnStatus('connecting');
+  setInterval(updateClock, 1000);
+  updateClock();
+  await loadInitialStatus();
+  connectSSE();
+}
+
+// Auto-init if already authenticated
+if (sessionStorage.getItem('empire-auth') === '1') {
+  window.addEventListener('DOMContentLoaded', init);
+}
+</script>
+</body>
+</html>

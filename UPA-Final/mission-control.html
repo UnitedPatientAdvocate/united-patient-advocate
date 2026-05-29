@@ -649,7 +649,68 @@
     .badge-live { background: rgba(0,255,136,0.12); color: var(--green); border: 1px solid rgba(0,255,136,0.25); }
     .badge-dev { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid rgba(255,215,0,0.25); }
     .badge-planned { background: rgba(100,116,139,0.12); color: var(--muted); border: 1px solid rgba(100,116,139,0.25); }
+    .badge-active-llc { background: rgba(68,136,255,0.12); color: var(--blue); border: 1px solid rgba(68,136,255,0.28); }
+    .badge-in-progress { background: rgba(180,75,255,0.12); color: var(--purple); border: 1px solid rgba(180,75,255,0.28); }
+    .project-card.active-llc::before { background: var(--blue); box-shadow: var(--glow-b); }
+    .project-card.in-progress::before { background: var(--purple); box-shadow: 0 0 8px rgba(180,75,255,0.5), 0 0 24px rgba(180,75,255,0.25); }
+    .project-card.active-llc:hover { border-color: rgba(68,136,255,0.3); box-shadow: 0 8px 32px rgba(68,136,255,0.08); }
+    .project-card.in-progress:hover { border-color: rgba(180,75,255,0.3); box-shadow: 0 8px 32px rgba(180,75,255,0.08); }
     .project-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+    /* =====================================================
+       LEGAL STRUCTURE
+    ===================================================== */
+    .legal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .legal-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .legal-card:hover { transform: translateY(-2px); }
+    .legal-icon {
+      font-size: 22px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .legal-info { flex: 1; min-width: 0; }
+    .legal-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+    .legal-note {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+    .legal-badge {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 3px;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    .legal-active { background: rgba(0,255,136,0.12); color: var(--green); border: 1px solid rgba(0,255,136,0.25); }
+    .legal-pending { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid rgba(255,215,0,0.25); }
+    .legal-planned { background: rgba(100,116,139,0.12); color: var(--muted); border: 1px solid rgba(100,116,139,0.25); }
+    .legal-building { background: rgba(68,136,255,0.12); color: var(--blue); border: 1px solid rgba(68,136,255,0.28); }
 
     /* =====================================================
        MOTIVATIONAL BANNER
@@ -1154,36 +1215,96 @@
       <div class="projects-grid">
 
         <div class="project-card live">
-          <div class="project-name">UPA v1</div>
+          <div class="project-name">United Patient Advocate v1</div>
           <div class="project-status-badge badge-live">🟢 LIVE</div>
-          <div class="project-desc">Patient advocacy platform live on Vercel. Agents posting 24/7. Revenue pipeline open. The foundation is running.</div>
+          <div class="project-desc">Medical billing scan live on Vercel. $97/scan. Agents posting 24/7. Revenue pipeline open — the foundation is running.</div>
         </div>
 
         <div class="project-card dev">
-          <div class="project-name">UPA v2 — Appeals</div>
-          <div class="project-status-badge badge-dev">🔨 IN DEVELOPMENT</div>
-          <div class="project-desc">Next-gen AI-powered insurance appeal letters. Automated form generation, deadline tracking, and success rate analytics.</div>
+          <div class="project-name">United Patient Advocate v2</div>
+          <div class="project-status-badge badge-dev">🔨 IN DEV</div>
+          <div class="project-desc">Denial appeals system — AI-powered insurance appeal letters, automated form generation, deadline tracking, and success analytics.</div>
+        </div>
+
+        <div class="project-card active-llc">
+          <div class="project-name">Proficient Way Group</div>
+          <div class="project-status-badge badge-active-llc">🏢 ACTIVE LLC</div>
+          <div class="project-desc">Real estate wholesaling + REI. Active LLC. The holding entity and operational base for the empire's real estate vertical.</div>
+        </div>
+
+        <div class="project-card in-progress">
+          <div class="project-name">REI Course Archive</div>
+          <div class="project-status-badge badge-in-progress">⚙ IN PROGRESS</div>
+          <div class="project-desc">Archiving 57 REI wholesaling course modules. 34/57 done. Building the AI training foundation for the wholesaling system.</div>
         </div>
 
         <div class="project-card planned">
           <div class="project-name">Nurse Ebook</div>
           <div class="project-status-badge badge-planned">📋 PLANNED</div>
-          <div class="project-desc">Patient rights guide for nurses and advocates. Digital product — zero fulfillment cost, passive income stream.</div>
+          <div class="project-desc">Burned out RN escape plan — patient rights guide for nurses and advocates. Zero fulfillment cost, passive income stream.</div>
         </div>
 
-        <div class="project-card dev">
-          <div class="project-name">REI Wholesaling AI</div>
-          <div class="project-status-badge badge-dev">🔨 IN DEVELOPMENT</div>
-          <div class="project-desc">AI system trained on the full wholesaling course (34/57 modules archived). Deal analysis, motivated seller outreach, contract automation.</div>
+        <div class="project-card planned">
+          <div class="project-name">UPA Spanish</div>
+          <div class="project-status-badge badge-planned">📋 PLANNED</div>
+          <div class="project-desc">41M US Latinos market. Full Spanish-language version of UPA — targeting underserved bilingual healthcare navigation gap.</div>
         </div>
 
         <div class="project-card planned">
           <div class="project-name">Trading Bots</div>
           <div class="project-status-badge badge-planned">📋 PLANNED</div>
-          <div class="project-desc">Automated trading strategies — queued for after first consistent revenue. Capital allocation model ready to execute on trigger.</div>
+          <div class="project-desc">After first revenue. Automated trading strategies — capital allocation model ready to execute once empire reaches consistent income.</div>
+        </div>
+
+        <div class="project-card planned">
+          <div class="project-name">Empire Media LLC</div>
+          <div class="project-status-badge badge-planned">📋 PLANNED</div>
+          <div class="project-desc">Digital products umbrella — the holding entity for ebooks, courses, and all future digital product lines across the empire.</div>
         </div>
 
       </div><!-- /projects-grid -->
+
+      <!-- ── LEGAL STRUCTURE ───────────────────────── -->
+      <div class="section-label"><span>◈ Legal Structure</span></div>
+      <div class="legal-grid">
+
+        <div class="legal-card" style="border-color: rgba(0,255,136,0.2);">
+          <div class="legal-icon">🏢</div>
+          <div class="legal-info">
+            <div class="legal-name">Proficient Way Group LLC</div>
+            <div class="legal-badge legal-active">● ACTIVE</div>
+            <div class="legal-note">Primary operating entity — REI + empire base</div>
+          </div>
+        </div>
+
+        <div class="legal-card" style="border-color: rgba(255,215,0,0.2);">
+          <div class="legal-icon">⚖️</div>
+          <div class="legal-info">
+            <div class="legal-name">United Patient Advocate LLC</div>
+            <div class="legal-badge legal-pending">◎ PENDING</div>
+            <div class="legal-note">Create after first sale</div>
+          </div>
+        </div>
+
+        <div class="legal-card" style="border-color: rgba(100,116,139,0.2);">
+          <div class="legal-icon">🛡️</div>
+          <div class="legal-info">
+            <div class="legal-name">Master Trust</div>
+            <div class="legal-badge legal-planned">📋 PLANNED</div>
+            <div class="legal-note">Create at $10k revenue — asset protection layer</div>
+          </div>
+        </div>
+
+        <div class="legal-card" style="border-color: rgba(68,136,255,0.2);">
+          <div class="legal-icon">📊</div>
+          <div class="legal-info">
+            <div class="legal-name">Business Credit Score</div>
+            <div class="legal-badge legal-building">▲ BUILDING</div>
+            <div class="legal-note">Establishing tradelines + Dun &amp; Bradstreet profile</div>
+          </div>
+        </div>
+
+      </div><!-- /legal-grid -->
 
     </div><!-- /left-col -->
 

@@ -33,6 +33,14 @@
       "dest": "/UPA-Final/03_upa-preview.html"
     },
     {
+      "src": "/mission-control\\.html",
+      "dest": "/UPA-Final/mission-control.html"
+    },
+    {
+      "src": "/mission-control-live\\.html",
+      "dest": "/UPA-Final/mission-control-live.html"
+    },
+    {
       "handle": "filesystem"
     },
     {

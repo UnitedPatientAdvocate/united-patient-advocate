@@ -126,6 +126,14 @@ body{
   var params = new URLSearchParams(window.location.search || '');
   var to = params.get('to') || 'https://upadvocate.gumroad.com/l/busfn?wanted=true';
   var r  = params.get('r')  || '';
+  var intent = params.get('intent') || params.get('source') || '';
+  if(window.UPAState && window.UPAState.attributedUrl){
+    to = window.UPAState.attributedUrl(to);
+  }
+  if(intent){
+    try{ localStorage.setItem('upa.entry.intent', intent); }catch(e){}
+    try{ sessionStorage.setItem('upa.entry.intent', intent); }catch(e){}
+  }
 
   // Persist recovery to our domain's storage so the dashboard's fallback
   // chain also has it. (URL `?r=` is still primary.)
@@ -139,7 +147,7 @@ body{
       }
     }
     if(window.UPAState && window.UPAState.markCheckout){
-      window.UPAState.markCheckout({ stage:'checkout-bridge', source:'checkout-bridge', gumroadUrl:to });
+      window.UPAState.markCheckout({ stage:'checkout-bridge', source:'checkout-bridge', intent:intent, gumroadUrl:to });
     }
   }catch(e){}
 
@@ -147,6 +155,9 @@ body{
   // the "I've paid" button navigates to — same-tab, same-origin, `?r=` intact.
   var dashboardHref = '/dashboard?unlock=1';
   if(r) dashboardHref += '&r=' + encodeURIComponent(r);
+  if(window.UPAState && window.UPAState.attributedUrl){
+    dashboardHref = window.UPAState.attributedUrl(dashboardHref);
+  }
 
   // Wire the checkout button: opens Gumroad in a new tab on user tap.
   var checkoutBtn = document.getElementById('checkout-btn');
@@ -160,6 +171,9 @@ body{
   checkoutBtn.setAttribute('rel', 'noopener');
 
   checkoutBtn.addEventListener('click', function(e){
+    if(window.UPAState && window.UPAState.track){
+      window.UPAState.track('external_checkout_opened', { stage:'checkout-bridge-button', intent:intent, gumroadUrl:to });
+    }
     // Let the browser handle target="_blank" naturally — this preserves the
     // user-gesture context that popup blockers require.
     // Arm the dashboard button now that the user has tapped through to pay.
@@ -172,20 +186,23 @@ body{
   });
 
   // Wire the dashboard button.
+  // P0: navigation always proceeds. Buyers arriving via funnels that don't
+  // build a `?r=` token (e.g. /denied-claim-help) must NOT be dead-ended
+  // here after paying. The dashboard's session-expired overlay handles the
+  // empty-state case (recovery-link paste form already deployed).
   dashboardBtn.href = dashboardHref;
-  dashboardBtn.addEventListener('click', function(e){
-    // Belt-and-suspenders: even if the user taps "I've paid" without
-    // first tapping the checkout button, allow the navigation — they may
-    // have paid via the email link in another session.
-    if(!r){
-      e.preventDefault();
-      if(errorEl){
-        errorEl.textContent = "We couldn't find your case data on this device. Open the recovery link from your purchase receipt, or start a new review.";
-        errorEl.classList.add('show');
-      }
-      return;
+  dashboardBtn.addEventListener('click', function(){
+    if(window.UPAState && window.UPAState.markPaid){
+      window.UPAState.markPaid({ stage:'checkout-buyer-confirmed-paid', source:'checkout-bridge', intent:intent });
+    } else {
+      try{
+        sessionStorage.setItem('upa.paid', '1');
+        localStorage.setItem('upa.paid', '1');
+      }catch(e){}
     }
-    // Default navigation proceeds — same-tab, same-origin to /dashboard?r=...
+    if(window.UPAState && window.UPAState.track){
+      window.UPAState.track('sale_dashboard_click', { stage:'checkout-dashboard-button', intent:intent });
+    }
   });
 })();
 </script>

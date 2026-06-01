@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Denied Claim Help - United Patient Advocate</title>
+<meta name="description" content="Get AI-assisted denied claim appeal documentation, call scripts, evidence checklist, and next-step guidance from United Patient Advocate.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1C2B48;--navy-deep:#0E1828;--navy-mid:#243058;
+  --teal:#1E6B5A;--teal-lt:#2A8B74;
+  --green:#1EB87A;--green-dk:#158A5C;
+  --gold:#C9A84C;--gold-dk:#A8881A;
+  --crimson:#E03B3B;--cobalt:#3B6EE0;--amber:#D07000;
+  --bg-lt:#EEF2F7;--bg-white:#FFFFFF;--bg-warm:#F7F9FC;
+  --ink:#1C2B48;--ink-2:#2E4060;--ink-3:#4A6480;--ink-4:#7A98B0;
+  --bdr:rgba(28,43,72,.09);
+  --on-dark:rgba(235,244,255,.94);--on-dark-2:rgba(235,244,255,.62);
+  --serif:"Playfair Display",Georgia,serif;
+  --sans:"Plus Jakarta Sans",system-ui,sans-serif;
+  --mono:"DM Mono",monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg-lt);color:var(--ink);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.banner{background:linear-gradient(90deg,#7B3A1A,#9B4A20,#7B3A1A);padding:10px 18px;text-align:center;font-size:.75rem;font-weight:700;color:rgba(255,255,255,.92)}
+.banner strong{color:#fff}
+.nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--bdr);padding:10px 20px;display:flex;align-items:center;gap:14px}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}
+.nav-shield{width:38px;height:38px;flex:0 0 auto}
+.nav-shield img{width:100%;height:100%;object-fit:contain;display:block}
+.nav-name{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--navy);line-height:1.12}
+.nav-name span{display:block;font-size:.68rem;color:var(--teal);font-family:var(--sans);font-weight:700;letter-spacing:.18em;text-transform:uppercase}
+.nav-spacer{flex:1}
+.nav-cta{display:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--sans);font-size:.9375rem;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--green-dk),var(--green));padding:14px 24px;border-radius:100px;text-decoration:none;box-shadow:0 4px 20px rgba(30,184,122,.35);transition:all .2s var(--ease);min-height:50px}
+.btn:hover{transform:translateY(-1px);box-shadow:0 7px 26px rgba(30,184,122,.44)}
+.btn svg{width:16px;height:16px;stroke:white;stroke-width:2.4;fill:none}
+.hero{background:linear-gradient(180deg,#EEF2F7 0%,#F7F9FC 100%);padding:54px 20px 34px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 620px 320px at 50% 0%,rgba(30,107,90,.07),transparent 62%);pointer-events:none}
+.hero-inner{position:relative;max-width:760px;margin:0 auto}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.4375rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--teal);background:rgba(30,107,90,.07);border:1px solid rgba(30,107,90,.18);border-radius:100px;padding:6px 14px;margin-bottom:18px}
+.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--teal)}
+h1{font-family:var(--serif);font-size:2.5rem;font-weight:900;color:var(--navy);line-height:1.08;margin-bottom:14px}
+h1 em{font-style:italic;color:var(--teal)}
+.hero-sub{font-size:1rem;color:var(--ink-3);line-height:1.75;max-width:610px;margin:0 auto 24px}
+.hero-proof{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:14px;font-size:.625rem;color:var(--ink-4);font-weight:700}
+.hero-proof span{display:flex;align-items:center;gap:5px}
+.hero-proof svg{width:12px;height:12px;stroke:var(--teal);stroke-width:2;fill:none}
+.hero-trust{display:block;font-size:.8125rem;color:var(--ink-3);line-height:1.6;max-width:600px;margin:0 auto 22px;padding:11px 16px;background:rgba(30,107,90,.06);border:1px solid rgba(30,107,90,.16);border-radius:8px;text-align:center}
+.hero-trust strong{color:var(--teal);font-weight:800}
+.section{padding:44px 20px}
+.section.white{background:#fff}
+.section.dark{background:var(--navy);color:var(--on-dark)}
+.inner{max-width:940px;margin:0 auto}
+.section-label{font-size:.4375rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);text-align:center;margin-bottom:10px}
+.dark .section-label{color:rgba(201,168,76,.86)}
+.section-title{font-family:var(--serif);font-size:1.8rem;font-weight:800;color:var(--navy);line-height:1.18;text-align:center;margin-bottom:10px}
+.dark .section-title{color:var(--on-dark)}
+.section-sub{font-size:.875rem;color:var(--ink-3);line-height:1.7;text-align:center;max-width:620px;margin:0 auto 24px}
+.dark .section-sub{color:var(--on-dark-2)}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+.card{background:#fff;border:1px solid var(--bdr);border-radius:10px;padding:18px;box-shadow:0 1px 5px rgba(28,43,72,.05)}
+.dark .card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10)}
+.card-icon{width:34px;height:34px;border-radius:9px;background:rgba(30,107,90,.09);border:1px solid rgba(30,107,90,.15);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.dark .card-icon{background:rgba(30,184,122,.11);border-color:rgba(30,184,122,.2)}
+.card-icon svg{width:16px;height:16px;stroke:var(--teal);stroke-width:2;fill:none}
+.dark .card-icon svg{stroke:var(--green)}
+.card-title{font-size:.9375rem;font-weight:800;color:var(--navy);line-height:1.3;margin-bottom:6px}
+.dark .card-title{color:#fff}
+.card-copy{font-size:.8125rem;color:var(--ink-3);line-height:1.65}
+.dark .card-copy{color:var(--on-dark-2)}
+.included{display:grid;grid-template-columns:1fr;gap:10px;margin-top:20px}
+.included-item{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--bdr);border-radius:10px;padding:15px 16px}
+.check{width:22px;height:22px;border-radius:50%;background:rgba(30,107,90,.09);color:var(--teal);display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:.8rem;font-weight:900}
+.included-title{font-size:.875rem;font-weight:800;color:var(--navy);margin-bottom:3px}
+.included-copy{font-size:.8125rem;color:var(--ink-3);line-height:1.6}
+.process{counter-reset:step}
+.process .card{position:relative;padding-left:62px}
+.process .card::before{counter-increment:step;content:counter(step);position:absolute;left:18px;top:18px;width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--navy-deep);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8125rem}
+/* ── Trust handoff block (above primary CTA) ─────────────────────────── */
+.trust-block{background:#fff;padding:34px 20px 28px;border-top:1px solid var(--bdr)}
+.trust-eyebrow{display:flex;align-items:center;justify-content:center;gap:8px;font-size:.4375rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.trust-eyebrow::before,.trust-eyebrow::after{content:"";width:18px;height:1px;background:var(--teal);opacity:.45}
+.trust-h{font-family:var(--serif);font-size:1.375rem;font-weight:700;color:var(--navy);line-height:1.22;text-align:center;margin-bottom:6px;max-width:620px;margin-left:auto;margin-right:auto}
+.trust-sub{font-size:.8125rem;color:var(--ink-3);line-height:1.65;text-align:center;max-width:560px;margin:0 auto 22px}
+.trust-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:780px;margin:0 auto}
+.trust-col{background:var(--bg-warm);border:1px solid var(--bdr);border-radius:10px;padding:13px 14px 14px}
+.trust-col-title{font-size:.5rem;font-weight:800;letter-spacing:.20em;text-transform:uppercase;color:var(--ink-4);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.trust-col-title::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--teal)}
+.trust-col.boundary{background:rgba(28,43,72,.025)}
+.trust-col.boundary .trust-col-title::before{background:var(--ink-4)}
+.trust-bullets{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:7px}
+.trust-bullets li{font-size:.75rem;color:var(--ink-2);line-height:1.4;padding-left:18px;position:relative;font-weight:600}
+.trust-bullets li::before{content:"";position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:50%;background:rgba(30,107,90,.18);border:1px solid var(--teal)}
+.trust-bullets-num{counter-reset:trust-step}
+.trust-bullets-num li{counter-increment:trust-step;padding-left:24px}
+.trust-bullets-num li::before{content:counter(trust-step);background:var(--teal);border-color:var(--teal);color:#fff;width:16px;height:16px;font-size:.5rem;font-weight:900;display:flex;align-items:center;justify-content:center;top:1px;left:0;line-height:1;border-radius:50%}
+.trust-bullets-check li::before{content:"✓";background:transparent;border:none;color:var(--teal);font-size:.875rem;font-weight:900;top:-1px;left:0;width:auto;height:auto;line-height:1}
+.trust-bullets-bound li{color:var(--ink-3);font-weight:500}
+.trust-bullets-bound li::before{content:"×";background:transparent;border:none;color:var(--ink-4);font-size:1rem;font-weight:900;top:-2px;left:0;width:auto;height:auto;line-height:1}
+.trust-foot{font-size:.6875rem;color:var(--ink-4);line-height:1.6;text-align:center;max-width:620px;margin:18px auto 0}
+
+.cta-band{background:linear-gradient(135deg,var(--navy-deep),var(--navy));padding:34px 20px;text-align:center;color:var(--on-dark)}
+.cta-band h2{font-family:var(--serif);font-size:1.85rem;line-height:1.18;margin-bottom:10px}
+.cta-band p{font-size:.875rem;color:var(--on-dark-2);line-height:1.7;max-width:560px;margin:0 auto 18px}
+.fine-print{font-size:.75rem;color:rgba(235,244,255,.42);line-height:1.6;max-width:620px;margin:16px auto 0}
+.footer{background:#fff;border-top:1px solid var(--bdr);padding:24px 20px;text-align:center}
+.footer a{font-size:.75rem;color:var(--teal);font-weight:800;text-decoration:none}
+.footer-copy{font-size:.6875rem;color:var(--ink-4);line-height:1.6;max-width:720px;margin:12px auto 0}
+@media (min-width:720px){
+  .nav{padding:10px 40px}
+  .nav-cta{display:inline-flex;font-size:.8125rem;padding:10px 18px;min-height:0}
+  .hero{padding:76px 40px 54px}
+  h1{font-size:3.45rem}
+  .section{padding:66px 40px}
+  .grid{grid-template-columns:repeat(3,1fr)}
+  .included{grid-template-columns:repeat(2,1fr)}
+  .cta-band{padding:54px 40px}
+  .trust-block{padding:52px 40px 40px}
+  .trust-h{font-size:1.75rem;margin-bottom:8px}
+  .trust-sub{font-size:.9375rem;margin-bottom:28px}
+  .trust-grid{grid-template-columns:repeat(4,1fr);gap:14px;max-width:1080px}
+  .trust-col{padding:16px 18px 18px}
+}
+</style>
+</head>
+<body>
+<div class="banner"><strong>Denied claim help:</strong> appeal documentation, call script, and evidence checklist for $97.</div>
+
+<nav class="nav">
+  <a class="nav-brand" href="/" aria-label="United Patient Advocate home">
+    <div class="nav-shield"><img src="Transparent.png" alt="United Patient Advocate"></div>
+    <div class="nav-name">United Patient <span>Advocate</span></div>
+  </a>
+  <div class="nav-spacer"></div>
+  <a class="btn nav-cta" href="/checkout?intent=denied-claim">Start review - $97</a>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Denied Claim Help · $97</div>
+      <h1>Insurance denied your claim. <em>Get the appeal package ready to send today.</em></h1>
+      <p class="hero-sub">A focused denied-claim documentation package for the denial reasons that show up most — <strong>not medically necessary, missing records, out-of-network rate, coverage exclusion, and EOB mismatch</strong>. Includes an appeal letter draft, evidence checklist, phone script, and 30-day follow-up sequence.</p>
+      <div class="hero-trust">Built on <strong>CMS appeals guidance</strong>, <strong>ERISA §503 timing references</strong>, and standard insurer review procedures. Documentation only — outcomes depend on your plan, evidence, and timing.</div>
+      <a class="btn" href="/checkout?intent=denied-claim">
+        <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        Get Denied Claim Help — $97
+      </a>
+      <div class="hero-proof">
+        <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Most plans: 180-day appeal window</span>
+        <span><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> ERISA-aware draft language</span>
+        <span><svg viewBox="0 0 24 24"><path d="m20 6-11 11-5-5"/></svg> Use today — print or email</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="inner process">
+      <div class="section-label">What happens next</div>
+      <h2 class="section-title">From payment to packet in 20 minutes</h2>
+      <p class="section-sub">Three steps. No phone calls. No account setup. Everything personalized in your browser.</p>
+      <div class="grid">
+        <div class="card">
+          <div class="card-title">Open secure checkout</div>
+          <div class="card-copy">Tap "Get Denied Claim Help — $97". Gumroad opens in a new tab to process payment — UPA never sees your card details. This page stays open with your session active.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Your appeal workspace opens</div>
+          <div class="card-copy">After payment, return to this tab and tap "I've paid". Your workspace loads with the appeal letter draft, evidence checklist, phone script, and 30-day follow-up sequence — ready to personalize for your denial reason.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Send the appeal</div>
+          <div class="card-copy">Add your denial details to the letter. Send via your insurer's portal, certified mail, or fax. Use the included call script and 30-day checklist to follow up — every contact documented in writing.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section white">
+    <div class="inner">
+      <div class="section-label">Built for common denial reasons</div>
+      <h2 class="section-title">A practical appeal starting point</h2>
+      <p class="section-sub">Use this when the insurer denied coverage, says the service was not medically necessary, says records are missing, or the EOB does not match what you were billed.</p>
+      <div class="grid">
+        <div class="card">
+          <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <div class="card-title">Coverage denial</div>
+          <div class="card-copy">Organized language for asking the plan to explain the denial basis, policy language, and review path.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+          <div class="card-title">Medical necessity</div>
+          <div class="card-copy">A checklist for supporting records, provider notes, dates, service codes, and appeal attachments.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg></div>
+          <div class="card-title">EOB mismatch</div>
+          <div class="card-copy">Plain-language notes to compare the denial, EOB, bill, provider statement, and patient responsibility.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="inner">
+      <div class="section-label">What you get</div>
+      <h2 class="section-title">Denied claim help package</h2>
+      <p class="section-sub">The output is designed to help you move quickly from confusion to a documented appeal attempt.</p>
+      <div class="included">
+        <div class="included-item"><div class="check">✓</div><div><div class="included-title">Appeal letter draft</div><div class="included-copy">A structured first-pass appeal letter you can edit and send to the insurer or plan administrator.</div></div></div>
+        <div class="included-item"><div class="check">✓</div><div><div class="included-title">Evidence checklist</div><div class="included-copy">A short list of documents to gather before filing or escalating the appeal.</div></div></div>
+        <div class="included-item"><div class="check">✓</div><div><div class="included-title">Call script</div><div class="included-copy">Questions to ask the insurer, provider billing office, and records department.</div></div></div>
+        <div class="included-item"><div class="check">✓</div><div><div class="included-title">30-day action path</div><div class="included-copy">A simple sequence for requests, follow-ups, escalation, and documentation.</div></div></div>
+      </div>
+      <div style="text-align:center;margin-top:26px">
+        <a class="btn" href="/checkout?intent=denied-claim">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Open Secure Checkout — $97
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section dark">
+    <div class="inner process">
+      <div class="section-label">Fast workflow</div>
+      <h2 class="section-title">Three steps from denial to documentation</h2>
+      <p class="section-sub">No backend changes. No new payment logic. This page sends customers into the existing secure checkout.</p>
+      <div class="grid">
+        <div class="card"><div class="card-title">Open checkout</div><div class="card-copy">Use the existing UPA checkout bridge and complete the $97 purchase.</div></div>
+        <div class="card"><div class="card-title">Gather denial details</div><div class="card-copy">Use the denial letter, EOB, bill, provider name, date of service, and insurer notes.</div></div>
+        <div class="card"><div class="card-title">Use the packet</div><div class="card-copy">Send the appeal letter, make the call, and keep a written timeline of every response.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────────────
+       TRUST HANDOFF BLOCK — compact final reassurance directly above the
+       primary checkout CTA. Four columns: Built for · What happens next ·
+       Built by · Scope. Mobile-first 2×2 grid; desktop 4-col single row.
+       ───────────────────────────────────────────────────────────────────── -->
+  <section class="trust-block" aria-label="Final reassurance before checkout">
+    <div class="trust-eyebrow">Before you check out</div>
+    <h2 class="trust-h">Here is exactly what you are paying for — and what it isn't.</h2>
+    <p class="trust-sub">Four short answers so you know what to expect before you tap "checkout."</p>
+    <div class="trust-grid">
+
+      <div class="trust-col">
+        <div class="trust-col-title">Who this is for</div>
+        <ul class="trust-bullets">
+          <li>Denied claims</li>
+          <li>Prior authorization denials</li>
+          <li>Appeal deadlines</li>
+          <li>Surprise bills</li>
+          <li>Billing disputes</li>
+        </ul>
+      </div>
+
+      <div class="trust-col">
+        <div class="trust-col-title">What happens next</div>
+        <ol class="trust-bullets trust-bullets-num">
+          <li>You submit your information</li>
+          <li>You receive a personalized review</li>
+          <li>You receive an action plan</li>
+          <li>You receive documents and guidance</li>
+        </ol>
+      </div>
+
+      <div class="trust-col">
+        <div class="trust-col-title">Built by</div>
+        <ul class="trust-bullets trust-bullets-check">
+          <li>RN-led review</li>
+          <li>Personalized case analysis</li>
+          <li>Educational billing review</li>
+        </ul>
+      </div>
+
+      <div class="trust-col boundary">
+        <div class="trust-col-title">What this is not</div>
+        <ul class="trust-bullets trust-bullets-bound">
+          <li>Not legal advice</li>
+          <li>Not medical advice</li>
+          <li>No guaranteed outcome</li>
+        </ul>
+      </div>
+
+    </div>
+    <p class="trust-foot">Documentation only. Outcomes depend on your plan, evidence, and timing. All sales are final.</p>
+  </section>
+
+  <section class="cta-band">
+    <h2>Start the denied claim package</h2>
+    <p>Open secure checkout, complete payment, and your appeal workspace loads in this tab — ready to personalize for your denial reason.</p>
+    <a class="btn" href="/checkout?intent=denied-claim">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Get my appeal documentation package — $97
+    </a>
+    <div class="fine-print">United Patient Advocate provides educational billing review and dispute documentation tools. This is not legal, medical, financial, or insurance advice. Outcomes vary by insurer, plan terms, provider records, deadlines, and individual facts.</div>
+  </section>
+</main>
+
+<footer class="footer">
+  <a href="/">Back to United Patient Advocate</a>
+  <div class="footer-copy">2026 United Patient Advocate. Independent medical billing review and dispute documentation support. Not affiliated with insurers, providers, CMS, or any referenced institution.</div>
+</footer>
+<script src="/UPA-Final/upa-state-persistence.js"></script>
+</body>
+</html>

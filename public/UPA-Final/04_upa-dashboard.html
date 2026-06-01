@@ -2308,6 +2308,194 @@ abbr.upa-term::after{
 .seo-divider{position:relative;text-align:center;margin:14px 0 12px;color:var(--ink-5);font-size:.625rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
 .seo-divider::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:var(--bdr)}
 .seo-divider span{position:relative;background:var(--white);padding:0 12px}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COMMAND CENTER v2 — Case Snapshot, Health Score, Next Best Action,
+   Resolution Path. Mobile-first. Sits between case-header and kpi-strip.
+   ═══════════════════════════════════════════════════════════════════════ */
+.cmd-center{background:linear-gradient(180deg,#EEF2F7 0%,#F2F6FC 100%);border-bottom:1px solid var(--bdr);padding:18px 14px 20px;position:relative}
+.cmd-center::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(30,107,90,.32),rgba(201,168,76,.32),transparent)}
+.cmd-inner{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.cmd-label{font-size:.4375rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-5);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.cmd-label::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green)}
+
+/* ── Case Snapshot (compact summary above other cmd elements) ── */
+.cmd-snapshot{background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:14px 16px;box-shadow:0 2px 12px rgba(28,43,72,.05)}
+.cmd-snapshot-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.cmd-snapshot-title{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--ink);letter-spacing:-.01em;line-height:1.25}
+.cmd-snapshot-ref{font-family:var(--mono);font-size:.5rem;color:var(--ink-5);letter-spacing:.06em;text-align:right;white-space:nowrap;padding-top:3px}
+.cmd-snapshot-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;padding-top:8px;border-top:1px solid var(--bdr)}
+.cmd-snap-item-lbl{font-size:.4rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-5);margin-bottom:3px}
+.cmd-snap-item-val{font-size:.8125rem;font-weight:700;color:var(--ink);line-height:1.3;word-wrap:break-word}
+
+/* ── Health Score gauge ── */
+.cmd-health{background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:14px 16px 16px;text-align:center;box-shadow:0 2px 12px rgba(28,43,72,.05)}
+.cmd-gauge{position:relative;width:128px;height:128px;margin:4px auto 8px}
+.cmd-gauge svg{width:100%;height:100%;transform:rotate(-90deg)}
+.cmd-gauge-track{stroke:rgba(28,43,72,.08)}
+.cmd-gauge-fill{stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.22,1,.36,1)}
+.cmd-gauge-value{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.cmd-gauge-num{font-family:var(--serif);font-size:1.875rem;font-weight:900;color:var(--ink);letter-spacing:-.03em;line-height:1}
+.cmd-gauge-pct{font-size:.5rem;font-weight:700;color:var(--ink-5);letter-spacing:.10em;margin-top:4px;text-transform:uppercase}
+.cmd-health-status{font-size:.75rem;font-weight:700;color:var(--green-dk);margin-top:4px}
+.cmd-health-status.amber{color:var(--amber)}
+.cmd-health-status.crimson{color:var(--crimson-dk)}
+.cmd-health-detail{font-size:.625rem;color:var(--ink-4);margin-top:4px;line-height:1.5;max-width:280px;margin-left:auto;margin-right:auto}
+
+/* ── Next Best Action panel ── */
+.cmd-nba{background:linear-gradient(165deg,#0E1828 0%,#1C2B48 100%);color:#fff;border-radius:12px;padding:18px 18px 16px;position:relative;overflow:hidden;box-shadow:0 8px 28px rgba(14,24,40,.25)}
+.cmd-nba::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold) 0%,var(--green) 100%)}
+.cmd-nba::after{content:'';position:absolute;top:0;right:-40px;width:160px;height:100%;background:radial-gradient(ellipse 120px 60px at 80% 20%,rgba(201,168,76,.10),transparent 70%);pointer-events:none}
+.cmd-nba-eyebrow{display:flex;align-items:center;gap:7px;font-size:.4375rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;position:relative;z-index:1}
+.cmd-nba-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:cmdNbaPulse 2s ease-in-out infinite}
+@keyframes cmdNbaPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.cmd-nba-title{font-family:var(--serif);font-size:1.125rem;font-weight:700;color:rgba(235,244,255,.96);letter-spacing:-.01em;line-height:1.3;margin-bottom:8px;position:relative;z-index:1}
+.cmd-nba-title strong{color:var(--gold);font-weight:700}
+.cmd-nba-desc{font-size:.8125rem;color:rgba(235,244,255,.62);line-height:1.55;margin-bottom:14px;position:relative;z-index:1}
+.cmd-nba-actions{display:flex;flex-direction:column;gap:10px;position:relative;z-index:1}
+.cmd-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:9px;font-family:var(--sans);font-size:.875rem;font-weight:800;letter-spacing:.01em;cursor:pointer;text-decoration:none;transition:transform .15s ease,box-shadow .15s ease;border:none;min-height:48px;width:100%}
+.cmd-btn:active{transform:translateY(1px)}
+.cmd-btn-primary{background:linear-gradient(135deg,var(--green-dk),var(--green));color:#fff;box-shadow:0 4px 18px rgba(30,184,122,.35)}
+.cmd-btn-primary:hover{box-shadow:0 6px 24px rgba(30,184,122,.50)}
+.cmd-btn svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.4;fill:none}
+.cmd-nba-meta{display:flex;align-items:center;flex-wrap:wrap;gap:5px 8px;font-size:.625rem;color:rgba(235,244,255,.45);font-weight:600;letter-spacing:.04em;justify-content:center;line-height:1.4}
+.cmd-nba-meta-sep{opacity:.4}
+
+/* ── Resolution Path timeline ── */
+.cmd-path-card{background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:14px 18px 16px;box-shadow:0 2px 12px rgba(28,43,72,.05)}
+.cmd-path{position:relative;display:flex;flex-direction:column}
+.cmd-path-stage{display:grid;grid-template-columns:22px 1fr;gap:12px;padding:9px 0;position:relative;align-items:flex-start}
+.cmd-path-stage::after{content:'';position:absolute;left:10px;top:34px;height:calc(100% - 22px);width:2px;background:var(--bdr-md)}
+.cmd-path-stage:last-child::after{display:none}
+.cmd-path-stage.done::after{background:var(--green-dk)}
+.cmd-path-dot{width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid var(--bdr-md);display:flex;align-items:center;justify-content:center;position:relative;z-index:2;flex-shrink:0}
+.cmd-path-stage.done .cmd-path-dot{background:var(--green);border-color:var(--green-dk)}
+.cmd-path-stage.done .cmd-path-dot::after{content:'';width:8px;height:4px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.cmd-path-stage.active .cmd-path-dot{background:var(--gold);border-color:var(--gold-dk);animation:cmdPathPulse 2s ease-in-out infinite}
+@keyframes cmdPathPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.45)}50%{box-shadow:0 0 0 8px rgba(201,168,76,0)}}
+.cmd-path-stage.active .cmd-path-dot::after{content:'';width:8px;height:8px;border-radius:50%;background:#fff}
+.cmd-path-stage-body{padding-top:2px;min-width:0}
+.cmd-path-label{font-size:.8125rem;font-weight:700;color:var(--ink);line-height:1.3}
+.cmd-path-stage.done .cmd-path-label{color:var(--green-dk)}
+.cmd-path-stage.active .cmd-path-label{color:var(--gold-dk)}
+.cmd-path-stage:not(.done):not(.active) .cmd-path-label{color:var(--ink-3)}
+.cmd-path-meta{font-size:.625rem;color:var(--ink-4);margin-top:2px;font-weight:600;letter-spacing:.04em}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COMMAND CENTER v2.1 — PREMIUM ENHANCEMENTS
+   Adds: Health-score breakdown bars, NBA urgency stripe + meta pills +
+   skip-warning, Resolution-Path date pills + status badges + active-stage
+   detail, Evidence Vault grid. All additive — no existing selectors changed.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Snapshot premium polish */
+.cmd-snapshot-ref{font-family:var(--mono);letter-spacing:.06em}
+.cmd-snap-item-val{font-family:var(--serif);font-weight:700;letter-spacing:-.005em}
+.cmd-snapshot-title em{font-style:italic;font-weight:600;color:var(--ink-3);font-size:.875em}
+
+/* Health score breakdown */
+.cmd-health-breakdown{margin-top:14px;padding-top:14px;border-top:1px dashed var(--bdr-md);display:flex;flex-direction:column;gap:10px;text-align:left}
+.cmd-hb-title{font-size:.4375rem;font-weight:800;letter-spacing:.20em;text-transform:uppercase;color:var(--ink-5);margin-bottom:2px}
+.cmd-hb-row{display:grid;grid-template-columns:1fr 38px;gap:10px;align-items:center}
+.cmd-hb-label-wrap{min-width:0}
+.cmd-hb-label{font-size:.6875rem;font-weight:700;color:var(--ink-3);letter-spacing:.01em;line-height:1.2}
+.cmd-hb-track{height:4px;background:rgba(28,43,72,.06);border-radius:2px;overflow:hidden;margin-top:5px}
+.cmd-hb-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--green-dk),var(--green));transition:width 1.1s cubic-bezier(.22,1,.36,1);width:0}
+.cmd-hb-fill.amber{background:linear-gradient(90deg,#9A4A00,var(--amber))}
+.cmd-hb-fill.crimson{background:linear-gradient(90deg,var(--crimson-dk),var(--crimson))}
+.cmd-hb-pct{font-family:var(--mono);font-size:.625rem;font-weight:700;color:var(--ink-3);text-align:right;letter-spacing:.04em}
+
+/* NBA urgency stripe */
+.cmd-nba-urgency{position:absolute;top:14px;right:14px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-size:.4375rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;z-index:2;background:rgba(224,59,59,.18);border:1px solid rgba(224,59,59,.42);color:#FFB0B0}
+.cmd-nba-urgency.med{background:rgba(240,165,0,.16);border-color:rgba(240,165,0,.42);color:#FFD877}
+.cmd-nba-urgency.low{background:rgba(30,184,122,.16);border-color:rgba(30,184,122,.34);color:#8FE3B5}
+.cmd-nba-urgency::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;animation:cmdNbaPulse 2s ease-in-out infinite}
+
+/* NBA inline meta pills */
+.cmd-nba-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;position:relative;z-index:1}
+.cmd-nba-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:100px;font-size:.5625rem;font-weight:700;color:rgba(235,244,255,.80);letter-spacing:.04em}
+.cmd-nba-pill svg{width:11px;height:11px;stroke:currentColor;stroke-width:2.2;fill:none;flex-shrink:0}
+.cmd-nba-pill.accent{background:rgba(201,168,76,.14);border-color:rgba(201,168,76,.32);color:#FFD877}
+.cmd-nba-pill.success{background:rgba(30,184,122,.14);border-color:rgba(30,184,122,.32);color:#8FE3B5}
+
+/* NBA skip-warning footer */
+.cmd-nba-skip{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;background:rgba(224,59,59,.06);border:1px solid rgba(224,59,59,.20);border-radius:8px;font-size:.6875rem;color:rgba(235,244,255,.62);line-height:1.5;margin-top:12px;position:relative;z-index:1}
+.cmd-nba-skip svg{width:14px;height:14px;stroke:#FFB0B0;stroke-width:2.2;fill:none;flex-shrink:0;margin-top:1px}
+.cmd-nba-skip strong{color:#FFC9C9;font-weight:700}
+
+/* Resolution-Path enhancements: date, status, active-stage detail */
+.cmd-path-stage-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.cmd-path-stage-head-left{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.cmd-path-stage-date{font-family:var(--mono);font-size:.5rem;font-weight:700;color:var(--ink-4);letter-spacing:.10em;background:rgba(28,43,72,.04);padding:2px 7px;border-radius:4px;white-space:nowrap}
+.cmd-path-stage.done .cmd-path-stage-date{background:rgba(30,184,122,.08);color:var(--green-dk)}
+.cmd-path-stage.active .cmd-path-stage-date{background:rgba(201,168,76,.10);color:var(--gold-dk)}
+.cmd-path-stage-status{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:100px;font-size:.4375rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:rgba(28,43,72,.06);border:1px solid var(--bdr-md);color:var(--ink-4)}
+.cmd-path-stage.done .cmd-path-stage-status{background:var(--green-lt);border-color:rgba(30,184,122,.30);color:var(--green-dk)}
+.cmd-path-stage.active .cmd-path-stage-status{background:var(--gold-lt);border-color:rgba(201,168,76,.40);color:var(--gold-dk)}
+.cmd-path-stage-detail{display:none;font-size:.6875rem;color:var(--ink-3);line-height:1.55;margin-top:8px;padding:9px 11px;background:rgba(201,168,76,.05);border:1px dashed rgba(201,168,76,.30);border-radius:7px}
+.cmd-path-stage.active .cmd-path-stage-detail{display:block}
+.cmd-path-stage-detail strong{color:var(--gold-dk);font-weight:700}
+
+/* Evidence Vault */
+.cmd-vault-card{background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:14px 16px 16px;box-shadow:0 2px 12px rgba(28,43,72,.05);position:relative;overflow:hidden}
+.cmd-vault-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--green));opacity:.7}
+.cmd-vault-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.cmd-vault-label{font-size:.4375rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-5);display:flex;align-items:center;gap:8px}
+.cmd-vault-label::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.cmd-vault-progress{display:flex;align-items:center;gap:9px}
+.cmd-vault-progress-track{width:72px;height:5px;background:rgba(28,43,72,.06);border-radius:3px;overflow:hidden}
+.cmd-vault-progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green-dk),var(--green));transition:width 1s cubic-bezier(.22,1,.36,1);width:0}
+.cmd-vault-progress-text{font-family:var(--mono);font-size:.5625rem;font-weight:700;color:var(--ink-3);letter-spacing:.04em;white-space:nowrap}
+.cmd-vault-grid{display:grid;grid-template-columns:1fr;gap:8px}
+.cmd-vault-item{display:flex;gap:11px;padding:11px 12px;background:#FAFBFD;border:1px solid var(--bdr);border-radius:9px;align-items:flex-start;transition:all .15s ease}
+.cmd-vault-item:hover{border-color:rgba(30,107,90,.22);background:#F4F7FB}
+.cmd-vault-item.uploaded{background:rgba(30,184,122,.05);border-color:rgba(30,184,122,.24)}
+.cmd-vault-item.missing{background:rgba(240,165,0,.04);border-color:rgba(240,165,0,.22)}
+.cmd-vault-item.optional{background:#FAFBFD;border-color:var(--bdr)}
+.cmd-vault-icon{width:30px;height:30px;border-radius:7px;background:rgba(28,43,72,.05);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cmd-vault-icon svg{width:14px;height:14px;stroke:var(--ink-3);stroke-width:2;fill:none}
+.cmd-vault-item.uploaded .cmd-vault-icon{background:rgba(30,184,122,.14)}
+.cmd-vault-item.uploaded .cmd-vault-icon svg{stroke:var(--green-dk)}
+.cmd-vault-item.missing .cmd-vault-icon{background:rgba(240,165,0,.14)}
+.cmd-vault-item.missing .cmd-vault-icon svg{stroke:var(--amber)}
+.cmd-vault-body{flex:1;min-width:0}
+.cmd-vault-name-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;flex-wrap:wrap}
+.cmd-vault-name{font-size:.75rem;font-weight:700;color:var(--ink);line-height:1.3}
+.cmd-vault-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:100px;font-size:.4rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:rgba(28,43,72,.05);color:var(--ink-4);border:1px solid var(--bdr-md);flex-shrink:0;white-space:nowrap}
+.cmd-vault-item.uploaded .cmd-vault-badge{background:var(--green-lt);color:var(--green-dk);border-color:rgba(30,184,122,.32)}
+.cmd-vault-item.missing .cmd-vault-badge{background:var(--gold-lt);color:var(--gold-dk);border-color:rgba(240,165,0,.36)}
+.cmd-vault-copy{font-size:.625rem;color:var(--ink-4);line-height:1.5}
+.cmd-vault-foot{margin-top:12px;padding-top:10px;border-top:1px dashed var(--bdr-md);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.cmd-vault-foot-note{font-size:.6875rem;color:var(--ink-4);line-height:1.5}
+.cmd-vault-foot-note strong{color:var(--ink-2);font-weight:700}
+
+/* Desktop refinements for the new premium elements */
+@media (min-width:760px){
+  .cmd-vault-card{padding:18px 24px 22px}
+  .cmd-vault-grid{grid-template-columns:repeat(3,1fr)}
+  .cmd-nba-urgency{top:16px;right:18px}
+  .cmd-nba-skip{padding:11px 14px}
+  .cmd-hb-row{grid-template-columns:1fr 44px}
+}
+
+/* ── Desktop layout: snapshot + (health|nba) side-by-side ── */
+@media (min-width:760px){
+  .cmd-center{padding:24px 24px 28px}
+  .cmd-inner{gap:18px}
+  .cmd-grid{display:grid;grid-template-columns:1fr 1.6fr;gap:18px;align-items:stretch}
+  .cmd-grid > *{height:100%}
+  .cmd-snapshot{padding:18px 22px}
+  .cmd-snapshot-grid{grid-template-columns:repeat(4,1fr)}
+  .cmd-snapshot-title{font-size:1.125rem}
+  .cmd-health{padding:18px 22px 22px;display:flex;flex-direction:column;justify-content:center}
+  .cmd-gauge{width:140px;height:140px}
+  .cmd-gauge-num{font-size:2.125rem}
+  .cmd-nba{padding:22px 24px 20px}
+  .cmd-nba-title{font-size:1.3125rem}
+  .cmd-btn{width:auto}
+  .cmd-nba-actions{flex-direction:row;align-items:center;justify-content:space-between;gap:14px}
+  .cmd-path-card{padding:18px 24px 22px}
+}
 </style>
 <script>function upaFinalPath(file){return window.location.protocol==='file:'?file:'/UPA-Final/'+file;}</script>
 </head>
@@ -2823,6 +3011,292 @@ function seoTryRecover(){
       <button class="tab-btn" onclick="showTab('timeline')">⏱ Timeline</button>
     </div>
   </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       COMMAND CENTER v2 — Case Snapshot, Health Score, Next Best Action,
+       Resolution Path. Sits between case-header and kpi-strip. Populated
+       by inline script at end of body after personalization completes.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="cmd-center" id="cmd-center" aria-label="Case command center">
+    <div class="cmd-inner">
+
+      <!-- Case Snapshot -->
+      <div class="cmd-snapshot">
+        <div class="cmd-snapshot-head">
+          <div class="cmd-snapshot-title" id="cmd-snap-title">Your case</div>
+          <div class="cmd-snapshot-ref" id="cmd-snap-ref">Case ref · today</div>
+        </div>
+        <div class="cmd-snapshot-grid">
+          <div>
+            <div class="cmd-snap-item-lbl">Provider</div>
+            <div class="cmd-snap-item-val" id="cmd-snap-provider">—</div>
+          </div>
+          <div>
+            <div class="cmd-snap-item-lbl">Bill amount</div>
+            <div class="cmd-snap-item-val" id="cmd-snap-amount">—</div>
+          </div>
+          <div>
+            <div class="cmd-snap-item-lbl">Coverage</div>
+            <div class="cmd-snap-item-val" id="cmd-snap-coverage">—</div>
+          </div>
+          <div>
+            <div class="cmd-snap-item-lbl">Service date</div>
+            <div class="cmd-snap-item-val" id="cmd-snap-dos">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row: Health Score + Next Best Action -->
+      <div class="cmd-grid">
+
+        <!-- Case Health Score -->
+        <div class="cmd-health" aria-label="Case health score">
+          <div class="cmd-label">Case health score</div>
+          <div class="cmd-gauge" role="img" aria-labelledby="cmd-health-num">
+            <svg viewBox="0 0 120 120">
+              <circle class="cmd-gauge-track" cx="60" cy="60" r="50" fill="none" stroke-width="9"/>
+              <circle class="cmd-gauge-fill" id="cmd-gauge-fill" cx="60" cy="60" r="50" fill="none" stroke="url(#cmd-health-gradient)" stroke-width="9" stroke-dasharray="314.159" stroke-dashoffset="314.159"/>
+              <defs>
+                <linearGradient id="cmd-health-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#158A5C"/>
+                  <stop offset="100%" stop-color="#1EB87A"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="cmd-gauge-value">
+              <div class="cmd-gauge-num" id="cmd-health-num">—</div>
+              <div class="cmd-gauge-pct">of 100</div>
+            </div>
+          </div>
+          <div class="cmd-health-status" id="cmd-health-status">Calculating…</div>
+          <div class="cmd-health-detail" id="cmd-health-detail">Based on provider, amount, coverage, and intake completeness.</div>
+
+          <!-- Score breakdown bars — shows what's pulling the score up/down -->
+          <div class="cmd-health-breakdown">
+            <div class="cmd-hb-title">Score breakdown</div>
+            <div class="cmd-hb-row">
+              <div class="cmd-hb-label-wrap">
+                <div class="cmd-hb-label">Documentation completeness</div>
+                <div class="cmd-hb-track"><div class="cmd-hb-fill" id="cmd-hb-doc" data-score="0"></div></div>
+              </div>
+              <div class="cmd-hb-pct" id="cmd-hb-doc-pct">—</div>
+            </div>
+            <div class="cmd-hb-row">
+              <div class="cmd-hb-label-wrap">
+                <div class="cmd-hb-label">Timing position</div>
+                <div class="cmd-hb-track"><div class="cmd-hb-fill" id="cmd-hb-time" data-score="0"></div></div>
+              </div>
+              <div class="cmd-hb-pct" id="cmd-hb-time-pct">—</div>
+            </div>
+            <div class="cmd-hb-row">
+              <div class="cmd-hb-label-wrap">
+                <div class="cmd-hb-label">Case specificity</div>
+                <div class="cmd-hb-track"><div class="cmd-hb-fill" id="cmd-hb-spec" data-score="0"></div></div>
+              </div>
+              <div class="cmd-hb-pct" id="cmd-hb-spec-pct">—</div>
+            </div>
+            <div class="cmd-hb-row">
+              <div class="cmd-hb-label-wrap">
+                <div class="cmd-hb-label">Action readiness</div>
+                <div class="cmd-hb-track"><div class="cmd-hb-fill" id="cmd-hb-ready" data-score="0"></div></div>
+              </div>
+              <div class="cmd-hb-pct" id="cmd-hb-ready-pct">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next Best Action -->
+        <div class="cmd-nba" aria-label="Next best action">
+          <div class="cmd-nba-urgency" id="cmd-nba-urgency">
+            <span id="cmd-nba-urgency-text">Time-sensitive</span>
+          </div>
+          <div class="cmd-nba-eyebrow">
+            <span class="cmd-nba-dot"></span>
+            Next best action
+          </div>
+          <div class="cmd-nba-title" id="cmd-nba-title">Open your prepared documentation.</div>
+          <div class="cmd-nba-desc" id="cmd-nba-desc">Your case packet is drafted. Open the Documents tab to review your first letter, sign it, and send it to your provider or insurer.</div>
+
+          <!-- Inline meta pills: effort, cost, impact, evidence -->
+          <div class="cmd-nba-pills">
+            <span class="cmd-nba-pill">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span id="cmd-nba-pill-effort">~5 min effort</span>
+            </span>
+            <span class="cmd-nba-pill success">
+              <svg viewBox="0 0 24 24"><path d="m20 6-11 11-5-5"/></svg>
+              <span id="cmd-nba-pill-cost">$0 cost</span>
+            </span>
+            <span class="cmd-nba-pill accent">
+              <svg viewBox="0 0 24 24"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+              <span id="cmd-nba-pill-impact">High impact</span>
+            </span>
+          </div>
+
+          <div class="cmd-nba-actions">
+            <a class="cmd-btn cmd-btn-primary" id="cmd-nba-cta" href="#tab-documents" onclick="showTab('documents');return false;">
+              Open my documents
+              <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </div>
+
+          <!-- If you skip this — consequence/cost-of-delay -->
+          <div class="cmd-nba-skip">
+            <svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span><strong>If you skip this:</strong> <span id="cmd-nba-skip-text">Most plans set a 180-day window from the denial date. Acting this week keeps the standard appeal path open; waiting can push you into harder escalation channels.</span></span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Resolution Path Timeline (enhanced with date pills + status badges + active-stage detail) -->
+      <div class="cmd-path-card">
+        <div class="cmd-label">Resolution path</div>
+        <div class="cmd-path" id="cmd-path">
+
+          <div class="cmd-path-stage done" data-stage="prepared">
+            <div class="cmd-path-dot"></div>
+            <div class="cmd-path-stage-body">
+              <div class="cmd-path-stage-head">
+                <div class="cmd-path-stage-head-left">
+                  <div class="cmd-path-label">Documentation prepared</div>
+                  <span class="cmd-path-stage-date">T + 0</span>
+                </div>
+                <span class="cmd-path-stage-status">Complete</span>
+              </div>
+              <div class="cmd-path-meta" id="cmd-path-stage-1-meta">Today · Case file built from intake</div>
+            </div>
+          </div>
+
+          <div class="cmd-path-stage active" data-stage="send">
+            <div class="cmd-path-dot"></div>
+            <div class="cmd-path-stage-body">
+              <div class="cmd-path-stage-head">
+                <div class="cmd-path-stage-head-left">
+                  <div class="cmd-path-label" id="cmd-path-stage-2-label">Send to provider or insurer</div>
+                  <span class="cmd-path-stage-date">T + 0</span>
+                </div>
+                <span class="cmd-path-stage-status">Do now</span>
+              </div>
+              <div class="cmd-path-meta">Today · ~5 minutes to send</div>
+              <div class="cmd-path-stage-detail" id="cmd-path-stage-2-detail">
+                <strong>Why this stage matters:</strong> sending in writing locks the timestamp and forces a paper trail. Verbal contact alone does not create a defensible record.
+              </div>
+            </div>
+          </div>
+
+          <div class="cmd-path-stage" data-stage="response">
+            <div class="cmd-path-dot"></div>
+            <div class="cmd-path-stage-body">
+              <div class="cmd-path-stage-head">
+                <div class="cmd-path-stage-head-left">
+                  <div class="cmd-path-label">Written response received</div>
+                  <span class="cmd-path-stage-date">T + 14–30 d</span>
+                </div>
+                <span class="cmd-path-stage-status">Awaiting</span>
+              </div>
+              <div class="cmd-path-meta">Use the included follow-up cadence at day 14</div>
+            </div>
+          </div>
+
+          <div class="cmd-path-stage" data-stage="resolution">
+            <div class="cmd-path-dot"></div>
+            <div class="cmd-path-stage-body">
+              <div class="cmd-path-stage-head">
+                <div class="cmd-path-stage-head-left">
+                  <div class="cmd-path-label">Resolution or escalation</div>
+                  <span class="cmd-path-stage-date">T + 45–60 d</span>
+                </div>
+                <span class="cmd-path-stage-status">Pending</span>
+              </div>
+              <div class="cmd-path-meta">Adjustment · refund · or escalation to plan administrator</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ───────────────────────────────────────────────────────────────────
+           EVIDENCE VAULT — what documentation strengthens the case + what's
+           still missing. Reads as a forensic checklist. Adapts based on
+           localStorage.upa.entry.source (denial vs billing review).
+           ─────────────────────────────────────────────────────────────────── -->
+      <div class="cmd-vault-card" aria-label="Evidence vault">
+        <div class="cmd-vault-head">
+          <div class="cmd-vault-label">Evidence vault</div>
+          <div class="cmd-vault-progress">
+            <div class="cmd-vault-progress-track"><div class="cmd-vault-progress-fill" id="cmd-vault-fill"></div></div>
+            <div class="cmd-vault-progress-text" id="cmd-vault-pct">0 / 6 documented</div>
+          </div>
+        </div>
+        <div class="cmd-vault-grid" id="cmd-vault-grid">
+          <div class="cmd-vault-item missing" data-vault-key="primary">
+            <div class="cmd-vault-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></div>
+            <div class="cmd-vault-body">
+              <div class="cmd-vault-name-row">
+                <div class="cmd-vault-name" id="cmd-vault-1-name">Itemized bill or denial letter</div>
+                <span class="cmd-vault-badge">Add to strengthen</span>
+              </div>
+              <div class="cmd-vault-copy" id="cmd-vault-1-copy">The primary document that anchors every other line in your case. Without it the appeal references are generalized.</div>
+            </div>
+          </div>
+          <div class="cmd-vault-item missing" data-vault-key="eob">
+            <div class="cmd-vault-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></div>
+            <div class="cmd-vault-body">
+              <div class="cmd-vault-name-row">
+                <div class="cmd-vault-name">EOB (Explanation of Benefits)</div>
+                <span class="cmd-vault-badge">Add to strengthen</span>
+              </div>
+              <div class="cmd-vault-copy">The insurer's record of what they paid, denied, or applied to deductible. Mismatches with the bill are leverage.</div>
+            </div>
+          </div>
+          <div class="cmd-vault-item missing" data-vault-key="policy">
+            <div class="cmd-vault-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div class="cmd-vault-body">
+              <div class="cmd-vault-name-row">
+                <div class="cmd-vault-name">Insurance card / plan summary</div>
+                <span class="cmd-vault-badge">Add to strengthen</span>
+              </div>
+              <div class="cmd-vault-copy">Member ID, group number, and plan type. Tells the appeal which review framework applies (ERISA, ACA, Medicare).</div>
+            </div>
+          </div>
+          <div class="cmd-vault-item optional" data-vault-key="records">
+            <div class="cmd-vault-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+            <div class="cmd-vault-body">
+              <div class="cmd-vault-name-row">
+                <div class="cmd-vault-name">Provider notes / medical records</div>
+                <span class="cmd-vault-badge">Optional</span>
+              </div>
+              <div class="cmd-vault-copy">Notes from the visit that support medical necessity. Most relevant for "not medically necessary" denials.</div>
+            </div>
+          </div>
+          <div class="cmd-vault-item optional" data-vault-key="priorauth">
+            <div class="cmd-vault-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <div class="cmd-vault-body">
+              <div class="cmd-vault-name-row">
+                <div class="cmd-vault-name">Prior authorization record</div>
+                <span class="cmd-vault-badge">Optional</span>
+              </div>
+              <div class="cmd-vault-copy">If the service required prior auth, the approval reference number turns a denial into a procedural error.</div>
+            </div>
+          </div>
+          <div class="cmd-vault-item optional" data-vault-key="log">
+            <div class="cmd-vault-icon"><svg viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18"/></svg></div>
+            <div class="cmd-vault-body">
+              <div class="cmd-vault-name-row">
+                <div class="cmd-vault-name">Contact log / call notes</div>
+                <span class="cmd-vault-badge">Optional</span>
+              </div>
+              <div class="cmd-vault-copy">Every phone call you make — date, time, rep name, reference number. Use the call script in the Action Plan tab.</div>
+            </div>
+          </div>
+        </div>
+        <div class="cmd-vault-foot">
+          <div class="cmd-vault-foot-note"><strong>Why a vault?</strong> Each piece of evidence shifts review tone from "interpretation" to "documentation". Stronger vault = clearer appeal.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
 
   <!-- KPI strip -->
   <div class="kpi-strip">
@@ -3623,9 +4097,30 @@ function showTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => {
     if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + name + "'")) b.classList.add('active');
   });
+  try {
+    if (typeof MTN_LABELS !== 'undefined' && MTN_LABELS[name]) {
+      var label = document.getElementById('mtn-current-label');
+      if (label) label.textContent = MTN_LABELS[name];
+      document.querySelectorAll('.mtn-item').forEach(function(el){
+        el.classList.toggle('on', el.getAttribute('onclick') && el.getAttribute('onclick').indexOf("'" + name + "'") !== -1);
+      });
+    }
+  } catch(e) {}
   if (name === 'overview' || name === 'financials') setTimeout(animateBars, 80);
   if (name === 'financials') { setTimeout(animateWaterfall, 80); setTimeout(triggerShimmer, 600); }
 }
+window.showTab = showTab;
+
+document.addEventListener('click', function(evt){
+  var target = evt.target;
+  var btn = target && target.closest ? target.closest('.tab-btn') : null;
+  if(!btn || !btn.closest('.tab-bar')) return;
+  var raw = btn.getAttribute('onclick') || '';
+  var match = raw.match(/showTab\(['"]([^'"]+)['"]\)/);
+  if(!match || !match[1]) return;
+  evt.preventDefault();
+  window.showTab(match[1]);
+});
 
 /* ── Mobile bottom next/back bar logic ── */
 (function(){
@@ -5021,14 +5516,25 @@ function ensureTourEls(){
 }
 
 window.addEventListener('load', function(){
-  // Tour fires once for ALL new users — desktop AND mobile.
-  // upa_tour_shown flag prevents repeat on subsequent visits.
-  // Force-show with ?tour=1 in URL (for testing or returning users).
-  let shown = false;
+  // Tour fires once per paid case. The old global upa_tour_shown flag is
+  // ignored so a previous demo/dashboard visit cannot suppress onboarding
+  // for a newly paid customer.
   var forceTour = /[?&]tour=1/.test(window.location.search);
-  try { shown = localStorage.getItem('upa_tour_shown') === '1'; } catch(e){}
-  if (!shown || forceTour){
-    try { localStorage.setItem('upa_tour_shown', '1'); } catch(e){}
+  var active = null;
+  var caseId = '';
+  var hasCase = false;
+  var paidVisit = /[?&]unlock=1/.test(window.location.search);
+  try {
+    active = window.UPAState && window.UPAState.activeCase ? window.UPAState.activeCase() : null;
+    caseId = active && (active.caseId || (active.intake && (active.intake._upa_case_id || active.intake.active_case_id))) || '';
+    hasCase = !!(active && active.intake && window.UPAState && window.UPAState.hasIntake && window.UPAState.hasIntake(active.intake));
+    paidVisit = paidVisit || localStorage.getItem('upa.paid') === '1' || !!(active && (active.paid || (active.session && active.session.paid)));
+  } catch(e){}
+  var tourKey = 'upa_tour_paid_case_' + (caseId || 'unknown');
+  var shown = false;
+  try { shown = localStorage.getItem(tourKey) === '1'; } catch(e){}
+  if (forceTour || (paidVisit && hasCase && !shown)){
+    try { localStorage.setItem(tourKey, '1'); } catch(e){}
     // Give mobile an extra 600ms for layout and sidebar to settle before spotlight calc
     var isMobile = window.innerWidth <= 900;
     setTimeout(tourStart, isMobile ? 2000 : 1400);
@@ -5223,6 +5729,255 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     window.setTimeout(runAIDossier, 400);
   }
 
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     COMMAND CENTER v2 — population script. Runs after personalization
+     and reads window.UPACase + localStorage.upa.entry.source to fill
+     the Case Snapshot, Health Score, Next Best Action, and Resolution
+     Path. Defers to existing data; never overwrites user-typed input.
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  function setText(id, text){
+    var el = document.getElementById(id);
+    if(el && text != null) el.textContent = String(text);
+  }
+  function setHTML(id, html){
+    var el = document.getElementById(id);
+    if(el && html != null) el.innerHTML = html;
+  }
+  function entrySource(){
+    try{ return localStorage.getItem('upa.entry.source') || sessionStorage.getItem('upa.entry.source') || ''; }catch(e){ return ''; }
+  }
+  function hasReal(value, fallbacks){
+    if(!value) return false;
+    var v = String(value).toLowerCase();
+    for(var i = 0; i < fallbacks.length; i++){
+      if(v === fallbacks[i].toLowerCase()) return false;
+    }
+    return true;
+  }
+  function paint(){
+    var c = window.UPACase || {};
+    var source = entrySource();
+    var isDenial = source === 'denied-claim';
+
+    // ── Case Snapshot ──────────────────────────────────────────────────
+    var provider     = c.provider     || 'Your provider';
+    var providerLbl  = c.providerLabel || provider;
+    var amount       = (c.amount && (c.amount.display || c.amount.reviewText)) || 'Awaiting itemized bill';
+    var coverage     = c.coverage     || 'Your coverage';
+    var dos          = c.dateOfService || 'On file';
+    var caseName     = c.patientName ? (c.patientName + ' · ' + (isDenial ? 'Denied claim' : 'Billing review')) : (isDenial ? 'Denied claim review' : 'Your billing review');
+    var caseRef      = (c.accountRef ? 'Ref ' + c.accountRef : 'Case ref pending') + ' · ' + (c.prepDate || 'today');
+
+    setText('cmd-snap-title', caseName);
+    setText('cmd-snap-ref', caseRef);
+    setText('cmd-snap-provider', provider);
+    setText('cmd-snap-amount', amount);
+    setText('cmd-snap-coverage', coverage);
+    setText('cmd-snap-dos', dos);
+
+    // ── Case Health Score ──────────────────────────────────────────────
+    // Use detailScore from personalization if present; otherwise compute a
+    // baseline from field completeness so denied-claim buyers (no intake)
+    // still see a meaningful number, not 0.
+    var score = 0;
+    if(typeof c.detailScore === 'number' && c.detailScore > 0){
+      score = Math.max(0, Math.min(100, c.detailScore));
+    } else {
+      // Baseline: 30 points for having a case + 10 per known real field
+      score = 30;
+      if(hasReal(provider, ['Your provider'])) score += 14;
+      if(hasReal(amount, ['Awaiting itemized bill', 'Your bill'])) score += 12;
+      if(hasReal(coverage, ['Your coverage'])) score += 10;
+      if(hasReal(dos, ['On file'])) score += 8;
+      score = Math.min(94, score);
+    }
+    setText('cmd-health-num', score);
+    var fill = document.getElementById('cmd-gauge-fill');
+    if(fill){
+      var circumference = 314.159;
+      var offset = circumference - (circumference * score / 100);
+      // Defer to next frame so transition triggers visibly on load
+      requestAnimationFrame(function(){ fill.style.strokeDashoffset = offset; });
+    }
+    var statusEl = document.getElementById('cmd-health-status');
+    var detailEl = document.getElementById('cmd-health-detail');
+    var statusLabel, statusColor, statusDetail;
+    if(score >= 70){
+      statusLabel = 'Strong · Ready to send';
+      statusColor = '';
+      statusDetail = 'Your case has enough detail to act today. Open the recommended next step on the right.';
+    } else if(score >= 45){
+      statusLabel = 'Building · Add documentation';
+      statusColor = 'amber';
+      statusDetail = isDenial
+        ? 'Add the denial letter, EOB, and provider notes to strengthen the appeal package.'
+        : 'Add your itemized bill or EOB to strengthen the dispute package.';
+    } else {
+      statusLabel = 'Needs documentation';
+      statusColor = 'crimson';
+      statusDetail = 'Add the bill, denial letter, or EOB to build a fuller case profile.';
+    }
+    if(statusEl){
+      statusEl.textContent = statusLabel;
+      statusEl.classList.remove('amber','crimson');
+      if(statusColor) statusEl.classList.add(statusColor);
+    }
+    if(detailEl) detailEl.textContent = statusDetail;
+
+    // ── Next Best Action ───────────────────────────────────────────────
+    var nbaTitle, nbaDesc, nbaCtaLabel;
+    if(isDenial){
+      nbaTitle = 'Send the appeal letter to <strong>' + (hasReal(provider, ['Your provider']) ? provider : 'your insurer') + '</strong>.';
+      nbaDesc  = 'Your appeal letter draft, evidence checklist, phone script, and 30-day follow-up sequence are in the Documents tab. Personalize the letter with your denial reason, then send via portal, certified mail, or fax.';
+      nbaCtaLabel = 'Open my appeal letter';
+    } else if(c.issues && c.issues[0] && c.issues[0].action){
+      nbaTitle = 'Send the itemized statement request to <strong>' + (hasReal(provider, ['Your provider']) ? provider : 'your provider') + '</strong>.';
+      nbaDesc  = c.issues[0].action || 'Open the Documents tab, review your first letter, sign it, and send it certified or via the provider portal.';
+      nbaCtaLabel = 'Open my letter';
+    } else {
+      nbaTitle = 'Send the itemized statement request to <strong>' + (hasReal(provider, ['Your provider']) ? provider : 'your provider') + '</strong>.';
+      nbaDesc  = 'Your letter is drafted in the Documents tab. Sign, send certified or via the portal, and use the included follow-up sequence to keep the response window short.';
+      nbaCtaLabel = 'Open my letter';
+    }
+    setHTML('cmd-nba-title', nbaTitle);
+    setText('cmd-nba-desc', nbaDesc);
+    var ctaBtn = document.getElementById('cmd-nba-cta');
+    if(ctaBtn){
+      // Preserve the svg arrow icon — replace only the leading text node
+      var iconHtml = '<svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
+      ctaBtn.innerHTML = nbaCtaLabel + ' ' + iconHtml;
+    }
+
+    // ── Resolution Path ────────────────────────────────────────────────
+    if(isDenial){
+      setText('cmd-path-stage-2-label', 'Send the appeal to the insurer');
+      setHTML('cmd-path-stage-2-detail', '<strong>Why this stage matters:</strong> ERISA §503 sets the procedural window for written appeals on most employer plans (commonly 180 days from the denial date). The clock starts when the denial issues — not when you find this dashboard.');
+    } else {
+      setText('cmd-path-stage-2-label', 'Send the request to ' + (hasReal(provider, ['Your provider']) ? provider : 'your provider'));
+      setHTML('cmd-path-stage-2-detail', '<strong>Why this stage matters:</strong> sending in writing locks the timestamp and forces a documented response. Verbal contact alone does not create a defensible record if the dispute escalates.');
+    }
+
+    // ── Health Score Breakdown ─────────────────────────────────────────
+    // Each sub-metric mirrors a real input to the overall score so the
+    // gauge feels diagnostic, not arbitrary. Values derive from intake
+    // completeness signals on window.UPACase + entry source.
+    var docScore = 0;
+    if(c.uploaded) docScore += 50;
+    if(hasReal(provider, ['Your provider'])) docScore += 25;
+    if(hasReal(amount, ['Awaiting itemized bill', 'Your bill'])) docScore += 25;
+    docScore = Math.min(100, docScore);
+
+    // Timing: assume strong unless we know the case is stale
+    var timeScore = 78;
+    if(isDenial) timeScore = 72; // denial path is always somewhat time-sensitive
+
+    var specScore = 0;
+    if(c.issueCount > 0) specScore += 20;
+    if(c.concernSummary && c.concernSummary.length > 12) specScore += 30;
+    if(hasReal(coverage, ['Your coverage'])) specScore += 25;
+    if(hasReal(dos, ['On file'])) specScore += 25;
+    specScore = Math.min(100, specScore);
+
+    var readyScore = 60;
+    if(c.letterCount && c.letterCount > 0) readyScore += 30;
+    if(c.uploaded) readyScore += 10;
+    readyScore = Math.min(100, readyScore);
+
+    function paintBar(id, val){
+      var fillEl = document.getElementById(id);
+      var pctEl = document.getElementById(id + '-pct');
+      if(fillEl){
+        fillEl.classList.remove('amber','crimson');
+        if(val < 40) fillEl.classList.add('crimson');
+        else if(val < 70) fillEl.classList.add('amber');
+        requestAnimationFrame(function(){ fillEl.style.width = val + '%'; });
+      }
+      if(pctEl) pctEl.textContent = val + '%';
+    }
+    paintBar('cmd-hb-doc',   docScore);
+    paintBar('cmd-hb-time',  timeScore);
+    paintBar('cmd-hb-spec',  specScore);
+    paintBar('cmd-hb-ready', readyScore);
+
+    // ── NBA Urgency + Pills + Skip-Warning ─────────────────────────────
+    var urgencyEl = document.getElementById('cmd-nba-urgency');
+    var urgencyText = document.getElementById('cmd-nba-urgency-text');
+    if(urgencyEl && urgencyText){
+      urgencyEl.classList.remove('med','low');
+      if(isDenial){
+        urgencyEl.classList.remove('med','low'); // crimson default
+        urgencyText.textContent = 'Time-sensitive · Appeal window';
+      } else if(c.uploaded){
+        urgencyEl.classList.add('med');
+        urgencyText.textContent = 'Act this week';
+      } else {
+        urgencyEl.classList.add('low');
+        urgencyText.textContent = 'Standard cadence';
+      }
+    }
+    setText('cmd-nba-pill-effort', '~5 min effort');
+    setText('cmd-nba-pill-cost',   '$0 cost');
+    setText('cmd-nba-pill-impact', isDenial ? 'High impact · Locks the clock' : 'High impact');
+
+    if(isDenial){
+      setText('cmd-nba-skip-text', 'Most employer plans set a 180-day appeal window from the denial date under ERISA §503. Acting this week keeps the standard internal appeal path open; waiting can push the case into the external review or regulator channel.');
+    } else {
+      setText('cmd-nba-skip-text', 'Once a bill is paid, recovering money is harder. Send the itemized request before paying any disputed portion — that single step preserves every other lever in the case.');
+    }
+
+    // ── Evidence Vault ──────────────────────────────────────────────────
+    // Tailor the primary document name + copy to entry source.
+    if(isDenial){
+      setText('cmd-vault-1-name', 'Denial letter or denial notice');
+      setText('cmd-vault-1-copy', 'The insurer\'s written denial — including the denial reason code, the policy provision cited, and the appeal procedure. Every appeal sentence anchors to this.');
+    } else {
+      setText('cmd-vault-1-name', 'Itemized bill (line-by-line)');
+      setText('cmd-vault-1-copy', 'The provider\'s full itemized statement — CPT/HCPCS codes, units, modifiers, charges. Every dispute line anchors to this.');
+    }
+
+    // Mark primary as uploaded if the user has uploaded a bill
+    var primaryItem = document.querySelector('.cmd-vault-item[data-vault-key="primary"]');
+    if(primaryItem){
+      if(c.uploaded){
+        primaryItem.classList.remove('missing','optional');
+        primaryItem.classList.add('uploaded');
+        var badge = primaryItem.querySelector('.cmd-vault-badge');
+        if(badge) badge.textContent = 'Uploaded';
+      }
+    }
+
+    // Update progress: count uploaded items
+    var totalItems = document.querySelectorAll('.cmd-vault-item').length;
+    var uploadedItems = document.querySelectorAll('.cmd-vault-item.uploaded').length;
+    var requiredItems = document.querySelectorAll('.cmd-vault-item.missing, .cmd-vault-item.uploaded').length;
+    var fillEl = document.getElementById('cmd-vault-fill');
+    var pctEl = document.getElementById('cmd-vault-pct');
+    if(fillEl){
+      var fillPct = totalItems ? Math.round((uploadedItems / totalItems) * 100) : 0;
+      requestAnimationFrame(function(){ fillEl.style.width = fillPct + '%'; });
+    }
+    if(pctEl){
+      pctEl.textContent = uploadedItems + ' / ' + totalItems + ' documented';
+    }
+  }
+
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+  ready(function(){
+    // Run once immediately for fast paint, then again after personalization
+    // has had a chance to populate window.UPACase (matches the load+50ms
+    // safety-net pattern already used by upa-case-personalization.js).
+    paint();
+    window.setTimeout(paint, 250);
+    window.setTimeout(paint, 1200);
+  });
 })();
 </script>
 <!-- forensic overlay removed for production -->

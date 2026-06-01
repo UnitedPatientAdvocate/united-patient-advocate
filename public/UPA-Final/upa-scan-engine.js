@@ -704,11 +704,18 @@ function writeScanStateToStorage(ext) {
     // whether the subsequent writes succeed.
     [CASE_KEY, PAID_KEY, DASHBOARD_KEY, CHECKOUT_KEY, REVIEW_KEY,
      'upa.case.handoff.token.v1',
-     'upa.dashboard.state.v1'
+     'upa.dashboard.state.v1',
+     'upa.recovery.params.v1',
+     'upa.ai.dossier.v1'
     ].forEach(function(key){
       try{ sessionStorage.removeItem(key); localStorage.removeItem(key); }catch(e){}
     });
     try{ sessionStorage.removeItem('upa.paid'); localStorage.removeItem('upa.paid'); }catch(e){}
+    try{ if(String(window.name || '').indexOf('UPA_RECOVERY:') === 0) window.name = ''; }catch(e){}
+    try{
+      var secure = location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = 'upa_r=; path=/; max-age=0; SameSite=Lax' + secure;
+    }catch(e){}
     console.log('[UPA] 🗑 Stale keys cleared | caseId:', caseId, '| provider:', compat.provider || '—', '| provisional:', !!(ext._provisional));
     // ────────────────────────────────────────────────────────────────────────────
 

@@ -47,6 +47,18 @@
     try{ localStorage.removeItem(key); }catch(e){}
   }
 
+  function clearRecoveryState(){
+    removeJSON(TOKEN_KEY);
+    removeJSON('upa.recovery.params.v1');
+    try{
+      if(String(window.name || '').indexOf('UPA_RECOVERY:') === 0) window.name = '';
+    }catch(e){}
+    try{
+      var secure = location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = 'upa_r=; path=/; max-age=0; SameSite=Lax' + secure;
+    }catch(e){}
+  }
+
   function clean(value){
     return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
   }
@@ -274,6 +286,8 @@
       removeJSON(DASHBOARD_KEY);
       removeJSON(PAID_KEY);
       removeJSON('upa.paid');
+      removeJSON('upa.ai.dossier.v1');
+      clearRecoveryState();
     }
     var session = {
       version:4,
@@ -833,7 +847,7 @@
       try{
         var namedRecovery = (window.name || '').match(/^UPA_RECOVERY:(.+)$/);
         if(namedRecovery && namedRecovery[1]){
-          var windowNameResult = importRecoveryToken(namedRecovery[1], Object.assign({ source:'window-name-recovery' }, meta || {}));
+          var windowNameResult = shouldUseFallbackRecovery(namedRecovery[1]) ? importRecoveryToken(namedRecovery[1], Object.assign({ source:'window-name-recovery' }, meta || {})) : null;
           if(windowNameResult) return windowNameResult;
         }
       }catch(e){}
@@ -852,7 +866,7 @@
             var recoveryTime = rp && rp.ts ? Date.parse(rp.ts) : 0;
             recoveryAgeOk = !recoveryTime || (Date.now() - recoveryTime < 48 * 60 * 60 * 1000);
           }catch(re){}
-          if(recoveryAgeOk){
+          if(recoveryAgeOk && shouldUseFallbackRecovery(storedRecovery)){
             var storedRecoveryResult = importRecoveryToken(storedRecovery, Object.assign({ source:'stored-recovery' }, meta || {}));
             if(storedRecoveryResult) return storedRecoveryResult;
           }
@@ -888,6 +902,20 @@
       }catch(e){}
     }
     return importCaseToken(token, Object.assign({ source: token ? 'stored-token' : 'no-token' }, meta || {}));
+  }
+
+  function shouldUseFallbackRecovery(token){
+    if(!token) return false;
+    var tokenIntake = intakeFromRecoveryToken(token);
+    if(!hasIntake(tokenIntake)) return false;
+    var active = activeEnvelope();
+    var activeIntake = active && active.intake || {};
+    var activeCaseId = active && (active.caseId || caseIdFromIntake(activeIntake)) || '';
+    if(activeCaseId && hasIntake(activeIntake)){
+      var tokenCaseId = caseIdFromIntake(tokenIntake);
+      return !!(tokenCaseId && tokenCaseId === activeCaseId);
+    }
+    return true;
   }
 
   function importRecoveryToken(token, meta){
@@ -999,26 +1027,26 @@
 
   function bestRecoveryIntake(){
     var candidates = [];
-    function add(intake, container, source){
+    function add(intake, container, source, priority){
       if(!intake || typeof intake !== 'object') return;
       var score = recoveryScore(intake);
       if(!score) return;
-      candidates.push({ intake:intake, score:score, time:Math.max(timeValue(intake), timeValue(container || {})), source:source || '' });
+      candidates.push({ intake:intake, score:score, time:Math.max(timeValue(intake), timeValue(container || {})), source:source || '', priority:priority || 0 });
     }
     var active = activeEnvelope();
-    if(active && active.intake) add(active.intake, active, 'active');
-    if(active && active.scan) add(normalizeScanIntake(active.scan), active.scan, 'active-scan');
-    add(readJSON(INTAKE_KEY), null, 'intake');
+    if(active && active.intake) add(active.intake, active, 'active', 100);
+    if(active && active.scan) add(normalizeScanIntake(active.scan), active.scan, 'active-scan', 95);
+    add(readJSON(INTAKE_KEY), null, 'intake', 80);
     var scan = readJSON(SCAN_KEY);
-    add(normalizeScanIntake(scan), scan, 'scan');
+    add(normalizeScanIntake(scan), scan, 'scan', 75);
     var checkout = readJSON(CHECKOUT_KEY);
-    if(checkout && checkout.intake) add(checkout.intake, checkout, 'checkout');
+    if(checkout && checkout.intake) add(checkout.intake, checkout, 'checkout', 60);
     var review = readJSON(REVIEW_KEY);
-    if(review && review.intake) add(review.intake, review, 'review');
+    if(review && review.intake) add(review.intake, review, 'review', 55);
     var paid = readJSON(PAID_KEY);
-    if(paid && paid.intake) add(paid.intake, paid, 'paid');
-    if(paid && paid.session && paid.session.intake) add(paid.session.intake, paid.session, 'paid-session');
-    candidates.sort(function(a,b){ return (b.score - a.score) || (b.time - a.time); });
+    if(paid && paid.intake) add(paid.intake, paid, 'paid', 40);
+    if(paid && paid.session && paid.session.intake) add(paid.session.intake, paid.session, 'paid-session', 35);
+    candidates.sort(function(a,b){ return (b.priority - a.priority) || (b.time - a.time) || (b.score - a.score); });
     return candidates[0] ? candidates[0].intake : {};
   }
 
@@ -1127,7 +1155,11 @@
     var storedScore = recoveryScore(storedIntake);
     var freshIntake = bestRecoveryIntake();
     var freshScore = recoveryScore(freshIntake);
-    if(freshScore >= storedScore && freshScore > 0){
+    var storedCaseId = caseIdFromIntake(storedIntake);
+    var freshCaseId = caseIdFromIntake(freshIntake);
+    var differentActiveCase = !!(freshCaseId && freshCaseId !== storedCaseId);
+    var freshIsNewer = timeValue(freshIntake) >= timeValue(storedIntake);
+    if(freshScore > 0 && (!storedScore || differentActiveCase || freshIsNewer || freshScore >= storedScore)){
       var freshToken = compactRecoveryToken(freshIntake);
       if(freshToken){
         try{ sessionStorage.setItem('upa.recovery.params.v1', freshToken); }catch(e){}
@@ -1292,6 +1324,94 @@
     return session;
   }
 
+  function installDashboardRuntimeGuards(){
+    if(window.__upaDashboardRuntimeGuardsInstalled) return;
+    window.__upaDashboardRuntimeGuardsInstalled = true;
+    var isDashboard = /\/(dashboard|UPA-Final\/04_upa-dashboard\.html|upa-premium-v10\.5\.html)/.test(window.location.pathname || '');
+    if(!isDashboard) return;
+
+    function tabNameFromButton(btn){
+      if(!btn) return '';
+      var direct = btn.getAttribute('data-tab') || '';
+      if(direct) return direct;
+      var raw = btn.getAttribute('onclick') || '';
+      var match = raw.match(/showTab\(['"]([^'"]+)['"]\)/);
+      return match && match[1] ? match[1] : '';
+    }
+
+    function syncMobileTab(name){
+      try{
+        var labels = window.MTN_LABELS || {
+          overview:'Overview',
+          financials:'Money',
+          findings:'Findings',
+          documents:'Documents',
+          actionplan:'Action Plan',
+          timeline:'Timeline'
+        };
+        var label = document.getElementById('mtn-current-label');
+        if(label && labels[name]) label.textContent = labels[name];
+        document.querySelectorAll('.mtn-item').forEach(function(el){
+          var tab = el.getAttribute('data-tab') || tabNameFromButton(el);
+          el.classList.toggle('on', tab === name);
+        });
+      }catch(e){}
+    }
+
+    function exposeAndWrapShowTab(){
+      try{
+        if(typeof window.showTab !== 'function' && typeof showTab === 'function') window.showTab = showTab;
+        if(typeof window.showTab !== 'function' || window.showTab.__upaGuarded) return;
+        var originalShowTab = window.showTab;
+        var guarded = function(name){
+          var result = originalShowTab.apply(this, arguments);
+          syncMobileTab(name);
+          return result;
+        };
+        guarded.__upaGuarded = true;
+        window.showTab = guarded;
+      }catch(e){}
+    }
+
+    exposeAndWrapShowTab();
+    setTimeout(exposeAndWrapShowTab, 0);
+    setTimeout(exposeAndWrapShowTab, 500);
+
+    document.addEventListener('click', function(evt){
+      try{
+        var target = evt.target;
+        var btn = target && target.closest ? target.closest('.tab-btn') : null;
+        if(!btn || !btn.closest('.tab-bar')) return;
+        var name = tabNameFromButton(btn);
+        if(!name || typeof window.showTab !== 'function') return;
+        evt.preventDefault();
+        evt.stopPropagation();
+        exposeAndWrapShowTab();
+        window.showTab(name);
+      }catch(e){}
+    }, true);
+
+    window.addEventListener('load', function(){
+      try{
+        var forceTour = /[?&]tour=1/.test(window.location.search || '');
+        var active = activeEnvelope();
+        var caseId = active && (active.caseId || caseIdFromIntake(active.intake || {})) || '';
+        var hasCase = !!(active && active.intake && hasIntake(active.intake));
+        var paidVisit = /[?&]unlock=1/.test(window.location.search || '') ||
+          localStorage.getItem('upa.paid') === '1' ||
+          !!(active && (active.paid || (active.session && active.session.paid)));
+        var tourKey = 'upa_tour_paid_case_' + (caseId || 'unknown');
+        var shown = localStorage.getItem(tourKey) === '1';
+        if(forceTour || (paidVisit && hasCase && !shown)){
+          localStorage.setItem(tourKey, '1');
+          setTimeout(function(){
+            if(typeof window.tourStart === 'function') window.tourStart();
+          }, window.innerWidth <= 900 ? 2000 : 1400);
+        }
+      }catch(e){}
+    });
+  }
+
   window.UPAState = {
     keys:{
       intake:INTAKE_KEY,
@@ -1331,9 +1451,13 @@
   captureAttribution({ stage:'script-load' });
   track('page_view', { stage:'script-load' });
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', decorateRevenueLinks);
+    document.addEventListener('DOMContentLoaded', function(){
+      decorateRevenueLinks();
+      installDashboardRuntimeGuards();
+    });
   } else {
     decorateRevenueLinks();
+    installDashboardRuntimeGuards();
   }
   restoreSession({ stage:'script-load' });
 })();

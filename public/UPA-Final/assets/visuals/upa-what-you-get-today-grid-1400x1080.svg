@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1080" viewBox="0 0 1400 1080">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF2F7"/><stop offset="1" stop-color="#F7F9FC"/></linearGradient><filter id="s" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#0E1828" flood-opacity=".10"/></filter></defs>
+<rect width="1400" height="1080" fill="url(#bg)"/>
+<g filter="url(#s)"><rect x="90" y="130" width="388" height="280" rx="18" fill="#FFFFFF" stroke="#D8E0EC"/>
+<rect x="90" y="130" width="388" height="42" rx="18" fill="#1E6B5A"/>
+<circle cx="118" cy="196" r="16" fill="#F7F9FC" stroke="#1E6B5A" stroke-width="2"/>
+<text x="146" y="199" font-family="DejaVu Sans" font-size="16" font-weight="800" fill="#1C2B48">See What's Wrong</text>
+<text x="114" y="234" font-family="DejaVu Serif" font-size="20" font-weight="700" fill="#2E4060">Understand the problem clearly.</text>
+<circle cx="118" cy="266" r="4" fill="#1E6B5A"/>
+<text x="132" y="270" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Billing Findings Report</text>
+<circle cx="118" cy="294" r="4" fill="#1E6B5A"/>
+<text x="132" y="298" font-family="DejaVu Sans" font-size="13" fill="#4A6480">EOB Decoder</text>
+<circle cx="118" cy="322" r="4" fill="#1E6B5A"/>
+<text x="132" y="326" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Denial Reason Decoder</text>
+<circle cx="118" cy="350" r="4" fill="#1E6B5A"/>
+<text x="132" y="354" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Financial Review Summary</text>
+<text x="458" y="396" text-anchor="end" font-family="DejaVu Sans Mono" font-size="11" font-weight="700" fill="#7A98B0">4 items</text></g>
+<g filter="url(#s)"><rect x="506" y="130" width="388" height="280" rx="18" fill="#FFFFFF" stroke="#D8E0EC"/>
+<rect x="506" y="130" width="388" height="42" rx="18" fill="#C9A84C"/>
+<circle cx="534" cy="196" r="16" fill="#F7F9FC" stroke="#C9A84C" stroke-width="2"/>
+<text x="562" y="199" font-family="DejaVu Sans" font-size="16" font-weight="800" fill="#1C2B48">Take Action</text>
+<text x="530" y="234" font-family="DejaVu Serif" font-size="20" font-weight="700" fill="#2E4060">Send the right next move.</text>
+<circle cx="534" cy="266" r="4" fill="#C9A84C"/>
+<text x="548" y="270" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Appeal Letter Kit</text>
+<circle cx="534" cy="294" r="4" fill="#C9A84C"/>
+<text x="548" y="298" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Dispute Letter Templates</text>
+<circle cx="534" cy="322" r="4" fill="#C9A84C"/>
+<text x="548" y="326" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Itemized Bill Request Letter</text>
+<circle cx="534" cy="350" r="4" fill="#C9A84C"/>
+<text x="548" y="354" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Insurance Call Scripts</text>
+<circle cx="534" cy="378" r="4" fill="#C9A84C"/>
+<text x="548" y="382" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Provider Contact Guide</text>
+<circle cx="534" cy="406" r="4" fill="#C9A84C"/>
+<text x="548" y="410" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Escalation Playbook</text>
+<text x="874" y="396" text-anchor="end" font-family="DejaVu Sans Mono" font-size="11" font-weight="700" fill="#7A98B0">6 items</text></g>
+<g filter="url(#s)"><rect x="922" y="130" width="388" height="280" rx="18" fill="#FFFFFF" stroke="#D8E0EC"/>
+<rect x="922" y="130" width="388" height="42" rx="18" fill="#1EB87A"/>
+<circle cx="950" cy="196" r="16" fill="#F7F9FC" stroke="#1EB87A" stroke-width="2"/>
+<text x="978" y="199" font-family="DejaVu Sans" font-size="16" font-weight="800" fill="#1C2B48">Stay On Track</text>
+<text x="946" y="234" font-family="DejaVu Serif" font-size="20" font-weight="700" fill="#2E4060">Stay organized and on deadline.</text>
+<circle cx="950" cy="266" r="4" fill="#1EB87A"/>
+<text x="964" y="270" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Appeal Deadline Tracker</text>
+<circle cx="950" cy="294" r="4" fill="#1EB87A"/>
+<text x="964" y="298" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Evidence Checklist</text>
+<circle cx="950" cy="322" r="4" fill="#1EB87A"/>
+<text x="964" y="326" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Call Log Worksheet</text>
+<circle cx="950" cy="350" r="4" fill="#1EB87A"/>
+<text x="964" y="354" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Case Action Plan</text>
+<circle cx="950" cy="378" r="4" fill="#1EB87A"/>
+<text x="964" y="382" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Case Progress Tracker</text>
+<text x="1290" y="396" text-anchor="end" font-family="DejaVu Sans Mono" font-size="11" font-weight="700" fill="#7A98B0">5 items</text></g>
+<g filter="url(#s)"><rect x="298" y="450" width="388" height="280" rx="18" fill="#FFFFFF" stroke="#D8E0EC"/>
+<rect x="298" y="450" width="388" height="42" rx="18" fill="#1C2B48"/>
+<circle cx="326" cy="516" r="16" fill="#F7F9FC" stroke="#1C2B48" stroke-width="2"/>
+<text x="354" y="519" font-family="DejaVu Sans" font-size="16" font-weight="800" fill="#1C2B48">Fast Start</text>
+<text x="322" y="554" font-family="DejaVu Serif" font-size="20" font-weight="700" fill="#2E4060">Start calmly and immediately.</text>
+<circle cx="326" cy="586" r="4" fill="#1C2B48"/>
+<text x="340" y="590" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Quick Start Guide</text>
+<circle cx="326" cy="614" r="4" fill="#1C2B48"/>
+<text x="340" y="618" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Sample Appeal Packet</text>
+<circle cx="326" cy="642" r="4" fill="#1C2B48"/>
+<text x="340" y="646" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Peace Of Mind Checklist</text>
+<text x="666" y="716" text-anchor="end" font-family="DejaVu Sans Mono" font-size="11" font-weight="700" fill="#7A98B0">3 items</text></g>
+<g filter="url(#s)"><rect x="714" y="450" width="388" height="280" rx="18" fill="#FFFFFF" stroke="#D8E0EC"/>
+<rect x="714" y="450" width="388" height="42" rx="18" fill="#243058"/>
+<circle cx="742" cy="516" r="16" fill="#F7F9FC" stroke="#243058" stroke-width="2"/>
+<text x="770" y="519" font-family="DejaVu Sans" font-size="16" font-weight="800" fill="#1C2B48">Workspace</text>
+<text x="738" y="554" font-family="DejaVu Serif" font-size="20" font-weight="700" fill="#2E4060">Keep everything in one place.</text>
+<circle cx="742" cy="586" r="4" fill="#243058"/>
+<text x="756" y="590" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Case Workspace</text>
+<circle cx="742" cy="614" r="4" fill="#243058"/>
+<text x="756" y="618" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Downloads</text>
+<circle cx="742" cy="642" r="4" fill="#243058"/>
+<text x="756" y="646" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Packet</text>
+<circle cx="742" cy="670" r="4" fill="#243058"/>
+<text x="756" y="674" font-family="DejaVu Sans" font-size="13" fill="#4A6480">Timeline</text>
+<text x="1082" y="716" text-anchor="end" font-family="DejaVu Sans Mono" font-size="11" font-weight="700" fill="#7A98B0">4 items</text></g>
+</svg>

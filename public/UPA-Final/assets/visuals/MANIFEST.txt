@@ -1,0 +1,10 @@
+upa-bundle-hero-1080x1350.webp
+upa-bundle-hero-1600x900.webp
+upa-dashboard-visual-system-1600x1200.svg
+upa-guide-covers-grid-1400x1000.svg
+upa-packet-cover-1200x1600.webp
+upa-packet-spread-1600x1000.webp
+upa-sales-page-visual-system-1600x2200.svg
+upa-tool-cards-grid-1400x1000.svg
+upa-what-you-get-today-grid-1400x1080.svg
+upa-worksheet-mockup-1400x1000.webp

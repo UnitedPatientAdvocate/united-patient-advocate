@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cancer Patient Billing Review — United Patient Advocate</title>
+<meta name="description" content="Oncology billing has more error types, more denial reasons, and more appeal opportunities than any other specialty. We know exactly where to look.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0a1628;
+  --navy-mid:#0f1f3d;
+  --navy-lt:#162444;
+  --cyan:#00BCD4;
+  --cyan-dk:#0097A7;
+  --cyan-lt:#26C6DA;
+  --cyan-glow:rgba(0,188,212,.18);
+  --white:#FFFFFF;
+  --off-white:#EEF4FA;
+  --on-dark:rgba(235,244,255,.94);
+  --on-dark-2:rgba(235,244,255,.62);
+  --on-dark-3:rgba(235,244,255,.32);
+  --on-dark-4:rgba(235,244,255,.14);
+  --bdr:rgba(255,255,255,.08);
+  --bdr-dk:rgba(0,0,0,.10);
+  --ink:#0a1628;
+  --ink-3:#4A6480;
+  --ink-4:#7A98B0;
+  --gold:#C9A84C;
+  --amber:rgba(240,165,0,.90);
+  --green:#1EB87A;
+  --serif:"Playfair Display",Georgia,serif;
+  --sans:"Plus Jakarta Sans",system-ui,sans-serif;
+  --mono:"DM Mono",monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --pop:cubic-bezier(.16,1,.3,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(--navy);color:var(--on-dark)}
+
+/* ═══════════════════════════════════
+   NAV
+═══════════════════════════════════ */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,22,40,.92);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--bdr);
+  padding:0 40px;height:64px;
+  display:flex;align-items:center;gap:0
+}
+.nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-shield{width:36px;height:36px;flex-shrink:0}
+.nav-name{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--white);letter-spacing:-.01em;line-height:1.15}
+.nav-name-sub{font-size:.3125rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--on-dark-3);display:block;margin-top:1px}
+.nav-spacer{flex:1}
+.nav-badge{
+  display:flex;align-items:center;gap:7px;
+  font-size:.5625rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--cyan);background:rgba(0,188,212,.08);
+  border:1px solid rgba(0,188,212,.22);
+  border-radius:100px;padding:6px 14px;
+}
+.nav-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(0.8)}}
+.btn-nav-cta{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--sans);font-size:.875rem;font-weight:700;
+  color:var(--navy);background:var(--cyan);
+  padding:10px 22px;border-radius:100px;border:none;cursor:pointer;
+  text-decoration:none;letter-spacing:.01em;
+  transition:all .2s var(--ease);
+  box-shadow:0 3px 14px rgba(0,188,212,.30);
+  margin-left:14px
+}
+.btn-nav-cta:hover{background:var(--cyan-lt);transform:translateY(-1px);box-shadow:0 5px 20px rgba(0,188,212,.40)}
+
+/* ═══════════════════════════════════
+   TOP RIBBON
+═══════════════════════════════════ */
+.ribbon{
+  background:linear-gradient(90deg,rgba(0,188,212,.12) 0%,rgba(0,188,212,.18) 50%,rgba(0,188,212,.12) 100%);
+  border-bottom:1px solid rgba(0,188,212,.20);
+  padding:10px 20px;
+  text-align:center;
+  font-size:.6875rem;font-weight:600;color:var(--on-dark-2);
+  letter-spacing:.03em
+}
+.ribbon strong{color:var(--cyan);font-weight:800}
+
+/* ═══════════════════════════════════
+   HERO
+═══════════════════════════════════ */
+.hero{
+  background:var(--navy);
+  padding:96px 40px 80px;
+  text-align:center;
+  position:relative;overflow:hidden
+}
+.hero::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 700px 400px at 50% -10%,rgba(0,188,212,.10) 0%,transparent 65%),
+    radial-gradient(ellipse 400px 300px at 80% 80%,rgba(0,188,212,.05) 0%,transparent 60%);
+  pointer-events:none
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.5rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--cyan);
+  background:rgba(0,188,212,.08);
+  border:1px solid rgba(0,188,212,.22);
+  border-radius:100px;padding:6px 16px;margin-bottom:24px
+}
+.hero-eyebrow::before{content:"✦";font-size:.55rem;color:var(--cyan)}
+.hero-hl{
+  font-family:var(--serif);
+  font-size:clamp(2.25rem,5vw,3.5rem);
+  font-weight:900;color:var(--white);
+  letter-spacing:-.035em;line-height:1.10;
+  margin-bottom:18px;position:relative;z-index:1;
+  max-width:760px;margin-left:auto;margin-right:auto
+}
+.hero-hl em{font-style:italic;color:var(--cyan)}
+.hero-sub{
+  font-size:clamp(.9375rem,2vw,1.0625rem);
+  color:var(--on-dark-2);line-height:1.78;
+  max-width:580px;margin:0 auto 36px;
+  position:relative;z-index:1
+}
+.hero-cta-group{display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;z-index:1}
+.cta-primary{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--sans);font-size:1rem;font-weight:800;
+  color:var(--navy);background:var(--cyan);
+  padding:17px 38px;border-radius:100px;border:none;cursor:pointer;
+  text-decoration:none;letter-spacing:.01em;
+  transition:all .22s var(--ease);
+  box-shadow:0 4px 24px rgba(0,188,212,.40),0 10px 48px rgba(0,188,212,.18)
+}
+.cta-primary:hover{background:var(--cyan-lt);transform:translateY(-2px);box-shadow:0 6px 32px rgba(0,188,212,.55)}
+.cta-primary svg{width:16px;height:16px;stroke:var(--navy);stroke-width:2.5;fill:none;flex-shrink:0}
+.cta-secondary{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.875rem;font-weight:600;
+  color:var(--on-dark-2);text-decoration:none;
+  border:1px solid var(--bdr);
+  padding:11px 24px;border-radius:100px;
+  transition:all .2s var(--ease)
+}
+.cta-secondary:hover{color:var(--white);border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.05)}
+.hero-microcopy{
+  font-size:.5625rem;color:var(--on-dark-3);
+  margin-top:8px;display:flex;align-items:center;justify-content:center;gap:16px;
+  position:relative;z-index:1
+}
+.hero-microcopy span{display:flex;align-items:center;gap:5px}
+.hero-microcopy svg{width:10px;height:10px;stroke:var(--on-dark-3);stroke-width:1.8;fill:none}
+
+/* ═══════════════════════════════════
+   STAT BAR
+═══════════════════════════════════ */
+.stat-bar{
+  background:linear-gradient(135deg,var(--navy-mid) 0%,var(--navy-lt) 100%);
+  border-top:1px solid rgba(0,188,212,.15);
+  border-bottom:1px solid rgba(0,188,212,.15);
+  padding:0;
+}
+.stat-bar-inner{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  max-width:1080px;margin:0 auto
+}
+.stat-item{
+  padding:28px 24px;
+  text-align:center;
+  border-right:1px solid var(--bdr);
+  position:relative
+}
+.stat-item:last-child{border-right:none}
+.stat-val{
+  font-family:var(--serif);font-size:1.75rem;font-weight:900;
+  color:var(--cyan);letter-spacing:-.04em;line-height:1;
+  margin-bottom:6px
+}
+.stat-label{
+  font-size:.625rem;color:var(--on-dark-2);line-height:1.55;
+  font-weight:500
+}
+.stat-label strong{color:var(--white);font-weight:700}
+
+/* ═══════════════════════════════════
+   WHAT WE FIND — SECTION
+═══════════════════════════════════ */
+.section{padding:80px 40px}
+.section-inner{max-width:900px;margin:0 auto}
+.section-inner.wide{max-width:1080px}
+
+.eyebrow{
+  font-size:.4375rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--cyan);margin-bottom:14px;
+  display:flex;align-items:center;justify-content:center;gap:10px
+}
+.eyebrow::before,.eyebrow::after{content:"";width:24px;height:1px;background:rgba(0,188,212,.40)}
+.section-hl{
+  font-family:var(--serif);font-size:clamp(1.75rem,3.5vw,2.375rem);
+  font-weight:700;color:var(--white);
+  letter-spacing:-.03em;line-height:1.18;
+  margin-bottom:12px;text-align:center
+}
+.section-hl em{color:var(--cyan);font-style:italic}
+.section-sub{
+  font-size:.9375rem;color:var(--on-dark-2);line-height:1.75;
+  text-align:center;max-width:560px;margin:0 auto 48px
+}
+
+/* Error list grid */
+.error-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.error-card{
+  background:rgba(255,255,255,.035);
+  border:1px solid var(--bdr);
+  border-radius:14px;
+  padding:22px 24px;
+  display:flex;align-items:flex-start;gap:16px;
+  transition:all .2s var(--ease)
+}
+.error-card:hover{
+  background:rgba(0,188,212,.06);
+  border-color:rgba(0,188,212,.22);
+  transform:translateY(-1px)
+}
+.error-icon{
+  width:40px;height:40px;flex-shrink:0;
+  border-radius:10px;
+  background:rgba(0,188,212,.10);
+  border:1px solid rgba(0,188,212,.20);
+  display:flex;align-items:center;justify-content:center
+}
+.error-icon svg{width:18px;height:18px;stroke:var(--cyan);stroke-width:1.8;fill:none}
+.error-label{
+  font-size:.875rem;font-weight:700;color:var(--white);
+  line-height:1.30;margin-bottom:5px
+}
+.error-desc{font-size:.75rem;color:var(--on-dark-2);line-height:1.65}
+.error-tag{
+  display:inline-block;
+  font-size:.375rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--cyan);background:rgba(0,188,212,.10);
+  border:1px solid rgba(0,188,212,.20);
+  border-radius:100px;padding:3px 9px;margin-top:8px
+}
+
+/* ═══════════════════════════════════
+   EXPLAINER CALLOUT
+═══════════════════════════════════ */
+.callout-band{
+  background:linear-gradient(135deg,rgba(0,188,212,.08) 0%,rgba(0,188,212,.04) 100%);
+  border:1px solid rgba(0,188,212,.18);
+  border-radius:20px;
+  padding:40px 48px;
+  display:flex;align-items:flex-start;gap:28px;
+  max-width:860px;margin:48px auto 0
+}
+.callout-icon-wrap{
+  width:56px;height:56px;flex-shrink:0;
+  border-radius:14px;
+  background:rgba(0,188,212,.12);
+  border:1px solid rgba(0,188,212,.24);
+  display:flex;align-items:center;justify-content:center
+}
+.callout-icon-wrap svg{width:26px;height:26px;stroke:var(--cyan);stroke-width:1.6;fill:none}
+.callout-hl{font-family:var(--serif);font-size:1.125rem;font-weight:700;color:var(--white);margin-bottom:8px;line-height:1.3}
+.callout-body{font-size:.875rem;color:var(--on-dark-2);line-height:1.75}
+.callout-body strong{color:var(--white);font-weight:700}
+
+/* ═══════════════════════════════════
+   WHAT YOU GET — VALUE STACK
+═══════════════════════════════════ */
+.value-section{
+  background:linear-gradient(180deg,var(--navy-mid) 0%,var(--navy) 100%);
+  border-top:1px solid var(--bdr);
+  border-bottom:1px solid var(--bdr)
+}
+.value-header{margin-bottom:48px}
+.value-price-wrap{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(0,188,212,.08);
+  border:1px solid rgba(0,188,212,.20);
+  border-radius:100px;
+  padding:8px 20px;
+  margin-bottom:20px
+}
+.value-price-label{font-size:.5625rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--on-dark-3)}
+.value-price-strike{font-family:var(--mono);font-size:.9375rem;font-weight:700;color:var(--on-dark-3);text-decoration:line-through}
+.value-price-live{font-family:var(--serif);font-size:1.375rem;font-weight:900;color:var(--cyan);letter-spacing:-.03em}
+
+.deliverable-list{display:flex;flex-direction:column;gap:12px;margin-bottom:40px}
+.deliverable{
+  display:flex;align-items:flex-start;gap:16px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--bdr);
+  border-radius:12px;padding:20px 24px;
+  transition:all .2s var(--ease)
+}
+.deliverable:hover{background:rgba(0,188,212,.05);border-color:rgba(0,188,212,.18)}
+.d-number{
+  font-family:var(--mono);font-size:.5625rem;font-weight:700;
+  color:var(--cyan);background:rgba(0,188,212,.10);
+  border:1px solid rgba(0,188,212,.18);
+  border-radius:6px;padding:4px 8px;
+  flex-shrink:0;margin-top:2px;letter-spacing:.04em
+}
+.d-body{flex:1}
+.d-title{font-size:.9375rem;font-weight:700;color:var(--white);margin-bottom:5px;line-height:1.3}
+.d-desc{font-size:.8125rem;color:var(--on-dark-2);line-height:1.65}
+.d-value{
+  font-family:var(--mono);font-size:.6875rem;font-weight:700;
+  color:var(--amber);flex-shrink:0;margin-top:2px
+}
+
+.value-total{
+  background:linear-gradient(135deg,rgba(0,188,212,.10) 0%,rgba(0,188,212,.06) 100%);
+  border:1px solid rgba(0,188,212,.25);
+  border-radius:14px;padding:22px 28px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px
+}
+.vt-label{font-size:.875rem;font-weight:700;color:var(--on-dark-2)}
+.vt-label strong{color:var(--white)}
+.vt-price-group{display:flex;align-items:baseline;gap:12px}
+.vt-retail{font-family:var(--mono);font-size:.875rem;color:var(--on-dark-3);text-decoration:line-through}
+.vt-price{font-family:var(--serif);font-size:2rem;font-weight:900;color:var(--cyan);letter-spacing:-.04em}
+.vt-note{font-size:.5625rem;color:var(--on-dark-3);margin-top:2px}
+
+/* ═══════════════════════════════════
+   PROCESS STEPS
+═══════════════════════════════════ */
+.steps-section{background:var(--navy)}
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;position:relative}
+.steps-grid::before{
+  content:"";position:absolute;top:36px;left:calc(12.5%);right:calc(12.5%);
+  height:1px;background:linear-gradient(90deg,transparent,rgba(0,188,212,.20),rgba(0,188,212,.20),transparent);
+  z-index:0
+}
+.step{
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;padding:0 24px;
+  position:relative;z-index:1
+}
+.step-num{
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(0,188,212,.08);
+  border:1px solid rgba(0,188,212,.25);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:18px;flex-shrink:0;
+  transition:all .2s var(--ease)
+}
+.step:hover .step-num{background:rgba(0,188,212,.15);border-color:rgba(0,188,212,.45)}
+.step-num svg{width:26px;height:26px;stroke:var(--cyan);stroke-width:1.6;fill:none}
+.step-n{font-family:var(--mono);font-size:.375rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:8px}
+.step-title{font-size:.9375rem;font-weight:700;color:var(--white);margin-bottom:8px;line-height:1.3}
+.step-body{font-size:.75rem;color:var(--on-dark-2);line-height:1.65}
+
+/* ═══════════════════════════════════
+   BOTTOM CTA SECTION
+═══════════════════════════════════ */
+.cta-section{
+  background:linear-gradient(135deg,var(--navy-lt) 0%,var(--navy-mid) 100%);
+  border-top:1px solid rgba(0,188,212,.15);
+  padding:96px 40px;text-align:center;
+  position:relative;overflow:hidden
+}
+.cta-section::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse 600px 350px at 50% 50%,rgba(0,188,212,.07) 0%,transparent 65%);
+  pointer-events:none
+}
+.cta-hl{
+  font-family:var(--serif);
+  font-size:clamp(1.875rem,4vw,2.75rem);
+  font-weight:900;color:var(--white);
+  letter-spacing:-.035em;line-height:1.12;
+  margin-bottom:14px;position:relative;z-index:1
+}
+.cta-hl em{font-style:italic;color:var(--cyan)}
+.cta-sub{
+  font-size:.9375rem;color:var(--on-dark-2);line-height:1.75;
+  max-width:500px;margin:0 auto 36px;
+  position:relative;z-index:1
+}
+.cta-btn-group{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  position:relative;z-index:1
+}
+.cta-trust-row{
+  display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;
+  margin-top:32px;position:relative;z-index:1
+}
+.trust-item{
+  display:flex;align-items:center;gap:7px;
+  font-size:.5625rem;font-weight:600;color:var(--on-dark-3);
+  letter-spacing:.03em
+}
+.trust-item svg{width:12px;height:12px;stroke:var(--cyan);stroke-width:1.8;fill:none}
+
+/* ═══════════════════════════════════
+   FOOTER
+═══════════════════════════════════ */
+.footer{
+  background:var(--navy);
+  border-top:1px solid var(--bdr);
+  padding:40px 40px 32px
+}
+.footer-inner{max-width:900px;margin:0 auto}
+.footer-top{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:28px}
+.footer-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.footer-brand-name{font-family:var(--serif);font-size:.9375rem;font-weight:700;color:var(--on-dark-2)}
+.footer-links{display:flex;gap:24px;flex-wrap:wrap}
+.footer-links a{font-size:.6875rem;color:var(--on-dark-3);text-decoration:none;transition:color .15s}
+.footer-links a:hover{color:var(--cyan)}
+.footer-divider{height:1px;background:var(--bdr);margin-bottom:20px}
+.footer-disclaimer{
+  font-size:.625rem;color:var(--on-dark-3);
+  line-height:1.72;text-align:center;max-width:720px;margin:0 auto
+}
+.footer-disclaimer a{color:var(--on-dark-2);text-decoration:underline}
+
+/* ═══════════════════════════════════
+   MOBILE
+═══════════════════════════════════ */
+@media(max-width:768px){
+  .nav{padding:0 20px}
+  .nav-badge{display:none}
+  .btn-nav-cta{padding:8px 16px;font-size:.8125rem}
+  .hero{padding:72px 20px 60px}
+  .hero-hl{font-size:2.125rem}
+  .stat-bar-inner{grid-template-columns:repeat(2,1fr)}
+  .stat-item:nth-child(2){border-right:none}
+  .stat-item:nth-child(3){border-top:1px solid var(--bdr)}
+  .section{padding:60px 20px}
+  .error-grid{grid-template-columns:1fr}
+  .callout-band{flex-direction:column;gap:20px;padding:28px 24px}
+  .value-total{flex-direction:column;align-items:flex-start;gap:12px}
+  .steps-grid{grid-template-columns:1fr 1fr}
+  .steps-grid::before{display:none}
+  .step{padding:0 16px 32px}
+  .cta-section{padding:72px 20px}
+  .footer{padding:32px 20px 24px}
+  .footer-top{flex-direction:column;align-items:flex-start;gap:16px}
+  .ribbon{font-size:.625rem}
+}
+@media(max-width:480px){
+  .stat-bar-inner{grid-template-columns:1fr 1fr}
+  .steps-grid{grid-template-columns:1fr}
+  .hero-hl{font-size:1.875rem}
+  .cta-primary{font-size:.9375rem;padding:15px 28px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="/UPA-Final/01_upa-landing.html" class="nav-brand">
+    <div class="nav-shield">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 3L5 9v10c0 7.5 5.5 14.5 13 16.5C26.5 33.5 31 26.5 31 19V9L18 3z" fill="rgba(0,188,212,0.12)" stroke="#00BCD4" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M13 18l3.5 3.5L24 13.5" stroke="#00BCD4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="nav-name">United Patient Advocate</div>
+      <span class="nav-name-sub">Oncology Billing Review</span>
+    </div>
+  </a>
+  <div class="nav-spacer"></div>
+  <div class="nav-badge">Oncology Specialists</div>
+  <a href="/UPA-Final/00_upa-scan.html" class="btn-nav-cta">Free Scan →</a>
+</nav>
+
+<!-- RIBBON -->
+<div class="ribbon">
+  <strong>Cancer bills average 3–5× more line items than standard hospital bills.</strong> More items = more places errors hide.
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">✦ Oncology Billing Review</div>
+  <h1 class="hero-hl">
+    Cancer Bills Are the Most Complex.<br>
+    <em>We Specialize in Them.</em>
+  </h1>
+  <p class="hero-sub">
+    Oncology billing has more error types, more denial reasons, and more appeal opportunities than any other specialty. We know exactly where to look.
+  </p>
+  <div class="hero-cta-group">
+    <a href="/UPA-Final/00_upa-scan.html" class="cta-primary">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg>
+      Scan Your Cancer Bill — Free
+    </a>
+    <a href="/UPA-Final/01_upa-landing.html#begin-review" class="cta-secondary">
+      Start With Our Review Form →
+    </a>
+    <div class="hero-microcopy">
+      <span>
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        No credit card to scan
+      </span>
+      <span>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Results in minutes
+      </span>
+      <span>
+        <svg viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+        Your data is private
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- STAT BAR -->
+<div class="stat-bar">
+  <div class="stat-bar-inner">
+    <div class="stat-item">
+      <div class="stat-val">80%</div>
+      <div class="stat-label"><strong>Up to 80%</strong> of cancer bills contain at least one billing error</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">$2,400+</div>
+      <div class="stat-label"><strong>Average error value</strong> found in oncology billing reviews</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">#1</div>
+      <div class="stat-label"><strong>Most overturned denial:</strong> "Not medically necessary" — most commonly reversed on appeal</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">$97</div>
+      <div class="stat-label"><strong>Free to scan.</strong> $97 to get everything you need to fight back.</div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT WE FIND IN CANCER BILLS -->
+<section class="section" style="background:var(--navy)">
+  <div class="section-inner">
+    <div class="eyebrow">What We Find</div>
+    <h2 class="section-hl">Seven Places Cancer Bills<br><em>Quietly Overcharge You</em></h2>
+    <p class="section-sub">Oncology billing codes are dense, layered, and frequently miscoded — even by experienced billing departments. These are the errors we find most often.</p>
+
+    <div class="error-grid">
+
+      <div class="error-card">
+        <div class="error-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+        </div>
+        <div>
+          <div class="error-label">Chemotherapy Drug Dosage Billing Errors</div>
+          <div class="error-desc">Chemo drugs are billed by dose weight (mg). When your actual dose is less than the billed amount — which is extremely common — you're charged for drugs you never received. Each infusion session is a separate exposure.</div>
+          <span class="error-tag">Extremely Common</span>
+        </div>
+      </div>
+
+      <div class="error-card">
+        <div class="error-icon">
+          <svg viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        </div>
+        <div>
+          <div class="error-label">Duplicate Infusion Administration Charges</div>
+          <div class="error-desc">Hospitals routinely bill the infusion administration fee once per drug administered, even when drugs are given sequentially in the same session. Rules require fees to be bundled — not stacked.</div>
+          <span class="error-tag">High Frequency</span>
+        </div>
+      </div>
+
+      <div class="error-card">
+        <div class="error-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+        </div>
+        <div>
+          <div class="error-label">Out-of-Network Anesthesia on In-Network Surgeries</div>
+          <div class="error-desc">You chose an in-network hospital and surgeon — but the anesthesiologist was independently contracted and out-of-network. This surprise billing is now federally restricted under the No Surprises Act, yet hospitals still try to collect.</div>
+          <span class="error-tag">Federally Disputable</span>
+        </div>
+      </div>
+
+      <div class="error-card">
+        <div class="error-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <div>
+          <div class="error-label">Clinical Trial Billing Violations</div>
+          <div class="error-desc">Federal law prohibits hospitals from billing patients (or their insurance) for the experimental treatment, device, or drug in a clinical trial. Only routine care costs are billable. Violations are serious and 100% disputable.</div>
+          <span class="error-tag">Federal Violation if Billed</span>
+        </div>
+      </div>
+
+      <div class="error-card">
+        <div class="error-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        </div>
+        <div>
+          <div class="error-label">Radiation Treatment Code Errors</div>
+          <div class="error-desc">Radiation therapy uses highly specific CPT codes based on technique, field complexity, and device. Simple vs. complex field codes carry dramatically different reimbursement rates — and miscoding consistently goes in the hospital's favor.</div>
+          <span class="error-tag">Code-Level Audit Needed</span>
+        </div>
+      </div>
+
+      <div class="error-card">
+        <div class="error-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <div>
+          <div class="error-label">Post-Surgery Follow-Up Bundling Violations</div>
+          <div class="error-desc">Follow-up visits within the global surgical period are supposed to be bundled into the original surgery fee — not billed separately. Cancer surgeries have 90-day global periods. Separate billing during this window is a violation.</div>
+          <span class="error-tag">90-Day Window Applies</span>
+        </div>
+      </div>
+
+      <div class="error-card">
+        <div class="error-icon">
+          <svg viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+        </div>
+        <div>
+          <div class="error-label">Denials for "Experimental" When Standard of Care</div>
+          <div class="error-desc">Insurers routinely deny proven oncology treatments — immunotherapies, targeted therapies, certain surgeries — by labeling them "experimental" or "not medically necessary." These denials are appealed and overturned more than any other denial category.</div>
+          <span class="error-tag">Most Commonly Overturned</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout-band">
+      <div class="callout-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div>
+        <div class="callout-hl">Why oncology bills are different from everything else</div>
+        <p class="callout-body">A routine hospitalization might have 20–30 billing codes. A cancer treatment course — surgery, chemo, radiation, imaging, labs, infusions, follow-ups — can generate <strong>hundreds of line items across dozens of visits</strong>. Each one is a separate opportunity for error. Oncology billing departments are among the most complex in healthcare, and errors are not exceptions. They are routine.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIVIDER -->
+<div style="height:1px;background:linear-gradient(90deg,transparent,rgba(0,188,212,.15),transparent)"></div>
+
+<!-- WHAT PATIENTS GET -->
+<section class="section value-section">
+  <div class="section-inner">
+    <div class="value-header" style="text-align:center">
+      <div class="eyebrow">What You Get</div>
+      <h2 class="section-hl">Your Complete Oncology<br><em>Billing Defense Kit</em></h2>
+      <p class="section-sub">Every document you need to audit your bill, dispute the errors, and appeal the denials — written specifically for oncology billing.</p>
+      <div style="display:flex;justify-content:center">
+        <div class="value-price-wrap">
+          <span class="value-price-label">Total Value</span>
+          <span class="value-price-strike">$668</span>
+          <span class="value-price-live">$97 Today</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="deliverable-list">
+
+      <div class="deliverable">
+        <div class="d-number">01</div>
+        <div class="d-body">
+          <div class="d-title">Complete Billing Error Analysis — Oncology Codes</div>
+          <div class="d-desc">A line-by-line review of your bill using oncology-specific CPT, HCPCS, and ICD codes. We flag every questionable charge with the specific reason it may be incorrect, the correct code that should have been used, and the dollar amount at stake.</div>
+        </div>
+        <div class="d-value">$199 value</div>
+      </div>
+
+      <div class="deliverable">
+        <div class="d-number">02</div>
+        <div class="d-body">
+          <div class="d-title">Written Dispute Letter — Exact Insurer Language</div>
+          <div class="d-desc">A formal written dispute using the precise regulatory language that insurance billing departments are required to respond to. Not a template — a customized letter referencing your specific codes, dates, and denial reasons.</div>
+        </div>
+        <div class="d-value">$149 value</div>
+      </div>
+
+      <div class="deliverable">
+        <div class="d-number">03</div>
+        <div class="d-body">
+          <div class="d-title">Appeal Letter for Denied Cancer Treatment Claims</div>
+          <div class="d-desc">For "not medically necessary" or "experimental" denials, a structured clinical appeal letter citing current NCCN guidelines, peer-reviewed evidence, and your physician's documentation — the three elements that drive successful overturns.</div>
+        </div>
+        <div class="d-value">$179 value</div>
+      </div>
+
+      <div class="deliverable">
+        <div class="d-number">04</div>
+        <div class="d-body">
+          <div class="d-title">Call Script for Oncology Billing Departments</div>
+          <div class="d-desc">Word-for-word scripting for phone calls with hospital billing and insurance representatives. Includes the questions that prompt itemized review, the phrases that stop collections escalation, and how to request a supervisor when needed.</div>
+        </div>
+        <div class="d-value">$89 value</div>
+      </div>
+
+      <div class="deliverable">
+        <div class="d-number">05</div>
+        <div class="d-body">
+          <div class="d-title">30-Day Action Plan</div>
+          <div class="d-desc">A structured day-by-day plan mapping exactly what to send, who to call, what deadlines to meet (appeals have strict time limits), and what to escalate to state insurance commissioners if initial disputes are rejected.</div>
+        </div>
+        <div class="d-value">$52 value</div>
+      </div>
+
+    </div>
+
+    <div class="value-total">
+      <div>
+        <div class="vt-label"><strong>Complete Oncology Billing Defense Kit</strong></div>
+        <div class="vt-note" style="font-size:.5625rem;color:var(--on-dark-3);margin-top:4px">All 5 documents delivered digitally within minutes of payment</div>
+      </div>
+      <div>
+        <div class="vt-price-group">
+          <span class="vt-retail">$668</span>
+          <span class="vt-price">$97</span>
+        </div>
+        <div class="vt-note" style="text-align:right">One-time. No subscription.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section steps-section">
+  <div class="section-inner wide">
+    <div class="eyebrow">How It Works</div>
+    <h2 class="section-hl" style="margin-bottom:48px">From Bill to Defense in<br><em>Four Steps</em></h2>
+    <div class="steps-grid">
+
+      <div class="step">
+        <div class="step-num">
+          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        </div>
+        <div class="step-n">Step 01</div>
+        <div class="step-title">Scan Your Bill Free</div>
+        <div class="step-body">Upload your EOB or hospital statement. Our system flags the codes and charge categories that most commonly contain errors in oncology billing.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">
+          <svg viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+        <div class="step-n">Step 02</div>
+        <div class="step-title">See What Was Found</div>
+        <div class="step-body">Review a summary of potential errors by category. No jargon — plain descriptions of what each charge is, why it may be wrong, and what the correct amount should be.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">
+          <svg viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        </div>
+        <div class="step-n">Step 03</div>
+        <div class="step-title">Unlock Your Defense Kit</div>
+        <div class="step-body">For $97, receive your complete personalized dispute package — all five documents ready to send, specific to your bill, your insurer, and your treatment type.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">
+          <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="step-n">Step 04</div>
+        <div class="step-title">Send It. Follow the Plan.</div>
+        <div class="step-body">Use the letters, scripts, and 30-day plan to methodically work through your dispute. Each document tells you exactly what to do next.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- DIVIDER -->
+<div style="height:1px;background:linear-gradient(90deg,transparent,rgba(0,188,212,.12),transparent)"></div>
+
+<!-- BOTTOM CTA -->
+<section class="cta-section">
+  <h2 class="cta-hl">You Handled Treatment.<br><em>Let Us Handle the Bills.</em></h2>
+  <p class="cta-sub">Start free. See what's in your bill before you decide anything. No pressure, no commitment, no credit card required to scan.</p>
+  <div class="cta-btn-group">
+    <a href="/UPA-Final/00_upa-scan.html" class="cta-primary">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg>
+      Scan Your Cancer Bill — Free
+    </a>
+    <a href="/UPA-Final/01_upa-landing.html#begin-review" class="cta-secondary">Start With Our Review Form →</a>
+  </div>
+  <div class="cta-trust-row">
+    <div class="trust-item">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      No credit card to scan
+    </div>
+    <div class="trust-item">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Your information stays private
+    </div>
+    <div class="trust-item">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Scan results in minutes
+    </div>
+    <div class="trust-item">
+      <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      Oncology billing specialists
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <a href="/UPA-Final/01_upa-landing.html" class="footer-brand">
+        <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+          <path d="M18 3L5 9v10c0 7.5 5.5 14.5 13 16.5C26.5 33.5 31 26.5 31 19V9L18 3z" fill="rgba(0,188,212,0.10)" stroke="#00BCD4" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M13 18l3.5 3.5L24 13.5" stroke="#00BCD4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="footer-brand-name">United Patient Advocate</span>
+      </a>
+      <div class="footer-links">
+        <a href="/UPA-Final/01_upa-landing.html">Home</a>
+        <a href="/UPA-Final/00_upa-scan.html">Free Scan</a>
+        <a href="/UPA-Final/01_upa-landing.html#begin-review">Review Form</a>
+      </div>
+    </div>
+    <div class="footer-divider"></div>
+    <p class="footer-disclaimer">
+      United Patient Advocate is not a medical provider. We provide billing review and dispute documentation support. This is not medical advice.<br><br>
+      Results vary based on individual bill complexity, insurer responsiveness, and the nature of identified errors. We provide documentation tools — not legal representation or guaranteed outcomes. Statistics cited reflect published research on medical billing error rates. Individual results are not guaranteed.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

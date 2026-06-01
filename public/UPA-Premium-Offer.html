@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choose Your Package — United Patient Advocate</title>
+  <meta name="description" content="Get your fully customized medical bill dispute package. AI-powered, instant delivery. No waiting, no human middlemen." />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #0a1628;
+      --navy-light: #0f2040;
+      --navy-card:  #112244;
+      --navy-border:#1a3360;
+      --cyan:       #00BCD4;
+      --cyan-dark:  #0097A7;
+      --cyan-glow:  rgba(0,188,212,0.18);
+      --gold:       #FFC107;
+      --gold-dark:  #e6a800;
+      --white:      #ffffff;
+      --white-80:   rgba(255,255,255,0.80);
+      --white-50:   rgba(255,255,255,0.50);
+      --white-20:   rgba(255,255,255,0.12);
+      --green:      #4CAF50;
+      --radius:     14px;
+      --shadow:     0 8px 40px rgba(0,0,0,0.45);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--navy);
+      color: var(--white);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Utility ── */
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 18px; }
+    .text-cyan  { color: var(--cyan); }
+    .text-gold  { color: var(--gold); }
+
+    /* ── Top Bar ── */
+    .topbar {
+      background: var(--navy-light);
+      border-bottom: 1px solid var(--navy-border);
+      padding: 12px 0;
+      text-align: center;
+    }
+    .topbar a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+    .topbar a:hover { opacity: 1; }
+    .topbar a svg { flex-shrink: 0; }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 60px 0 40px;
+      text-align: center;
+      background: linear-gradient(180deg, var(--navy-light) 0%, var(--navy) 100%);
+    }
+    .hero-eyebrow {
+      display: inline-block;
+      background: var(--cyan-glow);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 22px;
+    }
+    .hero h1 {
+      font-size: clamp(1.9rem, 5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      max-width: 720px;
+      margin: 0 auto 18px;
+      letter-spacing: -0.02em;
+    }
+    .hero h1 span { color: var(--cyan); }
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.15rem);
+      color: var(--white-80);
+      max-width: 600px;
+      margin: 0 auto 30px;
+    }
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .badge {
+      background: var(--white-20);
+      border: 1px solid var(--navy-border);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 0.82rem;
+      color: var(--white-80);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .badge svg { color: var(--cyan); flex-shrink: 0; }
+
+    /* ── Section headings ── */
+    .section-title {
+      text-align: center;
+      font-size: clamp(1.4rem, 3.5vw, 2rem);
+      font-weight: 800;
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+    }
+    .section-sub {
+      text-align: center;
+      color: var(--white-80);
+      font-size: 1rem;
+      margin-bottom: 48px;
+    }
+
+    /* ── Pricing Grid ── */
+    .pricing-section { padding: 56px 0 80px; }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ── Card Base ── */
+    .card {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: var(--radius);
+      padding: 32px 28px 36px;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+
+    /* Featured card — tier 2 */
+    .card.featured {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 1px var(--cyan), 0 16px 56px rgba(0,188,212,0.22);
+      background: linear-gradient(160deg, #0d2b50 0%, var(--navy-card) 100%);
+    }
+    .card.featured:hover {
+      box-shadow: 0 0 0 1px var(--cyan), 0 24px 64px rgba(0,188,212,0.30);
+    }
+
+    /* Tier 3 gold accent */
+    .card.gold-card {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px rgba(255,193,7,0.45), 0 16px 56px rgba(255,193,7,0.12);
+    }
+    .card.gold-card:hover {
+      box-shadow: 0 0 0 1px var(--gold), 0 24px 64px rgba(255,193,7,0.18);
+    }
+
+    /* ── Badge (Most Popular / Maximum Leverage) ── */
+    .card-badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 16px;
+      border-radius: 100px;
+    }
+    .badge-cyan {
+      background: var(--cyan);
+      color: var(--navy);
+    }
+    .badge-gold {
+      background: var(--gold);
+      color: var(--navy);
+    }
+
+    /* ── Card Label ── */
+    .card-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .label-default { color: var(--white-50); }
+    .label-cyan    { color: var(--cyan); }
+    .label-gold    { color: var(--gold); }
+
+    /* ── Card Title ── */
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    /* ── Price Block ── */
+    .price-block { margin-bottom: 8px; }
+    .price-main {
+      display: flex;
+      align-items: flex-start;
+      gap: 2px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .price-dollar {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+    .price-amount {
+      font-size: 3.2rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+    .price-once {
+      font-size: 0.82rem;
+      color: var(--white-50);
+      margin-left: 4px;
+      align-self: flex-end;
+      margin-bottom: 8px;
+    }
+    .price-value {
+      font-size: 0.85rem;
+      color: var(--white-50);
+      margin-bottom: 20px;
+    }
+    .price-value strong {
+      color: var(--gold);
+      font-weight: 700;
+    }
+    .price-strikethrough {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    /* ── Divider ── */
+    .card-divider {
+      height: 1px;
+      background: var(--white-20);
+      margin: 20px 0;
+    }
+
+    /* ── Feature List ── */
+    .feature-list {
+      list-style: none;
+      margin-bottom: 28px;
+      flex: 1;
+    }
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.92rem;
+      color: var(--white-80);
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+    .feature-list li .check {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .check-green { color: var(--green); }
+    .check-cyan  { color: var(--cyan); }
+    .check-gold  { color: var(--gold); }
+
+    .feature-label {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+    .fl-ai {
+      background: rgba(0,188,212,0.15);
+      color: var(--cyan);
+      border: 1px solid rgba(0,188,212,0.4);
+    }
+    .fl-new {
+      background: rgba(255,193,7,0.15);
+      color: var(--gold);
+      border: 1px solid rgba(255,193,7,0.4);
+    }
+
+    .includes-header {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white-50);
+      margin-bottom: 12px;
+    }
+
+    /* ── CTA Button ── */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 15px 20px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s;
+      letter-spacing: 0.01em;
+    }
+    .btn:hover  { transform: translateY(-2px); opacity: 0.93; }
+    .btn:active { transform: translateY(0); }
+
+    .btn-default {
+      background: var(--navy-light);
+      border: 1px solid var(--navy-border);
+      color: var(--white-80);
+    }
+    .btn-cyan {
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-dark) 100%);
+      color: var(--navy);
+      box-shadow: 0 6px 28px rgba(0,188,212,0.40);
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+      color: var(--navy);
+      box-shadow: 0 6px 28px rgba(255,193,7,0.35);
+    }
+
+    .btn-sub {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--white-50);
+      margin-top: 8px;
+    }
+
+    /* ── How It Works ── */
+    .how-section {
+      padding: 56px 0;
+      background: var(--navy-light);
+      border-top: 1px solid var(--navy-border);
+      border-bottom: 1px solid var(--navy-border);
+    }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 28px;
+      margin-top: 40px;
+    }
+    .step {
+      text-align: center;
+      padding: 24px 16px;
+    }
+    .step-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--cyan-glow);
+      border: 2px solid var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 1.5rem;
+    }
+    .step h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .step p {
+      font-size: 0.88rem;
+      color: var(--white-80);
+      line-height: 1.5;
+    }
+    .step-arrow {
+      display: none;
+    }
+
+    /* ── AI Promise ── */
+    .promise-section {
+      padding: 56px 0;
+    }
+    .promise-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 36px;
+    }
+    .promise-card {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .promise-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    .promise-card h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .promise-card p {
+      font-size: 0.83rem;
+      color: var(--white-80);
+      line-height: 1.5;
+    }
+
+    /* ── Footer / Disclaimer ── */
+    .disclaimer-bar {
+      background: var(--navy-light);
+      border-top: 1px solid var(--navy-border);
+      padding: 28px 0;
+      text-align: center;
+    }
+    .disclaimer-bar p {
+      font-size: 0.82rem;
+      color: var(--white-50);
+      max-width: 640px;
+      margin: 0 auto 8px;
+      line-height: 1.6;
+    }
+    .disclaimer-bar p strong {
+      color: var(--white-80);
+    }
+    .disclaimer-bar a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+    .disclaimer-bar a:hover { text-decoration: underline; }
+
+    .footer {
+      background: var(--navy);
+      padding: 24px 0;
+      text-align: center;
+      border-top: 1px solid var(--navy-border);
+    }
+    .footer-logo {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+    .footer-logo span { color: var(--cyan); }
+    .footer p {
+      font-size: 0.78rem;
+      color: var(--white-50);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      .hero { padding: 44px 0 32px; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .card.featured { margin: 10px -4px; }
+      .price-amount { font-size: 2.6rem; }
+    }
+
+    @media (min-width: 900px) {
+      .pricing-grid {
+        grid-template-columns: 1fr 1.07fr 1fr;
+        align-items: start;
+      }
+      .card.featured {
+        padding: 40px 30px 44px;
+        margin: -12px 0;
+      }
+    }
+
+    /* ── Sticky scroll hint ── */
+    .scroll-hint {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--white-50);
+      padding: 10px;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50%       { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Top Navigation Bar ── -->
+  <div class="topbar">
+    <a href="https://unitedpatientadvocate.com" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to UnitedPatientAdvocate.com
+    </a>
+  </div>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow">✦ 100% AI-Automated — Zero Human Involvement</div>
+      <h1>
+        Your Bill Scan Is Ready.<br/>
+        <span>Choose How Hard You Fight Back.</span>
+      </h1>
+      <p class="hero-sub">
+        Every package is delivered instantly by AI. No waiting on a person.
+        No scheduling calls. No back-and-forth. Pick your level, pay, and your
+        customized documents are ready within minutes.
+      </p>
+      <div class="hero-badges">
+        <span class="badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Instant delivery
+        </span>
+        <span class="badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          AI-powered analysis
+        </span>
+        <span class="badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Based on your actual bill
+        </span>
+        <span class="badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Secure checkout via Gumroad
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Pricing Cards ── -->
+  <section class="pricing-section">
+    <div class="container">
+      <h2 class="section-title">Select Your Package</h2>
+      <p class="section-sub">All three tiers include your bill scan results. Upgrade for AI-written, personalized documents.</p>
+
+      <div class="pricing-grid">
+
+        <!-- ─── TIER 1 — Essential ─── -->
+        <div class="card">
+          <div class="card-label label-default">Self-Service</div>
+          <div class="card-title">Essential</div>
+
+          <div class="price-block">
+            <div class="price-main">
+              <span class="price-dollar">$</span>
+              <span class="price-amount">97</span>
+              <span class="price-once">one-time</span>
+            </div>
+            <div class="price-value">Your scan results + dispute toolkit</div>
+          </div>
+
+          <div class="card-divider"></div>
+
+          <div class="includes-header">What's Included</div>
+          <ul class="feature-list">
+            <li>
+              <span class="check check-green">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>Full AI bill scan report with flagged errors &amp; overcharges</span>
+            </li>
+            <li>
+              <span class="check check-green">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>Standard dispute letter <em>template</em> (fill-in-the-blank)</span>
+            </li>
+            <li>
+              <span class="check check-green">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>Provider call script — what to say &amp; when</span>
+            </li>
+            <li>
+              <span class="check check-green">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>CPT code reference guide for your bill's charges</span>
+            </li>
+            <li>
+              <span class="check check-green">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>Instant digital delivery via email</span>
+            </li>
+          </ul>
+
+          <a href="https://upadvocate.gumroad.com/l/busfn?wanted=true"
+             class="btn btn-default"
+             target="_blank" rel="noopener">
+            Get My $97 Package
+          </a>
+          <div class="btn-sub">Templates only — you do the customizing</div>
+        </div>
+
+        <!-- ─── TIER 2 — Complete (FEATURED) ─── -->
+        <div class="card featured">
+          <div class="card-badge badge-cyan">⭐ Most Popular</div>
+
+          <div class="card-label label-cyan">AI-Automated</div>
+          <div class="card-title">Complete</div>
+
+          <div class="price-block">
+            <div class="price-main">
+              <span class="price-dollar" style="color:var(--cyan)">$</span>
+              <span class="price-amount" style="color:var(--cyan)">297</span>
+              <span class="price-once">one-time</span>
+            </div>
+            <div class="price-value">
+              <span class="price-strikethrough">Worth $847</span>
+              &nbsp;→&nbsp;<strong>yours for $297</strong>
+            </div>
+          </div>
+
+          <div class="card-divider"></div>
+
+          <div class="includes-header">Everything in Essential, PLUS:</div>
+          <ul class="feature-list">
+            <li>
+              <span class="check check-cyan">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>
+                <strong>AI-written dispute letter</strong> — personalized with your provider name, insurance company, and exact charges listed. Not a template.
+                <span class="feature-label fl-ai">AI-Written</span>
+              </span>
+            </li>
+            <li>
+              <span class="check check-cyan">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>
+                <strong>Custom call script</strong> — pre-filled with your specific case details so you say the right things to the right people
+                <span class="feature-label fl-ai">AI-Written</span>
+              </span>
+            </li>
+            <li>
+              <span class="check check-cyan">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>
+                <strong>Insurance appeal letter</strong> — customized to your specific denial reason and plan details
+                <span class="feature-label fl-ai">AI-Written</span>
+              </span>
+            </li>
+            <li>
+              <span class="check check-cyan">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>
+                <strong>Priority processing</strong> — delivered in minutes, not hours
+                <span class="feature-label fl-new">Fast</span>
+              </span>
+            </li>
+          </ul>
+
+          <a href="https://upadvocate.gumroad.com/l/busfn?wanted=true&tier=2"
+             class="btn btn-cyan"
+             target="_blank" rel="noopener">
+            Get My $297 Complete Package
+          </a>
+          <div class="btn-sub">AI writes everything. You just sign and send.</div>
+        </div>
+
+        <!-- ─── TIER 3 — Total Arsenal ─── -->
+        <div class="card gold-card">
+          <div class="card-badge badge-gold">⚡ Maximum Leverage</div>
+
+          <div class="card-label label-gold">AI-Automated</div>
+          <div class="card-title">Total Arsenal</div>
+
+          <div class="price-block">
+            <div class="price-main">
+              <span class="price-dollar" style="color:var(--gold)">$</span>
+              <span class="price-amount" style="color:var(--gold)">497</span>
+              <span class="price-once">one-time</span>
+            </div>
+            <div class="price-value">
+              <span class="price-strikethrough">Worth $1,400+</span>
+              &nbsp;→&nbsp;<strong>yours for $497</strong>
+            </div>
+          </div>
+
+          <div class="card-divider"></div>
+
+          <div class="includes-header">Everything in Complete, PLUS:</div>
+          <ul class="feature-list">
+            <li>
+              <span class="check check-gold">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>
+                <strong>90-day AI case monitoring</strong> — if no response after 14 days, AI auto-generates a follow-up escalation letter
+                <span class="feature-label fl-new">90 Days</span>
+              </span>
+            </li>
+            <li>
+              <span class="check check-gold">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>
+                <strong>State insurance commissioner complaint</strong> — regulatory complaint letter auto-generated for your state
+                <span class="feature-label fl-ai">AI-Written</span>
+              </span>
+            </li>
+            <li>
+              <span class="check check-gold">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>
+                <strong>CMS complaint template</strong> — if Medicare or Medicaid is involved, this is the nuclear option
+                <span class="feature-label fl-ai">AI-Written</span>
+              </span>
+            </li>
+            <li>
+              <span class="check check-gold">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>
+                <strong>Employer HR complaint template</strong> — if it's employer-sponsored insurance, pressure from the inside
+                <span class="feature-label fl-ai">AI-Written</span>
+              </span>
+            </li>
+            <li>
+              <span class="check check-gold">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>
+                <strong>Full documentation package</strong> — complete paper trail organized for legal use if it ever escalates
+              </span>
+            </li>
+            <li>
+              <span class="check check-gold">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span>
+                <strong>Automated email reminders</strong> — you're notified at each follow-up milestone so nothing falls through the cracks
+              </span>
+            </li>
+          </ul>
+
+          <a href="https://upadvocate.gumroad.com/l/PLACEHOLDER_TIER3"
+             class="btn btn-gold"
+             target="_blank" rel="noopener">
+            Get My $497 Arsenal
+          </a>
+          <div class="btn-sub">Maximum firepower. All AI. All automated.</div>
+        </div>
+
+      </div><!-- /pricing-grid -->
+
+      <div class="scroll-hint" style="margin-top:32px;">▾ See how it works below</div>
+
+    </div>
+  </section>
+
+  <!-- ── How It Works ── -->
+  <section class="how-section">
+    <div class="container">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-sub">Designed from the ground up to be 100% automated. No humans. No delays.</p>
+
+      <div class="steps-grid">
+        <div class="step">
+          <div class="step-icon">📋</div>
+          <h3>1. Scan Your Bill</h3>
+          <p>Upload your medical bill to the UPA scan tool. The AI reads every line item and flags potential errors.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon">🎯</div>
+          <h3>2. Choose Your Package</h3>
+          <p>Pick the tier that matches how hard you want to fight. $97 gives you tools. $297 and $497 give you AI-written weapons.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon">⚡</div>
+          <h3>3. Instant Payment</h3>
+          <p>Secure checkout through Gumroad. Takes 60 seconds. No account required.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon">🤖</div>
+          <h3>4. AI Generates Everything</h3>
+          <p>Your documents are created automatically using your actual bill data. Not templates — real, personalized letters.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon">📬</div>
+          <h3>5. Delivered in Minutes</h3>
+          <p>Your full package lands in your inbox. Print, sign, and send. The AI has already done all the hard work.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── AI Promise / Trust Signals ── -->
+  <section class="promise-section">
+    <div class="container">
+      <h2 class="section-title">Why <span class="text-cyan">AI-Written</span> Beats Templates</h2>
+      <p class="section-sub">Generic dispute letters get ignored. Personalized ones get results.</p>
+
+      <div class="promise-grid">
+        <div class="promise-card">
+          <div class="promise-icon">🎯</div>
+          <div>
+            <h4>Your Exact Provider Name</h4>
+            <p>Every letter is addressed to the specific hospital, clinic, or billing department from your bill — not "Dear Provider."</p>
+          </div>
+        </div>
+        <div class="promise-card">
+          <div class="promise-icon">💰</div>
+          <div>
+            <h4>Your Exact Charges Listed</h4>
+            <p>The AI pulls the specific CPT codes, charge amounts, and dates of service from your scan to build the argument.</p>
+          </div>
+        </div>
+        <div class="promise-card">
+          <div class="promise-icon">📄</div>
+          <div>
+            <h4>Your Denial Reason Addressed</h4>
+            <p>Insurance appeal letters cite your specific denial code and make the precise legal argument to overturn it.</p>
+          </div>
+        </div>
+        <div class="promise-card">
+          <div class="promise-icon">⏱️</div>
+          <div>
+            <h4>Ready in Under 5 Minutes</h4>
+            <p>No waiting on a human consultant. No scheduling. The AI generates everything immediately after payment is confirmed.</p>
+          </div>
+        </div>
+        <div class="promise-card">
+          <div class="promise-icon">🔒</div>
+          <div>
+            <h4>No Human Sees Your Data</h4>
+            <p>Everything runs through secure AI pipelines. Your bill information is processed automatically and never reviewed by a person.</p>
+          </div>
+        </div>
+        <div class="promise-card">
+          <div class="promise-icon">📈</div>
+          <div>
+            <h4>Proven Letter Structure</h4>
+            <p>Documents follow formats that billing departments and insurance adjusters are required to respond to under federal and state law.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Disclaimer ── -->
+  <div class="disclaimer-bar">
+    <div class="container">
+      <p>
+        <strong>All sales final. Digital products. Instant access.</strong>
+        By completing your purchase you receive immediate digital delivery of your selected package.
+      </p>
+      <p>
+        United Patient Advocate is an independent advocacy information service. We are not attorneys and do not provide legal advice.
+        Documents are AI-generated informational tools to help you navigate the billing dispute process.
+        Results vary based on individual circumstances.
+      </p>
+      <p>
+        Questions? <a href="https://unitedpatientadvocate.com" rel="noopener">Visit UnitedPatientAdvocate.com</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">United <span>Patient</span> Advocate</div>
+      <p>AI-powered medical billing advocacy &mdash; <a href="https://unitedpatientadvocate.com" style="color:var(--cyan);text-decoration:none;">unitedpatientadvocate.com</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>

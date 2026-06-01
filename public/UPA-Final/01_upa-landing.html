@@ -86,6 +86,23 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .hs-label{font-size:.5625rem;color:var(--ink-3);line-height:1.5;margin-bottom:2px}
 .hs-source{font-family:var(--mono);font-size:.375rem;color:var(--ink-4);letter-spacing:.04em}
 
+/* ISSUE SELECTOR */
+.issue-selector{background:white;border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);padding:30px 20px 34px}
+.issue-selector-inner{max-width:860px;margin:0 auto}
+.issue-selector-label{font-size:.4375rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);text-align:center;margin-bottom:10px}
+.issue-selector-title{font-family:var(--serif);font-size:1.55rem;font-weight:700;color:var(--navy);line-height:1.2;text-align:center;margin-bottom:8px}
+.issue-selector-sub{font-size:.8125rem;color:var(--ink-3);line-height:1.65;text-align:center;max-width:560px;margin:0 auto 18px}
+.issue-selector-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.issue-card{display:flex;flex-direction:column;min-height:172px;background:var(--bg-warm);border:1px solid var(--bdr);border-radius:10px;padding:18px;text-decoration:none;color:inherit;box-shadow:0 1px 5px rgba(28,43,72,.05);transition:all .2s var(--ease)}
+.issue-card:hover{transform:translateY(-2px);border-color:rgba(30,107,90,.28);box-shadow:0 6px 18px rgba(28,43,72,.10)}
+.issue-card.featured{background:linear-gradient(180deg,#FFFFFF 0%,#F7F9FC 100%);border-color:rgba(30,107,90,.24)}
+.issue-icon{width:34px;height:34px;border-radius:9px;background:rgba(30,107,90,.09);border:1px solid rgba(30,107,90,.15);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.issue-icon svg{width:16px;height:16px;stroke:var(--teal);stroke-width:2;fill:none}
+.issue-card-title{font-size:.9rem;font-weight:800;color:var(--navy);line-height:1.3;margin-bottom:6px}
+.issue-card-desc{font-size:.625rem;color:var(--ink-3);line-height:1.6;margin-bottom:14px;flex:1}
+.issue-card-action{display:flex;align-items:center;gap:6px;font-size:.625rem;font-weight:800;color:var(--teal)}
+.issue-card-action svg{width:12px;height:12px;stroke:currentColor;stroke-width:2.2;fill:none}
+
 /* ═══════════════════════════════════
    INSURANCE LOGOS
 ═══════════════════════════════════ */
@@ -526,6 +543,10 @@ html,body{max-width:100%;overflow-x:hidden}
 .hero-stats{grid-template-columns:1fr}
 .hero-stat{border-right:none;border-bottom:1px solid var(--bdr)}
 .hero-stat:last-child{border-bottom:none}
+.issue-selector{padding:28px 20px 32px}
+.issue-selector-title{font-size:1.35rem}
+.issue-selector-grid{grid-template-columns:1fr}
+.issue-card{min-height:0}
 .research-grid{grid-template-columns:1fr;gap:10px}
 .research-card,.rc-header>div{min-width:0}
 .rc-source,.rc-citation,.rc-desc,.rd-txt{overflow-wrap:anywhere}
@@ -576,7 +597,7 @@ html,body{max-width:100%;overflow-x:hidden}
 <body>
 
 <!-- ANNOUNCEMENT BANNER -->
-<div class="banner">🔥 <strong>Initial Launch Pricing</strong> — Our price will be going up. Lock in your rate now while you still can.</div>
+<div class="banner">🔥 <strong>$668 worth of tools — yours for $97.</strong> Dispute letter + appeal template + call script + CPT guide + action plan. Launch price only.</div>
 
 <!-- NAV -->
 <div class="nav">
@@ -595,11 +616,11 @@ html,body{max-width:100%;overflow-x:hidden}
 <!-- ═══ HERO ═══ -->
 <div class="hero">
   <div class="hero-eyebrow">Free Medical Bill Scan · Independent Dispute Documentation</div>
-  <div class="hero-hl">Upload Your Bill.<br><em>We Find The Errors.</em></div>
-  <div class="hero-sub">Upload your medical bill or EOB and our bill scanner reads it in seconds — identifying the specific charges, codes, and discrepancies that give you the best grounds for dispute. Then we prepare your complete documentation package.</div>
+  <div class="hero-hl">Most Patients Overpay.<br><em>We Find What You Are Owed.</em></div>
+  <p class="hero-sub">Up to 80% of hospital bills contain errors. Insurance companies deny valid claims daily counting on you to give up. Our scanner finds exactly what to dispute — then gives you the $668 toolkit to fight back. Free to scan. $97 to act on everything we find.</p>
   <a href="/UPA-Final/00_upa-scan.html" class="hero-cta">
     <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    Upload My Bill — Free Scan
+    Scan My Bill Free — See What We Find
   </a>
   <a href="#begin-review" class="hero-cta-secondary">No bill yet? Start with the review form →</a>
   <div class="hero-microcopy">
@@ -611,6 +632,60 @@ html,body{max-width:100%;overflow-x:hidden}
     <div class="hero-stat"><div class="hs-val">$88B</div><div class="hs-label">in billing errors on U.S. credit reports</div><div class="hs-source">CFPB · 2025</div></div>
     <div class="hero-stat"><div class="hs-val">45%</div><div class="hs-label">of insured patients reported unexpected bills</div><div class="hs-source">Commonwealth Fund · 2024</div></div>
     <div class="hero-stat"><div class="hs-val">&lt;30s</div><div class="hs-label">to scan your bill and identify findings</div><div class="hs-source">United Patient Advocate</div></div>
+    <div class="hero-stat"><div class="hs-val">$668 → $97</div><div class="hs-label">Launch Price</div><div class="hs-source">Limited-time offer</div></div>
+  </div>
+</div>
+
+<!-- ISSUE SELECTOR -->
+<div class="issue-selector" id="issue-selector">
+  <div class="issue-selector-inner">
+    <div class="issue-selector-label">Choose your starting point</div>
+    <div class="issue-selector-title">What billing problem are you dealing with?</div>
+    <div class="issue-selector-sub">Pick the path that matches your situation. UPA keeps the same review workflow, but starts with the problem you need solved first.</div>
+    <div class="issue-selector-grid">
+      <a href="/denied-claim-help" class="issue-card featured" aria-label="Denied claim help">
+        <div class="issue-icon"><svg viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+        <div class="issue-card-title">Insurance denied my claim</div>
+        <div class="issue-card-desc">Get a focused appeal package for denied claims, EOB disputes, missing records, and coverage explanations.</div>
+        <div class="issue-card-action">Get denied claim help <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+      </a>
+      <a href="/UPA-Final/00_upa-scan.html" class="issue-card" aria-label="Scan a confusing medical bill">
+        <div class="issue-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h6"/></svg></div>
+        <div class="issue-card-title">My bill looks wrong</div>
+        <div class="issue-card-desc">Scan a hospital, ER, specialist, lab, pharmacy, or outpatient bill for billing review findings.</div>
+        <div class="issue-card-action">Scan my bill <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+      </a>
+      <a href="#begin-review" class="issue-card" aria-label="Start a complete billing review">
+        <div class="issue-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <div class="issue-card-title">I need dispute documents</div>
+        <div class="issue-card-desc">Start the existing intake for a full billing review, dispute reference letter, phone script, and action plan.</div>
+        <div class="issue-card-action">Start review <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- SOCIAL PROOF BAR -->
+<div style="background:white;border-top:1px solid rgba(28,43,72,.08);border-bottom:1px solid rgba(28,43,72,.08);padding:28px 40px">
+  <div style="max-width:860px;margin:0 auto">
+    <div style="font-size:.6875rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#7A98B0;text-align:center;margin-bottom:20px">What Patients Found After Their Bill Review</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div style="background:#F7F9FC;border:1px solid rgba(28,43,72,.09);border-radius:10px;padding:16px 18px">
+        <div style="color:#C9A84C;font-size:.75rem;margin-bottom:6px">★★★★★</div>
+        <div style="font-size:.8125rem;color:#2E4060;line-height:1.6;margin-bottom:8px;font-style:italic">"My ER bill had the same procedure code billed twice. The dispute letter was ready in minutes — I sent it and they adjusted the bill."</div>
+        <div style="font-size:.6875rem;font-weight:700;color:#7A98B0;letter-spacing:.08em;text-transform:uppercase">D.M. · Texas · ER Bill, $4,200</div>
+      </div>
+      <div style="background:#F7F9FC;border:1px solid rgba(28,43,72,.09);border-radius:10px;padding:16px 18px">
+        <div style="color:#C9A84C;font-size:.75rem;margin-bottom:6px">★★★★★</div>
+        <div style="font-size:.8125rem;color:#2E4060;line-height:1.6;margin-bottom:8px;font-style:italic">"I had no idea what CPT codes meant. The report explained every charge on my hospital bill in plain language. Worth every penny."</div>
+        <div style="font-size:.6875rem;font-weight:700;color:#7A98B0;letter-spacing:.08em;text-transform:uppercase">R.L. · Florida · Hospital Bill, $11,800</div>
+      </div>
+      <div style="background:#F7F9FC;border:1px solid rgba(28,43,72,.09);border-radius:10px;padding:16px 18px">
+        <div style="color:#C9A84C;font-size:.75rem;margin-bottom:6px">★★★★★</div>
+        <div style="font-size:.8125rem;color:#2E4060;line-height:1.6;margin-bottom:8px;font-style:italic">"My Medicare Advantage plan underpaid on an outpatient procedure. The benchmark comparison and call script gave me exactly what I needed."</div>
+        <div style="font-size:.6875rem;font-weight:700;color:#7A98B0;letter-spacing:.08em;text-transform:uppercase">C.W. · Ohio · Medicare, $2,960</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -788,7 +863,7 @@ html,body{max-width:100%;overflow-x:hidden}
   <div class="section-inner">
     <div class="eyebrow" style="color:var(--teal)">Why Patients Trust Us</div>
     <div class="section-hl">What you can expect<br><em>working with us</em></div>
-    <div class="section-sub" style="margin-bottom:28px">.</div>
+    <div class="section-sub" style="margin-bottom:28px">Independent. Documented. Designed for patients who want to understand their bill before they pay it.</div>
     <div class="expect-list">
       <div class="expect-item"><div class="ei-icon"><svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div><div class="ei-content"><div class="ei-title">Confidential document handling</div><div class="ei-desc">Your bill and personal information are handled with strict confidentiality. Documents are used solely to prepare your billing review and are not retained, shared, or sold.</div></div><span class="ei-badge">Private</span></div>
       <div class="expect-item"><div class="ei-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="ei-content"><div class="ei-title">Built for the U.S. billing system</div><div class="ei-desc">Our review process is built specifically for American healthcare billing — Medicare rates, federal law, and U.S. provider practices.</div></div><span class="ei-badge us">U.S. Focused</span></div>
@@ -2099,6 +2174,204 @@ function selectRange(el, val) {
     revealEl.classList.add("show");
   }
 }
+</script>
+
+<!-- ═══════════════════════════════════
+     EXIT-INTENT POPUP
+═══════════════════════════════════ -->
+<div id="upa-exit-popup" style="
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(8,14,26,0.72);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:20px;
+" role="dialog" aria-modal="true" aria-label="Free checklist offer">
+  <div style="
+    background:linear-gradient(145deg,#162036 0%,#1C2D45 100%);
+    border:1px solid rgba(0,210,255,0.18);border-radius:20px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.04);
+    padding:36px 32px 28px;max-width:440px;width:100%;position:relative;
+  ">
+    <!-- Close button -->
+    <button id="upa-exit-close" style="
+      position:absolute;top:14px;right:14px;
+      background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.10);
+      border-radius:50%;width:30px;height:30px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      color:rgba(235,244,255,0.55);font-size:1rem;line-height:1;
+      transition:all 150ms;
+    " aria-label="Close">&times;</button>
+
+    <!-- Eyebrow -->
+    <div style="
+      font-size:0.5rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;
+      color:rgba(0,210,255,0.75);margin-bottom:12px;display:flex;align-items:center;gap:8px;
+    ">
+      <span style="display:inline-block;width:18px;height:1px;background:rgba(0,210,255,0.40)"></span>
+      Free Resource
+      <span style="display:inline-block;width:18px;height:1px;background:rgba(0,210,255,0.40)"></span>
+    </div>
+
+    <!-- Headline -->
+    <h2 style="
+      font-family:'Playfair Display',Georgia,serif;font-size:1.5rem;font-weight:700;
+      color:rgba(235,244,255,0.96);letter-spacing:-0.02em;line-height:1.2;margin-bottom:8px;
+    ">Wait — before you go</h2>
+
+    <!-- Subtext -->
+    <p style="
+      font-size:0.875rem;color:rgba(235,244,255,0.65);line-height:1.60;margin-bottom:20px;
+    ">Get a free checklist: <strong style="color:rgba(235,244,255,0.90);">7 Things to Check on Every Medical Bill</strong> — sent straight to your inbox.</p>
+
+    <!-- Form -->
+    <div id="upa-exit-form" style="display:flex;flex-direction:column;gap:10px;">
+      <input
+        type="email"
+        id="upa-exit-email"
+        placeholder="your@email.com"
+        autocomplete="email"
+        style="
+          background:rgba(255,255,255,0.07);border:1px solid rgba(0,210,255,0.25);
+          border-radius:9px;padding:12px 15px;font-size:0.9rem;
+          font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+          color:rgba(235,244,255,0.94);outline:none;width:100%;
+          transition:border-color 180ms;
+        "
+        onfocus="this.style.borderColor='rgba(0,210,255,0.55)'"
+        onblur="this.style.borderColor='rgba(0,210,255,0.25)'"
+      >
+      <button id="upa-exit-submit" style="
+        width:100%;padding:13px;
+        background:linear-gradient(135deg,#00C6FF 0%,#0072B5 100%);
+        border:none;border-radius:9px;cursor:pointer;
+        font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+        font-size:0.9rem;font-weight:700;color:#fff;letter-spacing:0.01em;
+        box-shadow:0 4px 16px rgba(0,114,181,0.40);
+        transition:all 180ms cubic-bezier(0.22,1,0.36,1);
+      ">Send Me the Checklist</button>
+    </div>
+
+    <!-- Confirmation (hidden initially) -->
+    <div id="upa-exit-confirm" style="
+      display:none;text-align:center;padding:14px 0 6px;
+      font-size:0.9375rem;font-weight:600;
+      color:rgba(0,210,255,0.90);
+    ">✓ On its way! Check your inbox.</div>
+
+    <p style="font-size:0.5625rem;color:rgba(235,244,255,0.28);margin-top:12px;line-height:1.5;text-align:center;">
+      We respect your privacy. Unsubscribe anytime. No spam.
+    </p>
+  </div>
+</div>
+
+<script>
+(function() {
+  var POPUP_KEY = 'upa_exit_popup_shown';
+  var LEAD_KEY  = 'upa_lead_email';
+
+  // Only show once per session
+  if (sessionStorage.getItem(POPUP_KEY)) return;
+
+  var popup   = document.getElementById('upa-exit-popup');
+  var closeBtn= document.getElementById('upa-exit-close');
+  var submitBtn=document.getElementById('upa-exit-submit');
+  var emailIn = document.getElementById('upa-exit-email');
+  var form    = document.getElementById('upa-exit-form');
+  var confirm = document.getElementById('upa-exit-confirm');
+
+  if (!popup) return;
+
+  function openPopup() {
+    if (sessionStorage.getItem(POPUP_KEY)) return;
+    popup.style.display = 'flex';
+    sessionStorage.setItem(POPUP_KEY, '1');
+    // Auto-focus email after transition
+    setTimeout(function() { if (emailIn) emailIn.focus(); }, 150);
+  }
+
+  function closePopup() {
+    popup.style.display = 'none';
+  }
+
+  // Exit intent: mouse leaves toward top of viewport
+  var triggered = false;
+  document.addEventListener('mouseleave', function(e) {
+    if (triggered) return;
+    if (e.clientY <= 8) { // heading toward browser chrome
+      triggered = true;
+      // Small delay so it doesn't feel jarring
+      setTimeout(openPopup, 200);
+    }
+  });
+
+  // Mobile fallback: show after 45s of inactivity on mobile
+  if (/Mobi|Android/i.test(navigator.userAgent)) {
+    setTimeout(openPopup, 45000);
+  }
+
+  // Close on backdrop click
+  popup.addEventListener('click', function(e) {
+    if (e.target === popup) closePopup();
+  });
+
+  // Close button
+  if (closeBtn) closeBtn.addEventListener('click', closePopup);
+
+  // Close on Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && popup.style.display !== 'none') closePopup();
+  });
+
+  // Hover effect on close btn
+  if (closeBtn) {
+    closeBtn.addEventListener('mouseenter', function() {
+      this.style.background = 'rgba(255,255,255,0.14)';
+      this.style.color = 'rgba(235,244,255,0.90)';
+    });
+    closeBtn.addEventListener('mouseleave', function() {
+      this.style.background = 'rgba(255,255,255,0.07)';
+      this.style.color = 'rgba(235,244,255,0.55)';
+    });
+  }
+
+  // Submit hover effect
+  if (submitBtn) {
+    submitBtn.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-1px)';
+      this.style.boxShadow = '0 6px 22px rgba(0,114,181,0.55)';
+    });
+    submitBtn.addEventListener('mouseleave', function() {
+      this.style.transform = '';
+      this.style.boxShadow = '0 4px 16px rgba(0,114,181,0.40)';
+    });
+  }
+
+  // Submit
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function() {
+      var val = emailIn ? emailIn.value.trim() : '';
+      if (!val || !val.includes('@')) {
+        if (emailIn) {
+          emailIn.focus();
+          emailIn.style.borderColor = 'rgba(224,59,59,0.70)';
+        }
+        return;
+      }
+      // Store lead
+      try { localStorage.setItem(LEAD_KEY, val); } catch(e) {}
+      // Send to formspree
+      fetch('https://formspree.io/f/xkgnrdnp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: val, source: 'exit-intent-popup', page: 'landing', checklist: '7-things' })
+      }).then(function(r){ console.log('[UPA] Exit intent lead →', r.status); })
+        .catch(function(e){ console.warn('[UPA] Exit popup send failed (non-blocking)', e); });
+      // Show confirmation
+      if (form) form.style.display = 'none';
+      if (confirm) confirm.style.display = 'block';
+      // Auto-close after 2.8s
+      setTimeout(closePopup, 2800);
+    });
+  }
+})();
 </script>
 
 </body>

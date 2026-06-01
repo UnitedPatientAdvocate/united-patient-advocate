@@ -66,6 +66,10 @@ body{
 .foot a{color:rgba(234,246,240,.65);text-decoration:underline}
 .error{margin-top:10px;padding:10px 12px;background:rgba(224,59,59,.14);border:1px solid rgba(224,59,59,.35);border-radius:8px;font-size:12px;color:#FFC9C9;line-height:1.45;display:none}
 .error.show{display:block}
+.case-ctx{display:none;margin-bottom:16px;padding:10px 13px;border-radius:8px;background:rgba(32,184,117,.08);border:1px solid rgba(32,184,117,.22)}
+.case-ctx-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(32,184,117,.7);margin-bottom:3px}
+.case-ctx-name{font-size:13px;font-weight:700;color:#EAF6F0;line-height:1.3}
+.case-ctx-detail{font-size:11px;color:rgba(234,246,240,.52);margin-top:2px}
 </style>
 </head>
 <body>
@@ -74,6 +78,13 @@ body{
   <div class="card">
     <div class="h">Two taps to your full review</div>
     <div class="sub">Your case data is loaded on this page. Keep this tab open while you pay — that's how we hand you off to your dashboard with everything intact.</div>
+
+    <!-- Case context bar — shown when case data is available in storage -->
+    <div class="case-ctx" id="case-ctx">
+      <div class="case-ctx-lbl">Your case is saved</div>
+      <div class="case-ctx-name" id="case-ctx-name"></div>
+      <div class="case-ctx-detail" id="case-ctx-detail"></div>
+    </div>
 
     <div class="steps">
       <div class="step active" id="step-1">
@@ -148,6 +159,38 @@ body{
     }
     if(window.UPAState && window.UPAState.markCheckout){
       window.UPAState.markCheckout({ stage:'checkout-bridge', source:'checkout-bridge', intent:intent, gumroadUrl:to });
+    }
+  }catch(e){}
+
+  // Show case context bar if stored case data is available.
+  // Reads upa.active.case.v1 (the processed case object written by the personalization engine).
+  try{
+    var caseRaw = sessionStorage.getItem('upa.active.case.v1') || localStorage.getItem('upa.active.case.v1');
+    if(!caseRaw){
+      // Fall back to raw intake for a minimal name/provider display
+      var intakeRaw = sessionStorage.getItem('upa.intake.v1') || localStorage.getItem('upa.intake.v1');
+      if(intakeRaw){
+        var intakeData = JSON.parse(intakeRaw);
+        caseRaw = JSON.stringify({ patientName: intakeData.patient_name || intakeData.patientName || '', provider: intakeData.provider || '', issues: [] });
+      }
+    }
+    if(caseRaw){
+      var caseData = JSON.parse(caseRaw);
+      var ctxName = caseData.patientName || '';
+      var ctxProvider = caseData.provider || '';
+      var ctxIssues = (caseData.issues && caseData.issues.length) ? caseData.issues.length : 0;
+      if(ctxName || ctxProvider){
+        var ctxEl = document.getElementById('case-ctx');
+        var ctxNameEl = document.getElementById('case-ctx-name');
+        var ctxDetailEl = document.getElementById('case-ctx-detail');
+        if(ctxEl && ctxNameEl){
+          ctxNameEl.textContent = ctxName ? ctxName + (ctxProvider ? ' · ' + ctxProvider : '') : ctxProvider;
+          if(ctxDetailEl && ctxIssues){
+            ctxDetailEl.textContent = ctxIssues + ' billing issue' + (ctxIssues !== 1 ? 's' : '') + ' identified';
+          }
+          ctxEl.style.display = 'block';
+        }
+      }
     }
   }catch(e){}
 

@@ -117,41 +117,61 @@
   }
 
   function caseContext(intake){
-    // H3 FIX: removed window.UPACase read. Using it caused scrubTemplateText() to
-    // diverge from the live dashboard when UPACase was from a prior personalization run
-    // (stale closure) or when called from the scan page before personalization ran (undefined).
-    // All needed fields are already in the intake object from readIntake().
+    // Resolve patient name. Per directive: if not collected, use the explicit
+    // honest fallback "Patient Name Not Provided" — never the misleading
+    // placeholder "Your Name" or the bare "Patient".
+    var rawName = clean(intake.patient_name || intake.patientName || intake.full_name || intake.fullName || intake.name || '');
+    var hasName = !!rawName && rawName.toLowerCase() !== 'patient' && rawName.toLowerCase() !== 'your name';
     return {
-      patient:   clean(intake.patient_name || intake.patientName || intake.full_name || intake.fullName || intake.name || 'Patient') || 'Patient',
-      provider:  clean(intake.provider || intake.providerName || intake.extracted_provider || ''),
-      amount:    clean(intake.bill_amount_other || intake.bill_amount || (intake.extracted_bill_amount ? '$' + intake.extracted_bill_amount : '') || intake.totalBilled || intake.balance || ''),
-      dos:       clean(intake.date_of_service || intake.extracted_date_of_service || intake.service_date || intake.serviceDate || ''),
-      account:   clean(intake.account_number || intake.extracted_account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || ''),
-      coverage:  clean(intake.insurance || intake.extracted_insurance || intake.insuranceType || ''),
-      prepDate:  clean(new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})),
-      email:     clean(intake.email || ''),
-      phone:     clean(intake.phone || '')
+      patient:    hasName ? rawName : 'Patient Name Not Provided',
+      patientHas: hasName,
+      provider:   clean(intake.provider || intake.providerName || intake.extracted_provider || ''),
+      amount:     clean(intake.bill_amount_other || intake.bill_amount || (intake.extracted_bill_amount ? '$' + intake.extracted_bill_amount : '') || intake.totalBilled || intake.balance || ''),
+      dos:        clean(intake.date_of_service || intake.extracted_date_of_service || intake.service_date || intake.serviceDate || ''),
+      account:    clean(intake.account_number || intake.extracted_account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || ''),
+      coverage:   clean(intake.insurance || intake.extracted_insurance || intake.insuranceType || ''),
+      prepDate:   clean(new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})),
+      email:      clean(intake.email || ''),
+      phone:      clean(intake.phone || ''),
+      address:    clean(intake.address || intake.mailingAddress || intake.mailing_address || '')
     };
   }
 
   function scrubTemplateText(html, intake){
     var ctx = caseContext(intake || {});
-    var provider = ctx.provider || 'Provider to confirm';
-    var amount = ctx.amount || 'Amount to confirm';
-    var dos = ctx.dos || 'Date to confirm';
-    var account = ctx.account || 'Account to confirm';
-    var coverage = ctx.coverage || 'Coverage to confirm';
-    var contact = [ctx.email, ctx.phone].filter(Boolean).join(' | ') || 'Contact not provided';
+    var provider = ctx.provider || 'Provider on bill (click to edit)';
+    var amount = ctx.amount || 'Amount on statement (click to edit)';
+    var dos = ctx.dos || 'Service date on statement (click to edit)';
+    var account = ctx.account || 'Account number on statement (click to edit)';
+    var coverage = ctx.coverage || 'Coverage on file (click to edit)';
+    var contact = [ctx.email, ctx.phone].filter(Boolean).join(' · ') || 'Phone & email — click to edit';
+    var addressBlock = ctx.address || 'Mailing address — click to edit';
+    var addrFull = ctx.address
+      ? (ctx.address + (contact && contact !== 'Phone & email — click to edit' ? '<br>' + contact : ''))
+      : (addressBlock + '<br>' + contact);
     return String(html || '')
+      // ── Patient name ─────────────────────────────────────────────────
+      // Catches the original placeholder ("Your Name") AND the historical
+      // demo phrase ("First Name Last Name"). Both map to either the real
+      // patient name from intake or the directive-mandated explicit fallback
+      // "Patient Name Not Provided".
+      .replace(/Your Name/g, ctx.patient)
       .replace(/First Name Last Name/g, ctx.patient)
+      // ── Provider / address ───────────────────────────────────────────
       .replace(/Your Provider/g, provider)
       .replace(/Provider billing address/g, 'Billing address on statement')
+      // ── Address + contact block (multi-line and segmented variants) ──
+      .replace(/Address on file<br>Phone &amp; email on file/g, addrFull)
+      .replace(/Address on file/g, addressBlock)
+      .replace(/Phone &amp; email on file/g, contact)
+      .replace(/Phone & email on file/g, contact)
       .replace(/2847 Coral Springs Drive<br>Hollywood, FL 33021<br>phone number\s*(?:Â·|·|-)\s*patient@example\.com/g, contact)
       .replace(/2847 Coral Springs Drive/g, '')
       .replace(/Hollywood, FL 33021/g, '')
       .replace(/phone number\s*(?:Â·|·|-)\s*patient@example\.com/g, contact)
       .replace(/patient@example\.com/g, ctx.email || '')
       .replace(/\bphone number\b/g, ctx.phone || '')
+      // ── Service dates / amounts / accounts / coverage ────────────────
       .replace(/date of service/g, dos)
       .replace(/Preparation date/g, ctx.prepDate)
       .replace(/Prepared Preparation date/g, 'Prepared ' + ctx.prepDate)
@@ -162,7 +182,12 @@
       .replace(/billing reference/g, account)
       .replace(/Medicare Beneficiary/g, coverage)
       .replace(/Medicare primary/g, coverage)
-      .replace(/Medicare as the primary payer/g, coverage ? coverage + ' as the listed coverage' : 'the listed coverage');
+      .replace(/Medicare as the primary payer/g, coverage ? coverage + ' as the listed coverage' : 'the listed coverage')
+      // ── Liability-language scrub (matches prior credentials directive) ─
+      // "treating provider" / "treating clinician" must NOT appear in
+      // customer-facing letters per the credential-neutrality directive.
+      .replace(/treating provider/g, 'requesting party listed in my medical record')
+      .replace(/treating clinician/g, 'party listed as having performed the service');
   }
 
   function addBase(html, sourceUrl){

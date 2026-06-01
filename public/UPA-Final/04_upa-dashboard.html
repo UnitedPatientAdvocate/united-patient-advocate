@@ -264,8 +264,11 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .tp-green  { background: #0F3A28; color: #8FE3B5; border: 1px solid rgba(143,227,181,0.40); }
 
 /* ── TAB PANELS ── */
-.tab-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-.tab-panel { display: none; overflow-y: auto; flex: 1; }
+/* FIX: .cmd-center (1253px) + siblings exhaust .main's flex space, leaving
+   flex:1 with no remaining height → tab-content collapses to 0px.
+   Solution: let tab-content be a plain block; panels size to their content. */
+.tab-content { display: block; overflow: visible; }
+.tab-panel { display: none; }
 .tab-panel.active { display: block; animation: fadeUp 0.28s var(--ease) both; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
@@ -5767,7 +5770,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     // ── Case Snapshot ──────────────────────────────────────────────────
     var provider     = c.provider     || 'Your provider';
     var providerLbl  = c.providerLabel || provider;
-    var amount       = (c.amount && (c.amount.display || c.amount.reviewText)) || 'Awaiting itemized bill';
+    var amount       = (c.amount && (c.amount.display || c.amount.reviewText)) || 'Pending itemized bill';
     var coverage     = c.coverage     || 'Your coverage';
     var dos          = c.dateOfService || 'On file';
     var caseName     = c.patientName ? (c.patientName + ' · ' + (isDenial ? 'Denied claim' : 'Billing review')) : (isDenial ? 'Denied claim review' : 'Your billing review');
@@ -5791,7 +5794,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       // Baseline: 30 points for having a case + 10 per known real field
       score = 30;
       if(hasReal(provider, ['Your provider'])) score += 14;
-      if(hasReal(amount, ['Awaiting itemized bill', 'Your bill'])) score += 12;
+      if(hasReal(amount, ['Pending itemized bill', 'Your bill'])) score += 12;
       if(hasReal(coverage, ['Your coverage'])) score += 10;
       if(hasReal(dos, ['On file'])) score += 8;
       score = Math.min(94, score);
@@ -5869,7 +5872,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     var docScore = 0;
     if(c.uploaded) docScore += 50;
     if(hasReal(provider, ['Your provider'])) docScore += 25;
-    if(hasReal(amount, ['Awaiting itemized bill', 'Your bill'])) docScore += 25;
+    if(hasReal(amount, ['Pending itemized bill', 'Your bill'])) docScore += 25;
     docScore = Math.min(100, docScore);
 
     // Timing: assume strong unless we know the case is stale

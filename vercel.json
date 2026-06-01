@@ -33,8 +33,20 @@
       "dest": "/UPA-Final/03_upa-preview.html"
     },
     {
+      "src": "/cancer/?",
+      "dest": "/UPA-Final/cancer-patients.html"
+    },
+    {
+      "src": "/cancer-patients\\.html",
+      "dest": "/UPA-Final/cancer-patients.html"
+    },
+    {
+      "src": "/denied-claim-help/?",
+      "dest": "/UPA-Final/denied-claim-help.html"
+    },
+    {
       "src": "/mission-control\\.html",
-      "dest": "/UPA-Final/mission-control.html"
+      "dest": "/mission-control.html"
     },
     {
       "src": "/mission-control-live\\.html",

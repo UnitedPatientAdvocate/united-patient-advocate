@@ -244,6 +244,15 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     </div>
   </div>
 
+  <!-- Findings summary box — hidden until upa-case-personalization.js populates it -->
+  <div class="packet-findings-box" style="margin:0 36px 20px;border:1px solid rgba(30,107,90,.22);border-radius:8px;overflow:hidden;background:var(--white);display:none">
+    <div style="background:linear-gradient(135deg,#0B2844,#153558);padding:9px 16px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:.375rem;font-weight:700;letter-spacing:.20em;text-transform:uppercase;color:rgba(235,244,255,.75)">Billing Issues Identified</span>
+      <span class="pf-count" style="font-family:var(--mono);font-size:.4375rem;color:var(--gold-dk)"></span>
+    </div>
+    <div class="pf-list" style="padding:10px 16px;display:flex;flex-direction:column;gap:7px"></div>
+  </div>
+
   <!-- Packet contents -->
   <div style="padding:0 36px 24px">
     <div style="font-size:.4rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink4);margin-bottom:12px;display:flex;align-items:center;gap:8px">What's Inside This 11-Page Packet<span style="flex:1;height:1px;background:var(--bdr);display:block"></span></div>
@@ -382,10 +391,11 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     <div style="padding:28px 20px;text-align:center;position:relative"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold-dk)"></div><div style="font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--gold-dk);letter-spacing:-.04em;line-height:1;margin-bottom:6px">86%</div><div style="font-size:.75rem;font-weight:700;color:var(--ink3);margin-bottom:5px">Confirmed Charges</div><div style="font-size:.625rem;color:var(--ink4);line-height:1.55">The majority of your bill appears standard — only 14% has been flagged for potential review</div></div>
   </div>
 
-  <!-- Donut chart -->
+  <!-- Donut chart — GENERAL REFERENCE EXAMPLE (not derived from this case) -->
   <div style="padding:30px 40px">
-    <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);letter-spacing:-.01em;text-align:center;margin-bottom:4px">How Your Bill amount Bill Breaks Down</div>
-    <div style="font-size:.75rem;color:var(--ink4);text-align:center;margin-bottom:24px">The chart below shows exactly where every dollar on your bill stands today</div>
+    <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(208,112,0,.10);border:1px solid rgba(208,112,0,.30);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin:0 auto 14px;display:block;width:fit-content">⚠ General Reference Example — Not Personalized to This Case</div>
+    <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);letter-spacing:-.01em;text-align:center;margin-bottom:4px">How a Typical Hospital Bill Breaks Down</div>
+    <div style="font-size:.75rem;color:var(--ink4);text-align:center;margin-bottom:24px">Illustrative breakdown of where charges typically fall on a hospital statement. The exact split for your bill depends on your itemized statement and supporting records.</div>
 
     <div style="display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:center">
       <!-- Donut SVG -->
@@ -450,9 +460,10 @@ body{padding:12px 10px 40px;overflow-x:hidden}
   <div class="nh nh-sm"><div class="nh-inner"><div class="nh-brand"><div class="nh-logo"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div><div class="nh-big">United Patient Advocate</div><span class="nh-spaced">How Likely Is Each Issue to Be Resolved? — Page 4 of 11</span></div></div></div></div>
 
   <div style="padding:28px 40px 8px;text-align:center;border-bottom:1px solid var(--bdr)">
+    <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(208,112,0,.10);border:1px solid rgba(208,112,0,.30);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:12px">⚠ General Reference Example — Not Personalized to This Case</div>
     <div class="sec-label">Review Readiness</div>
     <div style="font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--navy);letter-spacing:-.02em;margin-bottom:10px">How Likely Is Each Issue to Be Resolved?</div>
-    <p style="font-size:.8125rem;color:var(--ink4);line-height:1.68;max-width:520px;margin:0 auto">These percentages are informational estimates based on similar billing patterns. A higher number means the issue may be worth prioritizing when formally requested in writing. They are estimates — not guarantees.</p>
+    <p style="font-size:.8125rem;color:var(--ink4);line-height:1.68;max-width:520px;margin:0 auto">Illustrative percentages drawn from common patterns across hospital billing reviews. They are not derived from this case file. A higher number means the issue type is generally worth prioritizing when formally requested in writing — actual outcomes depend on documentation, plan terms, deadlines, and individual facts.</p>
   </div>
 
   <div style="padding:28px 40px;display:flex;flex-direction:column;gap:28px">
@@ -532,10 +543,11 @@ body{padding:12px 10px 40px;overflow-x:hidden}
   <div class="gold-rule"></div>
   <div class="nh nh-sm"><div class="nh-inner"><div class="nh-brand"><div class="nh-logo"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div><div class="nh-big">United Patient Advocate</div><span class="nh-spaced">Billed vs. Medicare Rates &amp; Estimated Timeline — Page 5 of 11</span></div></div></div></div>
 
-  <!-- Medicare bars section -->
+  <!-- Medicare bars section — GENERAL REFERENCE EXAMPLE -->
   <div style="padding:22px 40px 20px;border-bottom:1px solid var(--bdr)">
-    <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);margin-bottom:4px">What You Were Billed vs. Standard Medicare Rate</div>
-    <div style="font-size:.75rem;color:var(--ink4);line-height:1.6;margin-bottom:18px">The <span style="color:var(--teal);font-weight:700">green bar</span> shows what Medicare typically allows for each procedure. The <span style="color:var(--crimson);font-weight:700">red bar</span> shows what was billed to you. A large gap between the two may indicate room for negotiation.</div>
+    <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(208,112,0,.10);border:1px solid rgba(208,112,0,.30);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:12px">⚠ General Reference Example — Not Personalized to This Case</div>
+    <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);margin-bottom:4px">Hospital Charges vs. Standard Medicare Rate — Illustrative</div>
+    <div style="font-size:.75rem;color:var(--ink4);line-height:1.6;margin-bottom:18px">The <span style="color:var(--teal);font-weight:700">green bar</span> shows what Medicare typically allows for each procedure type. The <span style="color:var(--crimson);font-weight:700">red bar</span> shows what hospitals commonly bill commercial payers. A large gap between the two is the general pattern most billing disputes target. <strong>Your specific case's bar comparison will be calculated when an itemized statement is uploaded.</strong></div>
 
     <div style="display:flex;flex-direction:column;gap:14px">
       <!-- billing line item -->
@@ -857,7 +869,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 <div class="pg-lbl">Page 9 of 11 · Letter 1 — Request for Itemized Statement</div>
 <div class="page">
   <div class="gold-rule rule-teal"></div>
-  <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Core Letter 01</span><div class="ltb-sep"></div><span class="ltb-title">Request for Fully Itemized Statement — Send This First</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-teal">Ready to Send</span></div></div>
+  <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Core Letter 01</span><div class="ltb-sep"></div><span class="ltb-title">Request for Fully Itemized Statement — Send This First</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-teal">Review &amp; Send</span></div></div>
   <div class="lhd"><div><div class="lhd-name">Your Name</div><span class="lhd-sub">Account Holder</span><div class="lhd-addr">Address on file<br>Phone &amp; email on file</div></div><div class="lhd-r"><div class="lhd-date">Preparation date</div><span class="lhd-acct">Account: account number · Core letter 1</span></div></div>
   <div class="lbody">
     <div style="margin-bottom:12px"><div class="lb-to-lbl">Addressed To</div><div class="lb-to-name">Patient Financial Services Department</div><div class="lb-to-addr">Your Provider · Billing &amp; Accounts<br>Provider billing address</div></div>
@@ -881,7 +893,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 <div class="pg-lbl">Page 10 of 11 · Letter 2 — Billing Review Request</div>
 <div class="page">
   <div class="gold-rule rule-crimson"></div>
-  <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Core Letter 02</span><div class="ltb-sep"></div><span class="ltb-title">Billing Review Request — billing line item Possible Duplicate · To confirm</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-crimson">Ready to Send</span></div></div>
+  <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Core Letter 02</span><div class="ltb-sep"></div><span class="ltb-title">Billing Review Request — billing line item Possible Duplicate · To confirm</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-crimson">Review &amp; Send</span></div></div>
   <div class="lhd"><div><div class="lhd-name">Your Name</div><span class="lhd-sub">Account Holder</span><div class="lhd-addr">Address on file<br>Phone &amp; email on file</div></div><div class="lhd-r"><div class="lhd-date">Preparation date</div><span class="lhd-acct">Account: account number · Core letter 2</span></div></div>
   <div class="lbody">
     <div style="margin-bottom:12px"><div class="lb-to-lbl">Addressed To</div><div class="lb-to-name">Patient Financial Services — Billing Review Department</div><div class="lb-to-addr">Your Provider · Provider billing address</div></div>
@@ -905,14 +917,14 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 <div class="pg-lbl">Page 11 of 11 · Letter 3 — In-Network Rate Inquiry</div>
 <div class="page">
   <div class="gold-rule rule-cobalt"></div>
-  <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Core Letter 03</span><div class="ltb-sep"></div><span class="ltb-title">In-Network Rate Inquiry — Outside Service Provider Lab Fees · To confirm</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-cobalt">Ready to Send</span></div></div>
+  <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Core Letter 03</span><div class="ltb-sep"></div><span class="ltb-title">In-Network Rate Inquiry — Outside Service Provider Lab Fees · To confirm</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-cobalt">Review &amp; Send</span></div></div>
   <div class="lhd"><div><div class="lhd-name">Your Name</div><span class="lhd-sub">Account Holder</span><div class="lhd-addr">Address on file<br>Phone &amp; email on file</div></div><div class="lhd-r"><div class="lhd-date">Preparation date</div><span class="lhd-acct">Account: account number · Core letter 3</span></div></div>
   <div class="lbody">
     <div style="margin-bottom:12px"><div class="lb-to-lbl">Addressed To</div><div class="lb-to-name">Billing Department — Your Provider &amp; Outside Service Provider</div><div class="lb-to-addr">Your Provider · Ancillary Services · Provider billing address<br>Outside Service Provider · Patient Financial Services · Outside Service Provider · Patient Financial Services · PO Box 740376 · Cincinnati, OH 45274</div></div>
     <div class="lb-re re-cobalt"><span class="lb-re-lbl">RE:</span><span class="lb-re-txt">In-Network Rate Inquiry · Outside Service Provider Ref: billing reference · Rate Review Charges · To confirm · Account: account number</span></div>
     <p class="lb-salut">Dear Billing Department,</p>
     <p class="lb-para">I’m asking about the lab charges on this bill — specifically how the network status was determined. These services were billed through Outside Service Provider (Reference: billing reference) in connection with my <strong>date of service outpatient visit</strong> at Your Provider, Account number. They were processed at out-of-network rates, leaving a patient-responsibility charge that I’d like reviewed before I pay. Could you confirm whether these charges qualify for in-network cost-sharing under the No Surprises Act?</p>
-    <div class="lb-hl">This laboratory work was ordered by my treating provider during an in-network outpatient encounter at Your Provider. I am requesting that billing review whether in-network rates apply to these charges under the No Surprises Act.</div>
+    <div class="lb-hl">This laboratory work was ordered by the requesting party listed in my medical record during an in-network outpatient encounter at Your Provider. I am requesting that billing review whether in-network rates apply to these charges under the No Surprises Act.</div>
     <div class="lb-cite cb"><div class="lb-cite-lbl">Reference — No Surprises Act · Public Law 116-260 (2022)</div><div class="lb-cite-txt">No Surprises Act protections may apply to certain out-of-network ancillary services at in-network facilities when notice and consent requirements are not met.</div></div>
     <p class="lb-sm">I respectfully ask that you review the referenced lab charges and apply in-network cost-sharing rates if they qualify under the above. Please respond in writing or provide a timeline for review. I am prepared to provide my insurance plan documentation and Explanation of Benefits upon request. Please also confirm whether collections on this amount can be paused during your review.</p>
     <div class="lb-sig"><div><div class="lbs-close">Looking forward to your reply,</div><div class="lbs-name">Your Name</div><span class="lbs-sub">Account Holder</span></div><div class="stamp"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="rgba(40,80,192,.05)" stroke="rgba(32,64,160,.50)" stroke-width="2"/><circle cx="50" cy="50" r="38" fill="none" stroke="rgba(32,64,160,.18)" stroke-width="1"/><path id="s11" d="M50 50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" fill="none"/><text font-family="Plus Jakarta Sans" font-size="8.5" font-weight="700" fill="rgba(32,64,160,.70)" letter-spacing="2.5"><textPath href="#s11">RATE REVIEW REQUEST · </textPath></text><text x="50" y="44" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="7" font-weight="800" fill="rgba(32,64,160,.82)">IN-NETWORK</text><text x="50" y="55" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="6.5" font-weight="700" fill="rgba(32,64,160,.68)">RATE REVIEW</text><text x="50" y="30" text-anchor="middle" font-size="8" fill="rgba(32,64,160,.50)">✦</text></svg></div></div>

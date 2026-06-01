@@ -403,12 +403,12 @@
   }
 
   function formatMoney(n){
-    if(!isFinite(n)) return 'Awaiting itemized bill';
+    if(!isFinite(n)) return 'Pending itemized bill';
     return '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
   }
 
   function formatMoneyFull(n){
-    if(!isFinite(n)) return 'Awaiting itemized bill';
+    if(!isFinite(n)) return 'Pending itemized bill';
     return '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   }
 
@@ -443,7 +443,7 @@
       '25k-50k':{display:'$25,000 - $50,000', range:true},
       '50k-100k':{display:'$50,000 - $100,000', range:true},
       over100k:{display:'Over $100,000', range:true},
-      unknown:{display:'Awaiting itemized bill', unknown:true}
+      unknown:{display:'Pending itemized bill', unknown:true}
     };
     var info = buckets[rawKey] ? Object.assign({},buckets[rawKey]) : null;
     if(!info){
@@ -456,10 +456,10 @@
         // otherwise prose like "I don't know" or "a lot" falls through to unknown.
         info = {display:rawText, range:true, low:/under|500|1,000/i.test(rawText)};
       }else{
-        info = {display:'Awaiting itemized bill', unknown:true};
+        info = {display:'Pending itemized bill', unknown:true};
       }
     }
-    info.reviewText = info.unknown ? 'Awaiting itemized bill' : info.display;
+    info.reviewText = info.unknown ? 'Pending itemized bill' : info.display;
     info.calcValue = info.exact || null;
     return info;
   }
@@ -738,7 +738,7 @@
     return found.slice(0,3).map(function(issue, idx){
       var copy = Object.assign({},issue);
       copy.confidence = uploaded ? 'Use uploaded bill' : 'Needs documentation';
-      copy.amountText = amount.exact ? amount.display : 'Awaiting itemized bill';
+      copy.amountText = amount.exact ? amount.display : 'Pending itemized bill';
       copy.letterName = idx === 0 ? 'Itemized statement request' : (idx === 1 ? 'Billing review request' : 'Insurance and rate review');
       return copy;
     });
@@ -902,8 +902,8 @@
         color:'crimson',stamp:['CHALLENGE','FILED'],
         re:'RE: Formal Challenge of Unrecognized Service Charges — Acct: '+ref+' — DOS: '+date,
         sal:'Dear Billing Department,',
-        p1:'I am formally challenging charges on account '+ref+' for '+bill+' at '+prov+' on '+date+'. Balance is '+amt+' with coverage '+cov+' and payment status "'+pay+'". My intake identifies services that do not correspond to services I recall receiving, consenting to, or that were ordered by my treating provider. Billing for unperformed or unauthorized services requires written correction.',
-        hl:'For each challenged charge I request: (1) the clinical order or referral authorizing the service, (2) the treating clinician\'s name, credentials, and documentation, (3) the date, time, and location of service delivery, (4) signed patient consent for each service where applicable, and (5) written confirmation that the service was ordered, performed, and is fully supported in the medical record.',
+        p1:'I am formally challenging charges on account '+ref+' for '+bill+' at '+prov+' on '+date+'. Balance is '+amt+' with coverage '+cov+' and payment status "'+pay+'". My intake identifies services that do not correspond to services I recall receiving, consenting to, or that were ordered by the requesting party listed in my medical record. Billing for unperformed or unauthorized services requires written correction.',
+        hl:'For each challenged charge I request: (1) the clinical order or referral authorizing the service, (2) the name, credentials, and documentation of the party listed as having performed the service, (3) the date, time, and location of service delivery, (4) signed patient consent for each service where applicable, and (5) written confirmation that the service was ordered, performed, and is fully supported in the medical record.',
         p2:'If any charge is not supported by complete clinical documentation of the ordered and performed service, please remove it from the statement and issue a corrected billing statement with the reduced patient responsibility. Do not refer challenged charges to collections while this formal review is pending. Respond within 30 days with supporting documentation or a corrected billing statement.'
       },
       custom:{
@@ -1020,7 +1020,7 @@
         console.warn('[UPA HYDRATION AUDIT] URL contains ?case= token but readIntake() found no provider — token may have failed to restore. Check upa-state-persistence.js restoreFromUrl().');
       }
       if (!auditReport['upa.active.case.v1'].inLocal && !auditReport['upa.intake.v1'].inLocal && !auditReport['upa.review.session.v1'].inLocal) {
-        console.warn('[UPA HYDRATION AUDIT] ALL primary storage keys empty in localStorage. This is a cross-context/cross-device load OR storage was cleared. Dashboard will render with graceful fallbacks ("Your provider", "Awaiting itemized bill", etc.) rather than "not provided" placeholders.');
+        console.warn('[UPA HYDRATION AUDIT] ALL primary storage keys empty in localStorage. This is a cross-context/cross-device load OR storage was cleared. Dashboard will render with graceful fallbacks ("Your provider", "Pending itemized bill", etc.) rather than "not provided" placeholders.');
       }
     } catch(e){ /* audit must never break case build */ }
 
@@ -1033,7 +1033,7 @@
     // than getting echoed across every letter, finding card, and dashboard pill.
     var name = safeProperNoun(clean(data.patient_name || data.patientName || data.full_name || data.fullName || data.name || joinedName), '');
     var nameParts = name ? name.split(/\s+/).filter(Boolean) : [];
-    var lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : (nameParts[0] || 'Account Holder');
+    var lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : (nameParts[0] || '');
     var prepDate = formatDate(data.submitted_at || new Date().toISOString(), 'Today');
     var opened = data.submitted_at ? new Date(data.submitted_at) : new Date();
     if(isNaN(opened.getTime())) opened = new Date();
@@ -1143,7 +1143,7 @@
       billType:billType,
       coverage:coverage,
       paymentStatus:paymentStatus,
-      patientLabel:(lastName && lastName !== 'Account Holder' ? lastName : 'Account Holder') + ' - ' + coverage,
+      patientLabel:lastName ? lastName + ' - ' + coverage : coverage,
       amount:amount,
       issues:issues,
       primary:primary,
@@ -1201,7 +1201,7 @@
   }
 
   function commonReplacements(c){
-    var confirmedText = c.amount.exact ? 'Confirms once your itemized bill is added' : 'Awaiting itemized bill';
+    var confirmedText = c.amount.exact ? 'Confirms once your itemized bill is added' : 'Pending itemized bill';
     return [
       ['Patient: First Name Last Name', c.patientName],
       ['Patient · Account Holder', c.patientLabel],
@@ -1224,11 +1224,11 @@
       ['Review Areas', c.issueCount + ' review areas'],
       ['2 Found', c.issueCount + ' found'],
       ['$20,267', confirmedText],
-      ['$17,589.00', 'Awaiting itemized bill'],
-      ['$5,863.00', 'Awaiting itemized bill'],
-      ['$11,726.00', 'Awaiting itemized bill'],
-      ['$651.44', 'Awaiting itemized bill'],
-      ['To confirm8.58', 'Awaiting itemized bill'],
+      ['$17,589.00', 'Pending itemized bill'],
+      ['$5,863.00', 'Pending itemized bill'],
+      ['$11,726.00', 'Pending itemized bill'],
+      ['$651.44', 'Pending itemized bill'],
+      ['To confirm8.58', 'Pending itemized bill'],
       ['Medicare Beneficiary', c.coverage],
       ['Medicare Primary', c.coverage],
       ['Medicare primary', c.coverage.toLowerCase()],
@@ -1554,7 +1554,7 @@
       setText('.ft-strong', issue.title, row);
       setText('.ft-sub', issueCodeLine(c, issue), row);
       var cells = row.children || [];
-      if(cells[2]) cells[2].textContent = c.uploaded ? 'Bill/EOB review' : 'Awaiting itemized bill';
+      if(cells[2]) cells[2].textContent = c.uploaded ? 'Bill/EOB review' : 'Pending itemized bill';
       var amt = row.querySelector('.ft-amount');
       if(amt) amt.textContent = issue.amountText;
       var badge = row.querySelector('.ft-badge');
@@ -1743,7 +1743,7 @@
     ]);
     setAllText('.bench-name', c.issues.map(function(i){return i.title;}));
     setAllText('.bench-delta', ['Needs itemized detail','Needs EOB/code detail']);
-    setAllText('.bench-bar-val', ['Awaiting itemized bill','Benchmark unlocks once you upload your itemized bill with codes','Awaiting itemized bill','Benchmark unlocks once you upload your itemized bill with codes']);
+    setAllText('.bench-bar-val', ['Pending itemized bill','Benchmark unlocks once you upload your itemized bill with codes','Pending itemized bill','Benchmark unlocks once you upload your itemized bill with codes']);
     setText('.nb-title', c.uploaded ? 'Use your uploaded bill to press for line-item answers' : 'Ask the provider for a fully itemized statement before you pay');
     setText('.nb-desc', c.uploaded ? 'We’ll work from your uploaded bill alongside the drafted letters to push for written explanations, EOB reconciliation, and corrections wherever the records support it.' : 'Your intake didn’t include a complete itemized bill yet. Letter 1 is drafted to ask the provider for the codes, units, charges, adjustments, and records we need to make the rest of the review specific.');
 
@@ -1814,12 +1814,13 @@
       var addrLines = [];
       if (addrEmail) addrLines.push(h(addrEmail));
       if (addrPhone) addrLines.push(h(addrPhone));
-      setHTML('.lhd-addr', addrLines.length ? addrLines.join('<br>') : '');
+      setHTML('.lhd-addr', addrLines.length ? addrLines.join('<br>') : '<em style="opacity:.4;font-style:italic;font-size:.9em">Add your contact info before sending</em>', header);
       setText('.lhd-date', c.prepDate, header);
       setText('.lhd-acct', 'Account: ' + c.accountRef, header);
     });
     setAllText('.lbs-name', c.patientName);
-    setAllText('.lbs-sub', (c.lastName || c.patientName) + ' / ' + c.coverage + ' - ' + c.accountRef);
+    var sigName = c.lastName || c.patientName || '';
+    setAllText('.lbs-sub', sigName ? sigName + ' / ' + c.coverage + ' - ' + c.accountRef : c.coverage + ' - ' + c.accountRef);
     setAllText('.ltb-title', [
       'Request for fully itemized statement - send this first',
       'Billing review request - ' + c.issues[0].short,
@@ -1859,10 +1860,10 @@
     if(!one('.toolbar') || all('.page').length < 4) return;
     // Set ALL name fields globally first — catches elements outside .lhd wrappers
     // (e.g. the "Prepared For" block on page 1) that applyLetterBodies misses.
-    var displayName = c.patientName || 'Account Holder';
+    var displayName = c.patientName || '';
     setAllText('.lhd-name', displayName);
     setAllText('.lbs-name', displayName);
-    setText('.tb-sub', '- ' + c.accountRef + ' - ' + displayName + ' packet');
+    setText('.tb-sub', '- ' + c.accountRef + (displayName ? ' - ' + displayName : '') + ' packet');
     var firstPageHeader = one('.page .nh');
     if(c.noteText && firstPageHeader && !one('.page .upa-case-note')){
       var note = document.createElement('div');
@@ -1882,6 +1883,27 @@
       var firstInfo = all('div', pages[0]).filter(function(el){return /Patient|Provider|Date of Service/.test(el.textContent);});
       firstInfo.slice(0,3);
     }
+
+    // Front-page findings summary box — shows up to 3 identified issues with title + short label
+    var findingsBox = one('.packet-findings-box');
+    if(findingsBox && c.issues && c.issues.length){
+      var pfCount = one('.pf-count', findingsBox);
+      if(pfCount) pfCount.textContent = c.issues.length + (c.issues.length === 1 ? ' issue found' : ' issues found');
+      var pfList = one('.pf-list', findingsBox);
+      if(pfList){
+        pfList.innerHTML = c.issues.slice(0,3).map(function(issue){
+          return '<div style="display:flex;align-items:flex-start;gap:10px">' +
+            '<div style="width:16px;height:16px;border-radius:50%;background:rgba(30,107,90,.1);border:1px solid rgba(30,107,90,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">' +
+            '<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#1E6B5A" stroke-width="3"><path d="M9 11l3 3L22 4"/></svg>' +
+            '</div>' +
+            '<div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">' + h(issue.title) + '</div>' +
+            (issue.short ? '<div style="font-size:.5rem;color:var(--ink3);line-height:1.5;text-transform:capitalize">' + h(issue.short) + '</div>' : '') +
+            '</div></div>';
+        }).join('');
+      }
+      findingsBox.style.display = '';
+    }
+
     all('.nf-r').forEach(function(el){
       if(/Account|Page/.test(el.textContent)) el.textContent = el.textContent.replace(/Account.+$/,'Account ' + c.accountRef);
     });

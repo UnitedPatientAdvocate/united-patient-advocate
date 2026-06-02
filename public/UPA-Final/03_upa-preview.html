@@ -80,38 +80,24 @@ html,body{min-height:100%;font-family:var(--sans);background:var(--navy-deep);-w
 .findings-teaser{margin-bottom:24px;animation:rise .8s var(--pop) .16s both}
 .ft-label{font-size:.4375rem;font-weight:700;letter-spacing:.20em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .ft-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
-.finding-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);border-radius:11px;padding:16px 18px;margin-bottom:8px;position:relative;overflow:hidden;transition:border-color .2s ease}
-.finding-card.revealed{border-color:rgba(224,59,59,.30)}
-.finding-card.revealed::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--crimson),rgba(224,59,59,.30))}
-.finding-card.blurred-card{border-color:rgba(255,255,255,.07)}
-.fc-row{display:flex;align-items:flex-start;gap:12px}
-.fc-icon-wrap{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.fc-icon-wrap.red{background:rgba(224,59,59,.16);border:1px solid rgba(224,59,59,.30)}
-.fc-icon-wrap.cobalt{background:rgba(59,110,224,.16);border:1px solid rgba(59,110,224,.30)}
-.fc-icon-wrap.amber{background:rgba(208,112,0,.16);border:1px solid rgba(208,112,0,.30)}
-.fc-icon-wrap svg{width:15px;height:15px;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.fc-icon-wrap.red svg{stroke:var(--crimson)}
-.fc-icon-wrap.cobalt svg{stroke:#90B4FF}
-.fc-icon-wrap.amber svg{stroke:#F0A030}
-.fc-content{flex:1}
-.fc-top{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
-.fc-type{font-size:.375rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border-radius:100px;border:1px solid}
-.fct-r{color:#FF8080;border-color:rgba(224,59,59,.30);background:rgba(224,59,59,.10)}
-.fct-c{color:#90B4FF;border-color:rgba(59,110,224,.30);background:rgba(59,110,224,.10)}
-.fct-a{color:#F0A030;border-color:rgba(208,112,0,.30);background:rgba(208,112,0,.10)}
-.fc-confidence{font-family:var(--mono);font-size:.375rem;font-weight:700;color:var(--green);background:rgba(30,184,122,.12);border:1px solid rgba(30,184,122,.25);padding:2px 7px;border-radius:100px}
-.fc-amount{font-family:var(--serif);font-size:.9375rem;font-weight:900;color:var(--green);letter-spacing:-.02em;margin-left:auto;text-shadow:0 0 16px rgba(30,184,122,.35)}
-.fc-title{font-size:.875rem;font-weight:700;color:var(--on-dark);line-height:1.32;margin-bottom:5px}
-.fc-desc{font-size:.6875rem;color:var(--on-dark-2);line-height:1.65}
-.fc-meta{display:flex;align-items:center;gap:12px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)}
-.fc-meta-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.4375rem;color:var(--on-dark-3)}
-.fc-meta-item svg{width:10px;height:10px;stroke:var(--on-dark-3);stroke-width:1.8;fill:none}
-/* Blurred finding cards */
-.blur-wrap{position:relative}
-.blur-content{filter:blur(5px);user-select:none;pointer-events:none}
-.blur-lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(14,24,40,.55),rgba(14,24,40,.40))}
-.bl-pill{display:flex;align-items:center;gap:6px;font-size:.5625rem;font-weight:700;color:rgba(235,244,255,.50);background:rgba(14,24,40,.70);border:1px solid rgba(255,255,255,.14);padding:6px 14px;border-radius:100px;backdrop-filter:blur(8px)}
-.bl-pill svg{width:12px;height:12px;stroke:rgba(235,244,255,.40);stroke-width:2;fill:none}
+.finding-card{background:#fff;border:1px solid #DDE3EE;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden;display:grid;grid-template-columns:5px 1fr;margin-bottom:8px}
+.fc-stripe-critical{background:var(--crimson)}
+.fc-stripe-high{background:var(--gold)}
+.fc-stripe-medium{background:var(--green)}
+.fc-body{padding:16px 18px 14px}
+.fc-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.fc-badge{font-size:.375rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:3px;flex-shrink:0;margin-top:1px}
+.fcb-critical{background:rgba(224,59,59,.12);color:var(--crimson)}
+.fcb-high{background:rgba(240,165,0,.12);color:var(--gold-dk)}
+.fcb-medium{background:rgba(30,184,122,.12);color:var(--green-dk)}
+.fc-title{font-family:var(--serif);font-size:1rem;font-weight:700;color:#111C2E;letter-spacing:-.01em;line-height:1.2;flex:1}
+.fc-text,.fc-desc{font-size:.8125rem;color:#425A72;line-height:1.65;margin-bottom:10px}
+.fc-text-blurred{filter:blur(5px);user-select:none;pointer-events:none}
+.fc-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fc-letter-badge{display:flex;align-items:center;gap:5px;font-size:.5625rem;font-weight:700;color:var(--green-dk);letter-spacing:.04em}
+.fc-letter-badge svg{width:11px;height:11px;stroke:currentColor;stroke-width:2.2;fill:none}
+.fc-lock-bar{background:linear-gradient(90deg,var(--gold) 0%,#B9923E 100%);padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:.625rem;font-weight:700;color:#2A1F0B;letter-spacing:.04em;cursor:pointer;grid-column:1/-1}
+.fc-lock-bar svg{width:11px;height:11px;fill:none;stroke:#2A1F0B;stroke-width:2.5}
 
 /* ── DASHBOARD TEASER ── */
 .dashboard-teaser{margin-bottom:24px;animation:rise .8s var(--pop) .22s both}
@@ -320,11 +306,7 @@ html,body{max-width:100%;overflow-x:hidden}
 .pm-icon{width:32px;height:32px;margin-bottom:8px}
 /* Collapse remaining grids */
 .dt-kpis,.dt-kpi-strip,.dt-letters,.inc-grid,.feature-grid{grid-template-columns:1fr}
-.fc-row{gap:10px}
-.fc-top{align-items:flex-start}
-.fc-amount{margin-left:0}
-/* Make finding card 1 description more readable */
-.fc-desc{font-size:.75rem;line-height:1.68}
+.fc-text,.fc-desc{font-size:.75rem;line-height:1.68}
 /* Dashboard teaser mini tabs: horizontal scroll */
 .dt-tabs{flex-wrap:nowrap;overflow-x:auto;padding:6px 8px;gap:2px;scrollbar-width:none}
 .dt-tabs::-webkit-scrollbar{display:none}
@@ -414,57 +396,50 @@ html,body{max-width:100%;overflow-x:hidden}
       <div class="ft-label">What We Found in Your Bill</div>
 
       <!-- Finding 1 — FULLY VISIBLE -->
-      <div class="finding-card revealed">
-        <div class="fc-row">
-          <div class="fc-icon-wrap red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
-          <div class="fc-content">
-            <div class="fc-top">
-              <span class="fc-type fct-r" id="preview-finding1-type">Line-Item Review</span>
-              <span class="fc-confidence">Flagged</span>
-            </div>
+      <div class="finding-card">
+        <div class="fc-stripe-critical"></div>
+        <div class="fc-body">
+          <div class="fc-header">
             <div class="fc-title" id="preview-finding1-title">Potential duplicate charge on your itemized statement</div>
-            <div class="fc-desc" id="preview-finding1-desc">A charge on your statement appears more than once for the same date of service. Billing the same procedure code twice in a single visit is a recognized billing error under CMS guidelines — it can be formally disputed in writing, and the provider is required to respond with documentation.</div>
-            <div class="fc-meta">
-              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span id="preview-finding1-date">Your date of service</span></div>
-              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 0 2-2h11"/></svg>Itemized statement</div>
-              <div class="fc-meta-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Letter 1 prepared</div>
-            </div>
+            <div class="fc-badge fcb-critical" id="preview-finding1-type">CRITICAL</div>
+          </div>
+          <p class="fc-text fc-desc" id="preview-finding1-desc">A charge on your statement appears more than once for the same date of service. Billing the same procedure code twice in a single visit is a recognized billing error under CMS guidelines — it can be formally disputed in writing, and the provider is required to respond with documentation.</p>
+          <div class="fc-footer">
+            <div class="fc-letter-badge"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 0 2-2h11"/></svg>Written request prepared</div>
           </div>
         </div>
       </div>
 
       <!-- Finding 2 — BLURRED -->
-      <div class="finding-card blurred-card">
-        <div class="blur-wrap">
-          <div class="blur-content">
-            <div class="fc-row">
-              <div class="fc-icon-wrap cobalt"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-              <div class="fc-content">
-                <div class="fc-top"><span class="fc-type fct-c">Rate Discrepancy</span><span class="fc-confidence">Needs review</span><span class="fc-amount">To confirm</span></div>
-                <div class="fc-title">billing line item billed above standard complexity level for documented visit type</div>
-                <div class="fc-desc">Office visit complexity code may not align with the documented service level. A benchmark comparison against the published Medicare allowable rate for this CPT code has been prepared and is included in your documentation package.</div>
-              </div>
-            </div>
+      <div class="finding-card">
+        <div class="fc-stripe-high"></div>
+        <div class="fc-body">
+          <div class="fc-header">
+            <div class="fc-title">Billing line item coded above standard complexity level for documented visit type</div>
+            <div class="fc-badge fcb-high">HIGH</div>
           </div>
-          <div class="blur-lock" onclick="scrollToUnlockCta()" style="cursor:pointer"><div class="bl-pill"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Unlock to view full finding</div></div>
+          <p class="fc-text">Office visit complexity code may not align with the documented service level. <span class="fc-text-blurred">A benchmark comparison against the published Medicare allowable rate for this CPT code has been prepared and is included in your documentation package.</span></p>
+          <div class="fc-footer">
+            <div class="fc-letter-badge"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 0 2-2h11"/></svg>Written request prepared</div>
+          </div>
         </div>
+        <div class="fc-lock-bar" onclick="scrollToUnlockCta()"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Unlock the full explanation</div>
       </div>
 
       <!-- Finding 3 — BLURRED -->
-      <div class="finding-card blurred-card">
-        <div class="blur-wrap">
-          <div class="blur-content">
-            <div class="fc-row">
-              <div class="fc-icon-wrap amber"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
-              <div class="fc-content">
-                <div class="fc-top"><span class="fc-type fct-a">Rate Review</span><span class="fc-confidence">Needs Review</span><span class="fc-amount">To confirm</span></div>
-                <div class="fc-title">Outside Service Provider lab charges billed at out-of-network rate during in-network facility visit</div>
-                <div class="fc-desc">Laboratory services performed during your in-network visit may have been billed at out-of-network rates. No Surprises Act protections may apply. Documentation and dispute letter prepared.</div>
-              </div>
-            </div>
+      <div class="finding-card">
+        <div class="fc-stripe-medium"></div>
+        <div class="fc-body">
+          <div class="fc-header">
+            <div class="fc-title">Outside service provider lab charges billed at out-of-network rate during in-network facility visit</div>
+            <div class="fc-badge fcb-medium">MEDIUM</div>
           </div>
-          <div class="blur-lock" onclick="scrollToUnlockCta()" style="cursor:pointer"><div class="bl-pill"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Unlock to view full finding</div></div>
+          <p class="fc-text">Laboratory services performed during your in-network visit may have been billed at out-of-network rates. <span class="fc-text-blurred">No Surprises Act protections may apply. Documentation and dispute letter prepared.</span></p>
+          <div class="fc-footer">
+            <div class="fc-letter-badge"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 0 2-2h11"/></svg>Written request prepared</div>
+          </div>
         </div>
+        <div class="fc-lock-bar" onclick="scrollToUnlockCta()"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Unlock the full explanation</div>
       </div>
     </div>
 

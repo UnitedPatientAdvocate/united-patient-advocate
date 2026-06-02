@@ -540,6 +540,60 @@
     return window.upaPrintFullPackage(evt);
   };
 
+  // ── Generic deliverable download ────────────────────────────────────────
+  // Wraps any in-page content (a guide, worksheet, checklist, report) in a
+  // branded, scrubbed, print-ready single-file HTML document so EVERY promised
+  // deliverable is individually downloadable — not just letters and the packet.
+  function deliverableFilename(intake, label){
+    var patient = filePart(intake.patient_name || intake.name || intake.first_name || 'patient', 'patient');
+    var stamp = new Date().toISOString().slice(0,10);
+    var slug = filePart(label || 'document', 'document');
+    return 'upa-' + slug + '-' + patient + '-' + stamp + '.html';
+  }
+
+  function buildDeliverableHtml(opts, intake){
+    var title = clean(opts.title) || 'United Patient Advocate';
+    var sub = clean(opts.sub);
+    var body = opts.bodyHtml || '';
+    var nm = clean(intake.patient_name || intake.name || intake.first_name || '');
+    var preparedFor = nm ? 'Prepared for ' + nm : 'Prepared for your case';
+    var dateStr = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+    // Pull the host page styles so guide markup renders exactly as designed.
+    var styles = Array.prototype.slice.call(document.querySelectorAll('style')).map(function(s){ return s.textContent; }).join('\n');
+    var base = window.location.href.replace(/[^\/]*$/, '');
+    var shell = '\nbody{margin:0;padding:26px 18px;background:#E9EEF5;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#1C2B48}'
+      + '.upa-doc-actions{max-width:840px;margin:0 auto 12px;display:flex;justify-content:flex-end}'
+      + '.upa-doc-actions button{font:800 13px system-ui,sans-serif;border:1px solid rgba(28,43,72,.16);background:#fff;color:#1C2B48;border-radius:8px;padding:10px 16px;cursor:pointer}'
+      + '.upa-doc-actions button:hover{background:#1C2B48;color:#fff}'
+      + '.upa-doc-wrap{max-width:840px;margin:0 auto;background:#fff;border:1px solid rgba(28,43,72,.10);border-radius:16px;box-shadow:0 18px 54px rgba(17,28,46,.16);overflow:hidden}'
+      + '.upa-doc-head{padding:30px 36px 24px;background:linear-gradient(135deg,#1C2B48,#0E1828);color:#fff;position:relative}'
+      + '.upa-doc-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,#C9A84C,#1EB87A)}'
+      + '.upa-doc-brand{font:800 12px system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,168,76,.95);margin-bottom:14px}'
+      + '.upa-doc-kicker{font:700 10px system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:rgba(235,244,255,.6);margin-bottom:6px;min-height:10px}'
+      + '.upa-doc-title{font:800 26px Georgia,serif;margin:0 0 8px;letter-spacing:-.01em;line-height:1.15}'
+      + '.upa-doc-meta{font:600 12px system-ui,sans-serif;color:rgba(235,244,255,.72)}'
+      + '.upa-doc-body{padding:26px 30px 30px!important;display:flex!important;flex-direction:column;gap:14px;background:#fff}'
+      + '.upa-doc-foot{padding:16px 30px 24px;font:500 10.5px system-ui,sans-serif;color:#7A98B0;line-height:1.6;border-top:1px solid rgba(28,43,72,.08)}'
+      + '@media print{body{padding:0;background:#fff}.upa-doc-actions{display:none}.upa-doc-wrap{box-shadow:none;border:none;border-radius:0}}';
+    var html = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="' + base + '"><title>' + escapeHTML(title) + ' — United Patient Advocate</title><style>' + styles + shell + '<\/style></head><body><div class="upa-doc-actions"><button onclick="window.print()">Print / Save as PDF</button></div><div class="upa-doc-wrap"><header class="upa-doc-head"><div class="upa-doc-brand">United Patient Advocate</div><div class="upa-doc-kicker">' + escapeHTML(sub) + '</div><h1 class="upa-doc-title">' + escapeHTML(title) + '</h1><div class="upa-doc-meta">' + escapeHTML(preparedFor) + ' · ' + escapeHTML(dateStr) + '</div></header><main class="gd-body upa-doc-body">' + body + '</main><footer class="upa-doc-foot">United Patient Advocate provides educational and informational billing-review support. This document is informational only and is not legal, medical, or insurance advice. You remain responsible for reviewing your records and communicating directly with your providers or insurers.</footer></div></body></html>';
+    return scrubTemplateText(html, intake);
+  }
+
+  window.upaDownloadDeliverable = function(opts){
+    try {
+      opts = opts || {};
+      if(!clean(opts.bodyHtml)) throw new Error('No deliverable content to download');
+      var intake = readIntake();
+      var html = buildDeliverableHtml(opts, intake);
+      downloadFile(html, deliverableFilename(intake, opts.slug || opts.title));
+      notify('Downloaded', '“' + (clean(opts.title) || 'Document') + '” was saved to your downloads.');
+    } catch(e) {
+      if(window.console && console.error) console.error('UPA deliverable download failed', e);
+      notify('Download unavailable', 'Open the document and use your browser Print / Save as PDF.');
+    }
+    return false;
+  };
+
   function escapeHTML(value){
     return String(value == null ? '' : value).replace(/[&<>"']/g,function(ch){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];

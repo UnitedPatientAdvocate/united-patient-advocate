@@ -1319,7 +1319,7 @@
     writeJSON(ACTIVE_KEY, Object.assign({}, activeEnvelope(), { caseId:session.activeCaseId, updatedAt:session.updatedAt, intake:clone(session.intake || {}), session:clone(session), paid:true }));
     try{ sessionStorage.setItem('upa.paid', '1'); localStorage.setItem('upa.paid', '1'); }catch(e){}
     if(shouldTrackSale){
-      track('sale', { stage:(meta && meta.stage) || 'paid-success', licenseKeyPresent:!!(meta && meta.licenseKey) });
+      track('paid_state_marked', { stage:(meta && meta.stage) || 'paid-success', licenseKeyPresent:!!(meta && meta.licenseKey), revenueVerified:false });
     }
     return session;
   }

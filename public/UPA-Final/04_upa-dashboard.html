@@ -409,7 +409,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .bb-track { height: 32px; border-radius: 7px; overflow: hidden; display: flex; box-shadow: 0 2px 8px rgba(17,28,46,0.10); margin-bottom: 10px; }
 .bb-seg { display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .bbs-confirmed  { background: linear-gradient(135deg, #2C3870, #3D5290); flex: 0 0 86.7%; }
-.bbs-billing issue  { background: linear-gradient(135deg, var(--crimson-dk), var(--crimson)); flex: 0 0 5.3%; }
+.bbs-duplicate  { background: linear-gradient(135deg, var(--crimson-dk), var(--crimson)); flex: 0 0 5.3%; }
 .bbs-questioned { background: linear-gradient(135deg, #9A4A00, var(--amber)); flex: 0 0 2.9%; }
 .bbs-negotiable { background: linear-gradient(135deg, #1A3EA0, var(--cobalt)); flex: 0 0 5.1%; }
 .bbs-label { font-size: 0.4375rem; font-weight: 700; color: rgba(255,255,255,0.72); white-space: nowrap; overflow: hidden; padding: 0 5px; }
@@ -783,6 +783,41 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .gd-header-sep { width: 1px; height: 18px; background: var(--bdr-md); }
 .gd-header-title { font-family: var(--serif); font-size: 1rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
 .gd-header-sub { font-size: 0.625rem; color: var(--ink-4); margin-left: auto; }
+.gd-dl {
+  margin-left: 12px; flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.01em;
+  color: #fff; background: #158A5C; border: 1px solid rgba(21,138,92,0.55);
+  cursor: pointer; padding: 7px 13px; border-radius: 7px;
+  transition: all 130ms ease; white-space: nowrap;
+}
+.gd-dl:hover { background: #0E6B45; box-shadow: 0 4px 14px rgba(21,138,92,0.28); }
+.gd-dl svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 2.2; fill: none; }
+
+/* Tab-level download bar (Findings Report, Deadline Tracker) */
+.tab-dl-bar {
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(135deg,#F7FAFE,#EEF5F0);
+  border: 1px solid var(--bdr); border-radius: 12px;
+  padding: 13px 16px; margin: 0 0 16px;
+}
+.tab-dl-bar .tdb-text { min-width: 0; }
+.tab-dl-bar .tdb-title { font-family: var(--serif); font-size: 0.9375rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+.tab-dl-bar .tdb-sub { font-size: 0.6875rem; color: var(--ink-4); margin-top: 2px; line-height: 1.4; }
+.tab-dl-bar .tdb-btn {
+  margin-left: auto; flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.01em;
+  color: #fff; background: #158A5C; border: 1px solid rgba(21,138,92,0.55);
+  cursor: pointer; padding: 8px 14px; border-radius: 7px;
+  transition: all 130ms ease; white-space: nowrap;
+}
+.tab-dl-bar .tdb-btn:hover { background: #0E6B45; box-shadow: 0 4px 14px rgba(21,138,92,0.28); }
+.tab-dl-bar .tdb-btn svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 2.2; fill: none; }
+@media (max-width: 640px) {
+  .tab-dl-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .tab-dl-bar .tdb-btn { margin-left: 0; width: 100%; justify-content: center; }
+}
 
 .gd-body { padding: 20px 22px 52px; display: flex; flex-direction: column; gap: 14px; }
 .gd-request-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -2426,6 +2461,21 @@ abbr.upa-term::after{
 .cmd-nba-skip svg{width:14px;height:14px;stroke:#FFB0B0;stroke-width:2.2;fill:none;flex-shrink:0;margin-top:1px}
 .cmd-nba-skip strong{color:#FFC9C9;font-weight:700}
 
+/* NBA persistent progress meter + checkable step controls */
+.cmd-nba-progress{display:flex;align-items:center;gap:10px;margin-bottom:12px;position:relative;z-index:1}
+.cmd-nba-progress-track{flex:1;height:5px;background:rgba(255,255,255,.10);border-radius:3px;overflow:hidden}
+.cmd-nba-progress-fill{height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--green));transition:width .6s cubic-bezier(.22,1,.36,1)}
+.cmd-nba-progress-text{font-size:.5625rem;font-weight:800;letter-spacing:.10em;text-transform:uppercase;color:rgba(235,244,255,.62);white-space:nowrap}
+.cmd-btn-ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);color:rgba(235,244,255,.92);box-shadow:none}
+.cmd-btn-ghost:hover{background:rgba(255,255,255,.13);box-shadow:none}
+.cmd-btn-ghost svg{stroke:currentColor}
+.cmd-nba-undo{display:block;margin:2px auto 0;background:none;border:none;color:rgba(235,244,255,.45);font-size:.625rem;font-weight:600;letter-spacing:.04em;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.cmd-nba-undo:hover{color:rgba(235,244,255,.78)}
+.cmd-nba-undo[hidden]{display:none}
+.cmd-nba.is-complete::before{background:linear-gradient(90deg,var(--green) 0%,var(--green-dk) 100%)}
+.cmd-nba.is-complete .cmd-nba-dot{background:var(--green);box-shadow:0 0 8px var(--green)}
+.cmd-nba.is-complete .cmd-nba-eyebrow{color:#8FE3B5}
+
 /* Resolution-Path enhancements: date, status, active-stage detail */
 .cmd-path-stage-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .cmd-path-stage-head-left{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
@@ -3021,9 +3071,6 @@ function seoTryRecover(){
        by inline script at end of body after personalization completes.
        ═══════════════════════════════════════════════════════════════════ -->
   <section class="cmd-center" id="cmd-center" aria-label="Case command center">
-    <div style="margin:0 0 18px">
-      <img src="/UPA-Final/assets/visuals/upa-dashboard-visual-system-1600x1200.svg" alt="Case Workspace visual system" style="width:100%;height:auto;display:block;border-radius:18px;border:1px solid rgba(28,43,72,.08);box-shadow:0 10px 30px rgba(28,43,72,.08);background:#fff">
-    </div>
     <div class="cmd-inner">
 
       <!-- Case Snapshot -->
@@ -3120,6 +3167,10 @@ function seoTryRecover(){
             <span class="cmd-nba-dot"></span>
             Next best action
           </div>
+          <div class="cmd-nba-progress" id="cmd-nba-progress">
+            <div class="cmd-nba-progress-track"><div class="cmd-nba-progress-fill" id="cmd-nba-progress-fill"></div></div>
+            <span class="cmd-nba-progress-text" id="cmd-nba-progress-text">Step 1 of 4</span>
+          </div>
           <div class="cmd-nba-title" id="cmd-nba-title">Open your prepared documentation.</div>
           <div class="cmd-nba-desc" id="cmd-nba-desc">Your case packet is drafted. Open the Documents tab to review your first letter, sign it, and send it to your provider or insurer.</div>
 
@@ -3144,6 +3195,11 @@ function seoTryRecover(){
               Open my documents
               <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </a>
+            <button type="button" class="cmd-btn cmd-btn-ghost" id="cmd-nba-done" onclick="return upaMarkStepDone(event)">
+              <svg viewBox="0 0 24 24"><path d="m20 6-11 11-5-5"/></svg>
+              <span id="cmd-nba-done-label">Mark this step done</span>
+            </button>
+            <button type="button" class="cmd-nba-undo" id="cmd-nba-undo" onclick="return upaUndoStep(event)" hidden>Undo last step</button>
           </div>
 
           <!-- If you skip this — consequence/cost-of-delay -->
@@ -3344,7 +3400,7 @@ function seoTryRecover(){
             <div class="bb-label">Bill amount Total Bill: Where Each Dollar Stands</div>
             <div class="bb-track">
               <div class="bb-seg bbs-confirmed"><span class="bbs-label">$20,267 · Confirmed</span></div>
-              <div class="bb-seg bbs-billing issue"></div>
+              <div class="bb-seg bbs-duplicate"></div>
               <div class="bb-seg bbs-questioned"></div>
               <div class="bb-seg bbs-negotiable"></div>
             </div>
@@ -3354,7 +3410,7 @@ function seoTryRecover(){
               <div class="legend-i"><div class="legend-dot ld-que"></div><span class="legend-text">Coding review · To confirm</span></div>
               <div class="legend-i"><div class="legend-dot ld-neg"></div><span class="legend-text">OON negotiable · To confirm</span></div>
             </div>
-            <div class="bench-label">Medicare Benchmark Comparison</div>
+            <div class="bench-label">Medicare Benchmark Comparison — sample pattern</div>
             <div class="bench-item">
               <div class="bench-head"><span class="bench-name">Billing line item</span><span class="bench-delta over">Needs benchmark review</span></div>
               <div class="bench-bar-row"><span class="bench-bar-lbl">Billed</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-billed" data-w="92%"></div></div><span class="bench-bar-val">To confirm</span></div>
@@ -3455,7 +3511,17 @@ function seoTryRecover(){
 
     <!-- ═══ FINDINGS ═══ -->
     <div class="tab-panel" id="tab-findings">
-      <div class="findings-grid">
+      <div class="tab-dl-bar">
+        <div class="tdb-text">
+          <div class="tdb-title">Your Personalized Findings Report</div>
+          <div class="tdb-sub">The billing areas and denial weaknesses we flagged in your case, in plain English. Download to keep, print, or attach to your dispute.</div>
+        </div>
+        <button type="button" class="tdb-btn" onclick="return downloadFindingsReport(event)" title="Download your Findings Report as a file you can keep, print, or save as PDF">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Report
+        </button>
+      </div>
+      <div class="findings-grid" id="findings-grid">
         <div class="finding-card">
           <div class="fc-rail r-crimson"></div>
           <div class="finding-inner">
@@ -3767,7 +3833,17 @@ function seoTryRecover(){
     </div>
 
     <div class="tab-panel" id="tab-timeline">
-      <div class="timeline-grid">
+      <div class="tab-dl-bar">
+        <div class="tdb-text">
+          <div class="tdb-title">Your Deadline Tracker</div>
+          <div class="tdb-sub">Each step mapped to a target date so you never miss the window that decides your case. Download to keep, print, or share with family.</div>
+        </div>
+        <button type="button" class="tdb-btn" onclick="return downloadDeadlineTracker(event)" title="Download your Deadline Tracker as a file you can keep, print, or save as PDF">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Tracker
+        </button>
+      </div>
+      <div class="timeline-grid" id="timeline-grid">
         <div class="tl-item">
           <div class="tl-date"><div class="tl-date-main">May 16</div><div class="tl-date-sub">Today</div></div>
           <div class="tl-line"><div class="tl-dot d-green"></div><div class="tl-connector"></div></div>
@@ -3808,6 +3884,10 @@ function seoTryRecover(){
         <div class="gd-header-sep"></div>
         <span class="gd-header-title" id="gd-title">Guide</span>
         <span class="gd-header-sub" id="gd-sub"></span>
+        <button class="gd-dl" id="gd-download" type="button" onclick="return downloadCurrentGuide(event)" title="Download this guide as a file you can keep, print, or save as PDF">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </button>
       </div>
       <div class="gd-body" id="gd-body"></div>
     </div>
@@ -3906,15 +3986,15 @@ function seoTryRecover(){
         </defs>
         <!-- Track -->
         <path d="M 13 80 A 67 67 0 0 1 147 80" fill="none" stroke="#E8EDF4" stroke-width="12" stroke-linecap="round"/>
-        <!-- Fill arc: 72% → dashoffset = 243 - (243*0.72) = 68 -->
+        <!-- Fill arc: animated by animateRPGauge() to the computed case score (window.__UPA_SCORE__). Starts empty (offset = full 243). -->
         <path id="rp-arc" d="M 13 80 A 67 67 0 0 1 147 80" fill="none" stroke="url(#rpg-grad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="243" stroke-dashoffset="243" filter="url(#rpg-glow)" style="transition:stroke-dashoffset 1.6s cubic-bezier(0.22,1,0.36,1) 0.4s"/>
         <!-- Scale labels -->
         <text x="8" y="94" font-family="Plus Jakarta Sans,sans-serif" font-size="8" fill="#96AFBE" font-weight="600">0%</text>
         <text x="130" y="94" font-family="Plus Jakarta Sans,sans-serif" font-size="8" fill="#96AFBE" font-weight="600">100%</text>
       </svg>
       <div class="rp-gauge-center">
-        <div class="rp-gauge-amount" id="rp-gauge-amount">$0</div>
-        <div class="rp-gauge-pct" id="rp-gauge-pct">0%</div>
+        <div class="rp-gauge-amount" id="rp-gauge-amount">—</div>
+        <div class="rp-gauge-pct" id="rp-gauge-pct">&nbsp;</div>
       </div>
     </div>
     <div class="rp-gauge-sub">Review guidance</div>
@@ -4368,11 +4448,11 @@ const GC = {
       <rect width="340" height="185" fill="#F8FAFD" rx="8"/>
       <text x="170" y="18" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="9" font-weight="700" fill="#6E8898" letter-spacing="1.5">YOUR BILL BREAKDOWN</text>
       <rect x="20" y="28" width="300" height="24" rx="4" fill="#3D5290"/>
-      <text x="26" y="43" font-family="Plus Jakarta Sans,sans-serif" font-size="8" font-weight="700" fill="rgba(255,255,255,0.85)">$20,267 \u00b7 Confirmed \u2014 no action needed (86.4%)</text>
+      <text x="26" y="43" font-family="Plus Jakarta Sans,sans-serif" font-size="8" font-weight="700" fill="rgba(255,255,255,0.85)">Confirmed charges \u00b7 typically the largest share \u2014 no action needed</text>
       <rect x="20" y="60" width="16" height="20" rx="3" fill="#E03B3B"/>
       <rect x="38" y="60" width="9" height="20" fill="#F08000"/>
       <rect x="47" y="60" width="16" height="20" rx="0" fill="#3B6EE0"/>
-      <text x="68" y="73" font-family="Plus Jakarta Sans,sans-serif" font-size="8" font-weight="600" fill="#425A72">Amount to review total under review (review portion)</text>
+      <text x="68" y="73" font-family="Plus Jakarta Sans,sans-serif" font-size="8" font-weight="600" fill="#425A72">The portion worth a closer look before you pay</text>
       <rect x="20" y="94" width="8" height="8" rx="2" fill="#E03B3B"/>
       <text x="32" y="102" font-family="Plus Jakarta Sans,sans-serif" font-size="8" fill="#425A72" font-weight="600">To confirm \u00b7 Duplicate charge</text>
       <text x="32" y="112" font-family="Plus Jakarta Sans,sans-serif" font-size="7" fill="#6E8898">\u2192 Potential duplicate. Review priority.</text>
@@ -4522,6 +4602,76 @@ function showGuide(section) {
     });
     // bars are already inline-styled with final widths in the HTML, so just trigger reflow
   }, 50);
+}
+
+// Download the currently-open guide as its own branded, print-ready file.
+// Reads the LIVE #gd-body so personalization (provider, amount, name) is baked in.
+function downloadCurrentGuide(evt) {
+  if (evt && evt.preventDefault) evt.preventDefault();
+  const body = document.getElementById('gd-body');
+  const titleEl = document.getElementById('gd-title');
+  const subEl = document.getElementById('gd-sub');
+  if (!body || !body.innerHTML.trim()) {
+    if (typeof showToast === 'function') showToast('Open a guide first', 'Pick a guide on the left, then download it.');
+    return false;
+  }
+  const title = titleEl ? titleEl.textContent.trim() : 'United Patient Advocate Guide';
+  if (typeof window.upaDownloadDeliverable === 'function') {
+    window.upaDownloadDeliverable({
+      title: title,
+      sub: subEl ? subEl.textContent.trim() : '',
+      bodyHtml: body.innerHTML,
+      slug: title
+    });
+  } else if (typeof showToast === 'function') {
+    showToast('Download unavailable', 'Use your browser Print / Save as PDF to keep this guide.');
+  }
+  return false;
+}
+
+// Download the Findings tab as a standalone, branded "Personalized Findings Report".
+// Reads the LIVE grid so personalization (provider, amount, name) is baked in.
+function downloadFindingsReport(evt) {
+  if (evt && evt.preventDefault) evt.preventDefault();
+  const grid = document.getElementById('findings-grid');
+  if (!grid || !grid.innerHTML.trim()) {
+    if (typeof showToast === 'function') showToast('Findings not ready', 'Open the Findings tab, then download your report.');
+    return false;
+  }
+  const lead = '<p style="font-size:.9rem;line-height:1.6;color:#3A4252;margin:0 0 18px">These are the billing areas and denial weaknesses we flagged in your case, based on what you shared at intake. Each finding has a prepared letter and step-by-step guidance inside your Patient Command Center. Review each one before you pay anything.</p>';
+  if (typeof window.upaDownloadDeliverable === 'function') {
+    window.upaDownloadDeliverable({
+      title: 'Personalized Findings Report',
+      sub: 'The charges and denial weaknesses worth pressing on first',
+      bodyHtml: lead + grid.innerHTML,
+      slug: 'findings-report'
+    });
+  } else if (typeof showToast === 'function') {
+    showToast('Download unavailable', 'Use your browser Print / Save as PDF to keep this report.');
+  }
+  return false;
+}
+
+// Download the Timeline tab as a standalone, branded "Deadline Tracker".
+function downloadDeadlineTracker(evt) {
+  if (evt && evt.preventDefault) evt.preventDefault();
+  const grid = document.getElementById('timeline-grid');
+  if (!grid || !grid.innerHTML.trim()) {
+    if (typeof showToast === 'function') showToast('Tracker not ready', 'Open the Timeline tab, then download your tracker.');
+    return false;
+  }
+  const lead = '<p style="font-size:.9rem;line-height:1.6;color:#3A4252;margin:0 0 18px">Each step of your case mapped to a target date. These dates are guideposts based on typical billing-department response times — adjust them to match the dates on your own correspondence, and follow up in writing if a window passes with no response.</p>';
+  if (typeof window.upaDownloadDeliverable === 'function') {
+    window.upaDownloadDeliverable({
+      title: 'Deadline Tracker',
+      sub: 'Your appeal and follow-up windows, step by step',
+      bodyHtml: lead + grid.innerHTML,
+      slug: 'deadline-tracker'
+    });
+  } else if (typeof showToast === 'function') {
+    showToast('Download unavailable', 'Use your browser Print / Save as PDF to keep this tracker.');
+  }
+  return false;
 }
 
 function showToast(title, sub) {
@@ -4784,27 +4934,41 @@ function animateRPGauge() {
   const amountEl = document.getElementById('rp-gauge-amount');
   const pctEl = document.getElementById('rp-gauge-pct');
   if (!arc) return;
-  const score = 72;
+  // Single source of truth: read the computed case score set by paint().
+  // Falls back to a neutral mid value only if paint() hasn't run yet.
+  const score = (typeof window.__UPA_SCORE__ === 'number') ? window.__UPA_SCORE__ : 60;
+  const band = score >= 78 ? 'Very strong' : (score >= 55 ? 'Strong' : 'Building');
   const totalDash = 243;
-  const offset = totalDash - (totalDash * score / 100);
+  const offset = totalDash - (totalDash * Math.max(0, Math.min(100, score)) / 100);
+  if (pctEl) pctEl.textContent = band;
   setTimeout(() => {
     arc.style.strokeDashoffset = offset;
+    if (score <= 0) { if (amountEl) amountEl.textContent = '0'; return; }
     let curr = 0;
     const steps = 60;
     const step = score / steps;
     const iv = setInterval(() => {
       curr = Math.min(curr + step, score);
       const eased = score * (1 - Math.pow(1 - curr/score, 3));
-      if (pctEl) pctEl.textContent = Math.round(eased) + '%';
-      if (amountEl) amountEl.textContent = 'Review';
+      if (amountEl) amountEl.textContent = Math.round(eased);
       if (curr >= score) clearInterval(iv);
     }, 28);
   }, 420);
 }
 
 function animateSidebar() {
+  const score = (typeof window.__UPA_SCORE__ === 'number') ? window.__UPA_SCORE__ : 60;
   const fill = document.getElementById('sb-fill');
-  if (fill) fill.style.width = '72%';
+  if (fill) fill.style.width = Math.max(6, Math.min(100, score)) + '%';
+  // Keep the sidebar strength label in sync with the computed score.
+  const numEl = document.querySelector('.sb-score-num');
+  const zones = document.querySelectorAll('.sb-score-zone');
+  let label, activeIdx;
+  if (score >= 78) { label = 'Very strong'; activeIdx = 2; }
+  else if (score >= 55) { label = 'Strong'; activeIdx = 1; }
+  else { label = 'Building'; activeIdx = 0; }
+  if (numEl) numEl.textContent = label;
+  zones.forEach((z, i) => z.classList.toggle('active', i === activeIdx));
 }
 
 /* Shimmer pass on financial panels after data loads */
@@ -5766,6 +5930,141 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     }
     return true;
   }
+  // ════════════════════════════════════════════════════════════════════════
+  // PERSISTENT, CHECKABLE NEXT-BEST-ACTION STEP ENGINE
+  // The command center always answers "what do I do next?" — and advances as
+  // the user marks steps done. Progress persists per-browser so returning to
+  // the dashboard resumes exactly where they left off. Fully reversible.
+  // ════════════════════════════════════════════════════════════════════════
+  var UPA_PROGRESS_KEY = 'upa.progress.v1';
+  function upaProgressGet(){
+    try { var a = JSON.parse(localStorage.getItem(UPA_PROGRESS_KEY) || '[]'); return Array.isArray(a) ? a : []; }
+    catch(e){ return []; }
+  }
+  function upaProgressSet(arr){
+    try { localStorage.setItem(UPA_PROGRESS_KEY, JSON.stringify(arr)); } catch(e){}
+  }
+  function upaStepModel(isDenial, provider){
+    var who = (provider && provider !== 'Your provider') ? provider : (isDenial ? 'your insurer' : 'your provider');
+    if(isDenial){
+      return [
+        {key:'appeal',   title:'Send the appeal letter to <strong>'+who+'</strong>.', desc:'Your appeal letter, evidence checklist, and follow-up script are ready in the Documents tab. Personalize it with your denial reason, then send it by portal, certified mail, or fax.', cta:'Open my appeal letter', go:{t:'tab',id:'documents'}},
+        {key:'evidence', title:'Attach your evidence and confirm it was received.', desc:'Add the denial letter, EOB, and any supporting records, then ask the insurer to confirm receipt in writing so you have a dated trail.', cta:'Open my evidence checklist', go:{t:'guide',id:'checklist'}},
+        {key:'followup', title:'Follow up in writing if there is no response in 30 days.', desc:'Use the included follow-up script to check the status, get a reference number, and keep the response window short.', cta:'Open my follow-up script', go:{t:'guide',id:'callscripts'}},
+        {key:'escalate', title:'Escalate to external review or your regulator.', desc:'If the insurer upholds the denial or goes quiet, request an independent external review and, if needed, file with your state regulator. The escalation playbook walks you through it.', cta:'Open the escalation playbook', go:{t:'guide',id:'escalation'}}
+      ];
+    }
+    return [
+      {key:'itemized', title:'Send the itemized statement request to <strong>'+who+'</strong>.', desc:'Your letter is drafted in the Documents tab. Sign it, send it certified or through the provider portal, and keep a copy for your records.', cta:'Open my letter', go:{t:'tab',id:'documents'}},
+      {key:'dispute',  title:'Send your line-item dispute once the itemized bill arrives.', desc:'When the itemized statement comes back, send the prepared dispute letter for any line worth questioning and ask for written confirmation of any correction.', cta:'Open my dispute letter', go:{t:'tab',id:'documents'}},
+      {key:'rate',     title:'Send the in-network rate request.', desc:'For out-of-network lab or ancillary charges, send the prepared rate-review request asking that the in-network rate apply. Send it with, or right after, the dispute.', cta:'Open my rate letter', go:{t:'tab',id:'documents'}},
+      {key:'followup', title:'Follow up in writing if there is no response in 30 days.', desc:'Use the included follow-up script to check the status, get a reference number, and escalate to a patient advocate or supervisor if the billing office stalls.', cta:'Open my follow-up script', go:{t:'guide',id:'callscripts'}}
+    ];
+  }
+  function upaNbaGo(go){
+    if(!go) return;
+    if(go.t === 'tab' && typeof window.showTab === 'function') window.showTab(go.id);
+    else if(go.t === 'guide' && typeof window.showGuide === 'function') window.showGuide(go.id);
+  }
+  function upaSyncResolutionPath(completedCount, total){
+    var stages = document.querySelectorAll('#cmd-path .cmd-path-stage');
+    if(!stages || stages.length < 2) return;
+    var allDone = completedCount >= total;
+    function setState(el, cls, statusText){
+      if(!el) return;
+      el.classList.remove('done','active');
+      if(cls) el.classList.add(cls);
+      var s = el.querySelector('.cmd-path-stage-status');
+      if(s && statusText) s.textContent = statusText;
+    }
+    setState(stages[0], 'done', 'Complete');
+    if(stages[1]) setState(stages[1], completedCount>0 ? 'done' : 'active', completedCount>0 ? 'Sent' : 'Do now');
+    if(stages[2]) setState(stages[2], allDone ? 'done' : (completedCount>0 ? 'active' : ''), allDone ? 'Reviewed' : (completedCount>0 ? 'In progress' : 'Awaiting'));
+    if(stages[3]) setState(stages[3], allDone ? 'active' : '', allDone ? 'In reach' : 'Pending');
+  }
+  function upaRenderNBA(){
+    var st = window.__UPA_NBA__;
+    if(!st || !st.steps || !st.steps.length) return;
+    var steps = st.steps;
+    var validKeys = steps.map(function(s){ return s.key; });
+    var done = upaProgressGet().filter(function(k){ return validKeys.indexOf(k) !== -1; });
+    var total = steps.length;
+    var completedCount = done.length;
+    var current = null, currentIdx = -1;
+    for(var i=0;i<steps.length;i++){ if(done.indexOf(steps[i].key) === -1){ current = steps[i]; currentIdx = i; break; } }
+
+    var nbaCard = document.querySelector('.cmd-nba');
+    var titleEl = document.getElementById('cmd-nba-title');
+    var descEl  = document.getElementById('cmd-nba-desc');
+    var ctaBtn  = document.getElementById('cmd-nba-cta');
+    var doneBtn = document.getElementById('cmd-nba-done');
+    var doneLbl = document.getElementById('cmd-nba-done-label');
+    var undoBtn = document.getElementById('cmd-nba-undo');
+    var fillEl  = document.getElementById('cmd-nba-progress-fill');
+    var ptextEl = document.getElementById('cmd-nba-progress-text');
+    var pillsEl = document.querySelector('.cmd-nba-pills');
+    var skipEl  = document.querySelector('.cmd-nba-skip');
+    var arrow = ' <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
+
+    if(fillEl) fillEl.style.width = Math.round((completedCount/total)*100) + '%';
+
+    if(current){
+      if(nbaCard) nbaCard.classList.remove('is-complete');
+      if(ptextEl) ptextEl.textContent = 'Step ' + (currentIdx+1) + ' of ' + total;
+      if(titleEl) titleEl.innerHTML = current.title;
+      if(descEl) descEl.textContent = current.desc;
+      if(ctaBtn){
+        ctaBtn.innerHTML = current.cta + arrow;
+        ctaBtn.onclick = function(){ upaNbaGo(current.go); return false; };
+      }
+      if(doneBtn) doneBtn.style.display = '';
+      if(doneLbl) doneLbl.textContent = (currentIdx === total-1) ? 'Mark final step done' : 'Mark this step done';
+      if(pillsEl) pillsEl.style.display = '';
+      if(skipEl) skipEl.style.display = '';
+    } else {
+      if(nbaCard) nbaCard.classList.add('is-complete');
+      if(ptextEl) ptextEl.textContent = 'All ' + total + ' steps done';
+      if(titleEl) titleEl.innerHTML = 'You have worked through every prepared step. <strong>Nicely done.</strong>';
+      if(descEl) descEl.textContent = 'Keep copies of everything you have sent and watch for a written response. If anything stalls, the follow-up scripts and escalation playbook are still here whenever you need them.';
+      if(ctaBtn){
+        ctaBtn.innerHTML = 'Download your full package' + arrow;
+        ctaBtn.onclick = function(){ if(typeof window.upaDownloadPacket === 'function') return window.upaDownloadPacket(); return false; };
+      }
+      if(doneBtn) doneBtn.style.display = 'none';
+      if(pillsEl) pillsEl.style.display = 'none';
+      if(skipEl) skipEl.style.display = 'none';
+    }
+    if(undoBtn) undoBtn.hidden = (completedCount === 0);
+
+    var urgencyEl = document.getElementById('cmd-nba-urgency');
+    var urgencyText = document.getElementById('cmd-nba-urgency-text');
+    if(urgencyEl && urgencyText){
+      urgencyEl.classList.remove('med','low');
+      if(!current){ urgencyEl.classList.add('low'); urgencyText.textContent = 'On track'; }
+      else if(completedCount>0){ urgencyEl.classList.add('med'); urgencyText.textContent = 'In progress · Step ' + (currentIdx+1); }
+      else if(st.isDenial){ urgencyText.textContent = 'Time-sensitive · Appeal window'; }
+      else { urgencyEl.classList.add('low'); urgencyText.textContent = 'Ready to start'; }
+    }
+
+    upaSyncResolutionPath(completedCount, total);
+  }
+  function upaAdvance(dir){
+    var st = window.__UPA_NBA__;
+    if(!st || !st.steps) return;
+    var validKeys = st.steps.map(function(s){ return s.key; });
+    var done = upaProgressGet().filter(function(k){ return validKeys.indexOf(k) !== -1; });
+    if(dir > 0){
+      for(var i=0;i<st.steps.length;i++){ if(done.indexOf(st.steps[i].key) === -1){ done.push(st.steps[i].key); break; } }
+    } else {
+      for(var j=st.steps.length-1;j>=0;j--){ var idx = done.indexOf(st.steps[j].key); if(idx !== -1){ done.splice(idx,1); break; } }
+    }
+    upaProgressSet(done);
+    upaRenderNBA();
+  }
+  window.upaMarkStepDone = function(evt){ if(evt && evt.preventDefault) evt.preventDefault(); upaAdvance(1); return false; };
+  window.upaUndoStep     = function(evt){ if(evt && evt.preventDefault) evt.preventDefault(); upaAdvance(-1); return false; };
+  window.upaRenderNBA    = upaRenderNBA;
+
   function paint(){
     var c = window.UPACase || {};
     var source = entrySource();
@@ -5804,6 +6103,11 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       score = Math.min(94, score);
     }
     setText('cmd-health-num', score);
+    // Single source of truth: publish the computed score and re-sync the
+    // sidebar + right-panel gauges so every score on the page matches.
+    window.__UPA_SCORE__ = score;
+    if (typeof animateRPGauge === 'function') animateRPGauge();
+    if (typeof animateSidebar === 'function') animateSidebar();
     var fill = document.getElementById('cmd-gauge-fill');
     if(fill){
       var circumference = 314.159;
@@ -5836,29 +6140,13 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     }
     if(detailEl) detailEl.textContent = statusDetail;
 
-    // ── Next Best Action ───────────────────────────────────────────────
-    var nbaTitle, nbaDesc, nbaCtaLabel;
-    if(isDenial){
-      nbaTitle = 'Send the appeal letter to <strong>' + (hasReal(provider, ['Your provider']) ? provider : 'your insurer') + '</strong>.';
-      nbaDesc  = 'Your appeal letter draft, evidence checklist, phone script, and 30-day follow-up sequence are in the Documents tab. Personalize the letter with your denial reason, then send via portal, certified mail, or fax.';
-      nbaCtaLabel = 'Open my appeal letter';
-    } else if(c.issues && c.issues[0] && c.issues[0].action){
-      nbaTitle = 'Send the itemized statement request to <strong>' + (hasReal(provider, ['Your provider']) ? provider : 'your provider') + '</strong>.';
-      nbaDesc  = c.issues[0].action || 'Open the Documents tab, review your first letter, sign it, and send it certified or via the provider portal.';
-      nbaCtaLabel = 'Open my letter';
-    } else {
-      nbaTitle = 'Send the itemized statement request to <strong>' + (hasReal(provider, ['Your provider']) ? provider : 'your provider') + '</strong>.';
-      nbaDesc  = 'Your letter is drafted in the Documents tab. Sign, send certified or via the portal, and use the included follow-up sequence to keep the response window short.';
-      nbaCtaLabel = 'Open my letter';
-    }
-    setHTML('cmd-nba-title', nbaTitle);
-    setText('cmd-nba-desc', nbaDesc);
-    var ctaBtn = document.getElementById('cmd-nba-cta');
-    if(ctaBtn){
-      // Preserve the svg arrow icon — replace only the leading text node
-      var iconHtml = '<svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
-      ctaBtn.innerHTML = nbaCtaLabel + ' ' + iconHtml;
-    }
+    // ── Next Best Action (persistent, checkable step engine) ───────────────
+    // Build the ordered step model from entry source + provider, then let the
+    // engine render whichever step is next (advances as steps are marked done,
+    // persists across visits, fully reversible). See upaStepModel / upaRenderNBA.
+    var nbaProvider = hasReal(provider, ['Your provider']) ? provider : 'Your provider';
+    window.__UPA_NBA__ = { steps: upaStepModel(isDenial, nbaProvider), isDenial: isDenial };
+    upaRenderNBA();
 
     // ── Resolution Path ────────────────────────────────────────────────
     if(isDenial){
@@ -5879,9 +6167,15 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     if(hasReal(amount, ['Pending itemized bill', 'Your bill'])) docScore += 25;
     docScore = Math.min(100, docScore);
 
-    // Timing: assume strong unless we know the case is stale
-    var timeScore = 78;
-    if(isDenial) timeScore = 72; // denial path is always somewhat time-sensitive
+    // Timing position: derive from real signals instead of a fixed constant.
+    // Baseline is modest because we don't capture exact filing/denial dates;
+    // known service date, an active appeal window, and docs-in-hand all
+    // improve the position to act before deadlines close.
+    var timeScore = 55;
+    if(hasReal(dos, ['On file'])) timeScore += 20;   // we know the service date
+    if(isDenial) timeScore += 15;                     // defined appeal window to work within
+    if(c.uploaded) timeScore += 10;                   // documents in hand = can act now
+    timeScore = Math.min(95, timeScore);
 
     var specScore = 0;
     if(c.issueCount > 0) specScore += 20;
@@ -5911,22 +6205,9 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     paintBar('cmd-hb-spec',  specScore);
     paintBar('cmd-hb-ready', readyScore);
 
-    // ── NBA Urgency + Pills + Skip-Warning ─────────────────────────────
-    var urgencyEl = document.getElementById('cmd-nba-urgency');
-    var urgencyText = document.getElementById('cmd-nba-urgency-text');
-    if(urgencyEl && urgencyText){
-      urgencyEl.classList.remove('med','low');
-      if(isDenial){
-        urgencyEl.classList.remove('med','low'); // crimson default
-        urgencyText.textContent = 'Time-sensitive · Appeal window';
-      } else if(c.uploaded){
-        urgencyEl.classList.add('med');
-        urgencyText.textContent = 'Act this week';
-      } else {
-        urgencyEl.classList.add('low');
-        urgencyText.textContent = 'Standard cadence';
-      }
-    }
+    // ── NBA Pills + Skip-Warning ───────────────────────────────────────
+    // (The urgency stripe is owned by upaRenderNBA so it stays in sync with the
+    // user's saved step progress — do not set it here or repaints clobber it.)
     setText('cmd-nba-pill-effort', '~5 min effort');
     setText('cmd-nba-pill-cost',   '$0 cost');
     setText('cmd-nba-pill-impact', isDenial ? 'High impact · Locks the clock' : 'High impact');

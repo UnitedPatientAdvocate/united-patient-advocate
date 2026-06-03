@@ -1234,7 +1234,7 @@
       ['Medicare primary', c.coverage.toLowerCase()],
       ['billing line item billed twice on the same date of service', c.primary.title],
       ['Emergency Visit Billed Twice, Same Date of Service', c.primary.title],
-      ['Outside Service Provider lab charges billed at out-of-network rate during in-network facility visit', c.issues[2].title],
+      ['Outside Service Provider lab charges billed at out-of-network rate during in-network facility visit', (c.issues[2] || c.issues[1] || c.issues[0]).title],
       ['Outside Service Provider', 'outside or ancillary provider'],
       ['Duplicate charge', c.primary.short],
       ['Duplicate Billing', c.primary.short],
@@ -1842,7 +1842,7 @@
       setText('.lb-sm', 'Please respond in writing within 30 days with the records, code details, EOB reconciliation, or corrected billing statement that supports your determination. Please pause collection activity on the reviewed amount while this request is pending.', bodies[1]);
     }
     if(bodies[2]){
-      var issue3 = c.issues[2];
+      var issue3 = c.issues[2] || c.issues[1] || c.issues[0] || { title: 'Insurance and rate review', action: 'Request EOB details, allowed amounts, network status, and any billing adjustments.' };
       setHTML('.lb-to-addr', 'Billing Department - ' + h(c.provider) + '<br>Insurance / payer review contact if available', bodies[2]);
       setText('.lb-re-txt', 'Insurance / EOB / Rate Clarification - ' + issue3.title + ' - Account: ' + c.accountRef, bodies[2]);
       setHTML('.lb-para', 'I am writing to request written clarification of the insurance, EOB, network, and rate handling for my <strong>' + h(c.dateOfService) + ' ' + h(c.billType) + '</strong> at ' + h(c.provider) + '. My coverage is listed as <strong>' + h(c.coverage) + '</strong>, payment status is <strong>' + h(c.paymentStatus) + '</strong>, and my intake concerns include <strong>' + h(c.concernSummary) + '</strong>. The patient balance requires confirmation before I accept responsibility.', bodies[2]);

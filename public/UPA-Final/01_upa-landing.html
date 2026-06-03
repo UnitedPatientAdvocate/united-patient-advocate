@@ -1093,11 +1093,11 @@ html,body{max-width:100%;overflow-x:hidden}
         <div class="field-row">
           <div class="field">
             <label class="field-label">Your First Name</label>
-            <input type="text" id="f-first" placeholder="First Name" autocomplete="given-name"/>
+            <input type="text" id="f-first" placeholder="First Name" autocomplete="given-name" required/>
           </div>
           <div class="field">
             <label class="field-label">Last Name</label>
-            <input type="text" id="f-last" placeholder="Last Name" autocomplete="family-name"/>
+            <input type="text" id="f-last" placeholder="Last Name" autocomplete="family-name" required/>
           </div>
         </div>
         <div class="field-row full">
@@ -1521,17 +1521,24 @@ document.addEventListener('DOMContentLoaded',function(){
 
 /* Validate step 6 */
 var emailRx=/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-function validateStep6(){
+function step6Values(){
   var first=document.getElementById('f-first').value.trim();
   var last=document.getElementById('f-last').value.trim();
   var email=document.getElementById('f-email').value.trim();
   var provider=document.getElementById('f-provider').value.trim();
-  var emailOk=emailRx.test(email);
+  return {first:first,last:last,email:email,provider:provider,emailOk:emailRx.test(email)};
+}
+function isStep6Valid(){
+  var v=step6Values();
+  return !!(v.first&&v.last&&v.emailOk&&v.provider);
+}
+function validateStep6(){
+  var v=step6Values();
   var emailField=document.getElementById('f-email');
-  emailField.style.borderColor=email.length>0?(emailOk?'rgba(30,184,122,.55)':'rgba(224,59,59,.55)'):'';
+  emailField.style.borderColor=v.email.length>0?(v.emailOk?'rgba(30,184,122,.55)':'rgba(224,59,59,.55)'):'';
   var emailHint=document.getElementById('email-hint');
-  if(emailHint)emailHint.classList.toggle('show',email.length>4&&!emailOk);
-  document.getElementById('btn-next').disabled=!(first&&last&&emailOk&&provider);
+  if(emailHint)emailHint.classList.toggle('show',v.email.length>4&&!v.emailOk);
+  document.getElementById('btn-next').disabled=!isStep6Valid();
 }
 document.addEventListener('input',function(e){
   if(e.target.id==='f-dos')enforceServiceDateLimit();
@@ -1583,7 +1590,16 @@ function buildSummary(){
 
 /* Navigation */
 function nextStep(){
-  if(currentStep===6){buildSummary();}
+  if(currentStep===6){
+    validateStep6();
+    if(!isStep6Valid()){
+      var target=!getFieldValue('f-first')?'f-first':(!getFieldValue('f-last')?'f-last':(!emailRx.test(getFieldValue('f-email'))?'f-email':'f-provider'));
+      var el=document.getElementById(target);
+      if(el&&el.focus)el.focus();
+      return;
+    }
+    buildSummary();
+  }
   goTo(currentStep+1);
 }
 function prevStep(){goTo(currentStep-1);}
@@ -1663,6 +1679,7 @@ function selectedConcernLabels(){
 function buildLeadPayload(){
   state.first=getFieldValue('f-first');
   state.last=getFieldValue('f-last');
+  var patientName=(state.first+' '+state.last).trim();
   state.email=getFieldValue('f-email');
   state.provider=getFieldValue('f-provider');
   enforceServiceDateLimit();
@@ -1682,7 +1699,9 @@ function buildLeadPayload(){
     source:'UPA-Final standalone intake',
     submitted_at:new Date().toISOString(),
     page_url:window.location.href,
-    name:(state.first+' '+state.last).trim(),
+    name:patientName,
+    patient_name:patientName,
+    full_name:patientName,
     first_name:state.first,
     last_name:state.last,
     email:state.email,

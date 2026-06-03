@@ -26,6 +26,12 @@
     return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
   }
 
+  function patientFullName(intake){
+    intake = intake || {};
+    var firstLast = clean([intake.first_name || intake.firstName, intake.last_name || intake.lastName].filter(Boolean).join(' '));
+    return clean(intake.patient_name || intake.patientName || intake.full_name || intake.fullName || intake.name || firstLast);
+  }
+
   function normalizeAppIntake(form, session){
     if(!form || typeof form !== 'object') return {};
     var visitLabels = {
@@ -52,7 +58,8 @@
     var visitReason = clean(form.visitReason);
     return {
       submitted_at: clean(session && session.savedAt) || new Date().toISOString(),
-      name: clean(session && session.patientName),
+      name: patientFullName(form) || clean(session && session.patientName),
+      patient_name: patientFullName(form) || clean(session && session.patientName),
       provider: clean(form.providerName || (session && session.provider)),
       bill_amount: clean(form.totalBilled || (session && session.totalAmount)),
       bill_amount_raw: form.totalBilled ? 'other' : '',
@@ -105,7 +112,7 @@
   }
 
   function packetFilename(intake){
-    var patient = filePart(intake.patient_name || intake.name || intake.first_name || 'patient', 'patient');
+    var patient = filePart(patientFullName(intake) || 'patient', 'patient');
     var stamp = new Date().toISOString().slice(0,10);
     return 'upa-packet-' + patient + '-' + stamp + '.html';
   }
@@ -117,7 +124,7 @@
   }
 
   function letterFilename(intake, letterNo, title){
-    var patient = filePart(intake.patient_name || intake.name || intake.first_name || 'patient', 'patient');
+    var patient = filePart(patientFullName(intake) || 'patient', 'patient');
     var stamp = new Date().toISOString().slice(0,10);
     var label = filePart(title || ('letter-' + letterNo), 'letter-' + letterNo);
     return 'upa-' + label + '-' + patient + '-' + stamp + '.html';
@@ -127,7 +134,7 @@
     // Resolve patient name. Per directive: if not collected, use the explicit
     // honest fallback "Patient Name Not Provided" — never the misleading
     // placeholder "Your Name" or the bare "Patient".
-    var rawName = clean(intake.patient_name || intake.patientName || intake.full_name || intake.fullName || intake.name || '');
+    var rawName = patientFullName(intake);
     var hasName = !!rawName && rawName.toLowerCase() !== 'patient' && rawName.toLowerCase() !== 'your name';
     return {
       patient:    hasName ? rawName : 'Patient Name Not Provided',
@@ -290,8 +297,13 @@
 
   function inlinePersonalization(html, scriptText){
     if(!scriptText) return html;
-    var safe = scriptText.replace(/<\/script/gi, '<\\/script');
-    return html.replace(/<script\b[^>]*src=["'][^"']*upa-case-personalization\.js[^"']*["'][^>]*>\s*<\/script>/i, '<script>' + safe + '<\/script>');
+    var encoded = '';
+    try {
+      encoded = 'base64,' + btoa(unescape(encodeURIComponent(scriptText)));
+    } catch(e) {
+      encoded = ',' + encodeURIComponent(scriptText);
+    }
+    return html.replace(/<script\b[^>]*src=["'][^"']*upa-case-personalization\.js[^"']*["'][^>]*>\s*<\/script>/i, '<script src="data:text/javascript;charset=utf-8;' + encoded + '"><\/script>');
   }
 
   async function loadText(url){
@@ -561,7 +573,7 @@
   // branded, scrubbed, print-ready single-file HTML document so EVERY promised
   // deliverable is individually downloadable — not just letters and the packet.
   function deliverableFilename(intake, label){
-    var patient = filePart(intake.patient_name || intake.name || intake.first_name || 'patient', 'patient');
+    var patient = filePart(patientFullName(intake) || 'patient', 'patient');
     var stamp = new Date().toISOString().slice(0,10);
     var slug = filePart(label || 'document', 'document');
     return 'upa-' + slug + '-' + patient + '-' + stamp + '.html';
@@ -571,7 +583,7 @@
     var title = clean(opts.title) || 'United Patient Advocate';
     var sub = clean(opts.sub);
     var body = opts.bodyHtml || '';
-    var nm = clean(intake.patient_name || intake.name || intake.first_name || '');
+    var nm = patientFullName(intake);
     var preparedFor = nm ? 'Prepared for ' + nm : 'Prepared for your case';
     var dateStr = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
     // Pull the host page styles so guide markup renders exactly as designed.

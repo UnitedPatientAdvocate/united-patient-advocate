@@ -1659,9 +1659,21 @@ function getFieldValue(id){
   var el=document.getElementById(id);
   return el?el.value.trim():'';
 }
+function stripOtherPrefix(value){
+  return String(value||'').replace(/^other:\s*/i,'').trim();
+}
+function formatLooseMoney(value){
+  var text=stripOtherPrefix(value);
+  var match=text.match(/\d[\d,]*(?:\.\d+)?/);
+  if(!match)return text;
+  var n=parseFloat(match[0].replace(/,/g,''));
+  if(!isFinite(n))return text;
+  return '$'+n.toLocaleString('en-US',{maximumFractionDigits:n%1?2:0});
+}
 function selectedOptionLabel(group,value){
   if(value==='other'){
     var other=getOtherValue(group);
+    if(group==='s3')return other?formatLooseMoney(other):'Other';
     return other?'Other: '+other:'Other';
   }
   return labels[group]&&labels[group][value]?labels[group][value]:(value||'');
@@ -1691,6 +1703,7 @@ function buildLeadPayload(){
   var provider=state.provider||scanPatch.extracted_provider||'';
   var dos=state.dos||scanPatch.extracted_date_of_service||'';
   var billAmount=selectedOptionLabel('s3',state.s3);
+  billAmount=formatLooseMoney(billAmount);
   if((!billAmount||/not sure|unknown/i.test(billAmount))&&scanPatch.extracted_bill_amount)billAmount=scanPatch.extracted_bill_amount;
   var insurance=selectedOptionLabel('s2',state.s2);
   if((!insurance||/other|not listed/i.test(insurance))&&scanPatch.extracted_insurance)insurance=scanPatch.extracted_insurance;
@@ -1724,7 +1737,7 @@ function buildLeadPayload(){
     payment_status_raw:state.s4||'',
     bill_type_other:state.s1==='other'?getOtherValue('s1'):'',
     insurance_other:state.s2==='other'?getOtherValue('s2'):'',
-    bill_amount_other:state.s3==='other'?getOtherValue('s3'):'',
+    bill_amount_other:state.s3==='other'?formatLooseMoney(getOtherValue('s3')):'',
     payment_status_other:state.s4==='other'?getOtherValue('s4'):''
   },scanPatch);
 }

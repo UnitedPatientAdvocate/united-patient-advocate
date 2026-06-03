@@ -5777,6 +5777,14 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   }
 
   function buildAIDossierIntake(intake, scan){
+    var codeAnalysis = [];
+    if(scan && Array.isArray(scan.codeAnalysis)) codeAnalysis = scan.codeAnalysis;
+    else if(intake && Array.isArray(intake.codeAnalysis)) codeAnalysis = intake.codeAnalysis;
+    else if(intake && Array.isArray(intake._code_analysis)) codeAnalysis = intake._code_analysis;
+    else if(intake && intake._aiIntake && Array.isArray(intake._aiIntake.codeAnalysis)) codeAnalysis = intake._aiIntake.codeAnalysis;
+    var codeList = codeAnalysis.length
+      ? codeAnalysis.map(function(item){ return item && item.code; }).filter(Boolean)
+      : (scan.cptCodes || intake._cpt_codes || []);
     return {
       providerName:     intake.provider || intake.extracted_provider || scan.provider || 'Unknown Provider',
       totalBilled:      intake.bill_amount_raw || intake.totalBilled || (scan.totalBilled != null ? String(scan.totalBilled) : '') || intake.bill_amount || '',
@@ -5784,11 +5792,13 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       hasInsurance:     !!(intake.insurance || intake.insuranceName || scan.insuranceName),
       insuranceType:    intake.insurance || intake.insuranceName || scan.insuranceName || '',
       visitReason:      intake.bill_type || intake.visitReason || scan.billType || '',
-      servicesReceived: intake.concerns || intake.specificConcerns || (scan.cptCodes && scan.cptCodes.join(', ')) || '',
+      servicesReceived: intake.concerns || intake.specificConcerns || (codeList.length ? codeList.join(', ') : '') || '',
       stayDuration:     intake.stay_type || '',
       billStatus:       intake.bill_status || (scan.denialDetected ? 'denied' : 'received'),
       specificConcerns: intake._aiIntake && intake._aiIntake.specificConcerns || intake.concerns || 'full billing review requested',
-      billText:         scan.rawText || intake._aiIntake && intake._aiIntake.billText || ''
+      billText:         scan.rawText || intake._aiIntake && intake._aiIntake.billText || '',
+      codeAnalysis:     codeAnalysis,
+      lineItems:        codeAnalysis
     };
   }
 
@@ -5841,6 +5851,8 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 
     // Store full dossier for download packet
     try{
+      if(dossier.lineItems && !dossier.codeAnalysis) dossier.codeAnalysis = dossier.lineItems;
+      if(dossier.paidDossier && dossier.paidDossier.lineItems && !dossier.paidDossier.codeAnalysis) dossier.paidDossier.codeAnalysis = dossier.paidDossier.lineItems;
       localStorage.setItem('upa.ai.dossier.v1', JSON.stringify(dossier));
     }catch(e){}
     if(window.UPARenderCLFSBenchmarks) window.UPARenderCLFSBenchmarks();

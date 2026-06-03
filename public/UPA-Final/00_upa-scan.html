@@ -1109,6 +1109,10 @@ function routeAfterScan(data) {
 /* ─── AI FREE PREVIEW CALL ─── */
 function callFreePreviewAI(data) {
   try {
+    var codeAnalysis = Array.isArray(data.codeAnalysis) ? data.codeAnalysis : [];
+    var codeList = codeAnalysis.length
+      ? codeAnalysis.map(function(item){ return item && item.code; }).filter(Boolean)
+      : (data.cptCodes || []);
     var intake = {
       providerName:      data.provider || '',
       totalBilled:       data.totalBilled   != null ? String(data.totalBilled)   : '',
@@ -1116,11 +1120,13 @@ function callFreePreviewAI(data) {
       hasInsurance:      !!(data.insuranceName),
       insuranceType:     data.insuranceName  || '',
       visitReason:       data.billType       || '',
-      servicesReceived:  data.cptCodes && data.cptCodes.length ? data.cptCodes.join(', ') : '',
+      servicesReceived:  codeList.length ? codeList.join(', ') : '',
       stayDuration:      '',
       billStatus:        data.denialDetected ? 'denied' : 'received',
-      specificConcerns:  data.cptCodes && data.hasDuplicateCodes ? 'possible duplicate charges detected' : 'bill amount seems high',
-      billText:          data.rawText || ''
+      specificConcerns:  codeList.length && data.hasDuplicateCodes ? 'possible duplicate charges detected' : 'bill amount seems high',
+      billText:          data.rawText || '',
+      codeAnalysis:      codeAnalysis,
+      lineItems:         codeAnalysis
     };
     // Store intake for dashboard to use when running paid_dossier
     try {

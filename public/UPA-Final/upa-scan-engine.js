@@ -342,6 +342,63 @@ function extractCPTCodes(text) {
   return { codes: [...new Set(codes)], hasDuplicates: dupes.length > 0, duplicateCodes: dupes };
 }
 
+function parseMoneyValue(value) {
+  if (value == null) return null;
+  const cleaned = String(value).replace(/[^0-9.]/g, '');
+  if (!cleaned) return null;
+  const n = Number(cleaned);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function moneyValuesFromLine(line) {
+  const text = String(line || '');
+  const matches = text.match(/\$?\s*\d{1,3}(?:,\d{3})*(?:\.\d{2})|\$\s*\d+(?:\.\d{2})?/g) || [];
+  return matches
+    .map(parseMoneyValue)
+    .filter(function(n){ return n != null && n >= 1; });
+}
+
+function normalizeCptCode(code) {
+  return String(code || '').trim().toUpperCase();
+}
+
+function extractCodeAnalysis(text, lines) {
+  const sourceLines = Array.isArray(lines) && lines.length ? lines : String(text || '').split(/\r?\n/);
+  const byCode = {};
+
+  sourceLines.forEach(function(line, index){
+    const current = String(line || '').replace(/\s+/g, ' ').trim();
+    if (!current) return;
+    const codeMatches = current.match(/\b(?:\d{5}|\d{4}U)\b/gi) || [];
+    if (!codeMatches.length) return;
+
+    const localLines = [current];
+    for (let offset = 1; offset <= 6; offset += 1) {
+      localLines.push(sourceLines[index + offset] || '');
+    }
+    localLines.push(sourceLines[index - 1] || '');
+    const amounts = localLines.reduce(function(list, candidate){
+      return list.concat(moneyValuesFromLine(candidate));
+    }, []);
+    const billedAmount = amounts.length ? amounts[0] : null;
+    if (billedAmount == null) return;
+
+    codeMatches.forEach(function(rawCode){
+      const code = normalizeCptCode(rawCode);
+      if (/^(19|20)\d{3}$/.test(code) || code === '00000') return;
+      if (!byCode[code]) {
+        byCode[code] = {
+          code: code,
+          shortDescription: '',
+          billedAmount: billedAmount
+        };
+      }
+    });
+  });
+
+  return Object.keys(byCode).map(function(code){ return byCode[code]; });
+}
+
 /* ─────────────────────────────────────────────
    DENIAL DETECTION
 ───────────────────────────────────────────── */
@@ -393,6 +450,7 @@ async function extractFromPDF(file) {
     insurancePaid: null, adjustmentAmount: null, allAmounts: [],
     claimNumber: null, insuranceName: null,
     cptCodes: [], hasDuplicateCodes: false, duplicateCodes: [],
+    codeAnalysis: [], lineItems: [],
     denialDetected: false, pageCount: 0,
     rawText: '', lines: [],
     confidence: 'low', _scan: true, _scanTimestamp: Date.now()
@@ -427,6 +485,8 @@ async function extractFromPDF(file) {
     const amounts  = extractAmounts(fullText);
     const dates    = extractDates(fullText);
     const cpt      = extractCPTCodes(fullText);
+    const codeAnalysis = extractCodeAnalysis(fullText, allLines);
+    const allCodes = Array.from(new Set((cpt.codes || []).concat(codeAnalysis.map(function(item){ return item.code; }))));
 
     Object.assign(result, {
       totalBilled:      amounts.totalBilled,
@@ -439,7 +499,9 @@ async function extractFromPDF(file) {
       provider:         extractProvider(fullText, allLines),
       claimNumber:      extractClaimNumber(fullText),
       insuranceName:    extractInsurance(fullText),
-      cptCodes:         cpt.codes,
+      cptCodes:         allCodes,
+      codeAnalysis:     codeAnalysis,
+      lineItems:        codeAnalysis,
       hasDuplicateCodes:cpt.hasDuplicates,
       duplicateCodes:   cpt.duplicateCodes,
       denialDetected:   detectDenial(fullText)
@@ -678,6 +740,9 @@ function writeScanStateToStorage(ext) {
     _denial:          ext.denialDetected,
     _has_duplicates:  ext.hasDuplicateCodes,
     _cpt_codes:       ext.cptCodes        || [],
+    codeAnalysis:     ext.codeAnalysis    || [],
+    lineItems:        ext.codeAnalysis    || [],
+    _code_analysis:   ext.codeAnalysis    || [],
     _page_count:      ext.pageCount       || 1,
     _scan_ts:         ext._scanTimestamp
   };
@@ -737,6 +802,7 @@ function writeScanStateToStorage(ext) {
 
 window.UPAScanEngine = {
   extractFromPDF,
+  extractCodeAnalysis,
   buildScanFindings,
   buildCaseValueEstimate,
   writeScanStateToStorage,

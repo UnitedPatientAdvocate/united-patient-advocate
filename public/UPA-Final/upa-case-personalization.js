@@ -66,6 +66,44 @@
     return t;
   }
 
+  function looksLikeSentence(text){
+    var t = clean(text);
+    if(!t) return false;
+    var words = t.split(/\s+/).filter(Boolean);
+    return /[.!?]/.test(t) ||
+      words.length >= 7 ||
+      /\b(i|me|my|mine|we|they|them|because|called|said|told|denied|covered|received|got|from my|through my)\b/i.test(t);
+  }
+
+  function safeCoverageText(data){
+    var rawOther = clean(data.insurance_other || '');
+    var raw = clean(data.insurance || '');
+    var extracted = clean(data.extracted_insurance || '');
+    if(rawOther && looksLikeSentence(rawOther)) return 'Coverage: see your EOB';
+    var primary = rawOther || raw;
+    var safe = safeProperNoun(primary, '');
+    if(safe) return safe;
+    safe = safeProperNoun(extracted, '');
+    return safe || 'Your coverage';
+  }
+
+  function safePaymentStatusText(data){
+    var rawKey = clean(data.payment_status_raw || '').toLowerCase();
+    var raw = clean(data.payment_status || '');
+    var rawOther = clean(data.payment_status_other || '');
+    var text = (rawKey === 'other' ? rawOther : (rawOther || raw)).toLowerCase();
+    if(rawKey === 'other'){
+      safeUserText(rawOther, 80);
+      return 'Review timing depends on your situation';
+    }
+    if(/collections|collector|collection agency/.test(text)) return 'Act promptly and keep written records';
+    if(/insurance.*denied|denied|underpaid|appeal/.test(text)) return 'Check appeal and EOB deadlines';
+    if(/payment plan|partial/.test(text)) return 'Review before sending more payments';
+    if(/paid in full|already paid|\bpaid\b/.test(text) && !/not paid/.test(text)) return 'Refund review can still be requested';
+    if(/unpaid|not paid|before paying/.test(text)) return 'Review before paying';
+    return 'Review timing depends on your situation';
+  }
+
   // ──────────────────────────────────────────────────────────────────────
   // FIX 1 (gibberish detection): When a user types random characters with
   // no recognizable English/billing intent ("Odjdjt", "Jdjdd", "Aaaaa"),
@@ -854,7 +892,7 @@
   function buildIssues(data, amount, uploaded){
     var raw = splitList(data.concerns_raw);
     var labels = splitList(data.concerns);
-    var other = clean(data.concern_other || '');
+    var other = safeUserText(data.concern_other || '', 120);
     var hay = (raw.concat(labels).join(' ') + ' ' + clean(data.description) + ' ' + clean(data.payment_status_raw) + ' ' + clean(data.payment_status) + ' ' + clean(data.bill_type)).toLowerCase();
     var found = [];
     var seen = {};
@@ -1020,7 +1058,7 @@
     var pay  = paymentLabel(c);
     var ref  = c.accountRef;
     var bill = billKindLabel(c);
-    var cust = c.userDetail || professionalBillingNote((c.raw && (c.raw.concern_other || c.raw.description)) || c.description || '', 140) || 'additional billing documentation concern';
+    var cust = c.userDetail || safeUserText((c.raw && (c.raw.concern_other || c.raw.description)) || c.description || '', 140) || 'additional billing documentation concern';
     var map = {
       network:{
         title:'No Surprises Act & Network Rate Review',type:'Network / Surprise Billing Dispute',
@@ -1211,13 +1249,14 @@
     var rawDos = data.date_of_service || data.dos || data.extracted_date_of_service;
     var dos = formatDate(rawDos, 'On file');
     var billType = safeProperNoun(clean(data.bill_type_other || data.bill_type, 'medical bill'), 'medical bill');
-    var coverage = safeProperNoun(clean(data.insurance_other || data.insurance), '') || safeProperNoun(clean(data.extracted_insurance), '') || 'Your coverage';
-    var paymentStatus = safeProperNoun(clean(data.payment_status_other || data.payment_status, 'Account on file'), 'Account on file');
+    var coverage = safeCoverageText(data);
+    var paymentStatus = safePaymentStatusText(data);
     var description = clean(data.description);
     var email = clean(data.email);
     var phone = clean(data.phone);
     var concernLabels = splitList(data.concerns).map(professionalConcernLabel);
-    if(clean(data.concern_other)) concernLabels.push(professionalConcernLabel(data.concern_other));
+    var safeConcernOther = safeUserText(data.concern_other, 120);
+    if(safeConcernOther) concernLabels.push(professionalConcernLabel(safeConcernOther));
     var seenConcerns = {};
     concernLabels = concernLabels.filter(function(item){
       var key = item.toLowerCase();
@@ -1294,8 +1333,19 @@
       'CPT/HCPCS/revenue-code review when line items are available'
     ];
     if(issues.some(function(i){return i.key === 'network';})) basis.push('network and surprise-billing screening when the facts support it');
+    var sanitizedRaw = Object.assign({}, data, {
+      bill_amount: amount.display,
+      bill_amount_other: amount.display,
+      insurance: coverage,
+      insurance_other: coverage,
+      payment_status: paymentStatus,
+      payment_status_other: '',
+      concerns: concernSummary,
+      concerns_raw: '',
+      concern_other: safeConcernOther
+    });
     return {
-      raw:data,
+      raw:sanitizedRaw,
       patientName:name,
       lastName:lastName,
       firstName:first || name.split(/\s+/)[0] || 'You',
@@ -1943,7 +1993,7 @@
     setText('.rpc-amount', c.amount.reviewText);
     setText('.rpc-sub', c.amount.exact ? 'From the amount you shared at intake' : 'Confirms with your itemized bill');
     setAllText('.rpc-row-val', [c.amount.display, String(c.issueCount), c.letterCount + ' drafted']);
-    var rpsPayment = hasKnown(c.paymentStatus, 'Account on file') ? c.paymentStatus : 'Where your account stands';
+    var rpsPayment = c.paymentStatus || 'Review timing depends on your situation';
     setAllText('.rps-row-val', [c.amount.reviewText, c.primary.short, rpsPayment, c.uploaded ? 'Working from your uploaded bill' : 'Ask for an itemized statement first']);
     setText('#rp-gauge-amount', c.detailScore >= 70 ? 'Strong start' : 'Open case');
     setText('#rp-gauge-pct', c.detailScore + '%');
@@ -1998,7 +2048,7 @@
     if(bodies[0]){
       setHTML('.lb-to-addr', h(c.provider) + ' - Billing & Accounts<br>Billing address — see statement', bodies[0]);
       setText('.lb-re-txt', 'Request for Fully Itemized Statement - ' + c.accountRef + ' - Date of Service: ' + c.dateOfService, bodies[0]);
-      setHTML('.lb-para', 'I am writing to request a complete, fully itemized statement for medical services rendered on <strong>' + h(c.dateOfService) + '</strong>, account reference ' + h(c.accountRef) + ', at ' + h(c.provider) + '. My current intake lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, payment status as <strong>' + h(c.paymentStatus) + '</strong>, and concerns including <strong>' + h(c.concernSummary) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' I am reviewing this statement before accepting the patient responsibility.', bodies[0]);
+      setHTML('.lb-para', 'I am writing to request a complete, fully itemized statement for medical services rendered on <strong>' + h(c.dateOfService) + '</strong>, account reference ' + h(c.accountRef) + ', at ' + h(c.provider) + '. My current intake lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, payment timing as <strong>' + h(c.paymentStatus) + '</strong>, and concerns including <strong>' + h(c.concernSummary) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' I am reviewing this statement before accepting the patient responsibility.', bodies[0]);
       setText('.lb-hl', 'Please provide every line item, CPT/HCPCS code, revenue code, units, dates of service, provider adjustments, insurer payments or denials, and the patient-responsibility amount for each individual item.', bodies[0]);
       setText('.lb-sm', 'This request is made so I can reconcile the statement against my EOB, coverage, and records. Please pause collection activity on any disputed portion while this written review is pending and provide a reference number for this request.', bodies[0]);
     }
@@ -2007,14 +2057,16 @@
       setHTML('.lb-to-addr', h(c.provider) + ' - Billing Review Department<br>Billing address — see statement', bodies[1]);
       setText('.lb-re-txt', 'Billing Review Request - ' + issue.title + ' - DOS: ' + c.dateOfService + ' - Amount Under Review: ' + issue.amountText, bodies[1]);
       setHTML('.lb-para', 'I am requesting a formal written review of my statement, account reference ' + h(c.accountRef) + '. Based on my intake and the documents available to me, my concerns include: <strong>' + h(c.concernSummary) + '</strong>. The primary review point is <strong>' + h(issue.title) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' This review relates to services at ' + h(c.provider) + ' on ' + h(c.dateOfService) + ' with current amount listed as ' + h(c.amount.display) + '.', bodies[1]);
-      setText('.lb-hl', issue.action + ' If the review changes the patient responsibility, please issue a corrected statement and written explanation.', bodies[1]);
+      setText('.lb-hl', 'I am requesting a written explanation and correction if your review confirms a duplicate entry.', bodies[1]);
+      var cite = one('.lb-cite', bodies[1]);
+      if(cite) cite.remove();
       setText('.lb-sm', 'Please respond in writing within 30 days with the records, code details, EOB reconciliation, or corrected billing statement that supports your determination. Please pause collection activity on the reviewed amount while this request is pending.', bodies[1]);
     }
     if(bodies[2]){
       var issue3 = c.issues[2];
       setHTML('.lb-to-addr', 'Billing Department - ' + h(c.provider) + '<br>Insurance / payer review contact if available', bodies[2]);
       setText('.lb-re-txt', 'Insurance / EOB / Rate Clarification - ' + issue3.title + ' - Account: ' + c.accountRef, bodies[2]);
-      setHTML('.lb-para', 'I am writing to request written clarification of the insurance, EOB, network, and rate handling for my <strong>' + h(c.dateOfService) + ' ' + h(c.billType) + '</strong> at ' + h(c.provider) + '. My coverage is listed as <strong>' + h(c.coverage) + '</strong>, payment status is <strong>' + h(c.paymentStatus) + '</strong>, and my intake concerns include <strong>' + h(c.concernSummary) + '</strong>. The patient balance requires confirmation before I accept responsibility.', bodies[2]);
+      setHTML('.lb-para', 'I am writing to request written clarification of the insurance, EOB, network, and rate handling for my <strong>' + h(c.dateOfService) + ' ' + h(c.billType) + '</strong> at ' + h(c.provider) + '. My coverage is listed as <strong>' + h(c.coverage) + '</strong>, payment timing is <strong>' + h(c.paymentStatus) + '</strong>, and my intake concerns include <strong>' + h(c.concernSummary) + '</strong>. The patient balance requires confirmation before I accept responsibility.', bodies[2]);
       setText('.lb-hl', issue3.action + ' Please identify any payer denial codes, allowed amounts, adjustments, network status, consent documentation if relevant, and appeal or corrected-claim options.', bodies[2]);
       setText('.lb-sm', 'Please respond in writing with the EOB basis, payer responsibility, provider adjustment history, and the current patient-responsibility calculation. If the balance changes, please issue a corrected statement and refund or payment-plan adjustment instructions if applicable.', bodies[2]);
     }

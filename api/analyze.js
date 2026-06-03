@@ -144,6 +144,13 @@ function getAnthropicApiKey() {
 }
 
 function normalizeIntake(input = {}) {
+  const codeAnalysis = Array.isArray(input.codeAnalysis)
+    ? input.codeAnalysis
+    : Array.isArray(input.lineItems)
+      ? input.lineItems
+      : Array.isArray(input._code_analysis)
+        ? input._code_analysis
+        : [];
   return {
     providerName: input.providerName || 'Unknown Hospital',
     totalBilled: input.totalBilled || '',
@@ -154,7 +161,9 @@ function normalizeIntake(input = {}) {
     stayDuration: input.stayDuration || '',
     billStatus: input.billStatus || '',
     specificConcerns: input.specificConcerns || 'bill seems too high',
-    billText: input.billText || input.rawText || ''
+    billText: input.billText || input.rawText || '',
+    codeAnalysis,
+    lineItems: codeAnalysis
   };
 }
 
@@ -174,6 +183,9 @@ function formatIntake(intake) {
     // Truncate to ~6000 chars to stay within token budget
     const text = intake.billText.trim().slice(0, 6000);
     lines.push(`\nRAW BILL TEXT (extracted from uploaded PDF — use this to identify specific charges, CPT codes, dates, amounts, and billing patterns):\n---\n${text}\n---`);
+  }
+  if (Array.isArray(intake.codeAnalysis) && intake.codeAnalysis.length) {
+    lines.push(`\nDETERMINISTIC EXTRACTED LINE ITEMS (from scanner; use these as source bill line items, but do not add benchmark rates yourself):\n${JSON.stringify(intake.codeAnalysis)}`);
   }
   return lines.join('\n');
 }
@@ -328,9 +340,22 @@ export function lookupClfsBenchmark(codeValue, explicitModifier = '') {
 
 function getPayloadLineItems(payload) {
   const candidates = [
+    payload?.codeAnalysis,
     payload?.lineItems,
+    payload?.paidDossier?.codeAnalysis,
     payload?.paidDossier?.lineItems,
+    payload?.summary?.codeAnalysis,
     payload?.summary?.lineItems
+  ];
+
+  return candidates.find(candidate => Array.isArray(candidate) && candidate.length) || [];
+}
+
+function getRequestLineItems(intake = {}) {
+  const candidates = [
+    intake?.codeAnalysis,
+    intake?.lineItems,
+    intake?._code_analysis
   ];
 
   return candidates.find(candidate => Array.isArray(candidate) && candidate.length) || [];
@@ -399,15 +424,23 @@ function prependUniqueStatement(items, statement) {
   return [statement, ...list];
 }
 
-function attachClfsBenchmarksToPayload(payload) {
+function attachClfsBenchmarksToPayload(payload, requestLineItems = []) {
   if (!payload || typeof payload !== 'object') return payload;
 
   const lineItems = getPayloadLineItems(payload);
-  if (!lineItems.length) return payload;
+  const sourceLineItems = lineItems.length ? lineItems : (Array.isArray(requestLineItems) ? requestLineItems : []);
+  if (!sourceLineItems.length) {
+    const emptyPayload = { ...payload, codeAnalysis: [] };
+    if (emptyPayload.paidDossier && typeof emptyPayload.paidDossier === 'object') {
+      emptyPayload.paidDossier = { ...emptyPayload.paidDossier, codeAnalysis: [] };
+    }
+    return emptyPayload;
+  }
 
-  const enriched = enrichLineItemsWithClfsBenchmarks(lineItems);
+  const enriched = enrichLineItemsWithClfsBenchmarks(sourceLineItems);
   const next = {
     ...payload,
+    codeAnalysis: enriched.lineItems,
     lineItems: enriched.lineItems,
     clfsBenchmarkCoverage: enriched.coverage,
     clfsOverchargeTotal: enriched.overchargeTotal
@@ -416,6 +449,7 @@ function attachClfsBenchmarksToPayload(payload) {
   if (next.paidDossier && typeof next.paidDossier === 'object') {
     next.paidDossier = {
       ...next.paidDossier,
+      codeAnalysis: enriched.lineItems,
       lineItems: enriched.lineItems,
       benchmarkCoverageStatement: enriched.coverage.statement,
       billingPatternAnalysis: prependUniqueStatement(next.paidDossier.billingPatternAnalysis, enriched.coverage.statement)
@@ -462,13 +496,13 @@ function extractJsonCandidate(raw) {
   return '';
 }
 
-function attachClfsBenchmarksToAnthropicData(data) {
+function attachClfsBenchmarksToAnthropicData(data, requestLineItems = []) {
   const raw = getAnthropicText(data);
   const candidate = extractJsonCandidate(raw);
   if (!candidate) return data;
 
   try {
-    const payload = attachClfsBenchmarksToPayload(JSON.parse(candidate));
+    const payload = attachClfsBenchmarksToPayload(JSON.parse(candidate), requestLineItems);
     const text = JSON.stringify(payload);
     return {
       ...data,
@@ -490,7 +524,7 @@ function isAnthropicOverloaded(response, data) {
 }
 
 function sendFallbackPreview(res, intake, reason) {
-  const payload = attachClfsBenchmarksToPayload(buildFallbackPreview(intake));
+  const payload = attachClfsBenchmarksToPayload(buildFallbackPreview(intake), getRequestLineItems(intake));
   console.warn('[api/analyze] UPA_DEBUG using local free_preview fallback', { reason });
   return res.status(200).json({
     id: 'upa-free-preview-fallback',
@@ -663,7 +697,7 @@ export default async function handler(req, res) {
     });
   }
 
-  const enrichedData = attachClfsBenchmarksToAnthropicData(data);
+  const enrichedData = attachClfsBenchmarksToAnthropicData(data, getRequestLineItems(structuredRequest?.intake || normalizeIntake(body.intake || {})));
   return res.status(response.status).json({
     ...enrichedData,
     generationMode: structuredRequest?.generationMode || 'legacy_messages'

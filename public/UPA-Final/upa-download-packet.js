@@ -32,6 +32,28 @@
     return clean(intake.patient_name || intake.patientName || intake.full_name || intake.fullName || intake.name || firstLast);
   }
 
+  function formatLooseMoney(value){
+    var text = clean(value);
+    var match = text.match(/\d[\d,]*(?:\.\d+)?/);
+    if(!match) return text;
+    var n = parseFloat(match[0].replace(/,/g,''));
+    if(!isFinite(n)) return text;
+    return '$' + n.toLocaleString('en-US', { maximumFractionDigits:n % 1 ? 2 : 0 });
+  }
+
+  function looksLikeSentence(value){
+    var text = clean(value);
+    var words = text.split(/\s+/).filter(Boolean);
+    return /[.!?]/.test(text) ||
+      words.length >= 7 ||
+      /\b(i|me|my|mine|we|they|them|because|called|said|told|denied|covered|received|got|from my|through my)\b/i.test(text);
+  }
+
+  function safeCoverage(value){
+    var text = clean(value);
+    return looksLikeSentence(text) ? 'Coverage: see your EOB' : text;
+  }
+
   function normalizeAppIntake(form, session){
     if(!form || typeof form !== 'object') return {};
     var visitLabels = {
@@ -140,10 +162,10 @@
       patient:    hasName ? rawName : 'Patient Name Not Provided',
       patientHas: hasName,
       provider:   clean(intake.provider || intake.providerName || intake.extracted_provider || ''),
-      amount:     clean(intake.bill_amount_other || intake.bill_amount || (intake.extracted_bill_amount ? '$' + intake.extracted_bill_amount : '') || intake.totalBilled || intake.balance || ''),
+      amount:     formatLooseMoney(intake.bill_amount_other || intake.bill_amount || (intake.extracted_bill_amount ? '$' + intake.extracted_bill_amount : '') || intake.totalBilled || intake.balance || ''),
       dos:        clean(intake.date_of_service || intake.extracted_date_of_service || intake.service_date || intake.serviceDate || ''),
       account:    clean(intake.account_number || intake.extracted_account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || ''),
-      coverage:   clean(intake.insurance || intake.extracted_insurance || intake.insuranceType || ''),
+      coverage:   safeCoverage(intake.insurance_other || intake.insurance || intake.extracted_insurance || intake.insuranceType || ''),
       prepDate:   clean(new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})),
       email:      clean(intake.email || ''),
       phone:      clean(intake.phone || ''),
@@ -156,7 +178,8 @@
     var provider = ctx.provider || 'Provider on bill (click to edit)';
     var amount = ctx.amount || 'Amount on statement (click to edit)';
     var dos = ctx.dos || 'Service date on statement (click to edit)';
-    var account = ctx.account || 'Account number on statement (click to edit)';
+    var accountRef = ctx.account || 'on file';
+    var account = ctx.account ? ctx.account : 'Account: on file';
     var coverage = ctx.coverage || 'Coverage on file (click to edit)';
     var contact = [ctx.email, ctx.phone].filter(Boolean).join(' · ') || 'Phone & email — click to edit';
     var addressBlock = ctx.address || 'Mailing address — click to edit';
@@ -191,6 +214,8 @@
       .replace(/Prepared Preparation date/g, 'Prepared ' + ctx.prepDate)
       .replace(/Bill amount/g, amount)
       .replace(/Bill Amount/g, amount)
+      .replace(/Account:\s*account number/gi, 'Account: ' + accountRef)
+      .replace(/Account number on statement \(click to edit\)/g, account)
       .replace(/Account number/g, account)
       .replace(/account number/g, account)
       .replace(/billing reference/g, account)

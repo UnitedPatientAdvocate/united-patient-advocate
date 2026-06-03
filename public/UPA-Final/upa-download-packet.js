@@ -82,6 +82,15 @@
     }
   }
 
+  function readAIDossier(){
+    try {
+      var raw = localStorage.getItem('upa.ai.dossier.v1') || sessionStorage.getItem('upa.ai.dossier.v1');
+      if(!raw) return null;
+      var d = JSON.parse(raw);
+      return (d && d.generationMode === 'paid_dossier') ? d : null;
+    } catch(e){ return null; }
+  }
+
   function packetUrl(){
     if(typeof window.upaFinalPath === 'function') return window.upaFinalPath('05_upa-packet.html');
     return '05_upa-packet.html';
@@ -188,6 +197,45 @@
       // customer-facing letters per the credential-neutrality directive.
       .replace(/treating provider/g, 'requesting party listed in my medical record')
       .replace(/treating clinician/g, 'party listed as having performed the service');
+  }
+
+  function buildCodeRow(item){
+    var pct = Number(item.percentAboveBenchmark) || 0;
+    var billedN = Number(item.billedAmount) || 0;
+    var medicareN = Number(item.typicalMedicareRate) || 0;
+    var billedStr = billedN > 0 ? '$' + billedN.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2}) : 'See bill';
+    var medicareStr = medicareN > 0 ? '$' + medicareN.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2}) : 'Ref. rate';
+    var billedBarW = 90;
+    var medicareBarW = (billedN > 0 && medicareN > 0) ? Math.round((medicareN / billedN) * 90) : 50;
+    medicareBarW = Math.max(10, Math.min(89, medicareBarW));
+    var pctColor = pct >= 50 ? 'var(--crimson,#D03030)' : (pct >= 20 ? 'var(--amber,#D07000)' : 'var(--teal,#1BA86D)');
+    var pctLabel = pct > 0 ? 'Billed ' + pct + '% above reference rate' : (medicareN > 0 ? 'At or near reference rate' : 'Pending rate comparison');
+    var flagIcon = item.flagLevel === 'review' ? '⚠️' : (item.flagLevel === 'note' ? '\u{1f4dd}' : '✅');
+    return '<div style="background:white;border:1px solid var(--bdr,#DDE3EE);border-radius:9px;padding:16px 18px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">' +
+      '<div><div style="font-size:.875rem;font-weight:700;color:var(--navy,#0E1828)">' + escapeHTML(String(item.code || 'General')) + ' — ' + escapeHTML(String(item.description || '')) + '</div>' +
+      '<div style="font-size:.5625rem;color:var(--ink4,#5A7A8A);margin-top:1px">' + flagIcon + ' ' + escapeHTML(String(item.flagReason || '')) + '</div></div>' +
+      '<div style="font-size:.75rem;font-weight:700;color:' + pctColor + '">' + escapeHTML(pctLabel) + '</div>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:7px">' +
+      '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson,#D03030);width:64px;text-align:right;flex-shrink:0">Billed</span>' +
+      '<div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:' + billedBarW + '%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson,#D03030));border-radius:9px"></div></div>' +
+      '<span style="font-family:var(--mono,monospace);font-size:.6875rem;font-weight:600;color:var(--crimson,#D03030);min-width:60px;text-align:right">' + escapeHTML(billedStr) + '</span></div>' +
+      '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal,#1BA86D);width:64px;text-align:right;flex-shrink:0">Ref. Rate</span>' +
+      '<div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:' + medicareBarW + '%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal,#1BA86D));border-radius:9px"></div></div>' +
+      '<span style="font-family:var(--mono,monospace);font-size:.6875rem;font-weight:600;color:var(--teal,#1BA86D);min-width:60px;text-align:right">' + escapeHTML(medicareStr) + '</span></div>' +
+      '</div></div>';
+  }
+
+  function injectCodeAnalysis(html, dossier){
+    var codeAnalysis = dossier && Array.isArray(dossier.codeAnalysis) ? dossier.codeAnalysis : [];
+    if(!codeAnalysis.length) return html;
+    var badge = '<div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(30,184,122,.10);border:1px solid rgba(30,184,122,.30);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--teal,#1BA86D);margin-bottom:12px">✅ Case-Specific Analysis — Based on Your Bill</div>';
+    var heading = '<div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy,#0E1828);margin-bottom:4px">Your Charges vs. Reference Rates</div>';
+    var desc = '<div style="font-size:.75rem;color:var(--ink4,#5A7A8A);line-height:1.6;margin-bottom:18px">Based on AI analysis of your submitted bill. The <span style="color:var(--teal,#1BA86D);font-weight:700">green bar</span> shows the reference rate. The <span style="color:var(--crimson,#D03030);font-weight:700">red bar</span> shows what was billed. Verify all figures against your itemized statement before taking action.</div>';
+    var rows = '<div style="display:flex;flex-direction:column;gap:14px">' + codeAnalysis.slice(0,6).map(buildCodeRow).join('') + '</div>';
+    var replacement = '<!--UPA_BENCHMARK_SECTION_START-->\n    ' + badge + '\n    ' + heading + '\n    ' + desc + '\n    ' + rows + '\n    <!--UPA_BENCHMARK_SECTION_END-->';
+    return html.replace(/<!--UPA_BENCHMARK_SECTION_START-->[\s\S]*?<!--UPA_BENCHMARK_SECTION_END-->/, replacement);
   }
 
   function addBase(html, sourceUrl){
@@ -391,6 +439,7 @@
 
   async function buildDownloadHtml(){
     var intake = readIntake();
+    var dossier = readAIDossier();
     var onPacketPage = /05_upa-packet\.html(?:$|[?#])/i.test(window.location.pathname);
     var sourceUrl = absoluteUrl(packetUrl());
     var html = onPacketPage ? currentPacketSnapshot() : await loadText(sourceUrl);
@@ -403,6 +452,7 @@
     html = inlinePersonalization(html, personalization);
     html = stripDownloadScript(html);
     html = scrubTemplateText(html, intake);
+    html = injectCodeAnalysis(html, dossier);
     html = await inlineImages(html, sourceUrl);
     return { html: html, filename: packetFilename(intake) };
   }

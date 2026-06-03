@@ -424,8 +424,8 @@ body{padding:12px 10px 40px;overflow-x:hidden}
       <div style="display:flex;flex-direction:column;gap:12px">
         <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:white;border:1px solid var(--bdr);border-radius:9px;border-left:5px solid #2C3870">
           <div style="width:16px;height:16px;background:#2C3870;border-radius:3px;flex-shrink:0"></div>
-          <div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">Confirmed — No Action Needed</div><div style="font-size:.625rem;color:var(--ink4)">~86% in this reference example · Standard charges, typically not flagged</div></div>
-          <div style="font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--ink3);letter-spacing:-.02em">$20,267</div>
+          <div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">Confirmed — No Action Needed</div><div style="font-size:.625rem;color:var(--ink4)">Pending itemized breakdown · Standard charges, typically not flagged</div></div>
+          <div style="font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--ink3);letter-spacing:-.02em">Pending review</div>
         </div>
         <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--crimson-lt);border:1px solid rgba(200,50,50,.20);border-radius:9px;border-left:5px solid var(--crimson)">
           <div style="width:16px;height:16px;background:var(--crimson);border-radius:3px;flex-shrink:0"></div>
@@ -545,45 +545,18 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 
   <!-- Medicare bars section — GENERAL REFERENCE EXAMPLE -->
   <div style="padding:22px 40px 20px;border-bottom:1px solid var(--bdr)">
+    <!--UPA_BENCHMARK_SECTION_START-->
     <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(208,112,0,.10);border:1px solid rgba(208,112,0,.30);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:12px">⚠ General Reference Example — Not Personalized to This Case</div>
     <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);margin-bottom:4px">Hospital Charges vs. Standard Medicare Rate — Illustrative</div>
-    <div style="font-size:.75rem;color:var(--ink4);line-height:1.6;margin-bottom:18px">The <span style="color:var(--teal);font-weight:700">green bar</span> shows what Medicare typically allows for each procedure type. The <span style="color:var(--crimson);font-weight:700">red bar</span> shows what hospitals commonly bill commercial payers. A large gap between the two is the general pattern most billing disputes target. <strong>Your specific case's bar comparison will be calculated when an itemized statement is uploaded.</strong></div>
+    <div style="font-size:.75rem;color:var(--ink4);line-height:1.6;margin-bottom:18px">The <span style="color:var(--teal);font-weight:700">green bar</span> shows what Medicare typically allows for each procedure type. The <span style="color:var(--crimson);font-weight:700">red bar</span> shows what hospitals commonly bill commercial payers. A large gap between the two is the general pattern most billing disputes target. <strong>To personalize this section: visit your dashboard, allow the AI review to complete, then download this packet again.</strong></div>
 
     <div style="display:flex;flex-direction:column;gap:14px">
-      <!-- billing line item -->
-      <div style="background:white;border:1px solid var(--bdr);border-radius:9px;padding:16px 18px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-          <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Emergency Visit — billing line item</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Billed for this procedure on two separate line items</div></div>
-          <div style="font-size:.75rem;font-weight:700;color:var(--crimson)">Billed 82% above Medicare rate</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:92%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">To confirm</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">Medicare</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:51%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">Benchmark</span></div>
-        </div>
-      </div>
-      <!-- billing line item -->
-      <div style="background:white;border:1px solid var(--bdr);border-radius:9px;padding:16px 18px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-          <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Office Visit Level 5 — billing line item</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Highest complexity code — records may support a lower level</div></div>
-          <div style="font-size:.75rem;font-weight:700;color:var(--crimson)">Billed 56% above Medicare rate</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:72%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">To confirm</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">Medicare</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:46%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">Benchmark</span></div>
-        </div>
-      </div>
-      <!-- Lab -->
-      <div style="background:white;border:1px solid var(--bdr);border-radius:9px;padding:16px 18px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-          <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Lab Services — Outside Service Provider</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Processed out-of-network — in-network rate may apply</div></div>
-          <div style="font-size:.75rem;font-weight:700;color:var(--cobalt)">In-network rate estimated ~Benchmark</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">OON Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:95%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">To confirm</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">In-Network</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:32%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">~Benchmark</span></div>
-        </div>
+      <div style="background:white;border:1px solid var(--bdr);border-radius:9px;padding:20px 18px;text-align:center">
+        <div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:8px">⚠ Needs Your Input — Benchmark Comparison Not Yet Generated</div>
+        <div style="font-size:.75rem;color:var(--ink4);line-height:1.6">Return to your dashboard and download this packet again after the AI analysis completes to see your specific charges compared to reference rates.</div>
       </div>
     </div>
+    <!--UPA_BENCHMARK_SECTION_END-->
   </div>
 
   <!-- Estimated Timeline -->

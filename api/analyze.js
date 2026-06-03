@@ -58,6 +58,7 @@ Framing rules:
 - Include deep but measured analysis, not sensational claims.
 - JSON validity is critical: escape every quote inside string values, use \\n for line breaks inside long letters/scripts, do not include markdown fences, and do not put raw newline characters inside JSON strings.
 - CRITICAL: If RAW BILL TEXT is provided below, your entire analysis MUST be based on the actual charges, CPT codes, line items, dates, amounts, and billing patterns found in that text. Reference specific codes, amounts, and line items by name. This is a real bill — give a real review, not a template.
+- codeAnalysis field: If RAW BILL TEXT contains identifiable CPT/HCPCS codes or specific charge line items, include one entry per major code (up to 6). billedAmount and typicalMedicareRate must be real dollar numbers (no $ or commas) from the bill text and standard Medicare fee schedules. percentAboveBenchmark is the integer percent by which billedAmount exceeds typicalMedicareRate (0 if at or below). flagLevel: "review" = warrants written inquiry, "note" = minor observation, "ok" = within normal range. If no specific codes are identifiable, return codeAnalysis as an empty array []. NEVER fabricate CPT codes, amounts, or benchmark rates.
 
 Patient submission:
 ${formatIntake(intake)}
@@ -93,6 +94,17 @@ Return exactly this JSON structure with no markdown:
       {"step":5,"title":"Title","description":"Description","timeframe":"Day 30","powerTip":"Measured practical tip"}
     ]
   },
+  "codeAnalysis": [
+    {
+      "code": "CPT or HCPCS code string, or 'General' if no specific code identified",
+      "description": "Plain-English description of what was billed for this line item",
+      "billedAmount": 0,
+      "typicalMedicareRate": 0,
+      "percentAboveBenchmark": 0,
+      "flagLevel": "review | note | ok",
+      "flagReason": "One sentence: why this was flagged or why it appears reasonable"
+    }
+  ],
   "disputeLetter": "Full personalized dispute/documentation letter in a professional consumer-guidance tone.",
   "phoneScript": "Full personalized call script with careful, non-accusatory phrasing.",
   "actionPlan": [

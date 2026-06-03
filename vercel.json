@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/analyze.js": {
+      "includeFiles": "api/data/cms-clfs-2026.json"
+    }
+  },
   "routes": [
     {
       "src": "/api/(.*)",

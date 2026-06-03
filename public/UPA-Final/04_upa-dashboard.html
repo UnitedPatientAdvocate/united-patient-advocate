@@ -408,10 +408,10 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .bb-label { font-size: 0.6875rem; font-weight: 600; color: var(--ink-3); margin-bottom: 8px; }
 .bb-track { height: 32px; border-radius: 7px; overflow: hidden; display: flex; box-shadow: 0 2px 8px rgba(17,28,46,0.10); margin-bottom: 10px; }
 .bb-seg { display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.bbs-confirmed  { background: linear-gradient(135deg, #2C3870, #3D5290); flex: 0 0 86.7%; }
-.bbs-duplicate  { background: linear-gradient(135deg, var(--crimson-dk), var(--crimson)); flex: 0 0 5.3%; }
-.bbs-questioned { background: linear-gradient(135deg, #9A4A00, var(--amber)); flex: 0 0 2.9%; }
-.bbs-negotiable { background: linear-gradient(135deg, #1A3EA0, var(--cobalt)); flex: 0 0 5.1%; }
+.bbs-confirmed  { background: linear-gradient(135deg, #2C3870, #3D5290); }
+.bbs-duplicate  { background: linear-gradient(135deg, var(--crimson-dk), var(--crimson)); }
+.bbs-questioned { background: linear-gradient(135deg, #9A4A00, var(--amber)); }
+.bbs-negotiable { background: linear-gradient(135deg, #1A3EA0, var(--cobalt)); }
 .bbs-label { font-size: 0.4375rem; font-weight: 700; color: rgba(255,255,255,0.72); white-space: nowrap; overflow: hidden; padding: 0 5px; }
 .bb-legend { display: flex; gap: 12px; flex-wrap: wrap; }
 .legend-i { display: flex; align-items: center; gap: 5px; }
@@ -3398,28 +3398,28 @@ function seoTryRecover(){
           <div class="card-head"><div class="card-overline">Your Bill: Visual Breakdown</div></div>
           <div class="card-body">
             <div class="bb-label">Bill amount Total Bill: Where Each Dollar Stands</div>
-            <div class="bb-track">
-              <div class="bb-seg bbs-confirmed"><span class="bbs-label">$20,267 · Confirmed</span></div>
+            <div class="bb-track" data-upa-clfs-track>
+              <div class="bb-seg bbs-confirmed"><span class="bbs-label">Needs input</span></div>
               <div class="bb-seg bbs-duplicate"></div>
               <div class="bb-seg bbs-questioned"></div>
               <div class="bb-seg bbs-negotiable"></div>
             </div>
-            <div class="bb-legend">
-              <div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">Confirmed, no action · $20,267</span></div>
+            <div class="bb-legend" data-upa-clfs-legend>
+              <div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">Verified CLFS matches · Needs input</span></div>
               <div class="legend-i"><div class="legend-dot ld-dup"></div><span class="legend-text">Duplicate charge · To confirm</span></div>
               <div class="legend-i"><div class="legend-dot ld-que"></div><span class="legend-text">Coding review · To confirm</span></div>
               <div class="legend-i"><div class="legend-dot ld-neg"></div><span class="legend-text">OON negotiable · To confirm</span></div>
             </div>
-            <div class="bench-label">Medicare Benchmark Comparison — sample pattern</div>
-            <div class="bench-item">
+            <div class="bench-label">Verified Medicare Lab Benchmark Comparison</div>
+            <div class="bench-item" data-upa-clfs-dashboard-line>
               <div class="bench-head"><span class="bench-name">Billing line item</span><span class="bench-delta over">Needs benchmark review</span></div>
-              <div class="bench-bar-row"><span class="bench-bar-lbl">Billed</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-billed" data-w="92%"></div></div><span class="bench-bar-val">To confirm</span></div>
-              <div class="bench-bar-row"><span class="bench-bar-lbl">Medicare</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-medicare" data-w="50%"></div></div><span class="bench-bar-val">Benchmark</span></div>
+              <div class="bench-bar-row"><span class="bench-bar-lbl">Billed</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-billed"></div></div><span class="bench-bar-val">Needs input</span></div>
+              <div class="bench-bar-row"><span class="bench-bar-lbl">CMS CLFS</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-medicare"></div></div><span class="bench-bar-val">Needs input</span></div>
             </div>
-            <div class="bench-item">
+            <div class="bench-item" data-upa-clfs-dashboard-line>
               <div class="bench-head"><span class="bench-name">Billing line item</span><span class="bench-delta over">Needs benchmark review</span></div>
-              <div class="bench-bar-row"><span class="bench-bar-lbl">Billed</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-billed" data-w="72%"></div></div><span class="bench-bar-val">To confirm</span></div>
-              <div class="bench-bar-row"><span class="bench-bar-lbl">Medicare</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-medicare" data-w="46%"></div></div><span class="bench-bar-val">Benchmark</span></div>
+              <div class="bench-bar-row"><span class="bench-bar-lbl">Billed</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-billed"></div></div><span class="bench-bar-val">Needs input</span></div>
+              <div class="bench-bar-row"><span class="bench-bar-lbl">CMS CLFS</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-medicare"></div></div><span class="bench-bar-val">Needs input</span></div>
             </div>
           </div>
         </div>
@@ -3476,15 +3476,13 @@ function seoTryRecover(){
           </div>
           <div class="fc-body">
             <div class="fv-waterfall">
-              <div class="fv-row"><div class="fv-row-label"><div class="fvrl-name">Total Billed</div><div class="fvrl-code">All charges</div></div><div class="fv-track"><div class="fv-fill" data-w="100%" style="background:linear-gradient(90deg,#2C3870,#3D5290)"><span class="fv-fill-label">Bill amount · 100%</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--on-dark)">Bill amount</div><div class="fvra-lbl" style="color:var(--on-dark-3)">Total</div></div></div>
-              <div class="fv-row"><div class="fv-row-label"><div class="fvrl-name">Medicare Baseline</div><div class="fvrl-code">Allowable rates</div></div><div class="fv-track"><div class="fv-fill" data-w="80%" style="background:linear-gradient(90deg,#1A5040,#1EB87A)"><span class="fv-fill-label">To confirm,742 · 80%</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--green)">To confirm,742</div><div class="fvra-lbl" style="color:var(--on-dark-3)">Baseline</div></div></div>
-              <div class="fv-row"><div class="fv-row-label"><div class="fvrl-name" style="color:rgba(255,120,120,.90)">Line-Item Review</div><div class="fvrl-code">billing line item · Itemized bill lines</div></div><div class="fv-track"><div class="fv-fill" data-w="5.3%" style="background:linear-gradient(90deg,var(--crimson-dk),var(--crimson))"><span class="fv-fill-label" style="font-size:.38rem">To confirm</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:#FF8080">To confirm</div><div class="fvra-lbl" style="color:rgba(255,128,128,.55)">Flagged</div></div></div>
-              <div class="fv-row"><div class="fv-row-label"><div class="fvrl-name" style="color:rgba(255,180,80,.90)">Documentation Review</div><div class="fvrl-code">billing line item · provider records</div></div><div class="fv-track"><div class="fv-fill" data-w="2.9%" style="background:linear-gradient(90deg,#9A4A00,var(--amber))"><span class="fv-fill-label" style="font-size:.38rem">To confirm</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--gold)">To confirm</div><div class="fvra-lbl" style="color:rgba(240,165,0,.5)">Review</div></div></div>
-              <div class="fv-row"><div class="fv-row-label"><div class="fvrl-name" style="color:rgba(110,160,255,.90)">Rate Review</div><div class="fvrl-code">Outside Service Provider</div></div><div class="fv-track"><div class="fv-fill" data-w="5.4%" style="background:linear-gradient(90deg,#1A3EA0,var(--cobalt))"><span class="fv-fill-label" style="font-size:.38rem">To confirm</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:#80A8FF">To confirm</div><div class="fvra-lbl" style="color:rgba(59,110,224,.5)">Negotiable</div></div></div>
+              <div class="fv-row" data-upa-clfs-waterfall-total><div class="fv-row-label"><div class="fvrl-name">Total Billed</div><div class="fvrl-code">CLFS line items</div></div><div class="fv-track"><div class="fv-fill" style="background:linear-gradient(90deg,#2C3870,#3D5290)"><span class="fv-fill-label">Needs input</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--on-dark)">Needs input</div><div class="fvra-lbl" style="color:var(--on-dark-3)">Total</div></div></div>
+              <div class="fv-row" data-upa-clfs-waterfall-benchmark><div class="fv-row-label"><div class="fvrl-name">CMS CLFS Benchmark</div><div class="fvrl-code">Verified lab rates</div></div><div class="fv-track"><div class="fv-fill" style="background:linear-gradient(90deg,#1A5040,#1EB87A)"><span class="fv-fill-label">Needs input</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--green)">Needs input</div><div class="fvra-lbl" style="color:var(--on-dark-3)">Benchmark</div></div></div>
+              <div class="fv-row" data-upa-clfs-waterfall-overcharge><div class="fv-row-label"><div class="fvrl-name" style="color:rgba(255,120,120,.90)">Verified Difference</div><div class="fvrl-code">Matched CLFS lines only</div></div><div class="fv-track"><div class="fv-fill" style="background:linear-gradient(90deg,var(--crimson-dk),var(--crimson))"><span class="fv-fill-label" style="font-size:.38rem">Needs input</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:#FF8080">Needs input</div><div class="fvra-lbl" style="color:rgba(255,128,128,.55)">Difference</div></div></div>
             </div>
             <div class="fv-summary">
               <div class="fvs-item"><div class="fvs-label">Total Billed</div><div class="fvs-val fvsv-white">Bill amount</div><div class="fvs-sub">Full statement</div></div>
-              <div class="fvs-item"><div class="fvs-label">Confirmed Correct</div><div class="fvs-val fvsv-white" style="color:var(--on-dark-2)">$20,267</div><div class="fvs-sub">No action needed</div></div>
+              <div class="fvs-item"><div class="fvs-label">Verified CLFS Matches</div><div class="fvs-val fvsv-white" style="color:var(--on-dark-2)" data-upa-clfs-match-count>Needs input</div><div class="fvs-sub" data-upa-clfs-coverage-short>Needs itemized lab codes</div></div>
               <div class="fvs-item"><div class="fvs-label">You May Not Owe</div><div class="fvs-val fvsv-green">Amount to review</div><div class="fvs-sub">review areas · review portion</div></div>
               <div class="fvs-item"><div class="fvs-label">Dispute Success</div><div class="fvs-val fvsv-gold">38%</div><div class="fvs-sub">of disputes corrected</div></div>
             </div>
@@ -4574,7 +4572,7 @@ const GC = {
     <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">Will disputing my bill hurt my credit? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">A written dispute can help document your position. Medical debt reporting and scoring rules vary by account, timing, collector status, and dispute type; if a bill reaches collections, dispute it in writing promptly and keep copies.</div></div>
     <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">Do I need a lawyer for any of this? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">No. Everything in this package is prepared for you to review and send yourself. The letters reference billing protections where applicable. The scripts walk you through each conversation. Many billing disputes are handled at the billing department level without legal representation.</div></div>
     <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">What if the hospital says the line-item concern is correct? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">Ask them to explain in writing exactly why the same CPT code on the same date was billed twice. If they can't provide a clear clinical explanation, escalate to the hospital's Patient Advocate. You can also file a complaint with your state insurance commissioner and CMS if Medicare was involved.</div></div>
-    <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">Can I pay part of the bill while disputing the rest? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">Yes, and this is often a good approach. You can pay the confirmed $20,267 and explicitly state in writing that you are paying the undisputed portion only. State this clearly in a letter accompanying your payment and keep a copy.</div></div>
+    <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">Can I pay part of the bill while disputing the rest? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">Yes, and this is often a good approach. You can pay only the portion you have independently confirmed and explicitly state in writing that you are paying the undisputed portion only. State this clearly in a letter accompanying your payment and keep a copy.</div></div>
     <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">How long does this usually take? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">Itemized statement requests: 2–4 weeks. Formal disputes: 30–45 days for a response. Out-of-network rate adjustments: up to 60 days. Follow up at 30 days if you haven't heard back, and keep records of everything you send.</div></div>
     <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">What if I already paid the bill? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">You can still dispute and request a refund. It's just harder. Send a formal dispute letter requesting a refund of the line-item concern. If they refuse, you can dispute with your bank or credit card if that's how you paid, or escalate to your state insurance commissioner.</div></div>
     <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">Is there anything I should never say on the phone? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">Avoid anything that sounds like accepting the bill. Phrases like like "I guess I owe this." Stick to the call scripts. Never give payment information on a call you didn't initiate. Don't let anyone pressure you into an immediate payment while charges are under dispute.</div></div>
@@ -5845,6 +5843,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     try{
       localStorage.setItem('upa.ai.dossier.v1', JSON.stringify(dossier));
     }catch(e){}
+    if(window.UPARenderCLFSBenchmarks) window.UPARenderCLFSBenchmarks();
 
     console.log('[UPA] ✅ AI paid dossier rendered | risk:', dossier.summary && dossier.summary.riskLevel);
   }

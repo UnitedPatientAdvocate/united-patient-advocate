@@ -15,6 +15,13 @@
     }
   }
 
+  function readDossier(){
+    var dossier = readStorageJSON('upa.ai.dossier.v1');
+    if(dossier && Object.keys(dossier).length) return dossier;
+    dossier = readStorageJSON('upa.paid.results.v2');
+    return dossier && Object.keys(dossier).length ? dossier : {};
+  }
+
   function clean(value){
     return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
   }
@@ -237,6 +244,13 @@
     return html.replace(/<\/head>/i, script + '</head>');
   }
 
+  function addDossier(html, dossier){
+    var json = JSON.stringify(dossier || {}).replace(/</g, '\\u003c');
+    var script = '<script>window.__UPA_AI_DOSSIER__=' + json + ';try{sessionStorage.setItem("upa.ai.dossier.v1",JSON.stringify(window.__UPA_AI_DOSSIER__));localStorage.setItem("upa.ai.dossier.v1",JSON.stringify(window.__UPA_AI_DOSSIER__));}catch(e){}<\/script>';
+    html = html.replace(/<script[^>]*>[\s\S]*?window\.__UPA_AI_DOSSIER__[\s\S]*?<\/script>/i, '');
+    return html.replace(/<\/head>/i, script + '</head>');
+  }
+
   function stripDownloadScript(html){
     // Remove the download-packet script tag from the downloaded file
     html = html.replace(/<script\b[^>]*src=["'][^"']*upa-download-packet\.js[^"']*["'][^>]*>\s*<\/script>/ig, '');
@@ -391,6 +405,7 @@
 
   async function buildDownloadHtml(){
     var intake = readIntake();
+    var dossier = readDossier();
     var onPacketPage = /05_upa-packet\.html(?:$|[?#])/i.test(window.location.pathname);
     var sourceUrl = absoluteUrl(packetUrl());
     var html = onPacketPage ? currentPacketSnapshot() : await loadText(sourceUrl);
@@ -400,6 +415,7 @@
     } catch(e) {}
     html = addBase(html, sourceUrl);
     html = addIntake(html, intake);
+    html = addDossier(html, dossier);
     html = inlinePersonalization(html, personalization);
     html = stripDownloadScript(html);
     html = scrubTemplateText(html, intake);

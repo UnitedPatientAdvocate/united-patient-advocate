@@ -391,41 +391,41 @@ body{padding:12px 10px 40px;overflow-x:hidden}
     <div style="padding:28px 20px;text-align:center;position:relative"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold-dk)"></div><div style="font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--gold-dk);letter-spacing:-.04em;line-height:1;margin-bottom:6px">Most</div><div style="font-size:.75rem;font-weight:700;color:var(--ink3);margin-bottom:5px">Typically Confirmed</div><div style="font-size:.625rem;color:var(--ink4);line-height:1.55">On a typical bill most charges are standard; a smaller share is worth reviewing. Your exact split depends on your itemized statement.</div></div>
   </div>
 
-  <!-- Donut chart — GENERAL REFERENCE EXAMPLE (not derived from this case) -->
-  <div style="padding:30px 40px">
-    <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(208,112,0,.10);border:1px solid rgba(208,112,0,.30);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin:0 auto 14px;display:block;width:fit-content">⚠ General Reference Example — Not Personalized to This Case</div>
-    <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);letter-spacing:-.01em;text-align:center;margin-bottom:4px">How a Typical Hospital Bill Breaks Down</div>
-    <div style="font-size:.75rem;color:var(--ink4);text-align:center;margin-bottom:24px">Illustrative breakdown of where charges typically fall on a hospital statement. The exact split for your bill depends on your itemized statement and supporting records.</div>
+  <!-- Verified CLFS benchmark section populated from the paid dossier. -->
+  <div data-upa-clfs="packet" style="padding:30px 40px">
+    <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(208,112,0,.10);border:1px solid rgba(208,112,0,.30);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin:0 auto 14px;display:block;width:fit-content">Needs Your Input</div>
+    <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);letter-spacing:-.01em;text-align:center;margin-bottom:4px">Verified Medicare Lab Benchmark Review</div>
+    <div data-upa-clfs-coverage style="font-size:.75rem;color:var(--ink4);text-align:center;margin-bottom:24px">Needs Your Input. Upload an itemized bill with lab codes and billed amounts to compare eligible line items against CMS CLFS rates.</div>
 
-    <div style="display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:center">
+    <div data-upa-clfs-grid style="display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:center">
       <!-- Donut SVG -->
       <div style="position:relative;width:260px;height:260px">
         <svg viewBox="0 0 260 260" width="260" height="260" style="display:block">
           <defs><filter id="ds"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-opacity="0.14"/></filter></defs>
           <circle cx="130" cy="130" r="100" fill="white" filter="url(#ds)"/>
-          <!-- Confirmed 86.4% = 311° -->
-          <circle cx="130" cy="130" r="78" fill="none" stroke="#2C3870" stroke-width="36" stroke-dasharray="489.8 14" stroke-dashoffset="0" transform="rotate(-90 130 130)"/>
-          <!-- Crimson 5.3% = 19° -->
-          <circle cx="130" cy="130" r="78" fill="none" stroke="#C83232" stroke-width="36" stroke-dasharray="30.1 473.7" stroke-dashoffset="-489.8" transform="rotate(-90 130 130)"/>
-          <!-- Amber 2.9% = 10.4° -->
-          <circle cx="130" cy="130" r="78" fill="none" stroke="#D07000" stroke-width="36" stroke-dasharray="16.4 487.4" stroke-dashoffset="-519.9" transform="rotate(-90 130 130)"/>
-          <!-- Cobalt 5.4% = 19.4° -->
-          <circle cx="130" cy="130" r="78" fill="none" stroke="#2850C0" stroke-width="36" stroke-dasharray="30.7 473.1" stroke-dashoffset="-536.3" transform="rotate(-90 130 130)"/>
+          <!-- CLFS coverage is rendered from the paid dossier. -->
+          <circle cx="130" cy="130" r="78" fill="none" stroke="#2C3870" stroke-width="36" stroke-dasharray="0 503.8" stroke-dashoffset="0" transform="rotate(-90 130 130)"/>
+          <!-- No static review segment. -->
+          <circle cx="130" cy="130" r="78" fill="none" stroke="#C83232" stroke-width="36" stroke-dasharray="0 503.8" stroke-dashoffset="0" transform="rotate(-90 130 130)"/>
+          <!-- No static review segment. -->
+          <circle cx="130" cy="130" r="78" fill="none" stroke="#D07000" stroke-width="36" stroke-dasharray="0 503.8" stroke-dashoffset="0" transform="rotate(-90 130 130)"/>
+          <!-- No static review segment. -->
+          <circle cx="130" cy="130" r="78" fill="none" stroke="#2850C0" stroke-width="36" stroke-dasharray="0 503.8" stroke-dashoffset="0" transform="rotate(-90 130 130)"/>
           <!-- Center white -->
           <circle cx="130" cy="130" r="60" fill="white"/>
           <!-- Center text -->
-          <text x="130" y="122" text-anchor="middle" font-family="Playfair Display,Georgia,serif" font-size="28" font-weight="900" fill="#1C2B48">86%</text>
-          <text x="130" y="138" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="9.5" font-weight="700" fill="#4A6480" letter-spacing="1">CONFIRMED</text>
-          <text x="130" y="150" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="9" fill="#7A98B0">no action needed</text>
+          <text data-upa-clfs-center x="130" y="122" text-anchor="middle" font-family="Playfair Display,Georgia,serif" font-size="22" font-weight="900" fill="#1C2B48">Needs input</text>
+          <text x="130" y="138" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="9.5" font-weight="700" fill="#4A6480" letter-spacing="1">CMS CLFS</text>
+          <text x="130" y="150" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="9" fill="#7A98B0">verified labs only</text>
         </svg>
       </div>
 
       <!-- Legend -->
-      <div style="display:flex;flex-direction:column;gap:12px">
+      <div data-upa-clfs-lines style="display:flex;flex-direction:column;gap:12px">
         <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:white;border:1px solid var(--bdr);border-radius:9px;border-left:5px solid #2C3870">
           <div style="width:16px;height:16px;background:#2C3870;border-radius:3px;flex-shrink:0"></div>
-          <div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">Confirmed — No Action Needed</div><div style="font-size:.625rem;color:var(--ink4)">~86% in this reference example · Standard charges, typically not flagged</div></div>
-          <div style="font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--ink3);letter-spacing:-.02em">$20,267</div>
+          <div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">Verified CLFS Matches</div><div data-upa-clfs-match-note style="font-size:.625rem;color:var(--ink4)">Needs Your Input</div></div>
+          <div data-upa-clfs-overcharge style="font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--ink3);letter-spacing:-.02em">Needs input</div>
         </div>
         <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--crimson-lt);border:1px solid rgba(200,50,50,.20);border-radius:9px;border-left:5px solid var(--crimson)">
           <div style="width:16px;height:16px;background:var(--crimson);border-radius:3px;flex-shrink:0"></div>
@@ -545,31 +545,31 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 
   <!-- Medicare bars section — GENERAL REFERENCE EXAMPLE -->
   <div style="padding:22px 40px 20px;border-bottom:1px solid var(--bdr)">
-    <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(208,112,0,.10);border:1px solid rgba(208,112,0,.30);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:12px">⚠ General Reference Example — Not Personalized to This Case</div>
-    <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);margin-bottom:4px">Hospital Charges vs. Standard Medicare Rate — Illustrative</div>
-    <div style="font-size:.75rem;color:var(--ink4);line-height:1.6;margin-bottom:18px">The <span style="color:var(--teal);font-weight:700">green bar</span> shows what Medicare typically allows for each procedure type. The <span style="color:var(--crimson);font-weight:700">red bar</span> shows what hospitals commonly bill commercial payers. A large gap between the two is the general pattern most billing disputes target. <strong>Your specific case's bar comparison will be calculated when an itemized statement is uploaded.</strong></div>
+    <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(208,112,0,.10);border:1px solid rgba(208,112,0,.30);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:12px">Needs Your Input</div>
+    <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);margin-bottom:4px">Verified CMS CLFS Benchmark Comparison</div>
+    <div style="font-size:.75rem;color:var(--ink4);line-height:1.6;margin-bottom:18px">This section uses verified CMS CLFS rates only when itemized lab codes and billed amounts are available. Non-lab codes stay marked unavailable and are excluded from benchmark totals.</div>
 
     <div style="display:flex;flex-direction:column;gap:14px">
       <!-- billing line item -->
       <div style="background:white;border:1px solid var(--bdr);border-radius:9px;padding:16px 18px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
           <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Emergency Visit — billing line item</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Billed for this procedure on two separate line items</div></div>
-          <div style="font-size:.75rem;font-weight:700;color:var(--crimson)">Billed 82% above Medicare rate</div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--crimson)">Needs CLFS line data</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:92%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">To confirm</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">Medicare</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:51%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">Benchmark</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">Needs input</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">CMS CLFS</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">Needs input</span></div>
         </div>
       </div>
       <!-- billing line item -->
       <div style="background:white;border:1px solid var(--bdr);border-radius:9px;padding:16px 18px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
           <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Office Visit Level 5 — billing line item</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Highest complexity code — records may support a lower level</div></div>
-          <div style="font-size:.75rem;font-weight:700;color:var(--crimson)">Billed 56% above Medicare rate</div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--crimson)">Needs CLFS line data</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:72%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">To confirm</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">Medicare</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:46%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">Benchmark</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">Needs input</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">CMS CLFS</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">Needs input</span></div>
         </div>
       </div>
       <!-- Lab -->
@@ -579,8 +579,8 @@ body{padding:12px 10px 40px;overflow-x:hidden}
           <div style="font-size:.75rem;font-weight:700;color:var(--cobalt)">In-network rate estimated ~Benchmark</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">OON Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:95%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">To confirm</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">In-Network</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:32%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">~Benchmark</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">Needs input</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">CMS CLFS</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">Needs input</span></div>
         </div>
       </div>
     </div>

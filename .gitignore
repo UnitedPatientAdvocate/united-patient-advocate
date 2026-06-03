@@ -20,3 +20,9 @@ upa-preview.html
 static-server*.log
 vite-dev*.log
 .vercel
+
+api/data/26clabq2.zip
+api/data/26clabq2_extract/
+.codex-dashboard-deploy-target.txt
+.codex-safe-attribution-deploy-20260531214356.zip
+.codex-safe-attribution-deploy-current.txt

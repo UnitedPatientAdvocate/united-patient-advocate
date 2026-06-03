@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "vite",
+    "build:clfs": "node scripts/build-cms-clfs-2026.js",
     "build": "node ./node_modules/vite/bin/vite.js build",
     "preview": "vite preview"
   },

@@ -1,3 +1,10 @@
+import fs from 'node:fs';
+
+const CLFS_DATA_URL = new URL('./data/cms-clfs-2026.json', import.meta.url);
+const CLFS_SOURCE = 'CMS CLFS 2026';
+const CLFS_UNAVAILABLE_REASON = 'benchmark unavailable \u2014 not a CLFS lab code';
+let clfsCache = null;
+
 const DEFAULT_MODEL = (process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest').trim();
 const PREFERRED_MODELS = [
   'claude-3-5-sonnet-latest',
@@ -19,6 +26,7 @@ Rules:
 - Do not accuse anyone or promise savings/outcomes.
 - Do not provide full scripts, letters, or tactics.
 - Output under 220 words total.
+- Extract lineItems only when both a code and billed amount are visible in the bill text. Each line item must contain only code, shortDescription, and billedAmount. Do not include rates, Medicare rates, benchmark rates, percentages, sources, or guessed amounts.
 - If RAW BILL TEXT is provided below, use the actual charges, CPT codes, amounts, and line items from it to make findings specific and real — not generic.
 
 Patient submission:
@@ -35,6 +43,9 @@ JSON schema:
     "errorsFound": ["One cautious teaser finding referencing specific charges/codes from the bill if available"],
     "keyFindings": "Two concise sentences referencing specifics from the actual bill."
   },
+  "lineItems": [
+    {"code":"HCPCS/CPT code exactly as printed, including modifier suffix only if printed","shortDescription":"Short service label from the bill text","billedAmount":123.45}
+  ],
   "preview": {
     "screeningHeadline": "Short headline",
     "teaserFinding": "One visible personalized teaser finding referencing the actual bill details.",
@@ -56,6 +67,7 @@ Framing rules:
 - Provide practical, professional consumer guidance in a premium review format.
 - Target roughly 1,800-3,500 words across the review content.
 - Include deep but measured analysis, not sensational claims.
+- Extract lineItems only when both a code and billed amount are visible in the bill text. Each line item must contain only code, shortDescription, and billedAmount. Do not include rates, Medicare rates, benchmark rates, percentages, sources, or guessed amounts.
 - JSON validity is critical: escape every quote inside string values, use \\n for line breaks inside long letters/scripts, do not include markdown fences, and do not put raw newline characters inside JSON strings.
 - CRITICAL: If RAW BILL TEXT is provided below, your entire analysis MUST be based on the actual charges, CPT codes, line items, dates, amounts, and billing patterns found in that text. Reference specific codes, amounts, and line items by name. This is a real bill — give a real review, not a template.
 
@@ -73,6 +85,9 @@ Return exactly this JSON structure with no markdown:
     "errorsFound": ["Observation 1", "Observation 2", "Observation 3"],
     "keyFindings": "Concise premium overview of the strongest review themes."
   },
+  "lineItems": [
+    {"code":"HCPCS/CPT code exactly as printed, including modifier suffix only if printed","shortDescription":"Short service label from the bill text","billedAmount":123.45}
+  ],
   "paidDossier": {
     "executiveOverview": "Premium overview paragraph or two.",
     "billingPatternAnalysis": ["Structured observation 1", "Structured observation 2", "Structured observation 3"],
@@ -232,6 +247,242 @@ function debugPayload(label, value) {
   }
 }
 
+function loadClfsData() {
+  if (clfsCache) return clfsCache;
+
+  try {
+    clfsCache = JSON.parse(fs.readFileSync(CLFS_DATA_URL, 'utf8'));
+  } catch (error) {
+    console.error('[api/analyze] CLFS benchmark data unavailable', { message: error?.message });
+    clfsCache = { metadata: { source: 'CMS CLFS CY2026 Q2V1', year: 2026 } };
+  }
+
+  return clfsCache;
+}
+
+function normalizeCodeAndModifier(codeValue, explicitModifier = '') {
+  const raw = String(codeValue || '').trim().toUpperCase();
+  const modifier = String(explicitModifier || '').trim().toUpperCase();
+  const match = raw.match(/\b([A-Z0-9]{5})(?:\s*[-/ ]\s*([A-Z0-9]{1,4}))?\b/);
+
+  if (!match) {
+    return { code: raw, modifier };
+  }
+
+  return {
+    code: match[1],
+    modifier: modifier || match[2] || ''
+  };
+}
+
+function parseMoneyAmount(value) {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  const parsed = Number.parseFloat(String(value || '').replace(/[^0-9.-]/g, ''));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function roundMoney(value) {
+  return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+}
+
+function roundPercent(value) {
+  return Math.round((Number(value) + Number.EPSILON) * 10) / 10;
+}
+
+export function lookupClfsBenchmark(codeValue, explicitModifier = '') {
+  const { code, modifier } = normalizeCodeAndModifier(codeValue, explicitModifier);
+  const unavailable = {
+    available: false,
+    code,
+    modifier,
+    reason: CLFS_UNAVAILABLE_REASON
+  };
+
+  if (!code) return unavailable;
+
+  const data = loadClfsData();
+  const record = data[code];
+  if (!record) return unavailable;
+
+  const modifierEntry = modifier && record.modifiers && record.modifiers[modifier]
+    ? record.modifiers[modifier]
+    : null;
+  const entry = modifierEntry || record.default;
+
+  if (!entry || typeof entry.rate !== 'number' || !Number.isFinite(entry.rate)) {
+    return unavailable;
+  }
+
+  return {
+    available: true,
+    code,
+    modifier: entry.modifier || '',
+    requestedModifier: modifier,
+    source: CLFS_SOURCE,
+    benchmarkRate: entry.rate,
+    shortDescription: entry.shortDescription || '',
+    effectiveDate: entry.effectiveDate || '',
+    indicator: entry.indicator || ''
+  };
+}
+
+function getPayloadLineItems(payload) {
+  const candidates = [
+    payload?.lineItems,
+    payload?.paidDossier?.lineItems,
+    payload?.summary?.lineItems
+  ];
+
+  return candidates.find(candidate => Array.isArray(candidate) && candidate.length) || [];
+}
+
+function enrichLineItemWithClfs(item = {}) {
+  const codeValue = item.code || item.hcpcs || item.cptCode || item.procedureCode || '';
+  const benchmark = lookupClfsBenchmark(codeValue, item.modifier);
+  const billedAmount = parseMoneyAmount(item.billedAmount ?? item.amount ?? item.charge);
+  const base = {
+    code: benchmark.code || String(codeValue || '').trim().toUpperCase(),
+    shortDescription: String(item.shortDescription || item.description || '').trim(),
+    billedAmount
+  };
+
+  if (!benchmark.available) {
+    return {
+      ...base,
+      benchmarkAvailable: false,
+      benchmarkStatus: 'unavailable',
+      benchmarkUnavailableReason: CLFS_UNAVAILABLE_REASON
+    };
+  }
+
+  const percentAboveBenchmark = billedAmount != null && benchmark.benchmarkRate > 0
+    ? ((billedAmount - benchmark.benchmarkRate) / benchmark.benchmarkRate) * 100
+    : null;
+  const overchargeAmount = billedAmount != null
+    ? Math.max(0, billedAmount - benchmark.benchmarkRate)
+    : 0;
+
+  return {
+    ...base,
+    modifier: benchmark.modifier,
+    benchmarkAvailable: true,
+    benchmarkStatus: 'verified',
+    benchmarkRate: benchmark.benchmarkRate,
+    benchmarkDescription: benchmark.shortDescription,
+    percentAboveBenchmark: percentAboveBenchmark == null ? null : roundPercent(percentAboveBenchmark),
+    overchargeAmount: roundMoney(overchargeAmount),
+    source: CLFS_SOURCE
+  };
+}
+
+export function enrichLineItemsWithClfsBenchmarks(lineItems = []) {
+  const enriched = Array.isArray(lineItems) ? lineItems.map(enrichLineItemWithClfs) : [];
+  const matched = enriched.filter(item => item.benchmarkAvailable).length;
+  const total = enriched.length;
+  const overchargeTotal = enriched.reduce((sum, item) => sum + (item.benchmarkAvailable ? Number(item.overchargeAmount || 0) : 0), 0);
+
+  return {
+    lineItems: enriched,
+    coverage: {
+      source: CLFS_SOURCE,
+      matchedLineItems: matched,
+      totalLineItems: total,
+      statement: `${matched} of ${total} line items matched a verified Medicare lab benchmark.`
+    },
+    overchargeTotal: roundMoney(overchargeTotal)
+  };
+}
+
+function prependUniqueStatement(items, statement) {
+  const list = Array.isArray(items) ? items.slice() : [];
+  if (!statement || list.some(item => String(item || '').includes(statement))) return list;
+  return [statement, ...list];
+}
+
+function attachClfsBenchmarksToPayload(payload) {
+  if (!payload || typeof payload !== 'object') return payload;
+
+  const lineItems = getPayloadLineItems(payload);
+  if (!lineItems.length) return payload;
+
+  const enriched = enrichLineItemsWithClfsBenchmarks(lineItems);
+  const next = {
+    ...payload,
+    lineItems: enriched.lineItems,
+    clfsBenchmarkCoverage: enriched.coverage,
+    clfsOverchargeTotal: enriched.overchargeTotal
+  };
+
+  if (next.paidDossier && typeof next.paidDossier === 'object') {
+    next.paidDossier = {
+      ...next.paidDossier,
+      lineItems: enriched.lineItems,
+      benchmarkCoverageStatement: enriched.coverage.statement,
+      billingPatternAnalysis: prependUniqueStatement(next.paidDossier.billingPatternAnalysis, enriched.coverage.statement)
+    };
+  }
+
+  return next;
+}
+
+function extractJsonCandidate(raw) {
+  const text = String(raw || '')
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+  const start = text.indexOf('{');
+  if (start === -1) return '';
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let i = start; i < text.length; i += 1) {
+    const char = text[i];
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === '\\') {
+        escaped = true;
+      } else if (char === '"') {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === '"') inString = true;
+    if (char === '{') depth += 1;
+    if (char === '}') {
+      depth -= 1;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+
+  return '';
+}
+
+function attachClfsBenchmarksToAnthropicData(data) {
+  const raw = getAnthropicText(data);
+  const candidate = extractJsonCandidate(raw);
+  if (!candidate) return data;
+
+  try {
+    const payload = attachClfsBenchmarksToPayload(JSON.parse(candidate));
+    const text = JSON.stringify(payload);
+    return {
+      ...data,
+      content: Array.isArray(data?.content)
+        ? data.content.map((part, index) => index === 0 ? { ...part, text } : { ...part, text: '' })
+        : data?.content,
+      normalizedPayload: payload
+    };
+  } catch (error) {
+    console.warn('[api/analyze] CLFS benchmark enrichment skipped', { message: error?.message });
+    return data;
+  }
+}
+
 function isAnthropicOverloaded(response, data) {
   return response?.status === 529
     || data?.error?.type === 'overloaded_error'
@@ -239,13 +490,14 @@ function isAnthropicOverloaded(response, data) {
 }
 
 function sendFallbackPreview(res, intake, reason) {
-  const payload = buildFallbackPreview(intake);
+  const payload = attachClfsBenchmarksToPayload(buildFallbackPreview(intake));
   console.warn('[api/analyze] UPA_DEBUG using local free_preview fallback', { reason });
   return res.status(200).json({
     id: 'upa-free-preview-fallback',
     type: 'message',
     role: 'assistant',
     content: [{ type: 'text', text: JSON.stringify(payload) }],
+    normalizedPayload: payload,
     generationMode: 'free_preview',
     fallback: true,
     fallbackReason: reason
@@ -411,8 +663,9 @@ export default async function handler(req, res) {
     });
   }
 
+  const enrichedData = attachClfsBenchmarksToAnthropicData(data);
   return res.status(response.status).json({
-    ...data,
+    ...enrichedData,
     generationMode: structuredRequest?.generationMode || 'legacy_messages'
   });
 }

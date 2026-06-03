@@ -464,6 +464,176 @@
     return info;
   }
 
+  function numberOrNull(value){
+    if(typeof value === 'number' && isFinite(value)) return value;
+    var parsed = parseNumber(value);
+    return parsed == null || !isFinite(parsed) ? null : parsed;
+  }
+
+  function readAIDossier(){
+    if(window.__UPA_AI_DOSSIER__ && typeof window.__UPA_AI_DOSSIER__ === 'object') return window.__UPA_AI_DOSSIER__;
+    var dossier = readStorageJSON('upa.ai.dossier.v1');
+    if(dossier && Object.keys(dossier).length) return dossier;
+    dossier = readStorageJSON('upa.paid.results.v2');
+    return dossier && Object.keys(dossier).length ? dossier : {};
+  }
+
+  function firstArray(){
+    for(var i=0;i<arguments.length;i++){
+      if(Array.isArray(arguments[i]) && arguments[i].length) return arguments[i];
+    }
+    return [];
+  }
+
+  function normalizeBenchmarkLines(dossier){
+    dossier = dossier || {};
+    var paid = dossier.paidDossier || {};
+    var summary = dossier.summary || {};
+    var rows = firstArray(dossier.lineItems, dossier.codeAnalysis, paid.lineItems, paid.codeAnalysis, summary.lineItems, summary.codeAnalysis);
+    return rows.map(function(row){
+      row = row || {};
+      var code = clean(row.code || row.hcpcs || row.cptCode || row.procedureCode).toUpperCase();
+      var billed = numberOrNull(row.billedAmount != null ? row.billedAmount : (row.amount != null ? row.amount : row.charge));
+      var rate = numberOrNull(row.benchmarkRate);
+      var available = row.benchmarkAvailable === true && rate != null;
+      var pct = numberOrNull(row.percentAboveBenchmark);
+      if(pct == null && available && billed != null && rate > 0) pct = ((billed - rate) / rate) * 100;
+      return {
+        code: code,
+        shortDescription: clean(row.shortDescription || row.benchmarkDescription || row.description || 'Line item'),
+        billedAmount: billed,
+        benchmarkRate: available ? rate : null,
+        benchmarkAvailable: available,
+        percentAboveBenchmark: available && pct != null ? Math.round(pct * 10) / 10 : null,
+        source: available ? clean(row.source || 'CMS CLFS 2026') : '',
+        reason: available ? '' : clean(row.reason || row.benchmarkUnavailableReason || 'benchmark unavailable — not a lab code')
+      };
+    }).filter(function(row){ return row.code || row.shortDescription || row.billedAmount != null; });
+  }
+
+  function clfsViewModel(dossier){
+    var lines = normalizeBenchmarkLines(dossier);
+    var matched = lines.filter(function(row){ return row.benchmarkAvailable; });
+    var billedMatched = matched.reduce(function(sum,row){ return sum + (row.billedAmount || 0); }, 0);
+    var benchmarkTotal = matched.reduce(function(sum,row){ return sum + (row.benchmarkRate || 0); }, 0);
+    var overchargeTotal = matched.reduce(function(sum,row){ return sum + ((row.billedAmount || 0) - (row.benchmarkRate || 0)); }, 0);
+    return {
+      lines: lines,
+      matched: matched,
+      matchedCount: matched.length,
+      totalCount: lines.length,
+      billedMatched: billedMatched,
+      benchmarkTotal: benchmarkTotal,
+      overchargeTotal: overchargeTotal,
+      coverageText: matched.length + ' of ' + lines.length + ' line items matched a verified Medicare lab benchmark'
+    };
+  }
+
+  function clampPct(value){
+    value = Number(value);
+    if(!isFinite(value)) return 0;
+    return Math.max(0, Math.min(100, value));
+  }
+
+  function lineBarHtml(line){
+    if(!line.benchmarkAvailable){
+      return '<div class="bench-item"><div class="bench-head"><span class="bench-name">' + h(line.code || 'Line item') + '</span><span class="bench-delta over">' + h(line.reason) + '</span></div><div style="font-size:.625rem;color:var(--ink-4);line-height:1.5">' + h(line.shortDescription) + '</div></div>';
+    }
+    var max = Math.max(line.billedAmount || 0, line.benchmarkRate || 0, 1);
+    var billedW = clampPct(((line.billedAmount || 0) / max) * 100);
+    var rateW = clampPct(((line.benchmarkRate || 0) / max) * 100);
+    var delta = line.percentAboveBenchmark == null ? 'Verified CLFS match' : line.percentAboveBenchmark + '% above benchmark';
+    return '<div class="bench-item"><div class="bench-head"><span class="bench-name">' + h(line.code || 'Line item') + ' - ' + h(line.shortDescription) + '</span><span class="bench-delta over">' + h(delta) + '</span></div>'
+      + '<div class="bench-bar-row"><span class="bench-bar-lbl">Billed</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-billed" style="width:' + billedW.toFixed(1) + '%"></div></div><span class="bench-bar-val">' + h(formatMoneyFull(line.billedAmount)) + '</span></div>'
+      + '<div class="bench-bar-row"><span class="bench-bar-lbl">CMS CLFS</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-medicare" style="width:' + rateW.toFixed(1) + '%"></div></div><span class="bench-bar-val">' + h(formatMoneyFull(line.benchmarkRate)) + '</span></div>'
+      + '<div style="font-size:.5625rem;color:var(--ink-4);margin-top:4px">' + h(line.source) + '</div></div>';
+  }
+
+  function setBenchmarkFill(row, name, code, label, amount, pct){
+    if(!row) return;
+    var fill = one('.fv-fill', row);
+    var val = one('.fvra-val', row);
+    var fillLabel = one('.fv-fill-label', row);
+    setText('.fvrl-name', name, row);
+    setText('.fvrl-code', code, row);
+    if(fill) fill.style.width = clampPct(pct).toFixed(1) + '%';
+    if(fillLabel) fillLabel.textContent = label;
+    if(val) val.textContent = amount;
+  }
+
+  function renderClfsBenchmarks(){
+    var vm = clfsViewModel(readAIDossier());
+    var packet = one('[data-upa-clfs="packet"]');
+    if(packet){
+      var coverage = one('[data-upa-clfs-coverage]', packet);
+      var center = one('[data-upa-clfs-center]', packet);
+      var note = one('[data-upa-clfs-match-note]', packet);
+      var over = one('[data-upa-clfs-overcharge]', packet);
+      var linesWrap = one('[data-upa-clfs-lines]', packet);
+      var grid = one('[data-upa-clfs-grid]', packet);
+      if(!vm.totalCount){
+        if(coverage) coverage.textContent = 'Needs Your Input. Upload an itemized bill with lab codes and billed amounts to compare eligible line items against CMS CLFS rates.';
+        if(center) center.textContent = 'Needs input';
+        if(note) note.textContent = 'Needs Your Input';
+        if(over) over.textContent = 'Needs input';
+        var emptyPacket = '<div style="grid-column:1/-1;padding:18px;background:white;border:1px solid var(--bdr);border-radius:9px;border-left:5px solid var(--amber)"><div style="font-size:.875rem;font-weight:800;color:var(--navy);margin-bottom:4px">Needs Your Input</div><div style="font-size:.7rem;color:var(--ink4);line-height:1.6">No verified CMS lab benchmark lines are available yet. The packet will not show benchmark totals until real line-item data is present.</div></div>';
+        if(grid) grid.innerHTML = emptyPacket;
+        else if(linesWrap) linesWrap.innerHTML = emptyPacket;
+      }else{
+        if(coverage) coverage.textContent = vm.coverageText + '.';
+        if(center) center.textContent = vm.matchedCount + '/' + vm.totalCount;
+        if(note) note.textContent = vm.coverageText;
+        if(over) over.textContent = formatMoneyFull(vm.overchargeTotal);
+        var packetLines = vm.lines.map(function(line){
+          if(!line.benchmarkAvailable){
+            return '<div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:white;border:1px solid var(--bdr);border-radius:9px;border-left:5px solid var(--amber)"><div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">' + h(line.code || 'Line item') + '</div><div style="font-size:.625rem;color:var(--ink4)">' + h(line.reason) + '</div></div><div style="font-size:.7rem;font-weight:800;color:var(--amber)">Unavailable</div></div>';
+          }
+          return '<div style="padding:16px 18px;background:white;border:1px solid var(--bdr);border-radius:9px;border-left:5px solid var(--teal)"><div style="display:flex;gap:12px;justify-content:space-between;align-items:flex-start"><div><div style="font-size:.875rem;font-weight:800;color:var(--navy);margin-bottom:2px">' + h(line.code) + ' - ' + h(line.shortDescription) + '</div><div style="font-size:.625rem;color:var(--ink4)">' + h(line.source) + '</div></div><div style="text-align:right"><div style="font-size:.7rem;font-weight:800;color:var(--crimson)">' + h(line.percentAboveBenchmark) + '% above</div><div style="font-size:.625rem;color:var(--ink4)">Billed ' + h(formatMoneyFull(line.billedAmount)) + ' / CLFS ' + h(formatMoneyFull(line.benchmarkRate)) + '</div></div></div></div>';
+        }).join('');
+        if(grid) grid.innerHTML = '<div style="grid-column:1/-1;display:flex;flex-direction:column;gap:12px">' + packetLines + '</div>';
+        else if(linesWrap) linesWrap.innerHTML = packetLines;
+      }
+    }
+
+    var dashboardLines = all('[data-upa-clfs-dashboard-line]');
+    if(dashboardLines.length){
+      var parent = dashboardLines[0].parentNode;
+      dashboardLines.forEach(function(node){ node.parentNode.removeChild(node); });
+      var html = vm.totalCount ? vm.lines.map(lineBarHtml).join('') : '<div class="bench-item"><div class="bench-head"><span class="bench-name">Needs Your Input</span><span class="bench-delta over">No verified CLFS lines yet</span></div><div style="font-size:.625rem;color:var(--ink-4);line-height:1.5">Upload an itemized bill with lab codes and billed amounts to render CMS CLFS comparisons.</div></div>';
+      parent.insertAdjacentHTML('beforeend', html);
+    }
+
+    var track = one('[data-upa-clfs-track]');
+    var legend = one('[data-upa-clfs-legend]');
+    if(track){
+      if(!vm.totalCount){
+        track.innerHTML = '<div class="bb-seg bbs-confirmed" style="flex:1 1 100%"><span class="bbs-label">Needs input</span></div>';
+      }else{
+        var matchedBilled = vm.matched.reduce(function(sum,row){ return sum + (row.billedAmount || 0); }, 0);
+        var unavailableBilled = vm.lines.filter(function(row){ return !row.benchmarkAvailable; }).reduce(function(sum,row){ return sum + (row.billedAmount || 0); }, 0);
+        var totalBilled = Math.max(matchedBilled + unavailableBilled, 1);
+        var matchedPct = clampPct((matchedBilled / totalBilled) * 100);
+        var unavailablePct = clampPct((unavailableBilled / totalBilled) * 100);
+        track.innerHTML = '<div class="bb-seg bbs-confirmed" style="flex:0 0 ' + matchedPct.toFixed(1) + '%"><span class="bbs-label">Verified CLFS</span></div><div class="bb-seg bbs-questioned" style="flex:0 0 ' + unavailablePct.toFixed(1) + '%"><span class="bbs-label">Unavailable</span></div>';
+      }
+    }
+    if(legend){
+      legend.innerHTML = vm.totalCount
+        ? '<div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">' + h(vm.coverageText) + '</span></div><div class="legend-i"><div class="legend-dot ld-dup"></div><span class="legend-text">Verified CLFS difference - ' + h(formatMoneyFull(vm.overchargeTotal)) + '</span></div>'
+        : '<div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">Needs Your Input - no verified CLFS lines yet</span></div>';
+    }
+
+    setBenchmarkFill(one('[data-upa-clfs-waterfall-total]'), 'Matched Billed Total', 'Verified CLFS lines only', 'Matched billed total', formatMoneyFull(vm.billedMatched), vm.billedMatched ? 100 : 0);
+    setBenchmarkFill(one('[data-upa-clfs-waterfall-benchmark]'), 'CMS CLFS Benchmark', 'Verified lab rates', 'CMS CLFS benchmark total', formatMoneyFull(vm.benchmarkTotal), vm.billedMatched ? (vm.benchmarkTotal / Math.max(vm.billedMatched, vm.benchmarkTotal, 1)) * 100 : 0);
+    setBenchmarkFill(one('[data-upa-clfs-waterfall-overcharge]'), 'Verified Difference', 'Matched CLFS lines only', 'Matched-line difference', formatMoneyFull(vm.overchargeTotal), vm.billedMatched ? (vm.overchargeTotal / Math.max(vm.billedMatched, 1)) * 100 : 0);
+    setText('[data-upa-clfs-match-count]', vm.totalCount ? (vm.matchedCount + ' of ' + vm.totalCount) : 'Needs input');
+    setText('[data-upa-clfs-coverage-short]', vm.totalCount ? vm.coverageText : 'Needs itemized lab codes');
+    window.__UPA_CLFS_VIEW_MODEL__ = vm;
+  }
+
+  window.UPARenderCLFSBenchmarks = renderClfsBenchmarks;
+  window.UPABuildCLFSViewModel = clfsViewModel;
+
   function formatDate(value, fallback){
     var raw = clean(value);
     if(!raw) return fallback || 'On file';
@@ -1223,7 +1393,6 @@
       ['three letters', c.letterCount + ' letters'],
       ['Review Areas', c.issueCount + ' review areas'],
       ['2 Found', c.issueCount + ' found'],
-      ['$20,267', confirmedText],
       ['$17,589.00', 'Pending itemized bill'],
       ['$5,863.00', 'Pending itemized bill'],
       ['$11,726.00', 'Pending itemized bill'],
@@ -1990,6 +2159,7 @@
     applyPreview(c);
     applyDashboard(c);
     applyPacket(c);
+    renderClfsBenchmarks();
     applyGuideHook(c);
     if(window.__UPA_MOBILE_DEBUG__) window.__UPA_MOBILE_DEBUG__.render('after-personalization');
   }

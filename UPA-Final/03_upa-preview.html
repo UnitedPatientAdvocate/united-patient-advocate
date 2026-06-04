@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>United Patient Advocate — Your Review Is Ready</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -292,6 +292,18 @@ html,body{min-height:100%;font-family:var(--sans);background:var(--navy-deep);-w
 .price-anchor{font-size:.5625rem;color:var(--on-dark-3);margin-bottom:20px}
 .price-anchor del{color:rgba(235,244,255,.25)}
 .price-anchor strong{color:rgba(235,244,255,.50)}
+.preview-pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 22px;text-align:left}
+.preview-tier{position:relative;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:20px 16px;display:flex;flex-direction:column}
+.preview-tier.featured{border:2px solid var(--green);background:rgba(30,184,122,.085);box-shadow:0 10px 36px rgba(30,184,122,.15)}
+.preview-tier-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-family:"DM Sans",var(--sans);font-size:.48rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#0E1828;background:var(--green);padding:5px 10px;border-radius:100px;white-space:nowrap}
+.preview-tier-kicker{font-family:"DM Sans",var(--sans);font-size:.5rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:6px}
+.preview-tier-name{font-family:var(--serif);font-size:1.05rem;font-weight:700;color:var(--on-dark);line-height:1.15;margin-bottom:4px}
+.preview-tier-price{font-family:var(--serif);font-size:2rem;font-weight:900;color:var(--green);line-height:1;margin-bottom:12px}
+.preview-tier-list{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;flex:1}
+.preview-tier-list li{list-style:none;font-family:"DM Sans",var(--sans);font-size:.62rem;color:var(--on-dark-2);line-height:1.42;display:flex;gap:7px}
+.preview-tier-list li::before{content:"✓";font-weight:900;color:var(--green)}
+.preview-tier-btn{display:flex;align-items:center;justify-content:center;width:100%;border-radius:100px;padding:10px 12px;font-family:"DM Sans",var(--sans);font-size:.68rem;font-weight:800;text-decoration:none;border:0;background:var(--green);color:#0E1828;cursor:pointer}
+.preview-tier-btn.disabled{background:rgba(255,255,255,.12);color:rgba(235,244,255,.35);cursor:not-allowed}
 /* CTA button */
 .btn-unlock{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-size:1rem;font-weight:800;color:white;padding:16px 40px;border-radius:100px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--green-dk),var(--green));letter-spacing:.01em;box-shadow:0 4px 28px rgba(30,184,122,.52),0 8px 56px rgba(30,184,122,.26),0 0 0 1px rgba(30,184,122,.32);transition:all .22s var(--pop);animation:cglow 3s ease-in-out infinite;text-decoration:none;display:inline-flex}
 @keyframes cglow{0%,100%{box-shadow:0 4px 28px rgba(30,184,122,.52),0 8px 56px rgba(30,184,122,.26),0 0 0 1px rgba(30,184,122,.32)}50%{box-shadow:0 6px 40px rgba(30,184,122,.70),0 12px 72px rgba(30,184,122,.40),0 0 0 1px rgba(30,184,122,.55)}}
@@ -319,7 +331,7 @@ html,body{max-width:100%;overflow-x:hidden}
 .pm-label{font-size:.5625rem}
 .pm-icon{width:32px;height:32px;margin-bottom:8px}
 /* Collapse remaining grids */
-.dt-kpis,.dt-kpi-strip,.dt-letters,.inc-grid,.feature-grid{grid-template-columns:1fr}
+.dt-kpis,.dt-kpi-strip,.dt-letters,.inc-grid,.feature-grid,.preview-pricing-grid{grid-template-columns:1fr}
 .fc-row{gap:10px}
 .fc-top{align-items:flex-start}
 .fc-amount{margin-left:0}
@@ -621,7 +633,32 @@ html,body{max-width:100%;overflow-x:hidden}
       <div class="cta-title">Everything you need to challenge this bill.<br>Prepared around your case.</div>
       <div class="cta-sub">Your complete billing review dashboard, case-specific letter set, PDF packet, billing calculator, call scripts, escalation guide, and review plan.</div>
 
-      <div class="feature-grid">
+      <div class="preview-pricing-grid">
+        <div class="preview-tier">
+          <div class="preview-tier-kicker">Basic</div>
+          <div class="preview-tier-name">Bill Check</div>
+          <div class="preview-tier-price">$47</div>
+          <ul class="preview-tier-list"><li>Single bill review</li><li>Discrepancy report</li><li>One dispute letter template</li></ul>
+          <button class="preview-tier-btn disabled" type="button" disabled>Coming Soon</button>
+        </div>
+        <div class="preview-tier featured">
+          <div class="preview-tier-badge">Most Popular</div>
+          <div class="preview-tier-kicker">Complete</div>
+          <div class="preview-tier-name">Full Dispute Kit</div>
+          <div class="preview-tier-price">$97</div>
+          <ul class="preview-tier-list"><li>Full medical bill review</li><li>Plain-English error report</li><li>Itemized bill request letter</li><li>Custom dispute + appeal letters</li><li>Escalation roadmap</li><li>Deadline tracker</li><li>Phone negotiation scripts</li><li>EOB &amp; CPT code decoder</li><li>30-day satisfaction guarantee</li></ul>
+          <a href="javascript:void(0)" onclick="goToGumroad()" class="preview-tier-btn">Unlock Complete — $97</a>
+        </div>
+        <div class="preview-tier">
+          <div class="preview-tier-kicker">Household</div>
+          <div class="preview-tier-name">Family Vault</div>
+          <div class="preview-tier-price">$197</div>
+          <ul class="preview-tier-list"><li>Everything in Complete</li><li>Unlimited bills for 12 months</li><li>Entire household covered</li><li>Priority processing</li></ul>
+          <button class="preview-tier-btn disabled" type="button" disabled>Coming Soon</button>
+        </div>
+      </div>
+
+      <div class="feature-grid" hidden>
         <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Full Dashboard with 6 Tabs &amp; 10 Guide Sections</div></div>
         <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Case-Specific Letter Set — No Fewer Than 3</div></div>
         <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">12-Page Printable PDF Advocacy Packet</div></div>
@@ -630,11 +667,11 @@ html,body{max-width:100%;overflow-x:hidden}
         <div class="feat"><div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="feat-txt">Patient Rights Guide &amp; Escalation Ladder</div></div>
       </div>
 
-      <div class="price-row">
+      <div class="price-row" hidden>
         <div class="cta-price">$97</div>
         <div class="cta-price-label">one-time · no subscription</div>
       </div>
-      <div class="price-anchor"><del>$250–$400/hr</del> with a medical billing consultant &nbsp;·&nbsp; <strong>$97 total, one time</strong></div>
+      <div class="price-anchor" hidden><del>$250–$400/hr</del> with a medical billing consultant &nbsp;·&nbsp; <strong>$97 total, one time</strong></div>
 
       <a href="javascript:void(0)" onclick="goToGumroad()" class="btn-unlock" id="unlock-full-review-btn">
         <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>

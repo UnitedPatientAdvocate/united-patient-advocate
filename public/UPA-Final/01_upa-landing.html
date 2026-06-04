@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>United Patient Advocate — Medical Billing Review</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -78,6 +78,8 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .hero-microcopy{font-size:.5625rem;color:var(--ink-4);margin-top:10px;display:flex;align-items:center;justify-content:center;gap:14px;position:relative;z-index:1}
 .hero-microcopy span{display:flex;align-items:center;gap:5px}
 .hero-microcopy svg{width:11px;height:11px;stroke:var(--ink-4);stroke-width:1.8;fill:none}
+.hero-price{font-family:var(--serif);font-size:2.15rem;font-weight:900;color:var(--navy);letter-spacing:-.04em;line-height:1;margin:-4px 0 8px;position:relative;z-index:1}
+.hero-savings-line{font-family:"DM Sans",var(--sans);font-size:1rem;font-weight:500;color:#1D9E75;line-height:1.45;margin:-2px 0 20px;position:relative;z-index:1}
 /* Stats row */
 .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);max-width:600px;margin:40px auto 0;border:1px solid var(--bdr);border-radius:12px;overflow:hidden;background:white;box-shadow:0 2px 12px rgba(28,43,72,.07)}
 .hero-stat{padding:18px 20px;text-align:center;border-right:1px solid var(--bdr)}
@@ -113,6 +115,34 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .logo-abbr{font-family:var(--mono);font-size:.625rem;font-weight:700;color:var(--ink-3);letter-spacing:.06em}
 .logo-name{font-size:.3125rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)}
 .logos-disclaimer{font-size:.4375rem;color:var(--ink-4);text-align:center;max-width:640px;margin:12px auto 0;line-height:1.60}
+
+/* VALUE STACK + PRICING */
+.value-stack-section{background:#EEF1F6;padding:64px 40px;border-top:1px solid rgba(28,43,72,.08);border-bottom:1px solid rgba(28,43,72,.08)}
+.value-stack-card{max-width:860px;margin:0 auto;background:#fff;border:1px solid rgba(28,43,72,.09);border-radius:14px;padding:34px;box-shadow:0 12px 36px rgba(28,43,72,.08)}
+.value-stack-title{font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.18;text-align:center;margin-bottom:22px}
+.value-stack-list{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-bottom:26px}
+.value-stack-item{font-family:"DM Sans",var(--sans);font-size:.875rem;font-weight:500;color:var(--ink-2);line-height:1.45;display:flex;gap:9px;align-items:flex-start}
+.value-stack-item::before{content:"";width:8px;height:8px;border-radius:50%;background:#1D9E75;box-shadow:0 0 0 4px rgba(29,158,117,.10);margin-top:.42rem;flex-shrink:0}
+.value-stack-total{font-family:"DM Sans",var(--sans);font-size:1.05rem;font-weight:800;color:var(--navy);text-align:center;border-top:1px solid rgba(28,43,72,.10);padding-top:20px}
+.value-stack-total strong{color:#1D9E75}
+.value-stack-keep{font-family:"DM Sans",var(--sans);font-size:1rem;font-weight:600;color:#1D9E75;text-align:center;margin-top:8px}
+.pricing-section{background:#fff;padding:64px 40px;border-bottom:1px solid var(--bdr)}
+.pricing-inner{max-width:1080px;margin:0 auto}
+.pricing-title{font-family:var(--serif);font-size:2.1rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;text-align:center;margin-bottom:10px}
+.pricing-sub{font-family:"DM Sans",var(--sans);font-size:.95rem;color:var(--ink-3);line-height:1.65;text-align:center;max-width:640px;margin:0 auto 30px}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}
+.tier-card{position:relative;background:#F7F9FC;border:1px solid rgba(28,43,72,.10);border-radius:14px;padding:24px 22px;display:flex;flex-direction:column;min-height:100%;box-shadow:0 6px 22px rgba(28,43,72,.06)}
+.tier-card.featured{background:#fff;border:2px solid #1D9E75;box-shadow:0 14px 42px rgba(29,158,117,.16);transform:translateY(-4px)}
+.tier-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-family:"DM Sans",var(--sans);font-size:.58rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:white;background:#1D9E75;padding:6px 12px;border-radius:100px;white-space:nowrap}
+.tier-kicker{font-family:"DM Sans",var(--sans);font-size:.62rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-4);margin-bottom:7px}
+.tier-name{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--navy);line-height:1.15;margin-bottom:6px}
+.tier-price{font-family:var(--serif);font-size:2.35rem;font-weight:900;color:#1D9E75;line-height:1;margin-bottom:14px}
+.tier-list{display:flex;flex-direction:column;gap:8px;margin-bottom:22px;flex:1}
+.tier-list li{font-family:"DM Sans",var(--sans);font-size:.78rem;color:var(--ink-2);line-height:1.45;list-style:none;display:flex;gap:8px}
+.tier-list li::before{content:"✓";color:#1D9E75;font-weight:800}
+.tier-btn{display:flex;align-items:center;justify-content:center;width:100%;border-radius:100px;padding:12px 14px;font-family:"DM Sans",var(--sans);font-size:.82rem;font-weight:800;text-decoration:none;border:0;background:#1D9E75;color:#fff;cursor:pointer}
+.tier-btn.disabled{background:#D9E0EA;color:#7A8698;cursor:not-allowed}
+@media(max-width:760px){.value-stack-section,.pricing-section{padding:44px 18px}.value-stack-card{padding:26px 20px}.value-stack-title,.pricing-title{font-size:1.65rem}.value-stack-list,.pricing-grid{grid-template-columns:1fr}.tier-card.featured{transform:none}.hero-price{font-size:1.8rem}.hero-savings-line{font-size:1rem}}
 
 /* ═══════════════════════════════════
    WHAT THE DATA SHOWS
@@ -618,6 +648,8 @@ html,body{max-width:100%;overflow-x:hidden}
   <div class="hero-eyebrow">Free Medical Bill Scan · Independent Dispute Documentation</div>
   <div class="hero-hl">Most Patients Overpay.<br><em>We Find What You Are Owed.</em></div>
   <p class="hero-sub">Up to 80% of hospital bills contain errors. Insurance companies deny valid claims daily counting on you to give up. Our scanner finds exactly what to dispute — then gives you the $668 toolkit to fight back. Free to scan. $97 to act on everything we find.</p>
+  <div class="hero-price">$97 Complete Review</div>
+  <div class="hero-savings-line">Flat $97 — you keep 100% of your savings.</div>
   <a href="/UPA-Final/00_upa-scan.html" class="hero-cta">
     <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     Scan My Bill Free — See What We Find
@@ -658,6 +690,78 @@ html,body{max-width:100%;overflow-x:hidden}
     </svg>
   </div>
 </div>
+
+<!-- VALUE STACK -->
+<section class="value-stack-section">
+  <div class="value-stack-card">
+    <div class="value-stack-title">Everything included in your Complete Review ($97):</div>
+    <div class="value-stack-list">
+      <div class="value-stack-item">Medical Bill Review &amp; Discrepancy Report ($250 value)</div>
+      <div class="value-stack-item">Custom Dispute Letter — Provider Version ($150 value)</div>
+      <div class="value-stack-item">Custom Appeal Letter — Insurance Version ($150 value)</div>
+      <div class="value-stack-item">Itemized Bill Request Letter ($75 value)</div>
+      <div class="value-stack-item">Know Your Rights Playbook ($99 value)</div>
+      <div class="value-stack-item">Phone Negotiation Script Library ($79 value)</div>
+      <div class="value-stack-item">EOB &amp; CPT Code Decoder ($49 value)</div>
+      <div class="value-stack-item">Deadline &amp; Follow-Up Tracker ($39 value)</div>
+      <div class="value-stack-item">BONUS: Hospital Financial Assistance Finder ($59 value)</div>
+      <div class="value-stack-item">30-Day Satisfaction Guarantee (priceless)</div>
+    </div>
+    <div class="value-stack-total">Total value: $999 — <strong>Your price today: $97</strong></div>
+    <div class="value-stack-keep">You keep 100% of any savings you find.</div>
+  </div>
+</section>
+
+<!-- PRICING TIERS -->
+<section class="pricing-section" id="pricing">
+  <div class="pricing-inner">
+    <div class="pricing-title">Choose your review level</div>
+    <div class="pricing-sub">Complete is available today. Basic and Household are shown for launch positioning and will open later.</div>
+    <div class="pricing-grid">
+      <div class="tier-card">
+        <div class="tier-kicker">Basic</div>
+        <div class="tier-name">Bill Check</div>
+        <div class="tier-price">$47</div>
+        <ul class="tier-list">
+          <li>Single bill review</li>
+          <li>Discrepancy report</li>
+          <li>One dispute letter template</li>
+        </ul>
+        <button class="tier-btn disabled" type="button" disabled>Coming Soon</button>
+      </div>
+      <div class="tier-card featured">
+        <div class="tier-badge">Most Popular</div>
+        <div class="tier-kicker">Complete</div>
+        <div class="tier-name">Full Dispute Kit</div>
+        <div class="tier-price">$97</div>
+        <ul class="tier-list">
+          <li>Full medical bill review</li>
+          <li>Plain-English error report</li>
+          <li>Itemized bill request letter</li>
+          <li>Custom dispute + appeal letters</li>
+          <li>Escalation roadmap</li>
+          <li>Deadline tracker</li>
+          <li>Phone negotiation scripts</li>
+          <li>EOB &amp; CPT code decoder</li>
+          <li>30-day satisfaction guarantee</li>
+        </ul>
+        <a class="tier-btn" href="/UPA-Final/00_upa-scan.html">Start Complete Review</a>
+      </div>
+      <div class="tier-card">
+        <div class="tier-kicker">Household</div>
+        <div class="tier-name">Family Vault</div>
+        <div class="tier-price">$197</div>
+        <ul class="tier-list">
+          <li>Everything in Complete</li>
+          <li>Unlimited bills for 12 months</li>
+          <li>Entire household covered</li>
+          <li>Priority processing</li>
+        </ul>
+        <button class="tier-btn disabled" type="button" disabled>Coming Soon</button>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- WHAT YOU GET — accurate 5-pillar system, the real 10 deliverables (inline SVG) -->
 <div style="padding:42px 40px 28px;background:linear-gradient(180deg,#F7F9FC 0%,#EEF2F7 100%);border-top:1px solid rgba(28,43,72,.08);border-bottom:1px solid rgba(28,43,72,.08)">

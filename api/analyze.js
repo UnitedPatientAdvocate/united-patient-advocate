@@ -705,8 +705,4 @@ async function handler(req, res) {
   });
 }
 
-module.exports = {
-  handler,
-  lookupClfsBenchmark,
-  enrichLineItemsWithClfsBenchmarks
-};
+module.exports = handler;

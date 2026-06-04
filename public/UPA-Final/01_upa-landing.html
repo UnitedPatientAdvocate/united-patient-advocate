@@ -70,6 +70,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .hero-hl{font-family:var(--serif);font-size:3.25rem;font-weight:700;color:var(--navy);letter-spacing:-.035em;line-height:1.12;margin-bottom:14px;position:relative;z-index:1}
 .hero-hl em{font-style:italic;color:var(--teal)}
 .hero-sub{font-size:1rem;color:var(--ink-3);line-height:1.75;max-width:520px;margin:0 auto 32px;position:relative;z-index:1}
+.hero .hero-hl:not(.phase4-hero-hl),.hero .hero-sub:not(.phase4-hero-sub),.hero .hero-stats{display:none}
 .hero-cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-size:.9375rem;font-weight:700;color:white;background:var(--teal);padding:15px 32px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .22s var(--ease);box-shadow:0 4px 20px rgba(30,107,90,.35),0 8px 40px rgba(30,107,90,.15);position:relative;z-index:1}
 .hero-cta:hover{background:var(--teal-lt);transform:translateY(-2px);box-shadow:0 6px 28px rgba(30,107,90,.45)}
 .hero-cta svg{width:16px;height:16px;stroke:white;stroke-width:2.2;fill:none}
@@ -83,13 +84,13 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .hero-urgency{font-family:"DM Sans",var(--sans);font-size:.875rem;font-weight:400;color:#64748b;line-height:1.45;margin:0 0 12px;position:relative;z-index:1}
 .hero-trust-row{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap;font-family:"DM Sans",var(--sans);font-size:.8rem;font-weight:300;color:#64748b;line-height:1.45;margin:12px 0 0;position:relative;z-index:1}
 .hero-trust-row span{display:inline-flex;align-items:center;gap:6px}
-/* Stats row */
-.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);max-width:600px;margin:40px auto 0;border:1px solid var(--bdr);border-radius:12px;overflow:hidden;background:white;box-shadow:0 2px 12px rgba(28,43,72,.07)}
-.hero-stat{padding:18px 20px;text-align:center;border-right:1px solid var(--bdr)}
-.hero-stat:last-child{border-right:none}
-.hs-val{font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--teal);letter-spacing:-.03em;line-height:1;margin-bottom:4px}
-.hs-label{font-size:.5625rem;color:var(--ink-3);line-height:1.5;margin-bottom:2px}
-.hs-source{font-family:var(--mono);font-size:.375rem;color:var(--ink-4);letter-spacing:.04em}
+/* Social proof stats bar */
+.stats-bar-section{background:#162033;padding:22px 40px}
+.stats-bar{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.025)}
+.stats-item{padding:18px 20px;text-align:center;border-right:1px solid rgba(255,255,255,.10)}
+.stats-item:last-child{border-right:none}
+.stats-number{font-family:"DM Sans",var(--sans);font-size:1.35rem;font-weight:800;color:#1D9E75;line-height:1.15;margin-bottom:4px}
+.stats-label{font-family:"DM Sans",var(--sans);font-size:.72rem;font-weight:500;color:rgba(235,244,255,.78);line-height:1.45}
 
 /* ISSUE SELECTOR */
 .issue-selector{background:white;border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);padding:30px 20px 34px}
@@ -570,6 +571,13 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .social-proof-card{background:white;border:1px solid rgba(28,43,72,.10);border-left:5px solid #1D9E75;border-radius:12px;padding:22px 20px;box-shadow:0 6px 22px rgba(28,43,72,.06)}
 .social-proof-copy{font-family:"DM Sans",var(--sans);font-size:.9rem;font-weight:300;color:var(--ink-2);line-height:1.65;margin-bottom:16px}
 .social-proof-note{font-family:"DM Sans",var(--sans);font-size:.72rem;font-weight:700;color:#1D9E75;letter-spacing:.06em;text-transform:uppercase}
+.faq-section{background:white;padding:68px 40px;border-top:1px solid var(--bdr)}
+.faq-inner{max-width:860px;margin:0 auto}
+.faq-title{font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.18;text-align:center;margin-bottom:26px}
+.faq-list{display:flex;flex-direction:column;gap:10px}
+.faq-item{background:#F7F9FC;border:1px solid rgba(28,43,72,.10);border-radius:12px;padding:18px 20px}
+.faq-q{font-family:"DM Sans",var(--sans);font-size:.95rem;font-weight:700;color:var(--navy);line-height:1.4;margin-bottom:7px}
+.faq-a{font-family:"DM Sans",var(--sans);font-size:.88rem;font-weight:300;color:var(--ink-2);line-height:1.7}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (max-width:600px){
 html,body{max-width:100%;overflow-x:hidden}
@@ -579,10 +587,11 @@ html,body{max-width:100%;overflow-x:hidden}
 .hero,.section,.data-section,.quick-q,.examine-section,.steps-section,.comparison-section,.findings-section,.scenarios-section,.expect-section,.editorial-section,.intake-section{padding-left:20px;padding-right:20px}
 .hero{padding-top:64px}
 .hero-hl{font-size:2.35rem}
-.hero-microcopy,.hero-stats{max-width:100%}
-.hero-stats{grid-template-columns:1fr}
-.hero-stat{border-right:none;border-bottom:1px solid var(--bdr)}
-.hero-stat:last-child{border-bottom:none}
+.hero-microcopy{max-width:100%}
+.stats-bar-section{padding:18px 16px}
+.stats-bar{grid-template-columns:1fr}
+.stats-item{border-right:none;border-bottom:1px solid rgba(255,255,255,.10);padding:16px 14px}
+.stats-item:last-child{border-bottom:none}
 .issue-selector{padding:28px 20px 32px}
 .issue-selector-title{font-size:1.35rem}
 .issue-selector-grid{grid-template-columns:1fr}
@@ -633,7 +642,7 @@ html,body{max-width:100%;overflow-x:hidden}
 .nav-btns{padding:14px 20px 22px}
 }
 .hero-trust-row{gap:22px}
-@media(max-width:760px){.hero-trust-row{gap:10px;flex-direction:column}.social-proof-section{padding:44px 18px}.social-proof-title{font-size:1.65rem}.social-proof-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.hero-trust-row{gap:10px;flex-direction:column}.social-proof-section,.faq-section{padding:44px 18px}.social-proof-title,.faq-title{font-size:1.65rem}.social-proof-grid{grid-template-columns:1fr}.pricing-grid,.value-stack-list{grid-template-columns:1fr}.preview-pricing-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -657,6 +666,8 @@ html,body{max-width:100%;overflow-x:hidden}
 
 <!-- ═══ HERO ═══ -->
 <div class="hero">
+  <div class="hero-hl phase4-hero-hl">Medical Bills Are Negotiable.<br><em>Most People Never Know.</em></div>
+  <p class="hero-sub phase4-hero-sub">We review your bill line by line, generate your complete dispute package, and you keep 100% of what you recover.</p>
   <div class="hero-eyebrow">Free Medical Bill Scan · Independent Dispute Documentation</div>
   <div class="hero-hl">Most Patients Overpay.<br><em>We Find What You Are Owed.</em></div>
   <p class="hero-sub">Up to 80% of hospital bills contain errors. Insurance companies deny valid claims daily counting on you to give up. Our scanner finds exactly what to dispute — then gives you the $668 toolkit to fight back. Free to scan. $97 to act on everything we find.</p>
@@ -708,6 +719,16 @@ html,body{max-width:100%;overflow-x:hidden}
     </svg>
   </div>
 </div>
+
+<!-- SOCIAL PROOF NUMBERS -->
+<section class="stats-bar-section" aria-label="Medical billing review proof points">
+  <div class="stats-bar">
+    <div class="stats-item"><div class="stats-number">3 in 4</div><div class="stats-label">bills contain errors</div></div>
+    <div class="stats-item"><div class="stats-number">$1,300+</div><div class="stats-label">average error found</div></div>
+    <div class="stats-item"><div class="stats-number">&lt;60 sec</div><div class="stats-label">to complete</div></div>
+    <div class="stats-item"><div class="stats-number">$0</div><div class="stats-label">taken from your savings</div></div>
+  </div>
+</section>
 
 <!-- VALUE STACK -->
 <section class="value-stack-section">
@@ -1327,6 +1348,20 @@ html,body{max-width:100%;overflow-x:hidden}
         <div class="social-proof-copy">An $8,900 ER visit bill showed charges for services not reflected in the discharge summary and a diagnosis code inconsistent with the documented treatment.</div>
         <div class="social-proof-note">Documented in the full review report</div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="faq-inner">
+    <div class="faq-title">Frequently Asked Questions</div>
+    <div class="faq-list">
+      <div class="faq-item"><div class="faq-q">Is this a law firm or legal service?</div><div class="faq-a">No. United Patient Advocate is a consumer documentation and guidance service. We help you understand your bill and generate dispute materials — you stay in control of the process.</div></div>
+      <div class="faq-item"><div class="faq-q">What if I don't find any errors?</div><div class="faq-a">Our 7-day satisfaction guarantee means if you're not satisfied with your review, we'll make it right.</div></div>
+      <div class="faq-item"><div class="faq-q">How is this different from doing it myself?</div><div class="faq-a">We scan every line item against current billing standards, generate professionally formatted dispute letters, and walk you through the exact steps — in under 60 seconds.</div></div>
+      <div class="faq-item"><div class="faq-q">Do you take a percentage of my savings?</div><div class="faq-a">Never. Flat $97. You keep 100% of whatever you recover.</div></div>
+      <div class="faq-item"><div class="faq-q">What types of bills can you review?</div><div class="faq-a">Hospital bills, outpatient procedures, ER visits, specialist visits, lab work, imaging, and more.</div></div>
     </div>
   </div>
 </section>

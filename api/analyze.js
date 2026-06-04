@@ -1,6 +1,7 @@
-import fs from 'node:fs';
+const fs = require('node:fs');
+const path = require('node:path');
 
-const CLFS_DATA_URL = new URL('./data/cms-clfs-2026.json', import.meta.url);
+const CLFS_DATA_PATH = path.join(__dirname, 'data', 'cms-clfs-2026.json');
 const CLFS_SOURCE = 'CMS CLFS 2026';
 const CLFS_UNAVAILABLE_REASON = 'benchmark unavailable \u2014 not a CLFS lab code';
 let clfsCache = null;
@@ -263,7 +264,7 @@ function loadClfsData() {
   if (clfsCache) return clfsCache;
 
   try {
-    clfsCache = JSON.parse(fs.readFileSync(CLFS_DATA_URL, 'utf8'));
+    clfsCache = JSON.parse(fs.readFileSync(CLFS_DATA_PATH, 'utf8'));
   } catch (error) {
     console.error('[api/analyze] CLFS benchmark data unavailable', { message: error?.message });
     clfsCache = { metadata: { source: 'CMS CLFS CY2026 Q2V1', year: 2026 } };
@@ -301,7 +302,7 @@ function roundPercent(value) {
   return Math.round((Number(value) + Number.EPSILON) * 10) / 10;
 }
 
-export function lookupClfsBenchmark(codeValue, explicitModifier = '') {
+function lookupClfsBenchmark(codeValue, explicitModifier = '') {
   const { code, modifier } = normalizeCodeAndModifier(codeValue, explicitModifier);
   const unavailable = {
     available: false,
@@ -400,7 +401,7 @@ function enrichLineItemWithClfs(item = {}) {
   };
 }
 
-export function enrichLineItemsWithClfsBenchmarks(lineItems = []) {
+function enrichLineItemsWithClfsBenchmarks(lineItems = []) {
   const enriched = Array.isArray(lineItems) ? lineItems.map(enrichLineItemWithClfs) : [];
   const matched = enriched.filter(item => item.benchmarkAvailable).length;
   const total = enriched.length;
@@ -587,7 +588,7 @@ async function buildModelCandidates(apiKey, requestedModel) {
   return preferred;
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const apiKey = getAnthropicApiKey();
@@ -703,3 +704,9 @@ export default async function handler(req, res) {
     generationMode: structuredRequest?.generationMode || 'legacy_messages'
   });
 }
+
+module.exports = {
+  handler,
+  lookupClfsBenchmark,
+  enrichLineItemsWithClfsBenchmarks
+};

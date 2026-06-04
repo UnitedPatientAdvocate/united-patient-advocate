@@ -80,6 +80,9 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .hero-microcopy svg{width:11px;height:11px;stroke:var(--ink-4);stroke-width:1.8;fill:none}
 .hero-price{font-family:var(--serif);font-size:2.15rem;font-weight:900;color:var(--navy);letter-spacing:-.04em;line-height:1;margin:-4px 0 8px;position:relative;z-index:1}
 .hero-savings-line{font-family:"DM Sans",var(--sans);font-size:1rem;font-weight:500;color:#1D9E75;line-height:1.45;margin:-2px 0 20px;position:relative;z-index:1}
+.hero-urgency{font-family:"DM Sans",var(--sans);font-size:.875rem;font-weight:400;color:#64748b;line-height:1.45;margin:0 0 12px;position:relative;z-index:1}
+.hero-trust-row{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap;font-family:"DM Sans",var(--sans);font-size:.8rem;font-weight:300;color:#64748b;line-height:1.45;margin:12px 0 0;position:relative;z-index:1}
+.hero-trust-row span{display:inline-flex;align-items:center;gap:6px}
 /* Stats row */
 .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);max-width:600px;margin:40px auto 0;border:1px solid var(--bdr);border-radius:12px;overflow:hidden;background:white;box-shadow:0 2px 12px rgba(28,43,72,.07)}
 .hero-stat{padding:18px 20px;text-align:center;border-right:1px solid var(--bdr)}
@@ -543,6 +546,13 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .footer-logo-name sub{font-size:.4rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-4);display:block;margin-top:1px}
 .footer-disc{font-size:.4375rem;color:var(--ink-4);line-height:1.68;margin-bottom:8px}
 .footer-copy{font-size:.4375rem;color:var(--ink-4)}
+.social-proof-section{background:var(--bg-lt);padding:68px 40px;border-top:1px solid var(--bdr)}
+.social-proof-inner{max-width:980px;margin:0 auto}
+.social-proof-title{font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.18;text-align:center;margin-bottom:26px}
+.social-proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.social-proof-card{background:white;border:1px solid rgba(28,43,72,.10);border-left:5px solid #1D9E75;border-radius:12px;padding:22px 20px;box-shadow:0 6px 22px rgba(28,43,72,.06)}
+.social-proof-copy{font-family:"DM Sans",var(--sans);font-size:.9rem;font-weight:300;color:var(--ink-2);line-height:1.65;margin-bottom:16px}
+.social-proof-note{font-family:"DM Sans",var(--sans);font-size:.72rem;font-weight:700;color:#1D9E75;letter-spacing:.06em;text-transform:uppercase}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (max-width:600px){
 html,body{max-width:100%;overflow-x:hidden}
@@ -601,6 +611,8 @@ html,body{max-width:100%;overflow-x:hidden}
 .step{padding:24px 20px 20px}
 .nav-btns{padding:14px 20px 22px}
 }
+.hero-trust-row{gap:22px}
+@media(max-width:760px){.hero-trust-row{gap:10px;flex-direction:column}.social-proof-section{padding:44px 18px}.social-proof-title{font-size:1.65rem}.social-proof-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -629,10 +641,16 @@ html,body{max-width:100%;overflow-x:hidden}
   <div class="hero-sub">Upload your medical bill or EOB and our bill scanner reads it in seconds — identifying the specific charges, codes, and discrepancies that give you the best grounds for dispute. Then we prepare your complete documentation package.</div>
   <div class="hero-price">$97 Complete Review</div>
   <div class="hero-savings-line">Flat $97 — you keep 100% of your savings.</div>
+  <div class="hero-urgency">⏱ Reviews typically complete in under 60 seconds</div>
   <a href="/UPA-Final/00_upa-scan.html" class="hero-cta">
     <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     Upload My Bill — Free Scan
   </a>
+  <div class="hero-trust-row">
+    <span>🔒 Secure Checkout</span>
+    <span>↩ 7-Day Satisfaction Guarantee</span>
+    <span>👤 Your data stays yours</span>
+  </div>
   <a href="#begin-review" class="hero-cta-secondary">No bill yet? Start with the review form →</a>
   <div class="hero-microcopy">
     <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/></svg> No account required</span>
@@ -660,7 +678,7 @@ html,body{max-width:100%;overflow-x:hidden}
       <div class="value-stack-item">EOB &amp; CPT Code Decoder ($49 value)</div>
       <div class="value-stack-item">Deadline &amp; Follow-Up Tracker ($39 value)</div>
       <div class="value-stack-item">BONUS: Hospital Financial Assistance Finder ($59 value)</div>
-      <div class="value-stack-item">30-Day Satisfaction Guarantee (priceless)</div>
+      <div class="value-stack-item"><span><strong>7-Day Satisfaction Guarantee</strong><br>If you're not satisfied with your review within 7 days, we'll make it right.</span></div>
     </div>
     <div class="value-stack-total">Total value: $999 — <strong>Your price today: $97</strong></div>
     <div class="value-stack-keep">You keep 100% of any savings you find.</div>
@@ -698,7 +716,7 @@ html,body{max-width:100%;overflow-x:hidden}
           <li>Deadline tracker</li>
           <li>Phone negotiation scripts</li>
           <li>EOB &amp; CPT code decoder</li>
-          <li>30-day satisfaction guarantee</li>
+          <li><span><strong>7-Day Satisfaction Guarantee</strong><br>If you're not satisfied with your review within 7 days, we'll make it right.</span></li>
         </ul>
         <a class="tier-btn" href="/UPA-Final/00_upa-scan.html">Start Complete Review</a>
       </div>
@@ -1376,6 +1394,27 @@ html,body{max-width:100%;overflow-x:hidden}
   </div>
 
 </div><!-- /intake-section -->
+
+<!-- SOCIAL PROOF -->
+<section class="social-proof-section">
+  <div class="social-proof-inner">
+    <div class="social-proof-title">What a complete billing review covers:</div>
+    <div class="social-proof-grid">
+      <div class="social-proof-card">
+        <div class="social-proof-copy">A $12,400 hospital bill from a 2-night stay revealed duplicate lab charges, an unbundled procedure code, and a room rate billed at the wrong level of care.</div>
+        <div class="social-proof-note">Documented in the full review report</div>
+      </div>
+      <div class="social-proof-card">
+        <div class="social-proof-copy">A $3,200 outpatient surgery bill contained a facility fee charged twice and two supply line items without corresponding procedure documentation.</div>
+        <div class="social-proof-note">Documented in the full review report</div>
+      </div>
+      <div class="social-proof-card">
+        <div class="social-proof-copy">An $8,900 ER visit bill showed charges for services not reflected in the discharge summary and a diagnosis code inconsistent with the documented treatment.</div>
+        <div class="social-proof-note">Documented in the full review report</div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- FOOTER -->
 <div class="footer">

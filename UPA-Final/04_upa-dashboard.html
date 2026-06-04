@@ -4402,13 +4402,7 @@ function tlToggle(idx) {
       item.classList.remove('tl-expanded');
     }
   });
-}
-
-/* ════ ANIMATIONS ════ */
 function animateBars() {
-  // BUG 5 FIX: Recompute benchmark bar widths from real localStorage data
-  // before animating. Falls back to the hardcoded data-w default when no
-  // real bill amount is present.
   (function recomputeBenchBars() {
     try {
       var intake = {};

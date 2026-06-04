@@ -139,15 +139,17 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);-webkit-font-smoot
 .scan-lines{display:flex;flex-direction:column;gap:3px;max-height:110px;overflow:hidden}
 .sl{display:flex;align-items:center;gap:9px;padding:4px 7px;border-radius:3px;font-size:.5rem;opacity:0;transform:translateX(-6px);transition:opacity .25s ease,transform .25s ease}
 .sl.appear{opacity:1;transform:translateX(0)}
-.sl.ok{background:rgba(30,184,122,.06)}
-.sl.warn{background:rgba(224,59,59,.12);animation:sf .4s ease 2}
-@keyframes sf{0%,100%{background:rgba(224,59,59,.12)}50%{background:rgba(224,59,59,.28)}}
+.sl.ok{background:rgba(29,158,117,.08)}
+.sl.pending,.sl.warn{background:rgba(217,119,6,.12);animation:sf .4s ease 2}
+.sl.optional{background:rgba(100,116,139,.12)}
+@keyframes sf{0%,100%{background:rgba(217,119,6,.12)}50%{background:rgba(217,119,6,.24)}}
 .sl-code{color:var(--gold);font-weight:500;min-width:76px}
 .sl-desc{color:var(--on-dark-2);flex:1}
 .sl-amt{color:var(--on-dark-3);min-width:48px;text-align:right}
 .sl-st{font-size:.375rem;font-weight:700;letter-spacing:.10em;padding:2px 5px;border-radius:100px}
-.sl-ok{background:rgba(30,184,122,.18);color:var(--green)}
-.sl-fl{background:rgba(224,59,59,.22);color:#FF8080}
+.sl-ok{background:rgba(29,158,117,.18);color:#1D9E75}
+.sl-pending,.sl-fl{background:rgba(217,119,6,.18);color:#d97706}
+.sl-opt{background:rgba(100,116,139,.18);color:#64748b}
 
 /* ── Benchmark bars ── */
 .bench{opacity:0;transform:translateY(6px);filter:blur(2px);transition:opacity .45s var(--pop),transform .45s var(--pop),filter .35s ease}
@@ -342,7 +344,7 @@ html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto;-webkit-
     <div class="card-body" id="card-body"></div>
     <div class="pstrip">
       <div class="ps-l"><div class="ps-dot"></div><div><div class="ps-lbl">Active Review</div><div class="ps-nm">Your billing review</div></div></div>
-      <div class="ps-r">Account: account number</div>
+      <div class="ps-r">Account: in your case folder</div>
     </div>
   </div>
 
@@ -506,10 +508,10 @@ async function run(){
   var s3=await ins('<div class="srow active"><div class="sicon">&#128270;</div><div class="scontent"><div class="stitle">Reviewing available bill details</div><div class="sdetail" id="scan-d">Preparing review areas...</div></div><span class="sbadge sb-a">Reviewing</span></div>');
   var scEl=await ins('<div class="scanner"><div class="scan-hdr">Review Preparation</div><div class="scan-lines" id="scan-lines"></div></div>');
   var lines=[
-    {code:'Provider',desc:scanProvider||provider,amt:scanProvider?'Extracted':'Confirm',t:scanProvider?'ok':'warn'},
-    {code:'Bill amount',desc:scanAmount||amount,amt:scanAmount?'Extracted':'Confirm',t:scanAmount?'ok':'warn'},
-    {code:'Service date',desc:scanDate||clean(data.date_of_service,'Not found'),amt:scanDate?'Extracted':'Confirm',t:scanDate?'ok':'warn'},
-    {code:'Account',desc:scanAccount||clean(data.extracted_account_number,'Not found'),amt:scanAccount?'Extracted':'Optional',t:scanAccount?'ok':'warn'},
+    {code:'Provider',desc:scanProvider||provider,amt:scanProvider?'Extracted':'Confirm',t:scanProvider?'ok':'pending'},
+    {code:'Bill amount',desc:scanAmount||amount,amt:scanAmount?'Extracted':'Confirm',t:scanAmount?'ok':'pending'},
+    {code:'Service date',desc:scanDate||clean(data.date_of_service,'Not found'),amt:scanDate?'Extracted':'Confirm',t:scanDate?'ok':'pending'},
+    {code:'Account',desc:scanAccount||clean(data.extracted_account_number,'Not found'),amt:scanAccount?'Extracted':'Optional',t:scanAccount?'ok':'optional'},
     {code:'Concerns',desc:clean(data.concerns,'General billing review'),amt:'Review',t:'ok'}
   ];
   var scanLines=$('scan-lines'),scanDetail=$('scan-d');
@@ -517,7 +519,9 @@ async function run(){
     var l=lines[i];
     scanDetail.textContent='Preparing '+l.code.toLowerCase()+'...';
     var lineEl=document.createElement('div');lineEl.className='sl '+l.t;
-    lineEl.innerHTML='<span class="sl-code">'+esc(l.code)+'</span><span class="sl-desc">'+esc(l.desc)+'</span><span class="sl-amt">'+esc(l.amt)+'</span><span class="sl-st '+(l.t==='ok'?'sl-ok':'sl-fl')+'">'+(l.t==='ok'?'READY':'CHECK')+'</span>';
+    var statusClass=l.t==='ok'?'sl-ok':(l.t==='optional'?'sl-opt':'sl-pending');
+    var statusText=l.t==='ok'?'READY':(l.t==='optional'?'OPTIONAL':'CHECK');
+    lineEl.innerHTML='<span class="sl-code">'+esc(l.code)+'</span><span class="sl-desc">'+esc(l.desc)+'</span><span class="sl-amt">'+esc(l.amt)+'</span><span class="sl-st '+statusClass+'">'+statusText+'</span>';
     scanLines.appendChild(lineEl);
     await wait(30);lineEl.classList.add('appear');
     await wait(550);

@@ -129,6 +129,9 @@
       _denial:!!scan.denialDetected,
       _has_duplicates:!!scan.hasDuplicateCodes,
       _cpt_codes:scan.cptCodes || [],
+      codeAnalysis:scan.codeAnalysis || [],
+      lineItems:scan.codeAnalysis || [],
+      _code_analysis:scan.codeAnalysis || [],
       _page_count:scan.pageCount || 1,
       _scan_ts:scan._scanTimestamp || ts
     };

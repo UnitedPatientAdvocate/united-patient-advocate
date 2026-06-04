@@ -5853,11 +5853,21 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     try{
       if(dossier.lineItems && !dossier.codeAnalysis) dossier.codeAnalysis = dossier.lineItems;
       if(dossier.paidDossier && dossier.paidDossier.lineItems && !dossier.paidDossier.codeAnalysis) dossier.paidDossier.codeAnalysis = dossier.paidDossier.lineItems;
+      console.log('[UPA CLFS] codeAnalysis written:', dossier.codeAnalysis?.length, 'items');
       localStorage.setItem('upa.ai.dossier.v1', JSON.stringify(dossier));
     }catch(e){}
     if(window.UPARenderCLFSBenchmarks) window.UPARenderCLFSBenchmarks();
 
     console.log('[UPA] ✅ AI paid dossier rendered | risk:', dossier.summary && dossier.summary.riskLevel);
+  }
+
+  function dossierCodeAnalysisLength(dossier){
+    if(!dossier) return 0;
+    if(Array.isArray(dossier.codeAnalysis)) return dossier.codeAnalysis.length;
+    if(Array.isArray(dossier.lineItems)) return dossier.lineItems.length;
+    if(dossier.paidDossier && Array.isArray(dossier.paidDossier.codeAnalysis)) return dossier.paidDossier.codeAnalysis.length;
+    if(dossier.paidDossier && Array.isArray(dossier.paidDossier.lineItems)) return dossier.paidDossier.lineItems.length;
+    return 0;
   }
 
   function runAIDossier(){
@@ -5868,7 +5878,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       var existing = localStorage.getItem('upa.ai.dossier.v1');
       if(existing){
         var d = JSON.parse(existing);
-        if(d && d.generationMode === 'paid_dossier'){
+        if(d && d.generationMode === 'paid_dossier' && dossierCodeAnalysisLength(d)){
           console.log('[UPA] AI dossier already cached — rendering from storage');
           renderAIDossier(d);
           return;
@@ -5890,9 +5900,12 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     .then(function(res){ return res.json(); })
     .then(function(resp){
       try{
-        var text = Array.isArray(resp.content) ? resp.content.map(function(p){ return p.text||''; }).join('') : '';
-        if(!text) return;
-        var dossier = JSON.parse(text);
+        var dossier = resp && resp.normalizedPayload ? resp.normalizedPayload : null;
+        if(!dossier){
+          var text = Array.isArray(resp.content) ? resp.content.map(function(p){ return p.text||''; }).join('') : '';
+          if(!text) return;
+          dossier = JSON.parse(text);
+        }
         if(!dossier) return;
         renderAIDossier(dossier);
       }catch(e){

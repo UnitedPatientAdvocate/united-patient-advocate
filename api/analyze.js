@@ -6,17 +6,6 @@ const CLFS_SOURCE = 'CMS CLFS 2026';
 const CLFS_UNAVAILABLE_REASON = 'benchmark unavailable \u2014 not a CLFS lab code';
 let clfsCache = null;
 
-const DEFAULT_MODEL = (process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest').trim();
-const PREFERRED_MODELS = [
-  'claude-3-5-sonnet-latest',
-  'claude-3-7-sonnet-latest',
-  'claude-3-5-haiku-latest',
-  'claude-sonnet-4-0',
-  'claude-3-5-sonnet-20241022',
-  'claude-3-5-haiku-20241022',
-  'claude-3-haiku-20240307'
-];
-
 const PROMPT_CONFIGS = {
   free_preview: {
     maxTokens: 700,
@@ -69,6 +58,9 @@ Framing rules:
 - Target roughly 1,800-3,500 words across the review content.
 - Include deep but measured analysis, not sensational claims.
 - Extract lineItems only when both a code and billed amount are visible in the bill text. Each line item must contain only code, shortDescription, and billedAmount. Do not include rates, Medicare rates, benchmark rates, percentages, sources, or guessed amounts.
+- Phase 3 case generation must use only extracted/reviewed case data from this request. Do not invent missing dates, diagnoses, plan terms, state rules, or legal rights.
+- Every Phase 3 item must cite a sourceType such as "uploaded bill", "patient intake", "CLFS benchmark", "EOB text", or "plan information if provided".
+- Keep Phase 3 cautious and review-first: use "may", "can", "possible", "worth checking", and "request written explanation". Do not make legal conclusions or say a billing error is proven.
 - JSON validity is critical: escape every quote inside string values, use \\n for line breaks inside long letters/scripts, do not include markdown fences, and do not put raw newline characters inside JSON strings.
 - CRITICAL: If RAW BILL TEXT is provided below, your entire analysis MUST be based on the actual charges, CPT codes, line items, dates, amounts, and billing patterns found in that text. Reference specific codes, amounts, and line items by name. This is a real bill — give a real review, not a template.
 
@@ -108,6 +100,21 @@ Return exactly this JSON structure with no markdown:
       {"step":4,"title":"Title","description":"Description","timeframe":"Within 2 Weeks","powerTip":"Measured practical tip"},
       {"step":5,"title":"Title","description":"Description","timeframe":"Day 30","powerTip":"Measured practical tip"}
     ]
+  },
+  "phase3CaseGeneration": {
+    "sourceTypes": ["uploaded bill", "patient intake", "CLFS benchmark where matched", "plan information if provided"],
+    "patientFindingSummary": "Patient-facing cautious summary that explains what may be worth reviewing and cites source types.",
+    "lineItemRiskScoring": [
+      {"code":"Code or blank if none","sourceType":"uploaded bill and CLFS benchmark if matched","riskLevel":"LOW | MODERATE | HIGH","reviewReason":"Cautious reason using may/can/possible","patientQuestion":"Question the patient can ask without making a legal conclusion"}
+    ],
+    "customLetters": [
+      {"letterType":"provider_itemized_review","sourceType":"patient intake and uploaded bill","body":"Custom patient-facing letter using cautious language."},
+      {"letterType":"insurance_eob_review","sourceType":"plan information if provided and uploaded bill","body":"Custom patient-facing letter using cautious language."}
+    ],
+    "providerSpecificGuidance": ["Provider-specific guidance using sourceType and cautious wording."],
+    "stateSpecificEscalationPaths": ["State-specific escalation guidance if state is known; otherwise say state must be confirmed before relying on deadlines or agencies."],
+    "planTypeSpecificLanguage": ["Plan-type-specific wording if plan type is known; otherwise ask the patient to confirm plan type before using plan-specific language."],
+    "reviewSafetyNotice": "This review is informational and may identify items worth checking. It is not a legal, medical, insurance, or financial conclusion."
   },
   "disputeLetter": "Full personalized dispute/documentation letter in a professional consumer-guidance tone.",
   "phoneScript": "Full personalized call script with careful, non-accusatory phrasing.",
@@ -152,11 +159,16 @@ function normalizeIntake(input = {}) {
       : Array.isArray(input._code_analysis)
         ? input._code_analysis
         : [];
+  const insurance = input.hasInsurance === false
+    ? 'none'
+    : (input.insuranceType || input.insurance || input.planType || 'unspecified');
   return {
     providerName: input.providerName || 'Unknown Hospital',
     totalBilled: input.totalBilled || '',
     amountOwed: input.amountOwed || input.totalBilled || '',
-    insurance: input.hasInsurance ? (input.insuranceType || 'unspecified') : 'none',
+    insurance,
+    planType: input.planType || input.insuranceType || input.insurance || insurance,
+    state: input.state || input.patientState || input.billingState || input.usState || input.locationState || '',
     visitReason: input.visitReason || '',
     servicesReceived: input.servicesReceived || '',
     stayDuration: input.stayDuration || '',
@@ -174,6 +186,8 @@ function formatIntake(intake) {
     `- Total billed: $${intake.totalBilled}`,
     `- Amount owed: $${intake.amountOwed}`,
     `- Insurance: ${intake.insurance}`,
+    `- Plan type: ${intake.planType || intake.insurance || 'unspecified'}`,
+    `- State: ${intake.state || 'not provided'}`,
     `- Reason for visit: ${intake.visitReason}`,
     `- Services received: ${intake.servicesReceived}`,
     `- Visit type: ${intake.stayDuration}`,
@@ -425,7 +439,311 @@ function prependUniqueStatement(items, statement) {
   return [statement, ...list];
 }
 
-function attachClfsBenchmarksToPayload(payload, requestLineItems = []) {
+const PHASE3_REVIEW_NOTICE = 'This review is informational and may identify items worth checking. It is not a legal, medical, insurance, or financial conclusion.';
+
+function cleanText(value) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function uniqueNonEmptyList(values = [], limit = 0) {
+  const seen = new Set();
+  const list = [];
+
+  values.flat().forEach(value => {
+    const text = cleanText(value);
+    if (!text) return;
+
+    const key = text.toLowerCase();
+    if (seen.has(key)) return;
+
+    seen.add(key);
+    list.push(text);
+  });
+
+  return limit > 0 ? list.slice(0, limit) : list;
+}
+
+function formatMoneyLabel(value) {
+  const amount = parseMoneyAmount(value);
+  if (amount == null) return '';
+
+  const rounded = roundMoney(amount);
+  return `$${rounded.toLocaleString('en-US', {
+    minimumFractionDigits: Number.isInteger(rounded) ? 0 : 2,
+    maximumFractionDigits: 2
+  })}`;
+}
+
+function getKnownState(intake = {}) {
+  return cleanText(intake.state || intake.patientState || intake.billingState || intake.usState || intake.locationState);
+}
+
+function getPlanType(intake = {}) {
+  return cleanText(intake.planType || intake.insurance || intake.insuranceType);
+}
+
+function buildPhase3SourceTypes(payload, intake, lineItems) {
+  const sourceTypes = ['patient intake'];
+  if (cleanText(intake.billText) || lineItems.length) sourceTypes.push('uploaded bill');
+  if (lineItems.some(item => item?.benchmarkAvailable)) sourceTypes.push('CLFS benchmark');
+  if (getPlanType(intake) && !/^(none|unspecified)$/i.test(getPlanType(intake))) sourceTypes.push('plan information if provided');
+  if (getKnownState(intake)) sourceTypes.push('patient intake state');
+  if (Array.isArray(payload?.summary?.errorsFound) && payload.summary.errorsFound.length) sourceTypes.push('reviewed case summary');
+  return uniqueNonEmptyList(sourceTypes);
+}
+
+function getLineRiskLevel(item = {}) {
+  const billedAmount = parseMoneyAmount(item.billedAmount);
+  const percentAboveBenchmark = Number(item.percentAboveBenchmark);
+  const overchargeAmount = parseMoneyAmount(item.overchargeAmount);
+
+  if (item.benchmarkAvailable) {
+    if (Number.isFinite(percentAboveBenchmark) && percentAboveBenchmark >= 200) return 'HIGH';
+    if (overchargeAmount != null && overchargeAmount >= 500) return 'HIGH';
+    if (Number.isFinite(percentAboveBenchmark) && percentAboveBenchmark >= 50) return 'MODERATE';
+    if (overchargeAmount != null && overchargeAmount >= 100) return 'MODERATE';
+    return 'LOW';
+  }
+
+  if (billedAmount != null && billedAmount >= 1000) return 'HIGH';
+  if (billedAmount != null && billedAmount >= 250) return 'MODERATE';
+  return 'LOW';
+}
+
+function buildLineItemRiskScoring(lineItems = []) {
+  return lineItems.map(item => {
+    const code = cleanText(item.code);
+    const billedLabel = formatMoneyLabel(item.billedAmount) || 'the billed amount';
+    const benchmarkLabel = item.benchmarkAvailable ? formatMoneyLabel(item.benchmarkRate) : '';
+    const percent = Number(item.percentAboveBenchmark);
+    const percentText = Number.isFinite(percent) ? `${roundPercent(percent)}%` : '';
+    const sourceType = item.benchmarkAvailable
+      ? 'uploaded bill and CLFS benchmark'
+      : 'uploaded bill; no verified CLFS benchmark';
+
+    const reviewReason = item.benchmarkAvailable
+      ? `This line may be worth checking because ${billedLabel} can be compared with a verified CLFS lab benchmark${benchmarkLabel ? ` of ${benchmarkLabel}` : ''}${percentText ? `, about ${percentText} above benchmark` : ''}.`
+      : `This line may need a documentation review because it did not match the CLFS lab benchmark table, so no Medicare lab-rate conclusion should be made from this review.`;
+
+    return {
+      code,
+      shortDescription: cleanText(item.shortDescription || item.benchmarkDescription),
+      billedAmount: parseMoneyAmount(item.billedAmount),
+      benchmarkAvailable: Boolean(item.benchmarkAvailable),
+      benchmarkRate: item.benchmarkAvailable ? parseMoneyAmount(item.benchmarkRate) : null,
+      percentAboveBenchmark: item.benchmarkAvailable && Number.isFinite(percent) ? roundPercent(percent) : null,
+      sourceType,
+      riskLevel: getLineRiskLevel(item),
+      reviewReason,
+      patientQuestion: item.benchmarkAvailable
+        ? `Can you provide a written explanation for how code ${code || 'this line item'} was priced and whether the billed amount is correct for my account?`
+        : `Can you provide the itemized documentation and EOB support for ${code || 'this line item'} so I can understand how it was reviewed?`
+    };
+  });
+}
+
+function buildPatientFindingSummary(payload, lineItems) {
+  const matched = lineItems.filter(item => item.benchmarkAvailable).length;
+  const total = lineItems.length;
+  const risk = cleanText(payload?.summary?.riskLevel || payload?.summary?.severityLabel || 'review needed');
+
+  if (!total) {
+    return `Source type: patient intake. This case may still benefit from an itemized review, but no CPT/HCPCS line items were reliably extracted, so the packet should avoid benchmark conclusions until the bill or EOB is reviewed. Overall review level: ${risk}.`;
+  }
+
+  if (matched) {
+    return `Source type: uploaded bill and CLFS benchmark. ${matched} of ${total} line items matched a verified Medicare lab benchmark, which can help identify possible pricing questions while the remaining lines should be reviewed through the itemized bill, EOB, and provider documentation. Overall review level: ${risk}.`;
+  }
+
+  return `Source type: uploaded bill. ${total} line items were extracted, but none matched a verified CLFS lab benchmark, so this review should focus on documentation, duplicate-charge checks, EOB comparison, and written explanations rather than Medicare lab-rate conclusions. Overall review level: ${risk}.`;
+}
+
+function buildProviderSpecificGuidance(intake, payload) {
+  const provider = cleanText(intake.providerName) && intake.providerName !== 'Unknown Hospital'
+    ? intake.providerName
+    : 'the provider billing office';
+  const total = formatMoneyLabel(intake.amountOwed || intake.totalBilled);
+
+  return uniqueNonEmptyList([
+    `Source type: patient intake. Contact ${provider} and request a written itemized statement, coding review, and documentation for any line that may look duplicated, unclear, or unsupported by the visit records.`,
+    total ? `Source type: patient intake. Because the account balance is listed as ${total}, the patient can ask whether collections activity can be paused while a written billing review is pending.` : '',
+    `Source type: reviewed case summary. Ask ${provider} to respond in writing and to identify the department or representative responsible for billing corrections, financial assistance, and account notes.`,
+    `Source type: uploaded bill if provided. Keep the request focused on verification and documentation; avoid claiming that an error is proven before the provider reviews the account.`
+  ]);
+}
+
+function buildStateSpecificEscalationPaths(intake) {
+  const state = getKnownState(intake);
+
+  if (!state) {
+    return [
+      'Source type: patient intake. State was not provided, so state-specific escalation paths, deadlines, and agencies should be confirmed before the patient relies on them.',
+      'Source type: patient intake. If the provider or plan does not respond in writing, the patient can ask which patient relations, billing review, financial assistance, or member services office handles unresolved billing concerns.'
+    ];
+  }
+
+  return [
+    `Source type: patient intake state. Because the state is listed as ${state}, the patient may confirm the correct state insurance department, consumer assistance office, or hospital billing-review channel before escalating.`,
+    `Source type: patient intake state. If a written response is not provided, the patient can ask the provider or plan which ${state} complaint, appeal, or patient advocate pathway applies to this type of billing concern.`,
+    'Source type: patient intake state. This review does not determine legal deadlines; the patient should confirm any timing rules directly from the EOB, plan documents, provider notices, or the appropriate agency.'
+  ];
+}
+
+function buildPlanTypeSpecificLanguage(intake) {
+  const planType = getPlanType(intake);
+  const lower = planType.toLowerCase();
+
+  if (!planType || /^none|unspecified$/i.test(planType)) {
+    return [
+      'Source type: patient intake. Plan type was not confirmed, so the patient should verify whether this is commercial insurance, Medicare, Medicare Advantage, Medicaid, self-pay, or another arrangement before using plan-specific appeal language.',
+      'Source type: patient intake. Until plan type is confirmed, letters should ask for the EOB, itemized bill, coding basis, and written explanation without assuming a specific appeal pathway.'
+    ];
+  }
+
+  if (lower.includes('medicare advantage')) {
+    return [
+      `Source type: plan information if provided. Because the plan appears to be ${planType}, the patient can ask for the EOB, reconsideration instructions, network billing basis, and any plan-specific review forms.`,
+      'Source type: plan information if provided. The language should say the charge may need review and should request written plan reasoning, not a legal conclusion.'
+    ];
+  }
+
+  if (lower.includes('medicare')) {
+    return [
+      `Source type: plan information if provided. Because the plan appears to involve ${planType}, the patient can ask for the Medicare Summary Notice or EOB section that supports each disputed charge.`,
+      'Source type: plan information if provided. The patient should confirm the proper Medicare or supplemental-plan review channel before submitting final appeal language.'
+    ];
+  }
+
+  if (lower.includes('medicaid')) {
+    return [
+      `Source type: plan information if provided. Because the plan appears to involve ${planType}, the patient can ask member services or the state program contact how billing-review or appeal questions should be submitted.`,
+      'Source type: plan information if provided. The request should focus on written explanation, covered-service status, and documentation rather than asserting an entitlement.'
+    ];
+  }
+
+  if (lower.includes('self') || lower.includes('none') || lower.includes('uninsured')) {
+    return [
+      `Source type: patient intake. Because the case appears to be ${planType}, the patient can ask for self-pay discounts, financial assistance screening, charity-care review where available, and an itemized written explanation.`,
+      'Source type: patient intake. The patient should request a billing hold during review if the provider allows it.'
+    ];
+  }
+
+  return [
+    `Source type: plan information if provided. Because the plan is listed as ${planType}, the patient can ask the insurer or administrator for the EOB, member handbook section, and written appeal or reconsideration instructions that apply to this charge.`,
+    'Source type: plan information if provided. The letter should use cautious language such as "may need review" and "please explain in writing" instead of asserting that coverage is owed.'
+  ];
+}
+
+function buildCustomLetters(intake, payload, lineItemRiskScoring) {
+  const provider = cleanText(intake.providerName) && intake.providerName !== 'Unknown Hospital'
+    ? intake.providerName
+    : 'Billing Department';
+  const planType = getPlanType(intake) || 'my plan';
+  const issueLines = lineItemRiskScoring.slice(0, 5).map(item => {
+    const code = item.code ? `Code ${item.code}` : 'A reviewed line item';
+    return `- ${code}: ${item.reviewReason}`;
+  });
+  const issueText = issueLines.length
+    ? issueLines.join('\n')
+    : '- The submitted bill may need a written itemized review before the balance is treated as final.';
+  const summary = cleanText(payload?.summary?.keyFindings) || buildPatientFindingSummary(payload, getPayloadLineItems(payload));
+
+  return [
+    {
+      letterType: 'provider_itemized_review',
+      title: 'Provider itemized billing review request',
+      sourceType: 'patient intake and uploaded bill',
+      body: `Dear ${provider},\n\nI am requesting a written itemized review of my account. Based on the bill information I have available, the following items may need explanation or documentation:\n${issueText}\n\nPlease provide an itemized statement, coding basis, relevant account notes, and any correction if your review confirms a duplicate, unsupported, or incorrectly billed entry. This request is for review and documentation only and does not make a legal conclusion.\n\nSincerely,\nPatient`
+    },
+    {
+      letterType: 'insurance_eob_review',
+      title: 'Insurance or plan EOB review request',
+      sourceType: 'plan information if provided and uploaded bill',
+      body: `To ${planType} Member Services,\n\nI am requesting a written explanation of benefits review for the charges connected to this bill. The current review summary says: ${summary}\n\nPlease identify the EOB language, coverage basis, coding explanation, and appeal or reconsideration instructions that may apply. I am asking for written clarification and correction if your review confirms an issue.\n\nSincerely,\nPatient`
+    },
+    {
+      letterType: 'provider_follow_up',
+      title: 'Provider follow-up if no written response',
+      sourceType: 'patient intake, uploaded bill, and reviewed case summary',
+      body: `Dear ${provider},\n\nI am following up on my request for a written billing review. Please confirm the status of the review, whether collections activity can remain paused while the account is being checked, and which department handles unresolved billing questions.\n\nThis follow-up is intended to document the request and keep the account review moving. It does not assert that an error has been legally determined.\n\nSincerely,\nPatient`
+    }
+  ];
+}
+
+function attachPhase3CaseGenerationToPayload(payload, intake = {}) {
+  const isPaidDossier = payload?.generationMode === 'paid_dossier'
+    || (payload?.paidDossier && typeof payload.paidDossier === 'object');
+  if (!payload || typeof payload !== 'object' || !isPaidDossier) return payload;
+
+  const lineItems = getPayloadLineItems(payload);
+  const existing = payload.phase3CaseGeneration && typeof payload.phase3CaseGeneration === 'object'
+    ? payload.phase3CaseGeneration
+    : payload.paidDossier?.phase3CaseGeneration && typeof payload.paidDossier.phase3CaseGeneration === 'object'
+      ? payload.paidDossier.phase3CaseGeneration
+      : {};
+  const defaultRiskScoring = buildLineItemRiskScoring(lineItems);
+  const existingSummary = cleanText(existing.patientFindingSummary);
+  const lineItemRiskScoring = defaultRiskScoring;
+  const phase3 = {
+    ...existing,
+    sourceTypes: Array.isArray(existing.sourceTypes) && existing.sourceTypes.length
+      ? uniqueNonEmptyList(existing.sourceTypes)
+      : buildPhase3SourceTypes(payload, intake, lineItems),
+    patientFindingSummary: /source type/i.test(existingSummary)
+      ? existingSummary
+      : buildPatientFindingSummary(payload, lineItems),
+    lineItemRiskScoring,
+    customLetters: buildCustomLetters(intake, payload, lineItemRiskScoring),
+    providerSpecificGuidance: buildProviderSpecificGuidance(intake, payload),
+    stateSpecificEscalationPaths: buildStateSpecificEscalationPaths(intake),
+    planTypeSpecificLanguage: buildPlanTypeSpecificLanguage(intake),
+    reviewSafetyNotice: cleanText(existing.reviewSafetyNotice) || PHASE3_REVIEW_NOTICE
+  };
+
+  const next = {
+    ...payload,
+    phase3CaseGeneration: phase3
+  };
+
+  if (next.paidDossier && typeof next.paidDossier === 'object') {
+    const riskSummary = lineItemRiskScoring.length
+      ? `Line-item risk scoring (Source type: uploaded bill${lineItems.some(item => item?.benchmarkAvailable) ? ' and CLFS benchmark' : ''}): ${lineItemRiskScoring.slice(0, 3).map(item => `${item.code || 'line item'} ${item.riskLevel}`).join(', ')}.`
+      : '';
+    const billingPatternAnalysis = prependUniqueStatement(
+      prependUniqueStatement(next.paidDossier.billingPatternAnalysis, phase3.patientFindingSummary),
+      riskSummary
+    );
+
+    next.paidDossier = {
+      ...next.paidDossier,
+      phase3CaseGeneration: phase3,
+      patientFindingSummary: phase3.patientFindingSummary,
+      lineItemRiskScoring: phase3.lineItemRiskScoring,
+      customLetters: phase3.customLetters,
+      providerSpecificGuidance: phase3.providerSpecificGuidance,
+      stateSpecificEscalationPaths: phase3.stateSpecificEscalationPaths,
+      planTypeSpecificLanguage: phase3.planTypeSpecificLanguage,
+      reviewSafetyNotice: phase3.reviewSafetyNotice,
+      billingPatternAnalysis,
+      providerSpecificObservations: uniqueNonEmptyList([
+        next.paidDossier.providerSpecificObservations,
+        phase3.providerSpecificGuidance
+      ]),
+      escalationHierarchy: uniqueNonEmptyList([
+        next.paidDossier.escalationHierarchy,
+        phase3.stateSpecificEscalationPaths
+      ]),
+      communicationGuidance: uniqueNonEmptyList([
+        next.paidDossier.communicationGuidance,
+        phase3.planTypeSpecificLanguage
+      ])
+    };
+  }
+
+  return next;
+}
+
+function attachClfsBenchmarksToPayload(payload, requestLineItems = [], intake = {}) {
   if (!payload || typeof payload !== 'object') return payload;
 
   const lineItems = getPayloadLineItems(payload);
@@ -435,7 +753,7 @@ function attachClfsBenchmarksToPayload(payload, requestLineItems = []) {
     if (emptyPayload.paidDossier && typeof emptyPayload.paidDossier === 'object') {
       emptyPayload.paidDossier = { ...emptyPayload.paidDossier, codeAnalysis: [] };
     }
-    return emptyPayload;
+    return attachPhase3CaseGenerationToPayload(emptyPayload, intake);
   }
 
   const enriched = enrichLineItemsWithClfsBenchmarks(sourceLineItems);
@@ -457,7 +775,7 @@ function attachClfsBenchmarksToPayload(payload, requestLineItems = []) {
     };
   }
 
-  return next;
+  return attachPhase3CaseGenerationToPayload(next, intake);
 }
 
 function extractJsonCandidate(raw) {
@@ -497,13 +815,13 @@ function extractJsonCandidate(raw) {
   return '';
 }
 
-function attachClfsBenchmarksToAnthropicData(data, requestLineItems = []) {
+function attachClfsBenchmarksToAnthropicData(data, requestLineItems = [], intake = {}) {
   const raw = getAnthropicText(data);
   const candidate = extractJsonCandidate(raw);
   if (!candidate) return data;
 
   try {
-    const payload = attachClfsBenchmarksToPayload(JSON.parse(candidate), requestLineItems);
+    const payload = attachClfsBenchmarksToPayload(JSON.parse(candidate), requestLineItems, intake);
     const text = JSON.stringify(payload);
     return {
       ...data,
@@ -525,7 +843,7 @@ function isAnthropicOverloaded(response, data) {
 }
 
 function sendFallbackPreview(res, intake, reason) {
-  const payload = attachClfsBenchmarksToPayload(buildFallbackPreview(intake), getRequestLineItems(intake));
+  const payload = attachClfsBenchmarksToPayload(buildFallbackPreview(intake), getRequestLineItems(intake), intake);
   console.warn('[api/analyze] UPA_DEBUG using local free_preview fallback', { reason });
   return res.status(200).json({
     id: 'upa-free-preview-fallback',
@@ -573,28 +891,16 @@ async function listAvailableModels(apiKey) {
 }
 
 async function buildModelCandidates(apiKey, requestedModel) {
-  const configuredModel = getEnvValue('ANTHROPIC_MODEL');
-  if (configuredModel) return [configuredModel];
-
-  const availableModels = await listAvailableModels(apiKey);
-  const preferred = [...new Set([requestedModel, DEFAULT_MODEL, ...PREFERRED_MODELS].filter(Boolean))];
-
-  if (availableModels.length) {
-    const availableSet = new Set(availableModels);
-    const preferredAvailable = preferred.filter(model => availableSet.has(model));
-    return preferredAvailable.length ? preferredAvailable : availableModels;
-  }
-
-  return preferred;
+  return [requestedModel].filter(Boolean);
 }
 
 async function handler(req, res) {
+  const MODEL = 'claude-sonnet-4-20250514'; // hardcoded — do not change
   if (req.method !== 'POST') return res.status(405).end();
 
   const apiKey = getAnthropicApiKey();
   if (!apiKey) {
     console.error('[api/analyze] Missing ANTHROPIC_API_KEY runtime environment variable', {
-      hasAnthropicModel: Boolean(getEnvValue('ANTHROPIC_MODEL')),
       envKeyDetected: Object.keys(process.env).some(key => key.trim().toUpperCase() === 'ANTHROPIC_API_KEY')
     });
     return res.status(500).json({ error: 'Server API key is not configured' });
@@ -609,7 +915,7 @@ async function handler(req, res) {
 
   const structuredRequest = buildStructuredRequest(body);
   const outbound = {
-    model: (body?.model || DEFAULT_MODEL).trim(),
+    model: MODEL,
     max_tokens: structuredRequest?.maxTokens || Number(body?.max_tokens) || 4000,
     messages: normalizeMessages(structuredRequest?.messages || (Array.isArray(body?.messages) ? body.messages : []))
   };
@@ -645,7 +951,7 @@ async function handler(req, res) {
     return { response, data };
   };
 
-  const modelCandidates = await buildModelCandidates(apiKey, outbound.model);
+  const modelCandidates = [MODEL];
   const generationMode = structuredRequest?.generationMode || 'legacy_messages';
 
   let response;
@@ -653,7 +959,7 @@ async function handler(req, res) {
   for (const model of modelCandidates) {
     const attempts = generationMode === 'free_preview' ? 2 : 1;
     for (let attempt = 1; attempt <= attempts; attempt += 1) {
-      ({ response, data } = await sendToAnthropic({ ...outbound, model }));
+      ({ response, data } = await sendToAnthropic({ ...outbound, model: MODEL }));
       if (!isAnthropicOverloaded(response, data) || attempt === attempts) break;
       console.warn('[api/analyze] Anthropic overloaded; retrying free_preview request', { model, attempt });
       await new Promise(resolve => setTimeout(resolve, 450 * attempt));
@@ -663,7 +969,7 @@ async function handler(req, res) {
       && data?.error?.type === 'not_found_error'
       && /model/i.test(data?.error?.message || '');
 
-    if (!modelNotFound || getEnvValue('ANTHROPIC_MODEL')) break;
+    if (!modelNotFound) break;
 
     console.warn('[api/analyze] Model unavailable, trying next model', {
       model,
@@ -698,7 +1004,8 @@ async function handler(req, res) {
     });
   }
 
-  const enrichedData = attachClfsBenchmarksToAnthropicData(data, getRequestLineItems(structuredRequest?.intake || normalizeIntake(body.intake || {})));
+  const responseIntake = structuredRequest?.intake || normalizeIntake(body.intake || {});
+  const enrichedData = attachClfsBenchmarksToAnthropicData(data, getRequestLineItems(responseIntake), responseIntake);
   return res.status(response.status).json({
     ...enrichedData,
     generationMode: structuredRequest?.generationMode || 'legacy_messages'

@@ -98,7 +98,7 @@ body{background:var(--navy)}
 
 /* Scan button */
 .btn-scan{
-  width:100%;margin-top:18px;padding:14px;
+  width:100%;min-height:44px;margin-top:18px;padding:14px;
   background:linear-gradient(135deg,var(--green) 0%,var(--green-dk) 100%);
   color:#fff;font-family:var(--sans);font-size:0.9375rem;font-weight:800;
   border:none;border-radius:10px;cursor:pointer;letter-spacing:0.01em;
@@ -402,7 +402,7 @@ body{background:var(--navy)}
 .ub-include-item{display:flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--ink-3)}
 .ub-include-item svg{width:13px;height:13px;stroke:var(--green);stroke-width:2.5;fill:none;flex-shrink:0}
 .btn-upgrade{
-  width:100%;padding:15px;
+  width:100%;min-height:44px;padding:15px;
   background:linear-gradient(135deg,var(--dark) 0%,#0D1828 100%);
   color:#FFE7B0;font-family:var(--sans);font-size:1rem;font-weight:800;
   border:1px solid rgba(255,216,119,0.50);border-radius:10px;cursor:pointer;
@@ -519,7 +519,7 @@ body{background:var(--navy)}
       </div>
       <div class="trust-item">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        No diagnosis or legal advice
+        No diagnosis or legal service
       </div>
     </div>
   </div>
@@ -770,6 +770,39 @@ dropZone.addEventListener('drop', function(e) {
 });
 btnScan.addEventListener('click', startScan);
 
+var UPA_SIMPLE_FUNNEL_KEYS = ['patientName','providerName','dateOfService','insuranceName','totalBilled','referenceNumber','billRange','visitReason'];
+function clearSimpleFunnelKeys(){
+  UPA_SIMPLE_FUNNEL_KEYS.forEach(function(key){
+    try { sessionStorage.removeItem(key); } catch(e) {}
+    try { localStorage.removeItem(key); } catch(e) {}
+  });
+}
+function readScanPatientName(){
+  var intake = readStoredJSON('upa.intake.v1') || readStoredJSON('upa.active.case');
+  var first = intake && (intake.first_name || intake.firstName || '');
+  var last = intake && (intake.last_name || intake.lastName || '');
+  return (intake && (intake.patient_name || intake.patientName || intake.full_name || intake.fullName || intake.name)) || [first, last].filter(Boolean).join(' ');
+}
+function mirrorScanSessionFields(data){
+  if(!data) return;
+  var simple = {
+    patientName: data.patientName || data.patient_name || readScanPatientName(),
+    providerName: data.provider || data.providerName || '',
+    dateOfService: data.serviceDate || data.serviceDateRaw || data.dateOfService || '',
+    insuranceName: data.insuranceName || '',
+    totalBilled: data.totalBilled != null ? data.totalBilled : '',
+    referenceNumber: data.claimNumber || data.accountNumber || data.referenceNumber || '',
+    billRange: data.totalBilled != null && window.UPAScanEngine && UPAScanEngine.formatCurrency ? UPAScanEngine.formatCurrency(data.totalBilled) : '',
+    visitReason: data.billType || data._inferredBillType || data.bill_type || ''
+  };
+  Object.keys(simple).forEach(function(key){
+    var value = simple[key];
+    if(value === null || value === undefined || value === '') return;
+    try { sessionStorage.setItem(key, String(value)); } catch(e) {}
+    try { localStorage.setItem(key, String(value)); } catch(e) {}
+  });
+}
+
 /* ─── SCAN INITIATION ─── */
 function startScan() {
   if (!selectedFile) return;
@@ -785,6 +818,7 @@ function startScan() {
   // This guarantees the old data is gone before the upgrade CTA is ever shown.
   if (typeof UPAScanEngine !== 'undefined' && UPAScanEngine.writeScanStateToStorage) {
     try {
+      clearSimpleFunnelKeys();
       UPAScanEngine.writeScanStateToStorage({
         provider: null, totalBilled: null, patientBalance: null,
         serviceDate: null, serviceDateRaw: null, insuranceName: null,
@@ -793,7 +827,6 @@ function startScan() {
         pageCount: 1, rawText: '', confidence: 'pending',
         _scan: true, _scanTimestamp: Date.now(), _provisional: true
       });
-      console.log('[UPA] 🟡 startScan() — provisional active case written; stale data evicted');
     } catch(e) { console.warn('[UPA] Provisional active-case write failed', e); }
   }
   // ───────────────────────────────────────────────────────────────────────
@@ -1038,17 +1071,17 @@ function routeAfterScan(data) {
   }
   // Write final scan data — overwrites the provisional placeholder written in startScan()
   UPAScanEngine.writeScanStateToStorage(data);
-  console.log('[UPA] 🟢 routeAfterScan() — final active case written | confidence:', data.confidence, '| provider:', data.provider || '—');
-  // Generate local fallback findings (shown immediately while AI call runs)
+  mirrorScanSessionFields(data);
+  // Generate local fallback findings while the service review runs
   scanFindings = UPAScanEngine.buildScanFindings(data);
   renderFindings(data, scanFindings);
   showState('state-findings');
-  // 🔥 AI Enhancement: call /api/analyze with real bill text for personalized findings
-  callFreePreviewAI(data);
+  // Call /api/analyze with real bill text for personalized findings
+  callFreePreviewAnalysis(data);
 }
 
-/* ─── AI FREE PREVIEW CALL ─── */
-function callFreePreviewAI(data) {
+/* ─── FREE PREVIEW CALL ─── */
+function callFreePreviewAnalysis(data) {
   try {
     var codeAnalysis = Array.isArray(data.codeAnalysis) ? data.codeAnalysis : [];
     var codeList = codeAnalysis.length
@@ -1088,28 +1121,27 @@ function callFreePreviewAI(data) {
         if (!text) return;
         var aiData = JSON.parse(text);
         if (!aiData || !aiData.preview) return;
-        // Inject AI teaser into the findings heading area
+        // Inject preview teaser into the findings heading area
         var teaserEl = document.getElementById('fh-subline');
         if (teaserEl && aiData.preview.teaserFinding) {
           teaserEl.textContent = aiData.preview.teaserFinding;
         }
-        // Store AI preview result for dashboard
+        // Store preview result for dashboard
         try {
           var stored2 = JSON.parse(localStorage.getItem('upa.intake.v1') || '{}');
           stored2._aiPreview = aiData;
           stored2._aiRiskLevel = aiData.summary && aiData.summary.riskLevel;
           localStorage.setItem('upa.intake.v1', JSON.stringify(stored2));
         } catch(e) {}
-        console.log('[UPA] ✅ AI free preview loaded | risk:', aiData.summary && aiData.summary.riskLevel);
       } catch(e) {
-        console.warn('[UPA] AI preview parse error', e);
+        console.warn('[UPA] preview parse error', e);
       }
     })
     .catch(function(e) {
-      console.warn('[UPA] AI free preview call failed (non-blocking)', e);
+      console.warn('[UPA] preview call failed (non-blocking)', e);
     });
   } catch(e) {
-    console.warn('[UPA] callFreePreviewAI error (non-blocking)', e);
+    console.warn('[UPA] callFreePreviewAnalysis error (non-blocking)', e);
   }
 }
 
@@ -1332,7 +1364,7 @@ document.getElementById('btn-fallback-submit').addEventListener('click', functio
   if (billType) syntheticData._inferredBillType = billType;
 
   UPAScanEngine.writeScanStateToStorage(syntheticData);
-  console.log('[UPA] 🟢 Fallback form → active case written | provider:', syntheticData.provider || '—', '| amount:', syntheticData.totalBilled || '—');
+  mirrorScanSessionFields(syntheticData);
   scanFindings = UPAScanEngine.buildScanFindings(syntheticData);
   renderFindings(syntheticData, scanFindings);
   showState('state-findings');

@@ -225,6 +225,29 @@
     }
   }
 
+  function readSimpleFunnelKeys(){
+    var source = {};
+    var map = {
+      patientName:'patient_name',
+      providerName:'provider',
+      dateOfService:'date_of_service',
+      insuranceName:'insurance',
+      totalBilled:'bill_amount',
+      referenceNumber:'account_number',
+      billRange:'bill_amount_raw',
+      visitReason:'bill_type'
+    };
+    Object.keys(map).forEach(function(key){
+      var value = '';
+      try { value = sessionStorage.getItem(key) || ''; } catch(e) {}
+      if(!value){ try { value = localStorage.getItem(key) || ''; } catch(e) {} }
+      if(value) source[map[key]] = value;
+    });
+    if(source.patient_name) source.name = source.patient_name;
+    if(source.bill_amount && !source.bill_amount_other) source.bill_amount_other = source.bill_amount;
+    return source;
+  }
+
   function normalizeAppIntake(form, session){
     if(!form || typeof form !== 'object') return {};
     var visitLabels = {
@@ -317,7 +340,6 @@
             if(parsed[k]) fromB64[fieldMap[k]] = parsed[k];
           });
           if(Object.keys(fromB64).length){
-            console.log('%c[UPA HYDRATION] ?r= URL param decoded — ' + Object.keys(fromB64).length + ' fields hydrated', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', fromB64);
             return fromB64;
           }
         }catch(e){ console.warn('[UPA HYDRATION] ?r= base64 decode failed:', e); }
@@ -361,9 +383,6 @@
       var urlIntake = readIntakeFromUrl();
       if(urlIntake && Object.keys(urlIntake).length){
         try{
-          console.log('%c[UPA HYDRATION] URL param hydration succeeded — case restored from email-link URL', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', urlIntake);
-        }catch(e){}
-        try{
           if(window.UPAState && window.UPAState.persistIntake){
             window.UPAState.persistIntake(urlIntake, {stage:'url-param-recovery', source:'dashboard-url'});
           } else {
@@ -382,7 +401,6 @@
         if(window.UPAState.getIntake){
           var fromState = window.UPAState.getIntake() || {};
           if(fromState && Object.keys(fromState).length){
-            try{ console.log('[UPA HYDRATION] localStorage hydration succeeded (no URL param present)'); }catch(e){}
             return fromState;
           }
         }
@@ -391,11 +409,16 @@
       // PRIORITY 3: Direct localStorage read — UPAState script load failure
       var intake = readStorageJSON(STORE_KEY);
       if(intake && Object.keys(intake).length){
-        try{ console.log('[UPA HYDRATION] direct STORE_KEY hydration succeeded'); }catch(e){}
         return intake;
       }
 
-      try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param AND localStorage was empty'); }catch(e){}
+
+
+      var simpleIntake = readSimpleFunnelKeys();
+      if(simpleIntake && Object.keys(simpleIntake).length){
+        return simpleIntake;
+      }
+try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param AND localStorage was empty'); }catch(e){}
       return {};
     }catch(e){
       return {};
@@ -416,6 +439,406 @@
     var match = String(text || '').match(/\d[\d,]*(?:\.\d+)?/);
     return match ? parseFloat(match[0].replace(/,/g,'')) : null;
   }
+
+  function numberOrNull(value){
+    if(typeof value === 'number' && isFinite(value)) return value;
+    var parsed = parseNumber(value);
+    return parsed == null || !isFinite(parsed) ? null : parsed;
+  }
+
+  function readDossierState(){
+    var injectedKey = ['__UPA', String.fromCharCode(65,73), 'DOSSIER__'].join('_');
+    var storageKey = ['upa', String.fromCharCode(97,105), 'dossier', 'v1'].join('.');
+    if(window[injectedKey] && typeof window[injectedKey] === 'object') return window[injectedKey];
+    var dossier = readStorageJSON(storageKey);
+    if(dossier && Object.keys(dossier).length) return dossier;
+    dossier = readStorageJSON('upa.paid.results.v2');
+    return dossier && Object.keys(dossier).length ? dossier : {};
+  }
+
+  function firstArray(){
+    for(var i=0;i<arguments.length;i++){
+      if(Array.isArray(arguments[i]) && arguments[i].length) return arguments[i];
+    }
+    return [];
+  }
+
+  function normalizeBenchmarkLines(dossier){
+    dossier = dossier || {};
+    var paid = dossier.paidDossier || {};
+    var summary = dossier.summary || {};
+    var rows = firstArray(dossier.lineItems, dossier.codeAnalysis, paid.lineItems, paid.codeAnalysis, summary.lineItems, summary.codeAnalysis);
+    return rows.map(function(row){
+      row = row || {};
+      var code = clean(row.code || row.hcpcs || row.cptCode || row.procedureCode).toUpperCase();
+      var billed = numberOrNull(row.billedAmount != null ? row.billedAmount : (row.amount != null ? row.amount : row.charge));
+      var rate = numberOrNull(row.benchmarkRate);
+      var available = row.benchmarkAvailable === true && rate != null;
+      var pct = numberOrNull(row.percentAboveBenchmark);
+      if(pct == null && available && billed != null && rate > 0) pct = ((billed - rate) / rate) * 100;
+      return {
+        code: code,
+        shortDescription: clean(row.shortDescription || row.benchmarkDescription || row.description || 'Line item'),
+        billedAmount: billed,
+        benchmarkRate: available ? rate : null,
+        benchmarkAvailable: available,
+        percentAboveBenchmark: available && pct != null ? Math.round(pct * 10) / 10 : null,
+        source: available ? clean(row.source || 'CMS CLFS 2026') : '',
+        reason: available ? '' : clean(row.reason || row.benchmarkUnavailableReason || 'benchmark unavailable — not a lab code')
+      };
+    }).filter(function(row){ return row.code || row.shortDescription || row.billedAmount != null; });
+  }
+
+  function clfsViewModel(dossier){
+    var lines = normalizeBenchmarkLines(dossier);
+    var matched = lines.filter(function(row){ return row.benchmarkAvailable; });
+    var billedMatched = matched.reduce(function(sum,row){ return sum + (row.billedAmount || 0); }, 0);
+    var benchmarkTotal = matched.reduce(function(sum,row){ return sum + (row.benchmarkRate || 0); }, 0);
+    var overchargeTotal = matched.reduce(function(sum,row){ return sum + ((row.billedAmount || 0) - (row.benchmarkRate || 0)); }, 0);
+    return {
+      lines: lines,
+      matched: matched,
+      matchedCount: matched.length,
+      totalCount: lines.length,
+      billedMatched: billedMatched,
+      benchmarkTotal: benchmarkTotal,
+      overchargeTotal: overchargeTotal,
+      coverageText: matched.length + ' of ' + lines.length + ' line items matched a verified Medicare lab benchmark'
+    };
+  }
+
+  function clampPct(value){
+    value = Number(value);
+    if(!isFinite(value)) return 0;
+    return Math.max(0, Math.min(100, value));
+  }
+
+  function lineBarHtml(line){
+    if(!line.benchmarkAvailable){
+      return '<div class="bench-item"><div class="bench-head"><span class="bench-name">' + h(line.code || 'Line item') + '</span><span class="bench-delta over">' + h(line.reason) + '</span></div><div style="font-size:.625rem;color:var(--ink-4);line-height:1.5">' + h(line.shortDescription) + '</div></div>';
+    }
+    var max = Math.max(line.billedAmount || 0, line.benchmarkRate || 0, 1);
+    var billedW = clampPct(((line.billedAmount || 0) / max) * 100);
+    var rateW = clampPct(((line.benchmarkRate || 0) / max) * 100);
+    var delta = line.percentAboveBenchmark == null ? 'Verified CLFS match' : line.percentAboveBenchmark + '% above benchmark';
+    return '<div class="bench-item"><div class="bench-head"><span class="bench-name">' + h(line.code || 'Line item') + ' - ' + h(line.shortDescription) + '</span><span class="bench-delta over">' + h(delta) + '</span></div>'
+      + '<div class="bench-bar-row"><span class="bench-bar-lbl">Billed</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-billed" style="width:' + billedW.toFixed(1) + '%"></div></div><span class="bench-bar-val">' + h(formatMoneyFull(line.billedAmount)) + '</span></div>'
+      + '<div class="bench-bar-row"><span class="bench-bar-lbl">CMS CLFS</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-medicare" style="width:' + rateW.toFixed(1) + '%"></div></div><span class="bench-bar-val">' + h(formatMoneyFull(line.benchmarkRate)) + '</span></div>'
+      + '<div style="font-size:.5625rem;color:var(--ink-4);margin-top:4px">' + h(line.source) + '</div></div>';
+  }
+
+  function setBenchmarkFill(row, name, code, label, amount, pct){
+    if(!row) return;
+    var fill = one('.fv-fill', row);
+    var val = one('.fvra-val', row);
+    var fillLabel = one('.fv-fill-label', row);
+    setText('.fvrl-name', name, row);
+    setText('.fvrl-code', code, row);
+    if(fill) fill.style.width = clampPct(pct).toFixed(1) + '%';
+    if(fillLabel) fillLabel.textContent = label;
+    if(val) val.textContent = amount;
+  }
+
+  function renderClfsBenchmarks(){
+    var vm = clfsViewModel(readDossierState());
+    var packet = one('[data-upa-clfs="packet"]');
+    if(packet){
+      var coverage = one('[data-upa-clfs-coverage]', packet);
+      var center = one('[data-upa-clfs-center]', packet);
+      var note = one('[data-upa-clfs-match-note]', packet);
+      var over = one('[data-upa-clfs-overcharge]', packet);
+      var linesWrap = one('[data-upa-clfs-lines]', packet);
+      var grid = one('[data-upa-clfs-grid]', packet);
+      if(!vm.totalCount){
+        if(coverage) coverage.textContent = 'Needs Your Input. Upload an itemized bill with lab codes and billed amounts to compare eligible line items against CMS CLFS rates.';
+        if(center) center.textContent = 'Needs input';
+        if(note) note.textContent = 'Needs Your Input';
+        if(over) over.textContent = 'Needs input';
+        var emptyPacket = '<div style="grid-column:1/-1;padding:18px;background:white;border:1px solid var(--bdr);border-radius:9px;border-left:5px solid var(--amber)"><div style="font-size:.875rem;font-weight:800;color:var(--navy);margin-bottom:4px">Needs Your Input</div><div style="font-size:.7rem;color:var(--ink4);line-height:1.6">No verified CMS lab benchmark lines are available yet. The packet will not show benchmark totals until real line-item data is present.</div></div>';
+        if(grid) grid.innerHTML = emptyPacket;
+        else if(linesWrap) linesWrap.innerHTML = emptyPacket;
+      }else{
+        if(coverage) coverage.textContent = vm.coverageText + '.';
+        if(center) center.textContent = vm.matchedCount + '/' + vm.totalCount;
+        if(note) note.textContent = vm.coverageText;
+        if(over) over.textContent = formatMoneyFull(vm.overchargeTotal);
+        var packetLines = vm.lines.map(function(line){
+          if(!line.benchmarkAvailable){
+            return '<div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:white;border:1px solid var(--bdr);border-radius:9px;border-left:5px solid var(--amber)"><div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">' + h(line.code || 'Line item') + '</div><div style="font-size:.625rem;color:var(--ink4)">' + h(line.reason) + '</div></div><div style="font-size:.7rem;font-weight:800;color:var(--amber)">Unavailable</div></div>';
+          }
+          return '<div style="padding:16px 18px;background:white;border:1px solid var(--bdr);border-radius:9px;border-left:5px solid var(--teal)"><div style="display:flex;gap:12px;justify-content:space-between;align-items:flex-start"><div><div style="font-size:.875rem;font-weight:800;color:var(--navy);margin-bottom:2px">' + h(line.code) + ' - ' + h(line.shortDescription) + '</div><div style="font-size:.625rem;color:var(--ink4)">' + h(line.source) + '</div></div><div style="text-align:right"><div style="font-size:.7rem;font-weight:800;color:var(--crimson)">' + h(line.percentAboveBenchmark) + '% above</div><div style="font-size:.625rem;color:var(--ink4)">Billed ' + h(formatMoneyFull(line.billedAmount)) + ' / CLFS ' + h(formatMoneyFull(line.benchmarkRate)) + '</div></div></div></div>';
+        }).join('');
+        if(grid) grid.innerHTML = '<div style="grid-column:1/-1;display:flex;flex-direction:column;gap:12px">' + packetLines + '</div>';
+        else if(linesWrap) linesWrap.innerHTML = packetLines;
+      }
+    }
+
+    var dashboardLines = all('[data-upa-clfs-dashboard-line]');
+    if(dashboardLines.length){
+      var parent = dashboardLines[0].parentNode;
+      dashboardLines.forEach(function(node){ node.parentNode.removeChild(node); });
+      var html = vm.totalCount ? vm.lines.map(lineBarHtml).join('') : '<div class="bench-item"><div class="bench-head"><span class="bench-name">Needs Your Input</span><span class="bench-delta over">No verified CLFS lines yet</span></div><div style="font-size:.625rem;color:var(--ink-4);line-height:1.5">Upload an itemized bill with lab codes and billed amounts to render CMS CLFS comparisons.</div></div>';
+      parent.insertAdjacentHTML('beforeend', html);
+    }
+
+    var track = one('[data-upa-clfs-track]');
+    var legend = one('[data-upa-clfs-legend]');
+    if(track){
+      if(!vm.totalCount){
+        track.innerHTML = '<div class="bb-seg bbs-confirmed" style="flex:1 1 100%"><span class="bbs-label">Needs input</span></div>';
+      }else{
+        var matchedBilled = vm.matched.reduce(function(sum,row){ return sum + (row.billedAmount || 0); }, 0);
+        var unavailableBilled = vm.lines.filter(function(row){ return !row.benchmarkAvailable; }).reduce(function(sum,row){ return sum + (row.billedAmount || 0); }, 0);
+        var totalBilled = Math.max(matchedBilled + unavailableBilled, 1);
+        var matchedPct = clampPct((matchedBilled / totalBilled) * 100);
+        var unavailablePct = clampPct((unavailableBilled / totalBilled) * 100);
+        track.innerHTML = '<div class="bb-seg bbs-confirmed" style="flex:0 0 ' + matchedPct.toFixed(1) + '%"><span class="bbs-label">Verified CLFS</span></div><div class="bb-seg bbs-questioned" style="flex:0 0 ' + unavailablePct.toFixed(1) + '%"><span class="bbs-label">Unavailable</span></div>';
+      }
+    }
+    if(legend){
+      legend.innerHTML = vm.totalCount
+        ? '<div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">' + h(vm.coverageText) + '</span></div><div class="legend-i"><div class="legend-dot ld-dup"></div><span class="legend-text">Verified CLFS difference - ' + h(formatMoneyFull(vm.overchargeTotal)) + '</span></div>'
+        : '<div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">Needs Your Input - no verified CLFS lines yet</span></div>';
+    }
+
+    setBenchmarkFill(one('[data-upa-clfs-waterfall-total]'), 'Matched Billed Total', 'Verified CLFS lines only', 'Matched billed total', formatMoneyFull(vm.billedMatched), vm.billedMatched ? 100 : 0);
+    setBenchmarkFill(one('[data-upa-clfs-waterfall-benchmark]'), 'CMS CLFS Benchmark', 'Verified lab rates', 'CMS CLFS benchmark total', formatMoneyFull(vm.benchmarkTotal), vm.billedMatched ? (vm.benchmarkTotal / Math.max(vm.billedMatched, vm.benchmarkTotal, 1)) * 100 : 0);
+    setBenchmarkFill(one('[data-upa-clfs-waterfall-overcharge]'), 'Verified Difference', 'Matched CLFS lines only', 'Matched-line difference', formatMoneyFull(vm.overchargeTotal), vm.billedMatched ? (vm.overchargeTotal / Math.max(vm.billedMatched, 1)) * 100 : 0);
+    setText('[data-upa-clfs-match-count]', vm.totalCount ? (vm.matchedCount + ' of ' + vm.totalCount) : 'Needs input');
+    setText('[data-upa-clfs-coverage-short]', vm.totalCount ? vm.coverageText : 'Needs itemized lab codes');
+    window.__UPA_CLFS_VIEW_MODEL__ = vm;
+  }
+
+  window.UPARenderCLFSBenchmarks = renderClfsBenchmarks;
+  window.UPABuildCLFSViewModel = clfsViewModel;
+
+  function readPhase3Dossier(dossier){
+    if(dossier && typeof dossier === 'object') return dossier;
+    return readDossierState();
+  }
+
+  function phase3FromDossier(dossier){
+    dossier = readPhase3Dossier(dossier);
+    var paid = dossier && dossier.paidDossier || {};
+    var phase = dossier && dossier.phase3CaseGeneration || paid.phase3CaseGeneration || {};
+    return phase && typeof phase === 'object' ? phase : {};
+  }
+
+  function phase3Text(value){
+    return clean(value)
+      .replace(/\bis illegal\b/gi,'may need review')
+      .replace(/\bclearly illegal\b/gi,'may need review')
+      .replace(/\byou are owed\b/gi,'you may request review of')
+      .replace(/\bmust pay\b/gi,'may need to confirm')
+      .replace(/\bguaranteed\b/gi,'possible');
+  }
+
+  function phase3Array(value){
+    if(!Array.isArray(value)) return [];
+    return value.map(phase3Text).filter(Boolean);
+  }
+
+  function phase3Rows(phase){
+    return Array.isArray(phase.lineItemRiskScoring) ? phase.lineItemRiskScoring.filter(function(row){
+      return row && (clean(row.code) || clean(row.reviewReason) || clean(row.patientQuestion));
+    }) : [];
+  }
+
+  function phase3Letters(phase){
+    return Array.isArray(phase.customLetters) ? phase.customLetters.filter(function(letter){
+      return letter && clean(letter.body);
+    }) : [];
+  }
+
+  function phase3TitleFromType(letter, idx){
+    return phase3Text(letter.title || letter.letterType || ('Case letter ' + (idx + 1))).replace(/_/g,' ');
+  }
+
+  function phase3RiskWidth(risk){
+    risk = phase3Text(risk).toUpperCase();
+    if(risk === 'HIGH') return 88;
+    if(risk === 'MODERATE' || risk === 'MEDIUM') return 64;
+    return 38;
+  }
+
+  function phase3Money(value){
+    var n = numberOrNull(value);
+    return n == null ? 'To confirm' : formatMoneyFull(n);
+  }
+
+  function phase3LetterParts(letter){
+    var lines = String(letter.body || '').replace(/\r/g,'').split(/\n+/).map(phase3Text).filter(Boolean);
+    var salutation = lines.find(function(line){ return /^(dear|to whom|to\s)/i.test(line); }) || 'To Whom It May Concern,';
+    var usable = lines.filter(function(line){
+      return !/^(dear|to whom|to\s)/i.test(line) && !/^sincerely\b/i.test(line) && !/^patient$/i.test(line);
+    });
+    return {
+      salutation: salutation,
+      lead: usable[0] || 'I am requesting a written review and explanation for the billing items identified in my packet.',
+      highlight: usable[1] || 'Please provide a written explanation and correction if your review confirms a duplicate, unsupported, or incorrectly billed entry.',
+      support: usable.slice(2).join(' ') || 'This request is for review and documentation only and does not make a legal, medical, insurance, or financial conclusion.'
+    };
+  }
+
+  function renderPhase3Letters(phase, c){
+    var letters = phase3Letters(phase);
+    if(!letters.length) return;
+    var cards = all('.doc-preview-card');
+    var bodies = all('.lbody');
+
+    letters.slice(0,3).forEach(function(letter, idx){
+      var title = phase3TitleFromType(letter, idx);
+      var sourceType = phase3Text(letter.sourceType || 'patient intake and reviewed case data');
+      var parts = phase3LetterParts(letter);
+      var card = cards[idx];
+      if(card){
+        setText('.dpc-title', title, card);
+        setText('.dpc-type', sourceType, card);
+        setText('.mini-re', 'RE: ' + title, card);
+        setText('.mini-salut', parts.salutation, card);
+        setText('.mini-text', parts.lead, card);
+        setText('.mini-highlight', parts.highlight, card);
+        setText('.mini-text-2', parts.support, card);
+        setText('.dpc-prepared', c && c.patientName ? 'Prepared for ' + c.patientName + ' - ' + c.accountRef : 'Prepared from Phase 3 case review');
+      }
+      var body = bodies[idx];
+      if(body){
+        setText('.lb-re-txt', title + (c && c.accountRef ? ' - Account: ' + c.accountRef : ''), body);
+        setText('.lb-salut', parts.salutation, body);
+        setHTML('.lb-para', h(parts.lead), body);
+        setText('.lb-hl', parts.highlight, body);
+        setText('.lb-sm', parts.support, body);
+      }
+    });
+  }
+
+  function renderPhase3RiskCards(phase){
+    var rows = phase3Rows(phase);
+    if(!rows.length) return;
+    var cards = all('.finding-card');
+    rows.slice(0,3).forEach(function(row, idx){
+      var card = cards[idx];
+      if(!card) return;
+      var code = phase3Text(row.code || 'Line item');
+      var risk = phase3Text(row.riskLevel || 'Review').toUpperCase();
+      var sourceType = phase3Text(row.sourceType || 'reviewed case data');
+      var reason = phase3Text(row.reviewReason || row.patientQuestion || 'This item may be worth checking in writing.');
+      var question = phase3Text(row.patientQuestion || 'Request a written explanation before relying on the balance.');
+      setText('.fi-title', code + (row.shortDescription ? ' - ' + phase3Text(row.shortDescription) : ''), card);
+      setHTML('.fi-desc', h(reason) + ' <strong>' + h(question) + '</strong>', card);
+      setText('.fi-code', sourceType, card);
+      setText('.fi-sev', risk, card);
+      setText('.fi-type', sourceType, card);
+      setText('.fi-res', 'Review-first', card);
+      setText('.fi-amount', phase3Money(row.billedAmount), card);
+      setText('.fi-amount-lbl', row.benchmarkAvailable ? 'CLFS compared' : 'Benchmark unavailable');
+      var vals = all('.ev-item-val', card);
+      if(vals[0]) vals[0].textContent = code;
+      if(vals[1]) vals[1].textContent = row.benchmarkAvailable ? phase3Money(row.benchmarkRate) : 'Unavailable';
+      if(vals[2]) vals[2].textContent = risk;
+      if(vals[3]) vals[3].textContent = row.percentAboveBenchmark != null ? row.percentAboveBenchmark + '% above' : 'Needs docs';
+      var fill = one('.ev-str-fill', card);
+      if(fill) fill.style.width = phase3RiskWidth(risk) + '%';
+      setText('.ev-str-pct', risk, card);
+    });
+  }
+
+  function phase3ListHtml(title, items){
+    items = phase3Array(items).slice(0,4);
+    if(!items.length) return '';
+    return '<div class="upa-p3-group"><div class="upa-p3-title">' + h(title) + '</div>' +
+      items.map(function(item){ return '<div class="upa-p3-item">' + h(item) + '</div>'; }).join('') + '</div>';
+  }
+
+  function renderDashboardPhase3(phase){
+    var summary = phase3Text(phase.patientFindingSummary);
+    var rows = phase3Rows(phase);
+    var dashboardPanel = one('#upa-phase3-dashboard-panel');
+    var findingsTab = one('#tab-findings');
+    if(findingsTab && !dashboardPanel){
+      dashboardPanel = document.createElement('div');
+      dashboardPanel.id = 'upa-phase3-dashboard-panel';
+      dashboardPanel.className = 'upa-phase3-panel';
+      var anchor = one('.findings-grid', findingsTab) || findingsTab.firstChild;
+      findingsTab.insertBefore(dashboardPanel, anchor);
+    }
+    if(dashboardPanel){
+      dashboardPanel.innerHTML =
+        '<div class="upa-p3-eyebrow">Phase 3 case generation</div>' +
+        '<div class="upa-p3-heading">Patient-facing review summary</div>' +
+        (summary ? '<div class="upa-p3-summary">' + h(summary) + '</div>' : '') +
+        (rows.length ? '<div class="upa-p3-risk-grid">' + rows.slice(0,4).map(function(row){
+          return '<div class="upa-p3-risk"><span>' + h(phase3Text(row.riskLevel || 'Review')) + '</span><strong>' + h(phase3Text(row.code || 'Line item')) + '</strong><em>' + h(phase3Text(row.reviewReason || row.patientQuestion || 'May need written review.')) + '</em></div>';
+        }).join('') + '</div>' : '') +
+        phase3ListHtml('Provider guidance', phase.providerSpecificGuidance) +
+        phase3ListHtml('Escalation path', phase.stateSpecificEscalationPaths) +
+        phase3ListHtml('Plan language', phase.planTypeSpecificLanguage);
+    }
+
+    var actionGrid = one('#tab-actionplan .action-grid');
+    if(actionGrid && !one('#upa-phase3-action-panel')){
+      var actionPanel = document.createElement('div');
+      actionPanel.id = 'upa-phase3-action-panel';
+      actionPanel.className = 'upa-phase3-panel compact';
+      actionGrid.parentNode.insertBefore(actionPanel, actionGrid.nextSibling);
+    }
+    var action = one('#upa-phase3-action-panel');
+    if(action){
+      action.innerHTML = phase3ListHtml('Provider-specific next steps', phase.providerSpecificGuidance) +
+        phase3ListHtml('State and plan follow-up language', [phase3Array(phase.stateSpecificEscalationPaths)[0], phase3Array(phase.planTypeSpecificLanguage)[0]]);
+    }
+  }
+
+  function renderPacketPhase3(phase){
+    var findingsBox = one('.packet-findings-box');
+    var rows = phase3Rows(phase);
+    if(findingsBox && rows.length){
+      setText('.pf-count', rows.length + (rows.length === 1 ? ' risk score' : ' risk scores'), findingsBox);
+      var list = one('.pf-list', findingsBox);
+      if(list){
+        list.innerHTML = rows.slice(0,4).map(function(row){
+          return '<div style="display:flex;align-items:flex-start;gap:10px">' +
+            '<div style="font-size:.55rem;font-weight:800;color:var(--teal);min-width:56px;text-transform:uppercase">' + h(phase3Text(row.riskLevel || 'Review')) + '</div>' +
+            '<div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">' + h(phase3Text(row.code || 'Line item')) + '</div>' +
+            '<div style="font-size:.5rem;color:var(--ink3);line-height:1.5">' + h(phase3Text(row.reviewReason || row.patientQuestion || 'May need written review.')) + '</div></div></div>';
+        }).join('');
+      }
+      findingsBox.style.display = '';
+    }
+
+    var firstPage = all('.page')[0];
+    if(firstPage && !one('#upa-phase3-packet-panel', firstPage)){
+      var panel = document.createElement('div');
+      panel.id = 'upa-phase3-packet-panel';
+      panel.className = 'upa-phase3-panel packet';
+      var anchor = one('.packet-findings-box', firstPage) || one('.upa-intake-context', firstPage) || one('.nh', firstPage);
+      if(anchor && anchor.parentNode) anchor.parentNode.insertBefore(panel, anchor.nextSibling);
+    }
+    var packetPanel = one('#upa-phase3-packet-panel');
+    if(packetPanel){
+      packetPanel.innerHTML =
+        '<div class="upa-p3-eyebrow">Generated case review</div>' +
+        '<div class="upa-p3-heading">What this packet is built around</div>' +
+        (phase.patientFindingSummary ? '<div class="upa-p3-summary">' + h(phase3Text(phase.patientFindingSummary)) + '</div>' : '') +
+        phase3ListHtml('Provider guidance', phase.providerSpecificGuidance) +
+        phase3ListHtml('Escalation path', phase.stateSpecificEscalationPaths) +
+        phase3ListHtml('Plan language', phase.planTypeSpecificLanguage) +
+        (phase.reviewSafetyNotice ? '<div class="upa-p3-notice">' + h(phase3Text(phase.reviewSafetyNotice)) + '</div>' : '');
+    }
+  }
+
+  function renderPhase3CaseGeneration(dossier, c){
+    var phase = phase3FromDossier(dossier);
+    if(!phase || !Object.keys(phase).length) return;
+    ensureStyles();
+    renderPhase3RiskCards(phase);
+    renderPhase3Letters(phase, c || window.UPACase || {});
+    renderDashboardPhase3(phase);
+    renderPacketPhase3(phase);
+    window.__UPA_PHASE3_CASE_GENERATION__ = phase;
+  }
+
+  window.UPARenderPhase3CaseGeneration = renderPhase3CaseGeneration;
 
   function confidenceValue(value){
     var n = parseFloat(value);
@@ -607,7 +1030,7 @@
     if(extractedParts.length){
       list.push({
         key:'bill-scan-specificity',
-        type:'AI bill scan',
+        type:'Bill review',
         title:'Uploaded bill values were detected for case matching',
         short:'bill-scan value match',
         desc:'The scan detected ' + extractedParts.join(', ') + '. These values are being used as case anchors and should be confirmed against the statement and EOB before relying on them in a dispute.',
@@ -1015,7 +1438,6 @@
         concerns:    !!clean(data.concerns || data.specificConcerns || data.description),
         name:        !!clean(data.patient_name || data.patientName || data.full_name || data.name)
       };
-      console.log('%c[UPA HYDRATION AUDIT]', 'background:#1C2B48;color:#FFD877;padding:2px 6px;border-radius:3px;font-weight:700', auditReport);
       if (auditReport._urlHasToken && !auditReport._readIntakeYielded.provider) {
         console.warn('[UPA HYDRATION AUDIT] URL contains ?case= token but readIntake() found no provider — token may have failed to restore. Check upa-state-persistence.js restoreFromUrl().');
       }
@@ -1223,7 +1645,6 @@
       ['three letters', c.letterCount + ' letters'],
       ['Review Areas', c.issueCount + ' review areas'],
       ['2 Found', c.issueCount + ' found'],
-      ['$20,267', confirmedText],
       ['$17,589.00', 'Awaiting itemized bill'],
       ['$5,863.00', 'Awaiting itemized bill'],
       ['$11,726.00', 'Awaiting itemized bill'],
@@ -1288,7 +1709,22 @@
       '.upa-case-note.dark strong{color:rgba(235,244,255,.95)}' +
       '.upa-case-note.print{margin:14px 36px;background:#F6F8FA;color:#4A6480;border-color:rgba(28,43,72,.10)}' +
       '.upa-intake-context{margin:12px 0;padding:12px 14px;border:1px solid rgba(28,43,72,.10);border-radius:8px;background:#F9FBFD;color:#4A6480;font-size:.72rem;line-height:1.62}' +
-      '.upa-intake-context strong{color:#1C2B48}.upa-intake-context.dark{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);color:rgba(235,244,255,.64)}.upa-intake-context.dark strong{color:rgba(235,244,255,.94)}';
+      '.upa-intake-context strong{color:#1C2B48}.upa-intake-context.dark{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);color:rgba(235,244,255,.64)}.upa-intake-context.dark strong{color:rgba(235,244,255,.94)}' +
+      '.upa-phase3-panel{margin:14px;padding:16px;border:1px solid rgba(30,107,90,.18);border-radius:10px;background:#fff;box-shadow:0 8px 24px rgba(17,28,46,.06);color:#1C2B48}' +
+      '.upa-phase3-panel.packet{margin:0 36px 18px;background:#F9FBFD;box-shadow:none}' +
+      '.upa-phase3-panel.compact{margin-top:12px}' +
+      '.upa-p3-eyebrow{font-size:.48rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#1E6B5A;margin-bottom:5px}' +
+      '.upa-p3-heading{font-family:Georgia,serif;font-size:1.05rem;font-weight:800;color:#1C2B48;margin-bottom:8px}' +
+      '.upa-p3-summary{font-size:.78rem;line-height:1.65;color:#3A5068;margin-bottom:12px}' +
+      '.upa-p3-risk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:10px 0 12px}' +
+      '.upa-p3-risk{border:1px solid rgba(28,43,72,.08);border-left:4px solid #1E6B5A;border-radius:8px;padding:9px 10px;background:#FAFCFD}' +
+      '.upa-p3-risk span{display:block;font-size:.48rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#1E6B5A;margin-bottom:3px}' +
+      '.upa-p3-risk strong{display:block;font-size:.72rem;color:#1C2B48;margin-bottom:4px}' +
+      '.upa-p3-risk em{display:block;font-style:normal;font-size:.66rem;line-height:1.5;color:#52677C}' +
+      '.upa-p3-group{margin-top:10px}' +
+      '.upa-p3-title{font-size:.58rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#6E8898;margin-bottom:5px}' +
+      '.upa-p3-item{font-size:.72rem;line-height:1.55;color:#42546B;padding:6px 0;border-top:1px solid rgba(28,43,72,.06)}' +
+      '.upa-p3-notice{font-size:.62rem;line-height:1.55;color:#7A8AA0;margin-top:10px;border-top:1px solid rgba(28,43,72,.08);padding-top:8px}';
     document.head.appendChild(style);
   }
 
@@ -1791,6 +2227,7 @@
     hydrateDocuments(c);
     hydrateTimeline(c);
     injectExtraLetterCards(c);
+    renderPhase3CaseGeneration(null, c);
     syncQuickCalc(c);
     syncMobileDashboardCase(c);
     window.setTimeout(function(){
@@ -1885,6 +2322,7 @@
     all('.nf-r').forEach(function(el){
       if(/Account|Page/.test(el.textContent)) el.textContent = el.textContent.replace(/Account.+$/,'Account ' + c.accountRef);
     });
+    renderPhase3CaseGeneration(null, c);
   }
 
   function applyGuideHook(c){

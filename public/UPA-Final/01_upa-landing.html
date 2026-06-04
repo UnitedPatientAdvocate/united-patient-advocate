@@ -71,7 +71,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .hero-hl em{font-style:italic;color:var(--teal)}
 .hero-sub{font-size:1rem;color:var(--ink-3);line-height:1.75;max-width:520px;margin:0 auto 32px;position:relative;z-index:1}
 .hero .hero-hl:not(.phase4-hero-hl),.hero .hero-sub:not(.phase4-hero-sub),.hero .hero-stats{display:none}
-.hero-cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-size:.9375rem;font-weight:700;color:white;background:var(--teal);padding:15px 32px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .22s var(--ease);box-shadow:0 4px 20px rgba(30,107,90,.35),0 8px 40px rgba(30,107,90,.15);position:relative;z-index:1}
+.hero-cta{display:inline-flex;align-items:center;gap:9px;min-height:44px;font-family:var(--sans);font-size:.9375rem;font-weight:700;color:white;background:var(--teal);padding:15px 32px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .22s var(--ease);box-shadow:0 4px 20px rgba(30,107,90,.35),0 8px 40px rgba(30,107,90,.15);position:relative;z-index:1}
 .hero-cta:hover{background:var(--teal-lt);transform:translateY(-2px);box-shadow:0 6px 28px rgba(30,107,90,.45)}
 .hero-cta svg{width:16px;height:16px;stroke:white;stroke-width:2.2;fill:none}
 .hero-cta-secondary{display:block;font-size:.6875rem;color:var(--ink-3);margin-top:11px;text-decoration:none;position:relative;z-index:1}
@@ -229,7 +229,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .rt-footer-badge{display:inline-flex;align-items:center;gap:5px;font-size:.5rem;font-weight:700;color:var(--green);letter-spacing:.04em}
 .rt-footer-badge svg{width:11px;height:11px;stroke:var(--green);stroke-width:2;fill:none}
 .rt-footer-sub{font-size:.4375rem;color:var(--ink-3);margin-top:4px}
-.see-btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:.875rem;font-weight:700;color:white;background:var(--navy);padding:13px 28px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .2s var(--ease);box-shadow:0 3px 12px rgba(28,43,72,.20);margin-top:16px}
+.see-btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-family:var(--sans);font-size:.875rem;font-weight:700;color:white;background:var(--navy);padding:13px 28px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .2s var(--ease);box-shadow:0 3px 12px rgba(28,43,72,.20);margin-top:16px}
 .see-btn:hover{background:var(--navy-mid);transform:translateY(-1px)}
 .see-btn svg{width:14px;height:14px;stroke:white;stroke-width:2.2;fill:none}
 
@@ -304,7 +304,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .ccb-text{}
 .ccb-title{font-size:.9375rem;font-weight:700;color:white;margin-bottom:4px;line-height:1.35}
 .ccb-sub{font-size:.625rem;color:rgba(235,244,255,.45);line-height:1.55}
-.ccb-btn{display:flex;align-items:center;gap:7px;background:var(--teal);color:white;font-size:.8125rem;font-weight:700;padding:11px 22px;border-radius:100px;border:none;cursor:pointer;white-space:nowrap;text-decoration:none;transition:all .2s var(--ease);flex-shrink:0;box-shadow:0 3px 12px rgba(30,107,90,.30)}
+.ccb-btn{display:flex;align-items:center;gap:7px;min-height:44px;background:var(--teal);color:white;font-size:.8125rem;font-weight:700;padding:11px 22px;border-radius:100px;border:none;cursor:pointer;white-space:nowrap;text-decoration:none;transition:all .2s var(--ease);flex-shrink:0;box-shadow:0 3px 12px rgba(30,107,90,.30)}
 .ccb-btn:hover{background:var(--teal-lt);transform:translateY(-1px)}
 .ccb-btn svg{width:13px;height:13px;stroke:white;stroke-width:2.2;fill:none}
 
@@ -641,7 +641,6 @@ html,body{max-width:100%;overflow-x:hidden}
 .step{padding:24px 20px 20px}
 .nav-btns{padding:14px 20px 22px}
 }
-.hero-trust-row{gap:22px}
 @media(max-width:760px){.hero-trust-row{gap:10px;flex-direction:column}.social-proof-section,.faq-section{padding:44px 18px}.social-proof-title,.faq-title{font-size:1.65rem}.social-proof-grid{grid-template-columns:1fr}.pricing-grid,.value-stack-list{grid-template-columns:1fr}.preview-pricing-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -652,7 +651,7 @@ html,body{max-width:100%;overflow-x:hidden}
 
 <!-- NAV -->
 <div class="nav">
-  <a href="javascript:void(0)" class="nav-brand">
+  <a href="/" class="nav-brand">
     <div class="nav-shield">
       <img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate">
     </div>
@@ -1370,10 +1369,10 @@ html,body{max-width:100%;overflow-x:hidden}
 <div class="footer">
   <div class="footer-inner">
     <div class="footer-logo">
-      <div class="footer-logo-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
+      <div class="footer-logo-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate" loading="lazy"></div>
       <div class="footer-logo-name">United Patient Advocate<sub>ADVOCATE</sub></div>
     </div>
-    <div class="footer-disc">United Patient Advocate is an independent medical billing review and dispute preparation service. We provide educational billing analysis, Medicare benchmark comparisons, coding review references, and consumer dispute documentation tools. Results vary based on provider policies, insurer determinations, and individual circumstances. Nothing on this site constitutes legal, medical, or financial advice. Institutions referenced — including Harvard Medical School, Johns Hopkins Medicine, The Commonwealth Fund, CMS, CFPB, AARP, UnitedHealthcare, Aetna, Cigna, Blue Cross Blue Shield, and Humana — are cited solely for informational and research reference purposes. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any referenced institution. Due to the personalized nature of the review materials, guidance tools, and document preparation services provided through UPA, refunds are not provided once access has been granted.</div>
+    <div class="footer-disc">United Patient Advocate is an independent medical billing review and dispute preparation service. We provide educational billing analysis, Medicare benchmark comparisons, coding review references, and consumer dispute documentation tools. Results vary based on provider policies, insurer determinations, and individual circumstances. Nothing on this site provides professional legal, medical, or financial services. Institutions referenced — including Harvard Medical School, Johns Hopkins Medicine, The Commonwealth Fund, CMS, CFPB, AARP, UnitedHealthcare, Aetna, Cigna, Blue Cross Blue Shield, and Humana — are cited solely for informational and research reference purposes. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any referenced institution. Due to the personalized nature of the review materials, guidance tools, and document preparation services provided through UPA, refunds are not provided once access has been granted.</div>
     <div class="footer-copy">2026 United Patient Advocate — unitedpatientadvocate.com</div>
   </div>
 </div>
@@ -1987,6 +1986,26 @@ function submitLeadToFormspree(){
 function upaFinalPath(file){
   return window.location.protocol==='file:'?file:'/UPA-Final/'+file;
 }
+function mirrorSimpleFunnelKeys(payload){
+  if(!payload) return;
+  var patientName = payload.patient_name || payload.full_name || [payload.first_name, payload.last_name].filter(Boolean).join(' ');
+  var simple = {
+    patientName: patientName,
+    providerName: payload.provider || payload.providerName || payload.extracted_provider || '',
+    dateOfService: payload.date_of_service || payload.dos || payload.extracted_date_of_service || '',
+    insuranceName: payload.insurance || payload.insuranceName || payload.extracted_insurance || '',
+    totalBilled: payload.bill_amount_other || payload.bill_amount || payload.totalBilled || payload.extracted_bill_amount || '',
+    referenceNumber: payload.account_number || payload.accountNumber || payload.account || payload.billing_reference || payload.billingReference || payload.extracted_account_number || '',
+    billRange: payload.bill_amount_raw || payload.bill_amount || '',
+    visitReason: payload.bill_type || payload.billType || payload.bill_type_other || ''
+  };
+  Object.keys(simple).forEach(function(key){
+    var value = simple[key];
+    if(value === null || value === undefined || value === '') return;
+    try { sessionStorage.setItem(key, String(value)); } catch(e) {}
+    try { localStorage.setItem(key, String(value)); } catch(e) {}
+  });
+}
 function saveIntakeSession(){
   // FIX 3 (root): make the intake save loud and resilient. Three problems
   // were converging: (1) silent try/catch swallowing storage failures,
@@ -2012,7 +2031,7 @@ function saveIntakeSession(){
     has_description: !!payload.description,
     field_count: Object.keys(payload).length
   };
-  console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', 'Saving intake with fields:', snapshot);
+
 
   // Step 2: persist via UPAState (writes to ALL canonical keys + manages timestamps)
   var persisted = null;
@@ -2024,6 +2043,7 @@ function saveIntakeSession(){
     console.error('[UPA INTAKE SAVE] UPAState.persistIntake threw:', e);
   }
   var activePayload = (persisted && persisted.intake) ? persisted.intake : payload;
+  mirrorSimpleFunnelKeys(activePayload);
 
   // Step 3: keep a raw intake backup. Canonical active/review keys must
   // remain structured envelopes, so only the fallback below writes them.
@@ -2039,7 +2059,7 @@ function saveIntakeSession(){
     try { sessionStorage.setItem(k, json); sessionOk = !!sessionStorage.getItem(k); } catch(e) { console.error('[UPA INTAKE SAVE] sessionStorage.setItem failed for ' + k + ':', e); }
     writeReport[k] = { local: localOk, session: sessionOk };
   });
-  console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', 'Write verification:', writeReport, '(payload size ' + json.length + ' bytes)');
+
 
   if (!persisted) {
     try {
@@ -2114,9 +2134,7 @@ function saveIntakeSession(){
       window.__UPA_RECOVERY_PARAMS__ = b64;
       try { sessionStorage.setItem('upa.recovery.params.v1', b64); } catch(e){}
       try { localStorage.setItem('upa.recovery.params.v1', b64); } catch(e){}
-      console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700',
-        'Recovery URL built: ' + Object.keys(core).length + ' fields, base64 length ' + b64.length + ' chars',
-        '\nFull recovery URL: https://unitedpatientadvocate.com/dashboard?r=' + b64);
+
     }
   } catch(e) { console.warn('[UPA INTAKE SAVE] recovery params build failed:', e); }
 }
@@ -2412,7 +2430,7 @@ function selectRange(el, val) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ email: val, source: 'exit-intent-popup', page: 'landing', checklist: '7-things' })
-      }).then(function(r){ console.log('[UPA] Exit intent lead →', r.status); })
+      }).then(function(r){ return r; })
         .catch(function(e){ console.warn('[UPA] Exit popup send failed (non-blocking)', e); });
       // Show confirmation
       if (form) form.style.display = 'none';

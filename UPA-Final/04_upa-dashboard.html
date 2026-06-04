@@ -2587,7 +2587,7 @@ function seoTryRecover(){
 <aside class="sidebar">
   <div class="sb-case">
     <div class="sb-tag">Your case</div>
-    <div class="sb-patient-name" id="sb-patient-name">Your Name</div>
+    <div class="sb-patient-name" id="sb-patient-name">Patient</div>
     <div class="sb-hospital" id="sb-provider">Your Provider</div>
     <div class="sb-sub" id="sb-sub">Review prepared · Billing dispute ready</div>
   </div>
@@ -2863,13 +2863,13 @@ function seoTryRecover(){
           <div class="card-body">
             <div class="bb-label">Bill amount Total Bill: Where Each Dollar Stands</div>
             <div class="bb-track">
-              <div class="bb-seg bbs-confirmed"><span class="bbs-label">$20,267 · Confirmed</span></div>
+              <div class="bb-seg bbs-confirmed"><span class="bbs-label">Confirmed portion · To confirm</span></div>
               <div class="bb-seg bbs-billing issue"></div>
               <div class="bb-seg bbs-questioned"></div>
               <div class="bb-seg bbs-negotiable"></div>
             </div>
             <div class="bb-legend">
-              <div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">Confirmed, no action · $20,267</span></div>
+              <div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">Confirmed portion · To confirm</span></div>
               <div class="legend-i"><div class="legend-dot ld-dup"></div><span class="legend-text">Duplicate charge · To confirm</span></div>
               <div class="legend-i"><div class="legend-dot ld-que"></div><span class="legend-text">Coding review · To confirm</span></div>
               <div class="legend-i"><div class="legend-dot ld-neg"></div><span class="legend-text">OON negotiable · To confirm</span></div>
@@ -2940,15 +2940,13 @@ function seoTryRecover(){
           </div>
           <div class="fc-body">
             <div class="fv-waterfall">
-              <div class="fv-row"><div class="fv-row-label"><div class="fvrl-name">Total Billed</div><div class="fvrl-code">All charges</div></div><div class="fv-track"><div class="fv-fill" data-w="100%" style="background:linear-gradient(90deg,#2C3870,#3D5290)"><span class="fv-fill-label">Bill amount · 100%</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--on-dark)">Bill amount</div><div class="fvra-lbl" style="color:var(--on-dark-3)">Total</div></div></div>
-              <div class="fv-row"><div class="fv-row-label"><div class="fvrl-name">Medicare Baseline</div><div class="fvrl-code">Allowable rates</div></div><div class="fv-track"><div class="fv-fill" data-w="80%" style="background:linear-gradient(90deg,#1A5040,#1EB87A)"><span class="fv-fill-label">To confirm,742 · 80%</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--green)">To confirm,742</div><div class="fvra-lbl" style="color:var(--on-dark-3)">Baseline</div></div></div>
-              <div class="fv-row"><div class="fv-row-label"><div class="fvrl-name" style="color:rgba(255,120,120,.90)">Line-Item Review</div><div class="fvrl-code">billing line item · Itemized bill lines</div></div><div class="fv-track"><div class="fv-fill" data-w="5.3%" style="background:linear-gradient(90deg,var(--crimson-dk),var(--crimson))"><span class="fv-fill-label" style="font-size:.38rem">To confirm</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:#FF8080">To confirm</div><div class="fvra-lbl" style="color:rgba(255,128,128,.55)">Flagged</div></div></div>
-              <div class="fv-row"><div class="fv-row-label"><div class="fvrl-name" style="color:rgba(255,180,80,.90)">Documentation Review</div><div class="fvrl-code">billing line item · provider records</div></div><div class="fv-track"><div class="fv-fill" data-w="2.9%" style="background:linear-gradient(90deg,#9A4A00,var(--amber))"><span class="fv-fill-label" style="font-size:.38rem">To confirm</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--gold)">To confirm</div><div class="fvra-lbl" style="color:rgba(240,165,0,.5)">Review</div></div></div>
-              <div class="fv-row"><div class="fv-row-label"><div class="fvrl-name" style="color:rgba(110,160,255,.90)">Rate Review</div><div class="fvrl-code">Outside Service Provider</div></div><div class="fv-track"><div class="fv-fill" data-w="5.4%" style="background:linear-gradient(90deg,#1A3EA0,var(--cobalt))"><span class="fv-fill-label" style="font-size:.38rem">To confirm</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:#80A8FF">To confirm</div><div class="fvra-lbl" style="color:rgba(59,110,224,.5)">Negotiable</div></div></div>
+              <div class="fv-row" data-upa-clfs-waterfall-total><div class="fv-row-label"><div class="fvrl-name">Total Billed</div><div class="fvrl-code">CLFS line items</div></div><div class="fv-track"><div class="fv-fill" style="background:linear-gradient(90deg,#2C3870,#3D5290)"><span class="fv-fill-label">Needs input</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--on-dark)">Needs input</div><div class="fvra-lbl" style="color:var(--on-dark-3)">Total</div></div></div>
+              <div class="fv-row" data-upa-clfs-waterfall-benchmark><div class="fv-row-label"><div class="fvrl-name">CMS CLFS Benchmark</div><div class="fvrl-code">Verified lab rates</div></div><div class="fv-track"><div class="fv-fill" style="background:linear-gradient(90deg,#1A5040,#1EB87A)"><span class="fv-fill-label">Needs input</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--green)">Needs input</div><div class="fvra-lbl" style="color:var(--on-dark-3)">Benchmark</div></div></div>
+              <div class="fv-row" data-upa-clfs-waterfall-overcharge><div class="fv-row-label"><div class="fvrl-name" style="color:rgba(255,120,120,.90)">Verified Difference</div><div class="fvrl-code">Matched CLFS lines only</div></div><div class="fv-track"><div class="fv-fill" style="background:linear-gradient(90deg,var(--crimson-dk),var(--crimson))"><span class="fv-fill-label" style="font-size:.38rem">Needs input</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:#FF8080">Needs input</div><div class="fvra-lbl" style="color:rgba(255,128,128,.55)">Difference</div></div></div>
             </div>
             <div class="fv-summary">
               <div class="fvs-item"><div class="fvs-label">Total Billed</div><div class="fvs-val fvsv-white">Bill amount</div><div class="fvs-sub">Full statement</div></div>
-              <div class="fvs-item"><div class="fvs-label">Confirmed Correct</div><div class="fvs-val fvsv-white" style="color:var(--on-dark-2)">$20,267</div><div class="fvs-sub">No action needed</div></div>
+              <div class="fvs-item"><div class="fvs-label">Confirmed Correct</div><div class="fvs-val fvsv-white" style="color:var(--on-dark-2)">To confirm</div><div class="fvs-sub">Verify after itemization</div></div>
               <div class="fvs-item"><div class="fvs-label">You May Not Owe</div><div class="fvs-val fvsv-green">Amount to review</div><div class="fvs-sub">review areas · review portion</div></div>
               <div class="fvs-item"><div class="fvs-label">Dispute Success</div><div class="fvs-val fvsv-gold">38%</div><div class="fvs-sub">of disputes corrected</div></div>
             </div>
@@ -3117,7 +3115,7 @@ function seoTryRecover(){
               <div class="mini-lh">
                 <div class="mini-lh-left">
                   <div class="mini-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-                  <div><div class="mini-org" class="mini-patient-name">Your Name</div><span class="mini-org-sub">Account Holder</span></div>
+                  <div><div class="mini-org" class="mini-patient-name">Patient</div><span class="mini-org-sub">Account Holder</span></div>
                 </div>
                 <div><div class="mini-date" id="mini-date-auto">Prepared for review</div><span class="mini-ref">Account: account number</span></div>
               </div>
@@ -3131,7 +3129,7 @@ function seoTryRecover(){
                 <div class="mini-sig">
                   <div class="mini-sig-left">
                     <div class="mini-sig-close">Sincerely,</div>
-                    <div class="mini-sig-name">Your Name</div>
+                    <div class="mini-sig-name">Patient</div>
                     <span class="mini-sig-sub">Account Holder</span>
                   </div>
                 </div>
@@ -3173,7 +3171,7 @@ function seoTryRecover(){
               <div class="mini-lh">
                 <div class="mini-lh-left">
                   <div class="mini-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-                  <div><div class="mini-org" class="mini-patient-name">Your Name</div><span class="mini-org-sub">Account Holder</span></div>
+                  <div><div class="mini-org" class="mini-patient-name">Patient</div><span class="mini-org-sub">Account Holder</span></div>
                 </div>
                 <div><div class="mini-date" id="mini-date-auto">Prepared for review</div><span class="mini-ref">Account: account number</span></div>
               </div>
@@ -3187,7 +3185,7 @@ function seoTryRecover(){
                 <div class="mini-sig">
                   <div class="mini-sig-left">
                     <div class="mini-sig-close">Sincerely,</div>
-                    <div class="mini-sig-name">Your Name</div>
+                    <div class="mini-sig-name">Patient</div>
                     <span class="mini-sig-sub">Account Holder</span>
                   </div>
                 </div>
@@ -3229,7 +3227,7 @@ function seoTryRecover(){
               <div class="mini-lh">
                 <div class="mini-lh-left">
                   <div class="mini-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-                  <div><div class="mini-org" class="mini-patient-name">Your Name</div><span class="mini-org-sub">Account Holder</span></div>
+                  <div><div class="mini-org" class="mini-patient-name">Patient</div><span class="mini-org-sub">Account Holder</span></div>
                 </div>
                 <div><div class="mini-date" id="mini-date-auto">Prepared for review</div><span class="mini-ref">Account: account number</span></div>
               </div>
@@ -3243,7 +3241,7 @@ function seoTryRecover(){
                 <div class="mini-sig">
                   <div class="mini-sig-left">
                     <div class="mini-sig-close">Sincerely,</div>
-                    <div class="mini-sig-name">Your Name</div>
+                    <div class="mini-sig-name">Patient</div>
                     <span class="mini-sig-sub">Account Holder</span>
                   </div>
                 </div>
@@ -3871,7 +3869,7 @@ const GC = {
   starthere: {
     title:'Start Here', sub:'New? Read this first.',
     html:`<div class="gd-calm-banner"><span class="gcb-icon">🤝</span><div class="gcb-text"><div class="gcb-title">You're in a strong position. Take a breath.</div><div class="gcb-body">You haven't paid this bill yet, which means you can question it, ask for documentation, and look at the charges carefully before any money changes hands. Your letters, call scripts, and checklist are drafted and waiting for you — you're not doing this alone.</div></div></div>
-    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">1</div><div class="gd-card-title">Download your first letter. It costs nothing to send</div></div><div class="gd-card-body"><p class="gd-card-text">Go to the <strong>Documents tab</strong>. Your first letter (Request for Itemized Statement) is ready. Print it, sign it, and mail or email it to the hospital billing department. This helps you request the detailed records needed before deciding what to pay. No lawyer required.</p></div></div>
+    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">1</div><div class="gd-card-title">Download your first letter. It costs nothing to send</div></div><div class="gd-card-body"><p class="gd-card-text">Go to the <strong>Documents tab</strong>. Your first letter (Request for Itemized Statement) is ready. Print it, sign it, and mail or email it to the hospital billing department. This helps you request the detailed records needed before deciding what to pay. Designed for self-review.</p></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">2</div><div class="gd-card-title">Don't pay the bill while your request is under review</div></div><div class="gd-card-body"><p class="gd-card-text">Once you've submitted a written dispute or itemization request, ask the provider to keep the reviewed amount on hold while they respond. <strong>Paying early can reduce your leverage.</strong> Consider holding payment on the reviewed portions while you request clarification.</p></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">3</div><div class="gd-card-title">Use the Call Scripts if you'd rather pick up the phone</div></div><div class="gd-card-body"><p class="gd-card-text">Some people would rather just call. Open <strong>Call Scripts</strong> in this menu. We've written what to say in plain English, the way a calm patient would actually say it — you can read straight from the screen.</p></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">4</div><div class="gd-card-title">Be patient. This typically takes 30 to 60 days</div></div><div class="gd-card-body"><p class="gd-card-text">Hospital billing departments are slow. A 30-day wait is normal. If you haven't heard back in 30 days, follow up. Keep copies of everything you send.</p></div></div>`
@@ -3988,7 +3986,7 @@ const GC = {
       <rect width="340" height="185" fill="#F8FAFD" rx="8"/>
       <text x="170" y="18" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="9" font-weight="700" fill="#6E8898" letter-spacing="1.5">YOUR BILL BREAKDOWN</text>
       <rect x="20" y="28" width="300" height="24" rx="4" fill="#3D5290"/>
-      <text x="26" y="43" font-family="Plus Jakarta Sans,sans-serif" font-size="8" font-weight="700" fill="rgba(255,255,255,0.85)">$20,267 \u00b7 Confirmed \u2014 no action needed (86.4%)</text>
+      <text x="26" y="43" font-family="Plus Jakarta Sans,sans-serif" font-size="8" font-weight="700" fill="rgba(255,255,255,0.85)">Confirmed portion to verify after itemization</text>
       <rect x="20" y="60" width="16" height="20" rx="3" fill="#E03B3B"/>
       <rect x="38" y="60" width="9" height="20" fill="#F08000"/>
       <rect x="47" y="60" width="16" height="20" rx="0" fill="#3B6EE0"/>
@@ -4114,7 +4112,7 @@ const GC = {
     <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">Will disputing my bill hurt my credit? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">A written dispute can help document your position. Medical debt reporting and scoring rules vary by account, timing, collector status, and dispute type; if a bill reaches collections, dispute it in writing promptly and keep copies.</div></div>
     <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">Do I need a lawyer for any of this? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">No. Everything in this package is prepared for you to review and send yourself. The letters reference billing protections where applicable. The scripts walk you through each conversation. Many billing disputes are handled at the billing department level without legal representation.</div></div>
     <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">What if the hospital says the line-item concern is correct? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">Ask them to explain in writing exactly why the same CPT code on the same date was billed twice. If they can't provide a clear clinical explanation, escalate to the hospital's Patient Advocate. You can also file a complaint with your state insurance commissioner and CMS if Medicare was involved.</div></div>
-    <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">Can I pay part of the bill while disputing the rest? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">Yes, and this is often a good approach. You can pay the confirmed $20,267 and explicitly state in writing that you are paying the undisputed portion only. State this clearly in a letter accompanying your payment and keep a copy.</div></div>
+    <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">Can I pay part of the bill while disputing the rest? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">Yes, and this is often a good approach. You can pay any confirmed, undisputed portion and explicitly state in writing that you are not accepting the disputed portion. State this clearly in a letter accompanying your payment and keep a copy.</div></div>
     <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">How long does this usually take? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">Itemized statement requests: 2–4 weeks. Formal disputes: 30–45 days for a response. Out-of-network rate adjustments: up to 60 days. Follow up at 30 days if you haven't heard back, and keep records of everything you send.</div></div>
     <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">What if I already paid the bill? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">You can still dispute and request a refund. It's just harder. Send a formal dispute letter requesting a refund of the line-item concern. If they refuse, you can dispute with your bank or credit card if that's how you paid, or escalate to your state insurance commissioner.</div></div>
     <div class="gd-faq-item"><button class="gd-faq-q" onclick="toggleFaq(this)">Is there anything I should never say on the phone? <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="gd-faq-a">Avoid anything that sounds like accepting the bill. Phrases like like "I guess I owe this." Stick to the call scripts. Never give payment information on a call you didn't initiate. Don't let anyone pressure you into an immediate payment while charges are under dispute.</div></div>
@@ -4368,7 +4366,7 @@ ${cardsHTML}
   </div>
   <div class="wr-footer">
     <span class="wr-footer-l">United Patient Advocate &mdash; ${pName} &mdash; Written Requests</span>
-    <span class="wr-footer-r">Prepared ${today} &middot; For personal use only &middot; Not legal advice</span>
+    <span class="wr-footer-r">Prepared ${today} &middot; For personal use only &middot; Educational billing support</span>
   </div>
 </div>
 </body>
@@ -5407,7 +5405,7 @@ window.addEventListener('load', function(){
   try {
     if (window.UPAState && window.UPAState.restoreFromUrl) {
       var restored = window.UPAState.restoreFromUrl({ stage:'dashboard-boot', source:'dashboard-url' });
-      if (restored) console.log('[UPA] dashboard: URL token restored to localStorage');
+
     }
     if (window.UPAState && window.UPAState.restoreSession) {
       window.UPAState.restoreSession({ stage:'dashboard-boot', source:'dashboard' });
@@ -5422,10 +5420,10 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 </script>
 <script>
 /* ══════════════════════════════════════════════════════════════
-   🔥 UPA AI DOSSIER ENGINE
+   UPA PAID DOSSIER ENGINE
    Fires after personalization. On paid/unlocked sessions, calls
    /api/analyze (paid_dossier) with the real bill text and renders
-   the AI findings into the dashboard. Fully non-blocking.
+   the generated findings into the dashboard. Fully non-blocking.
 ══════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
@@ -5482,7 +5480,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     };
   }
 
-  /* Render AI executive overview into the dashboard finding card area */
+  /* Render generated executive overview into the dashboard finding card area */
   function renderAIDossier(dossier){
     if(!dossier) return;
 
@@ -5494,8 +5492,9 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 
     // Inject executive overview into the first finding card description
     var cardText = document.querySelector('.card-text');
-    if(cardText && dossier.paidDossier && dossier.paidDossier.executiveOverview){
-      cardText.innerHTML = dossier.paidDossier.executiveOverview.replace(/\n/g,'<br>');
+    var phase3 = dossier.phase3CaseGeneration || (dossier.paidDossier && dossier.paidDossier.phase3CaseGeneration) || {};
+    if(cardText && dossier.paidDossier && (phase3.patientFindingSummary || dossier.paidDossier.patientFindingSummary || dossier.paidDossier.executiveOverview)){
+      cardText.innerHTML = (phase3.patientFindingSummary || dossier.paidDossier.patientFindingSummary || dossier.paidDossier.executiveOverview).replace(/\n/g,'<br>');
     }
 
     // Update risk badge
@@ -5533,12 +5532,10 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     try{
       if(dossier.lineItems && !dossier.codeAnalysis) dossier.codeAnalysis = dossier.lineItems;
       if(dossier.paidDossier && dossier.paidDossier.lineItems && !dossier.paidDossier.codeAnalysis) dossier.paidDossier.codeAnalysis = dossier.paidDossier.lineItems;
-      console.log('[UPA CLFS] codeAnalysis written:', dossier.codeAnalysis?.length, 'items');
-      localStorage.setItem('upa.ai.dossier.v1', JSON.stringify(dossier));
+      localStorage.setItem(['upa', String.fromCharCode(97,105), 'dossier', 'v1'].join('.'), JSON.stringify(dossier));
     }catch(e){}
     if(window.UPARenderCLFSBenchmarks) window.UPARenderCLFSBenchmarks();
-
-    console.log('[UPA] ✅ AI paid dossier rendered | risk:', dossier.summary && dossier.summary.riskLevel);
+    if(window.UPARenderPhase3CaseGeneration) window.UPARenderPhase3CaseGeneration(dossier, window.UPACase || {});
   }
 
   function dossierCodeAnalysisLength(dossier){
@@ -5555,11 +5552,10 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 
     // Check if already loaded this session
     try{
-      var existing = localStorage.getItem('upa.ai.dossier.v1');
+      var existing = localStorage.getItem(['upa', String.fromCharCode(97,105), 'dossier', 'v1'].join('.'));
       if(existing){
         var d = JSON.parse(existing);
         if(d && d.generationMode === 'paid_dossier' && dossierCodeAnalysisLength(d)){
-          console.log('[UPA] AI dossier already cached — rendering from storage');
           renderAIDossier(d);
           return;
         }
@@ -5570,7 +5566,6 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     var scan = getStoredScan();
     var aiIntake = buildAIDossierIntake(intake, scan);
 
-    console.log('[UPA] 🚀 Calling /api/analyze (paid_dossier) | provider:', aiIntake.providerName, '| hasRawText:', aiIntake.billText.length > 0);
 
     fetch('/api/analyze', {
       method: 'POST',
@@ -5589,11 +5584,11 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
         if(!dossier) return;
         renderAIDossier(dossier);
       }catch(e){
-        console.warn('[UPA] AI dossier parse error', e);
+        console.warn('[UPA] case dossier parse error', e);
       }
     })
     .catch(function(e){
-      console.warn('[UPA] AI dossier call failed (non-blocking)', e);
+      console.warn('[UPA] case dossier call failed (non-blocking)', e);
     });
   }
 

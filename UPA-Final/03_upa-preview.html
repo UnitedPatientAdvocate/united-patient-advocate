@@ -302,11 +302,11 @@ html,body{min-height:100%;font-family:var(--sans);background:var(--navy-deep);-w
 .preview-tier-list{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;flex:1}
 .preview-tier-list li{list-style:none;font-family:"DM Sans",var(--sans);font-size:.62rem;color:var(--on-dark-2);line-height:1.42;display:flex;gap:7px}
 .preview-tier-list li::before{content:"✓";font-weight:900;color:var(--green)}
-.preview-tier-btn{display:flex;align-items:center;justify-content:center;width:100%;border-radius:100px;padding:10px 12px;font-family:"DM Sans",var(--sans);font-size:.68rem;font-weight:800;text-decoration:none;border:0;background:var(--green);color:#0E1828;cursor:pointer}
+.preview-tier-btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;border-radius:100px;padding:10px 12px;font-family:"DM Sans",var(--sans);font-size:.68rem;font-weight:800;text-decoration:none;border:0;background:var(--green);color:#0E1828;cursor:pointer}
 .preview-tier-btn.disabled{background:rgba(255,255,255,.12);color:rgba(235,244,255,.35);cursor:not-allowed}
 .preview-value-callout{max-width:720px;margin:0 auto 18px;padding:18px 22px;background:#162033;border:1px solid rgba(30,184,122,.32);border-left:5px solid #1D9E75;border-radius:14px;color:white;font-family:"DM Sans",var(--sans);font-size:1rem;font-weight:500;line-height:1.6;box-shadow:0 14px 38px rgba(0,0,0,.22)}
 /* CTA button */
-.btn-unlock{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-size:1rem;font-weight:800;color:white;padding:16px 40px;border-radius:100px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--green-dk),var(--green));letter-spacing:.01em;box-shadow:0 4px 28px rgba(30,184,122,.52),0 8px 56px rgba(30,184,122,.26),0 0 0 1px rgba(30,184,122,.32);transition:all .22s var(--pop);animation:cglow 3s ease-in-out infinite;text-decoration:none;display:inline-flex}
+.btn-unlock{display:inline-flex;align-items:center;gap:10px;min-height:44px;font-family:var(--sans);font-size:1rem;font-weight:800;color:white;padding:16px 40px;border-radius:100px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--green-dk),var(--green));letter-spacing:.01em;box-shadow:0 4px 28px rgba(30,184,122,.52),0 8px 56px rgba(30,184,122,.26),0 0 0 1px rgba(30,184,122,.32);transition:all .22s var(--pop);animation:cglow 3s ease-in-out infinite;text-decoration:none;display:inline-flex}
 @keyframes cglow{0%,100%{box-shadow:0 4px 28px rgba(30,184,122,.52),0 8px 56px rgba(30,184,122,.26),0 0 0 1px rgba(30,184,122,.32)}50%{box-shadow:0 6px 40px rgba(30,184,122,.70),0 12px 72px rgba(30,184,122,.40),0 0 0 1px rgba(30,184,122,.55)}}
 .btn-unlock:hover{transform:translateY(-3px) scale(1.02)}
 .btn-unlock svg{width:18px;height:18px;stroke:white;stroke-width:2.5;fill:none}
@@ -555,7 +555,7 @@ html,body{max-width:100%;overflow-x:hidden}
         <!-- Visible portion -->
         <div class="lt-vis">
           <div class="lt-from">
-            <div class="lt-from-name" id="preview-letter-name">Your Name</div>
+            <div class="lt-from-name" id="preview-letter-name">Patient</div>
             <div class="lt-from-sub" id="preview-letter-sub">Account Holder</div>
           </div>
           <div class="lt-to" id="preview-letter-to">
@@ -649,7 +649,7 @@ html,body{max-width:100%;overflow-x:hidden}
           <div class="preview-tier-name">Full Dispute Kit</div>
           <div class="preview-tier-price">$97</div>
           <ul class="preview-tier-list"><li>Full medical bill review</li><li>Plain-English error report</li><li>Itemized bill request letter</li><li>Custom dispute + appeal letters</li><li>Escalation roadmap</li><li>Deadline tracker</li><li>Phone negotiation scripts</li><li>EOB &amp; CPT code decoder</li><li><span><strong>7-Day Satisfaction Guarantee</strong><br>If you're not satisfied with your review within 7 days, we'll make it right.</span></li></ul>
-          <a href="javascript:void(0)" onclick="goToGumroad()" class="preview-tier-btn">Unlock Complete — $97</a>
+          <a href="https://upadvocate.gumroad.com/l/busfn?wanted=true" onclick="goToGumroad(); return false;" class="preview-tier-btn">Unlock Complete — $97</a>
         </div>
         <div class="preview-tier">
           <div class="preview-tier-kicker">Household</div>
@@ -677,7 +677,7 @@ html,body{max-width:100%;overflow-x:hidden}
 
       <div class="preview-value-callout">Your complete dispute package includes everything you need to challenge this bill — formatted, referenced, and ready to send.</div>
 
-      <a href="javascript:void(0)" onclick="goToGumroad()" class="btn-unlock" id="unlock-full-review-btn">
+      <a href="https://upadvocate.gumroad.com/l/busfn?wanted=true" onclick="goToGumroad(); return false;" class="btn-unlock" id="unlock-full-review-btn">
         <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         Unlock My Full Review — $97
         <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -716,7 +716,7 @@ html,body{max-width:100%;overflow-x:hidden}
 
     <!-- Legal -->
     <div class="legal-footer">
-      <div class="legal-txt">United Patient Advocate is an independent medical billing review and dispute documentation preparation service. Potential review areas flagged during the review process are informational and do not constitute legal, medical, insurance, or financial advice. Dispute outcomes vary based on provider policies, insurer determinations, and individual circumstances. Due to the personalized nature of the review materials, guidance tools, and document preparation services provided through UPA, refunds are not provided once access has been granted. United Patient Advocate is not a law firm and does not provide legal representation.</div>
+      <div class="legal-txt">United Patient Advocate is an independent medical billing review and dispute documentation preparation service. Potential review areas flagged during the review process are informational and are not professional legal, medical, insurance, or financial services. Dispute outcomes vary based on provider policies, insurer determinations, and individual circumstances. Due to the personalized nature of the review materials, guidance tools, and document preparation services provided through UPA, refunds are not provided once access has been granted. United Patient Advocate is not a law firm and does not provide legal representation.</div>
     </div>
 
   </div>

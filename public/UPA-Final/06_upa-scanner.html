@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>United Patient Advocate - Medical Bill Red Flag Scanner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#EEF1F6;
+  --navy:#162033;
+  --navy-2:#1C2B48;
+  --teal:#1D9E75;
+  --gold:#E0A100;
+  --orange:#E2711D;
+  --red:#C2362F;
+  --white:#FFFFFF;
+  --ink:#162033;
+  --muted:#64748b;
+  --line:rgba(22,32,51,.12);
+  --soft:rgba(29,158,117,.10);
+  --serif:"Playfair Display",Georgia,serif;
+  --sans:"DM Sans",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+html{scroll-behavior:smooth}
+body{min-height:100vh;background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:300;-webkit-font-smoothing:antialiased}
+button,input{font:inherit}
+.page{min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:68px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 18px;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--navy)}
+.mark{width:34px;height:38px;border-radius:12px;background:linear-gradient(160deg,var(--navy),#24314c);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(22,32,51,.14)}
+.mark svg{width:20px;height:23px;stroke:#fff;stroke-width:2;fill:none}
+.brand-name{font-family:var(--serif);font-size:1rem;font-weight:700;line-height:1;color:var(--navy)}
+.brand-sub{display:block;font-size:.5rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.toplink{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border-radius:999px;background:var(--navy);color:#fff;text-decoration:none;font-size:.875rem;font-weight:500}
+.hero{padding:32px 18px 18px;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:var(--soft);border:1px solid rgba(29,158,117,.18);color:var(--teal);font-size:.72rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px}
+.eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--teal)}
+h1{font-family:var(--serif);font-size:clamp(2.2rem,8vw,4.4rem);font-weight:700;letter-spacing:-.045em;line-height:.98;color:var(--navy);max-width:860px;margin:0 auto 16px}
+.hero-copy{max-width:620px;margin:0 auto;color:#42526b;font-size:1rem;font-weight:300;line-height:1.65}
+.shell{width:100%;max-width:900px;margin:0 auto;padding:18px}
+.scanner-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 55px rgba(22,32,51,.10);overflow:hidden}
+.progress-wrap{padding:18px 18px 0}
+.progress-meta{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;color:var(--muted);font-size:.8125rem;font-weight:400}
+.progress-track{height:8px;border-radius:999px;background:#DFE6EF;overflow:hidden}
+.progress-fill{height:100%;width:20%;border-radius:999px;background:linear-gradient(90deg,var(--teal),#4fc59e);transition:width .35s var(--ease)}
+.question-stage{padding:26px 18px 20px}
+.q-kicker{font-size:.72rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+.q-title{font-family:var(--serif);font-size:clamp(1.55rem,5vw,2.45rem);font-weight:700;letter-spacing:-.03em;line-height:1.08;color:var(--navy);margin-bottom:18px}
+.options{display:grid;gap:10px}
+.option{width:100%;min-height:58px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;text-align:left;padding:15px 14px;border:1.5px solid var(--line);border-radius:12px;background:#F8FAFD;color:var(--ink);cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease,box-shadow .18s ease}
+.option:hover{transform:translateY(-1px);border-color:rgba(29,158,117,.35);box-shadow:0 8px 22px rgba(22,32,51,.08)}
+.option.selected{background:rgba(29,158,117,.08);border-color:var(--teal);box-shadow:0 0 0 4px rgba(29,158,117,.08)}
+.choice-dot{width:24px;height:24px;border-radius:50%;border:2px solid #B9C5D4;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.multi .choice-dot{border-radius:7px}
+.option.selected .choice-dot{background:var(--teal);border-color:var(--teal)}
+.choice-dot svg{width:14px;height:14px;stroke:#fff;stroke-width:3;fill:none;opacity:0}
+.option.selected .choice-dot svg{opacity:1}
+.option-text{font-size:1rem;font-weight:400;line-height:1.4}
+.option-score{font-size:.75rem;font-weight:500;color:var(--muted);white-space:nowrap}
+.nav-row{display:flex;justify-content:space-between;gap:12px;margin-top:20px}
+.btn{min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:13px 22px;font-weight:500;cursor:pointer;text-decoration:none;transition:transform .18s ease,box-shadow .18s ease,opacity .18s ease}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--teal);color:#fff;box-shadow:0 10px 25px rgba(29,158,117,.22)}
+.btn-primary:hover{box-shadow:0 14px 32px rgba(29,158,117,.30)}
+.btn-secondary{background:#EDF2F7;color:var(--navy)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
+.score-stage{display:none;background:radial-gradient(ellipse 620px 300px at 50% 0%,rgba(29,158,117,.16),transparent 64%),var(--navy);padding:36px 18px 32px;color:#fff;min-height:520px}
+.score-stage.active{display:block}
+.score-head{text-align:center;max-width:680px;margin:0 auto 24px}
+.score-kicker{font-size:.72rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.52);margin-bottom:10px}
+.score-title{font-family:var(--serif);font-size:clamp(1.8rem,6vw,3rem);font-weight:700;letter-spacing:-.035em;line-height:1.05;color:#fff;margin-bottom:14px}
+.score-orb{width:190px;height:190px;margin:0 auto 24px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 10px rgba(29,158,117,.08),0 24px 90px rgba(0,0,0,.35);overflow:hidden}
+.score-orb::before{content:"";position:absolute;inset:-40%;background:conic-gradient(from 0deg,transparent,rgba(29,158,117,.36),transparent,rgba(255,255,255,.10),transparent);animation:spin 2.8s linear infinite}
+.score-inner{position:absolute;inset:12px;border-radius:50%;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.score-number{font-family:var(--serif);font-size:4rem;font-weight:900;letter-spacing:-.06em;line-height:.9}
+.score-label{font-size:.68rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:8px}
+.result-area{position:relative;max-width:760px;margin:0 auto}
+.result-card{background:#fff;color:var(--ink);border-radius:18px;border:1px solid rgba(255,255,255,.12);box-shadow:0 22px 70px rgba(0,0,0,.28);overflow:hidden;transition:filter .35s ease,opacity .35s ease}
+.result-card.locked{filter:blur(9px);opacity:.58;pointer-events:none;user-select:none}
+.tier-bar{height:7px;background:var(--tier-color)}
+.tier-body{padding:26px 20px 20px}
+.tier-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px}
+.tier-name{font-family:var(--serif);font-size:2rem;font-weight:700;letter-spacing:-.03em;color:var(--navy);line-height:1}
+.tier-pill{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 12px;border-radius:999px;background:color-mix(in srgb,var(--tier-color) 14%,white);color:var(--tier-color);border:1px solid color-mix(in srgb,var(--tier-color) 28%,white);font-size:.75rem;font-weight:500;white-space:nowrap}
+.tier-copy{font-size:1.02rem;font-weight:300;color:#40506a;line-height:1.72;margin-bottom:20px}
+.cta-block{background:#F3F7FA;border:1px solid var(--line);border-radius:14px;padding:20px}
+.cta-head{font-family:var(--serif);font-size:1.45rem;font-weight:700;letter-spacing:-.025em;line-height:1.15;color:var(--navy);margin-bottom:8px}
+.cta-copy{font-size:.96rem;font-weight:300;color:#42526b;line-height:1.62;margin-bottom:16px}
+.cta-button{width:100%;min-height:52px;background:var(--teal);color:#fff;border-radius:999px;text-decoration:none;font-weight:500;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 28px rgba(29,158,117,.24)}
+.tier-action-note{margin-top:12px;color:var(--tier-color);font-size:.9rem;font-weight:500;text-align:center}
+.email-gate{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;z-index:4}
+.email-card{width:100%;max-width:480px;background:#fff;border:1px solid rgba(22,32,51,.10);border-radius:18px;padding:24px 20px;box-shadow:0 22px 80px rgba(0,0,0,.32);text-align:center}
+.email-copy{font-family:var(--serif);font-size:1.55rem;font-weight:700;letter-spacing:-.025em;line-height:1.15;color:var(--navy);margin-bottom:14px}
+.email-form{display:grid;gap:10px}
+.email-input{width:100%;min-height:52px;border:1.5px solid #C9D4E2;border-radius:12px;padding:13px 14px;font-size:1rem;font-weight:400;color:var(--navy);background:#fff}
+.email-input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 4px rgba(29,158,117,.10)}
+.email-note{font-size:.78rem;line-height:1.5;color:var(--muted);margin-top:10px}
+.email-error{font-size:.85rem;color:var(--red);font-weight:400;min-height:1.2em}
+.email-gate.hidden{display:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.reset-row{text-align:center;margin-top:18px}
+.reset-link{background:none;border:0;color:rgba(255,255,255,.56);font-size:.9rem;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.footer-note{padding:18px;text-align:center;color:#5d6d84;font-size:.78rem;line-height:1.5}
+@media(min-width:720px){
+  .topbar{padding:0 36px}
+  .hero{padding-top:54px}
+  .shell{padding:24px}
+  .question-stage{padding:34px 34px 28px}
+  .progress-wrap{padding:24px 34px 0}
+  .options{grid-template-columns:1fr}
+  .tier-body{padding:32px}
+  .cta-button{width:auto;display:inline-flex;padding:0 26px}
+}
+@media(max-width:520px){
+  .topbar{height:auto;min-height:64px;align-items:flex-start;padding:12px 14px}
+  .toplink{font-size:.78rem;padding:9px 12px}
+  .brand-name{font-size:.92rem}
+  .hero-copy{font-size:.95rem}
+  .option{grid-template-columns:auto 1fr;padding:14px}
+  .option-score{grid-column:2;color:#7A8799}
+  .nav-row{flex-direction:column-reverse}
+  .btn{width:100%}
+  .score-orb{width:164px;height:164px}
+  .score-number{font-size:3.3rem}
+  .tier-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="topbar">
+    <a class="brand" href="01_upa-landing.html" aria-label="United Patient Advocate home">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 28"><path d="M12 2 4 5.5v7.2c0 5.6 3.2 10.3 8 12.3 4.8-2 8-6.7 8-12.3V5.5L12 2Z"/><path d="m8.2 14 2.4 2.5 5.4-6"/></svg></span>
+      <span><span class="brand-name">United Patient Advocate</span><span class="brand-sub">Red Flag Scanner</span></span>
+    </a>
+    <a class="toplink" href="01_upa-landing.html">Full Review</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow">5-question scan</div>
+      <h1>Medical Bill Red Flag Scanner</h1>
+      <p class="hero-copy">Answer five quick questions about your bill. You will get a red flag score and a plain-English next step based on what you see in front of you.</p>
+    </section>
+
+    <section class="shell" aria-live="polite">
+      <div class="scanner-card" id="scanner-card">
+        <div class="progress-wrap" id="progress-wrap">
+          <div class="progress-meta"><span id="progress-label">Question 1 of 5</span><span id="progress-percent">20%</span></div>
+          <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+        </div>
+        <div class="question-stage" id="question-stage">
+          <div class="q-kicker" id="question-kicker">Itemization</div>
+          <h2 class="q-title" id="question-title"></h2>
+          <div class="options" id="options"></div>
+          <div class="nav-row">
+            <button class="btn btn-secondary" id="back-btn" type="button">Back</button>
+            <button class="btn btn-primary" id="next-btn" type="button" disabled>Next</button>
+          </div>
+        </div>
+        <div class="score-stage" id="score-stage">
+          <div class="score-head">
+            <div class="score-kicker">Scan complete</div>
+            <div class="score-title">Your Red Flag Score</div>
+          </div>
+          <div class="score-orb" aria-label="Red flag score">
+            <div class="score-inner"><div class="score-number" id="score-number">0</div><div class="score-label">out of 100</div></div>
+          </div>
+          <div class="result-area">
+            <div class="result-card locked" id="result-card">
+              <div class="tier-bar" id="tier-bar"></div>
+              <div class="tier-body">
+                <div class="tier-row">
+                  <div class="tier-name" id="tier-name"></div>
+                  <div class="tier-pill" id="tier-pill"></div>
+                </div>
+                <p class="tier-copy" id="tier-copy"></p>
+                <div class="cta-block">
+                  <div class="cta-head">Get your full bill reviewed &mdash; flat $97, you keep 100% of what you save.</div>
+                  <div class="cta-copy">Negotiation services take up to a third of your savings. We don&#39;t. One flat fee, your complete review and dispute documentation, ready to send.</div>
+                  <a class="cta-button" href="01_upa-landing.html" id="full-review-cta">Start My Full Review &rarr;</a>
+                  <div class="tier-action-note" id="tier-action-note" hidden>Your score suggests this is worth acting on today.</div>
+                </div>
+              </div>
+            </div>
+            <div class="email-gate hidden" id="email-gate">
+              <div class="email-card">
+                <div class="email-copy">Your Red Flag Score is ready. Enter your email to unlock your full breakdown.</div>
+                <form class="email-form" id="email-form">
+                  <label class="sr-only" for="email-input">Email address</label>
+                  <input class="email-input" id="email-input" type="email" autocomplete="email" placeholder="you@example.com" required>
+                  <button class="btn btn-primary" type="submit">Reveal My Results</button>
+                  <div class="email-error" id="email-error" role="alert"></div>
+                </form>
+                <div class="email-note">We use this to show your result and help you continue your review in this browser session.</div>
+              </div>
+            </div>
+          </div>
+          <div class="reset-row"><button class="reset-link" type="button" id="reset-btn">Retake the scanner</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer-note">Educational billing review support only. This scanner is an informational starting point and does not replace professional guidance.</footer>
+</div>
+
+<script>
+const EMAIL_ENDPOINT = ""; // TODO: set to Mailchimp/ConvertKit form action URL before launch.
+
+const questions = [
+  {
+    id:"q1",
+    kicker:"Itemization",
+    text:"Did you receive an itemized bill, or just a summary/balance due?",
+    type:"single",
+    options:[
+      {label:"Itemized with line-item codes", score:0},
+      {label:"Summary only / balance due", score:25},
+      {label:"Haven't received anything in writing", score:15}
+    ]
+  },
+  {
+    id:"q2",
+    kicker:"Estimate",
+    text:"How does the bill compare to any estimate you were given?",
+    type:"single",
+    options:[
+      {label:"Matches the estimate", score:0},
+      {label:"No estimate was ever provided", score:20},
+      {label:"Higher than the estimate", score:25}
+    ]
+  },
+  {
+    id:"q3",
+    kicker:"Line items",
+    text:"Have you spotted any of these on the bill?",
+    type:"multi",
+    options:[
+      {label:"Duplicate charges", score:10},
+      {label:"Charges for services/items I don't recognize", score:10},
+      {label:"Vague line items like \"miscellaneous\" or \"supplies\"", score:5},
+      {label:"None that I noticed", score:0, none:true}
+    ]
+  },
+  {
+    id:"q4",
+    kicker:"Insurance",
+    text:"What's the situation with insurance?",
+    type:"single",
+    options:[
+      {label:"Insurance paid and this is my final balance", score:5},
+      {label:"Insurance denied part or all of it", score:25},
+      {label:"I'm uninsured / self-pay", score:20},
+      {label:"I thought it was covered but got billed anyway", score:25}
+    ]
+  },
+  {
+    id:"q5",
+    kicker:"Bill size",
+    text:"How large is the bill?",
+    type:"single",
+    options:[
+      {label:"Under $500", score:5},
+      {label:"$500–$2,500", score:15},
+      {label:"$2,500–$10,000", score:20},
+      {label:"Over $10,000", score:25}
+    ]
+  }
+];
+
+const tiers = [
+  {name:"Low", min:0, max:25, color:"#1D9E75", copy:"Good news — your bill shows few obvious red flags. That said, the majority of medical bills still contain at least one error that isn't visible at a glance. A full line-by-line review catches what a quick scan can't."},
+  {name:"Medium", min:26, max:50, color:"#E0A100", copy:"Your bill shows some warning signs worth a closer look. Things like missing itemization or an unexplained gap from your estimate are exactly where overcharges hide. A detailed review can confirm what's legitimate and what's worth questioning."},
+  {name:"High", min:51, max:75, color:"#E2711D", copy:"Your bill shows multiple red flags. When this many warning signs stack up — denials, missing estimates, unrecognized charges — there's a strong case for a full review before you pay a dollar."},
+  {name:"Critical", min:76, max:100, color:"#C2362F", copy:"Your bill shows serious red flags across several areas. Bills like this are where the largest overcharges and errors tend to surface. Don't pay this until every line item has been reviewed."}
+];
+
+let current = 0;
+let answers = {q1:null,q2:null,q3:[],q4:null,q5:null};
+let finalScore = 0;
+
+const els = {
+  progressLabel:document.getElementById("progress-label"),
+  progressPercent:document.getElementById("progress-percent"),
+  progressFill:document.getElementById("progress-fill"),
+  questionKicker:document.getElementById("question-kicker"),
+  questionTitle:document.getElementById("question-title"),
+  options:document.getElementById("options"),
+  backBtn:document.getElementById("back-btn"),
+  nextBtn:document.getElementById("next-btn"),
+  questionStage:document.getElementById("question-stage"),
+  progressWrap:document.getElementById("progress-wrap"),
+  scoreStage:document.getElementById("score-stage"),
+  scoreNumber:document.getElementById("score-number"),
+  resultCard:document.getElementById("result-card"),
+  tierBar:document.getElementById("tier-bar"),
+  tierName:document.getElementById("tier-name"),
+  tierPill:document.getElementById("tier-pill"),
+  tierCopy:document.getElementById("tier-copy"),
+  tierActionNote:document.getElementById("tier-action-note"),
+  emailGate:document.getElementById("email-gate"),
+  emailForm:document.getElementById("email-form"),
+  emailInput:document.getElementById("email-input"),
+  emailError:document.getElementById("email-error"),
+  cta:document.getElementById("full-review-cta"),
+  resetBtn:document.getElementById("reset-btn")
+};
+
+function esc(value){
+  return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+function selectedFor(question, index){
+  const answer = answers[question.id];
+  return question.type === "multi" ? answer.includes(index) : answer === index;
+}
+
+function hasAnswer(question){
+  const answer = answers[question.id];
+  return question.type === "multi" ? answer.length > 0 : answer !== null;
+}
+
+function optionScoreLabel(score){
+  if(score === 0) return "+0";
+  return "+" + score;
+}
+
+function renderQuestion(){
+  const question = questions[current];
+  const progress = Math.round(((current + 1) / questions.length) * 100);
+  els.progressLabel.textContent = "Question " + (current + 1) + " of " + questions.length;
+  els.progressPercent.textContent = progress + "%";
+  els.progressFill.style.width = progress + "%";
+  els.questionKicker.textContent = question.kicker;
+  els.questionTitle.textContent = question.text;
+  els.options.className = "options" + (question.type === "multi" ? " multi" : "");
+  els.options.innerHTML = question.options.map((option, index) => `
+    <button class="option ${selectedFor(question,index) ? "selected" : ""}" type="button" data-index="${index}">
+      <span class="choice-dot" aria-hidden="true"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></span>
+      <span class="option-text">${esc(option.label)}</span>
+      <span class="option-score">${optionScoreLabel(option.score)}</span>
+    </button>
+  `).join("");
+  els.backBtn.disabled = current === 0;
+  els.nextBtn.disabled = !hasAnswer(question);
+  els.nextBtn.textContent = current === questions.length - 1 ? "See My Score" : "Next";
+}
+
+function selectOption(index){
+  const question = questions[current];
+  if(question.type === "multi"){
+    const option = question.options[index];
+    if(option.none){
+      answers.q3 = [index];
+    } else {
+      answers.q3 = answers.q3.filter(i => !question.options[i].none);
+      if(answers.q3.includes(index)) answers.q3 = answers.q3.filter(i => i !== index);
+      else answers.q3.push(index);
+    }
+  } else {
+    answers[question.id] = index;
+  }
+  storeAnswers();
+  renderQuestion();
+}
+
+function rawScore(){
+  const q1 = answers.q1 === null ? 0 : questions[0].options[answers.q1].score;
+  const q2 = answers.q2 === null ? 0 : questions[1].options[answers.q2].score;
+  const q3sum = answers.q3.reduce((sum, index) => {
+    const option = questions[2].options[index];
+    return option && option.none ? 0 : sum + (option ? option.score : 0);
+  }, 0);
+  const q3 = answers.q3.some(index => questions[2].options[index] && questions[2].options[index].none) ? 0 : Math.min(q3sum, 25);
+  const q4 = answers.q4 === null ? 0 : questions[3].options[answers.q4].score;
+  const q5 = answers.q5 === null ? 0 : questions[4].options[answers.q5].score;
+  return q1 + q2 + q3 + q4 + q5;
+}
+
+function normalizedScore(){
+  return Math.round((rawScore() / 125) * 100);
+}
+
+function answerLabel(qIndex, answer){
+  if(Array.isArray(answer)) return answer.map(i => questions[qIndex].options[i] && questions[qIndex].options[i].label).filter(Boolean);
+  return answer === null ? "" : questions[qIndex].options[answer].label;
+}
+
+function storeAnswers(){
+  sessionStorage.setItem("scanner.q1", answerLabel(0, answers.q1));
+  sessionStorage.setItem("scanner.q2", answerLabel(1, answers.q2));
+  sessionStorage.setItem("scanner.q3", JSON.stringify(answerLabel(2, answers.q3)));
+  sessionStorage.setItem("scanner.q4", answerLabel(3, answers.q4));
+  sessionStorage.setItem("scanner.q5", answerLabel(4, answers.q5));
+  sessionStorage.setItem("scanner.score", String(normalizedScore()));
+}
+
+function tierFor(score){
+  return tiers.find(tier => score >= tier.min && score <= tier.max) || tiers[tiers.length - 1];
+}
+
+function renderResult(score){
+  const tier = tierFor(score);
+  finalScore = score;
+  document.documentElement.style.setProperty("--tier-color", tier.color);
+  els.tierBar.style.background = tier.color;
+  els.tierName.textContent = tier.name;
+  els.tierPill.textContent = tier.min + "-" + tier.max;
+  els.tierPill.style.color = tier.color;
+  els.tierCopy.textContent = tier.copy;
+  els.tierActionNote.hidden = !(tier.name === "High" || tier.name === "Critical");
+  els.cta.addEventListener("click", prewarmLanding);
+}
+
+function showScore(){
+  storeAnswers();
+  const score = normalizedScore();
+  renderResult(score);
+  els.questionStage.style.display = "none";
+  els.progressWrap.style.display = "none";
+  els.scoreStage.classList.add("active");
+  let start = null;
+  const duration = 1450;
+  function step(timestamp){
+    if(!start) start = timestamp;
+    const elapsed = Math.min((timestamp - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - elapsed, 3);
+    els.scoreNumber.textContent = String(Math.round(eased * score));
+    if(elapsed < 1) requestAnimationFrame(step);
+    else {
+      els.scoreNumber.textContent = String(score);
+      setTimeout(() => {
+        els.emailGate.classList.remove("hidden");
+        els.emailInput.focus();
+      }, 250);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function revealResults(){
+  els.resultCard.classList.remove("locked");
+  els.emailGate.classList.add("hidden");
+}
+
+function payload(){
+  return {
+    email:sessionStorage.getItem("scanner.email") || "",
+    score:finalScore,
+    q1:sessionStorage.getItem("scanner.q1") || "",
+    q2:sessionStorage.getItem("scanner.q2") || "",
+    q3:JSON.parse(sessionStorage.getItem("scanner.q3") || "[]"),
+    q4:sessionStorage.getItem("scanner.q4") || "",
+    q5:sessionStorage.getItem("scanner.q5") || ""
+  };
+}
+
+function prewarmLanding(){
+  storeAnswers();
+  sessionStorage.setItem("upa.scanner.v1", JSON.stringify(payload()));
+  sessionStorage.setItem("scanner.intent", "full-review");
+}
+
+els.options.addEventListener("click", event => {
+  const button = event.target.closest(".option");
+  if(!button) return;
+  selectOption(Number(button.dataset.index));
+});
+
+els.backBtn.addEventListener("click", () => {
+  if(current > 0){
+    current -= 1;
+    renderQuestion();
+  }
+});
+
+els.nextBtn.addEventListener("click", () => {
+  const question = questions[current];
+  if(!hasAnswer(question)) return;
+  if(current < questions.length - 1){
+    current += 1;
+    renderQuestion();
+  } else {
+    showScore();
+  }
+});
+
+els.emailForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  const email = els.emailInput.value.trim();
+  if(!email || !els.emailInput.checkValidity()){
+    els.emailError.textContent = "Enter a valid email to reveal your result.";
+    return;
+  }
+  els.emailError.textContent = "";
+  sessionStorage.setItem("scanner.email", email);
+  if(EMAIL_ENDPOINT){
+    try {
+      await fetch(EMAIL_ENDPOINT, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload())
+      });
+    } catch(e) {}
+  }
+  revealResults();
+});
+
+els.resetBtn.addEventListener("click", () => {
+  answers = {q1:null,q2:null,q3:[],q4:null,q5:null};
+  current = 0;
+  ["scanner.q1","scanner.q2","scanner.q3","scanner.q4","scanner.q5","scanner.score","scanner.email","scanner.intent","upa.scanner.v1"].forEach(key => sessionStorage.removeItem(key));
+  els.emailInput.value = "";
+  els.resultCard.classList.add("locked");
+  els.emailGate.classList.add("hidden");
+  els.scoreStage.classList.remove("active");
+  els.questionStage.style.display = "";
+  els.progressWrap.style.display = "";
+  renderQuestion();
+});
+
+renderQuestion();
+</script>
+</body>
+</html>

@@ -192,7 +192,7 @@ h1{font-family:var(--serif);font-size:clamp(2.2rem,8vw,4.4rem);font-weight:700;l
                 <div class="email-copy">Your Red Flag Score is ready. Enter your email to unlock your full breakdown.</div>
                 <form class="email-form" id="email-form">
                   <label class="sr-only" for="email-input">Email address</label>
-                  <input class="email-input" id="email-input" type="email" autocomplete="email" placeholder="you@example.com" required>
+                  <input class="email-input" id="email-input" type="email" name="email_address" autocomplete="email" placeholder="you@example.com" required>
                   <button class="btn btn-primary" type="submit">Reveal My Results</button>
                   <div class="email-error" id="email-error" role="alert"></div>
                 </form>
@@ -210,7 +210,7 @@ h1{font-family:var(--serif);font-size:clamp(2.2rem,8vw,4.4rem);font-weight:700;l
 </div>
 
 <script>
-const EMAIL_ENDPOINT = ""; // TODO: set to Mailchimp/ConvertKit form action URL before launch.
+const EMAIL_ENDPOINT = "https://app.convertkit.com/forms/9525008/subscriptions";
 
 const questions = [
   {

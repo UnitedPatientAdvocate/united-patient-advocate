@@ -456,7 +456,11 @@ function payload(){
     q2:sessionStorage.getItem("scanner.q2") || "",
     q3:JSON.parse(sessionStorage.getItem("scanner.q3") || "[]"),
     q4:sessionStorage.getItem("scanner.q4") || "",
-    q5:sessionStorage.getItem("scanner.q5") || ""
+    q5:sessionStorage.getItem("scanner.q5") || "",
+    fields:{
+      red_flag_score:finalScore,
+      red_flag_tier:currentTier?.name || ""
+    }
   };
 }
 

@@ -4,23 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Open Secure Checkout · United Patient Advocate</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{
-  min-height:100vh;background:#0B1320;color:#EAF6F0;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
-  display:flex;align-items:flex-start;justify-content:center;
-  padding:32px 16px 48px;-webkit-font-smoothing:antialiased
+  min-height:100vh;background:linear-gradient(135deg,#0D1B2A 0%,#162033 60%,#0A1628 100%);color:#EAF6F0;
+  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  display:block;
+  padding:0 16px 48px;-webkit-font-smoothing:antialiased;overflow-x:hidden
 }
-.wrap{width:100%;max-width:440px}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 20%,rgba(29,158,117,.07),transparent 34%),linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);background-size:auto,44px 44px,44px 44px;opacity:.9}
+.checkout-hero{width:calc(100% + 32px);min-height:200px;margin:0 -16px 32px;padding:48px 24px;text-align:center;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background-image:linear-gradient(180deg,rgba(13,27,42,.95) 0%,rgba(22,32,51,.92) 100%),url("../images/hero-advocate.jpg");background-size:cover;background-position:center center}
+.checkout-hero h1{font-family:'Playfair Display',Georgia,serif;font-size:42px;font-weight:700;letter-spacing:-.02em;line-height:1.15;color:#fff;margin:0 0 14px}
+.checkout-hero p{max-width:480px;margin:0 auto;color:rgba(255,255,255,.70);font-size:18px;font-weight:400;line-height:1.7}
+.wrap{width:100%;max-width:540px;margin:0 auto;position:relative;z-index:1}
 .brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;color:rgba(234,246,240,.78);font-size:13px;font-weight:600;letter-spacing:.04em}
 .brand-dot{width:8px;height:8px;border-radius:50%;background:#20B875;animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .card{
-  background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
-  border:1px solid rgba(255,255,255,.10);border-radius:16px;
-  padding:24px 22px 22px;position:relative;overflow:hidden;
-  box-shadow:0 12px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(46,204,113,.18)
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);border-radius:16px;
+  padding:40px;position:relative;overflow:hidden;
+  box-shadow:0 8px 40px rgba(0,0,0,.4),0 2px 8px rgba(0,0,0,.2);backdrop-filter:blur(12px)
 }
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#C9A84C,#20B875)}
 .h{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:6px;color:#fff}
@@ -62,13 +67,28 @@ body{
 .btn-secondary.armed{opacity:1;pointer-events:auto;animation:armGlow 2.4s ease-in-out infinite}
 @keyframes armGlow{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.20)}50%{box-shadow:0 0 0 6px rgba(201,168,76,0)}}
 .btn-secondary svg{width:16px;height:16px;stroke:#FFD877;stroke-width:2.4;fill:none}
-.foot{font-size:11px;line-height:1.5;color:rgba(234,246,240,.38);margin-top:14px;text-align:center}
+.foot{font-size:11px;line-height:1.5;color:rgba(255,255,255,.35);margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);text-align:center}
 .foot a{color:rgba(234,246,240,.65);text-decoration:underline}
 .error{margin-top:10px;padding:10px 12px;background:rgba(224,59,59,.14);border:1px solid rgba(224,59,59,.35);border-radius:8px;font-size:12px;color:#FFC9C9;line-height:1.45;display:none}
 .error.show{display:block}
+.checkout-trust-strip{margin-top:24px;background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);padding:16px 24px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
+.checkout-trust-badge{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,.70);font-size:13px;font-weight:500;white-space:nowrap}
+.checkout-trust-badge svg{width:20px;height:20px;stroke:#1D9E75;stroke-width:1.5;fill:none;flex-shrink:0}
+@media(max-width:560px){
+  .checkout-hero{min-height:140px;padding:38px 20px 28px}
+  .checkout-hero h1{font-size:36px}
+  .checkout-hero p{font-size:16px}
+  .card{padding:24px}
+  .checkout-trust-strip{gap:20px;padding:16px}
+  .checkout-trust-badge{width:calc(50% - 10px);white-space:normal}
+}
 </style>
 </head>
 <body>
+<section class="checkout-hero" aria-labelledby="checkout-hero-title">
+  <h1 id="checkout-hero-title">Your Review Is Ready.</h1>
+  <p>Everything is prepared. Complete your checkout to unlock your full case.</p>
+</section>
 <div class="wrap">
   <div class="brand"><span class="brand-dot"></span>UNITED PATIENT ADVOCATE · CHECKOUT</div>
   <div class="card">
@@ -101,8 +121,14 @@ body{
       I've paid — open my dashboard
     </a>
     <div class="error" id="error"></div>
-    <div class="foot">Secure · All sales are final · Your data stays on this device until you tap continue.</div>
   </div>
+  <div class="checkout-trust-strip" aria-label="Checkout trust signals">
+    <span class="checkout-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v6c0 4.8 2.9 8.2 7 9 4.1-.8 7-4.2 7-9V6l-7-3Z"/></svg>Flat Fee. No Surprises.</span>
+    <span class="checkout-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Review Ready in Minutes</span>
+    <span class="checkout-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Your Data Stays Yours</span>
+    <span class="checkout-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>7-Day Satisfaction Guarantee</span>
+  </div>
+  <div class="foot">Secure · All sales are final · Your data stays on this device until you tap continue.</div>
 </div>
 
 <script src="/UPA-Final/upa-state-persistence.js"></script>
@@ -189,5 +215,6 @@ body{
   });
 })();
 </script>
+<footer aria-label="Legal links" style="position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:24px;padding:16px 12px;border-top:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.40);font-family:'DM Sans',system-ui,sans-serif;font-size:.68rem"><span>United Patient Advocate&trade;</span><span>&middot;</span><a href="terms.html" style="color:inherit;text-decoration:none">Terms</a><span>&middot;</span><a href="refund-policy.html" style="color:inherit;text-decoration:none">Refund Policy</a><span>&middot;</span><a href="mailto:support@unitedpatientadvocate.com" style="color:inherit;text-decoration:none">Contact</a></footer>
 </body>
 </html>

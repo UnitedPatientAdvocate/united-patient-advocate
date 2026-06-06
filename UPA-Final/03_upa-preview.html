@@ -373,6 +373,27 @@ html,body{max-width:100%;overflow-x:hidden}
 .guarantee-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;justify-items:start}
 .gr-item{font-size:.5625rem}
 }
+
+/* Premium visual system */
+:root{--teal:#1D9E75;--green:#1D9E75;--green-dk:#178A65;--sans:"DM Sans",system-ui,sans-serif}
+.results-hero{min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 -20px 32px;padding:48px 24px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background-image:linear-gradient(180deg,rgba(13,27,42,.92) 0%,rgba(13,27,42,.85) 100%),url("../images/hero-document.jpg");background-size:cover;background-position:center center;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.rh-title{font-family:"Playfair Display",Georgia,serif;font-size:38px;font-weight:700;line-height:1.2;letter-spacing:-.02em;color:#fff}
+.rh-sub{font-family:"DM Sans",system-ui,sans-serif;font-size:16px;font-weight:400;line-height:1.65;color:rgba(255,255,255,.75)}
+.btn-unlock{background:#1D9E75;color:#fff;padding:18px 48px;border-radius:10px;font-family:"DM Sans",system-ui,sans-serif;font-size:17px;font-weight:600;letter-spacing:.01em;box-shadow:0 4px 20px rgba(29,158,117,.35);border:none;transition:all .2s ease;animation:none}
+.btn-unlock:hover{background:#178a65;box-shadow:0 6px 28px rgba(29,158,117,.5);transform:translateY(-1px)}
+.finding-card.blurred-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;backdrop-filter:blur(8px)}
+.blur-lock{background:rgba(13,27,42,.68)}
+.blur-lock svg,.bl-pill svg{stroke:#1D9E75}
+.preview-trust-strip{margin-top:34px;background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);padding:16px 24px;display:flex;justify-content:center;gap:40px;flex-wrap:wrap}
+.preview-trust-badge{display:inline-flex;align-items:center;gap:9px;color:rgba(255,255,255,.70);font-family:"DM Sans",system-ui,sans-serif;font-size:13px;font-weight:500;letter-spacing:.02em}
+.preview-trust-badge svg{width:20px;height:20px;stroke:#1D9E75;stroke-width:1.5;fill:none;flex-shrink:0}
+@media(max-width:767px){
+  .results-hero{min-height:196px;margin:0 0 24px;padding:34px 18px;background-position:center center}
+  .rh-title{font-size:36px}
+  .btn-unlock{width:100%;padding:18px 24px;justify-content:center}
+  .preview-trust-strip{gap:20px;padding:16px}
+  .preview-trust-badge{width:calc(50% - 10px);justify-content:flex-start}
+}
 </style>
 </head>
 <body>
@@ -714,9 +735,17 @@ html,body{max-width:100%;overflow-x:hidden}
       </div>
     </div>
 
+    <div class="preview-trust-strip" aria-label="Why patients choose United Patient Advocate">
+      <span class="preview-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v6c0 4.8 2.9 8.2 7 9 4.1-.8 7-4.2 7-9V6l-7-3Z"/></svg>Flat Fee. No Surprises.</span>
+      <span class="preview-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Review Ready in Minutes</span>
+      <span class="preview-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Your Data Stays Yours</span>
+      <span class="preview-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>7-Day Satisfaction Guarantee</span>
+    </div>
+
     <!-- Legal -->
     <div class="legal-footer">
-      <div class="legal-txt">United Patient Advocate is an independent medical billing review and dispute documentation preparation service. Potential review areas flagged during the review process are informational and are not professional legal, medical, insurance, or financial services. Dispute outcomes vary based on provider policies, insurer determinations, and individual circumstances. Due to the personalized nature of the review materials, guidance tools, and document preparation services provided through UPA, refunds are not provided once access has been granted. United Patient Advocate is not a law firm and does not provide legal representation.</div>
+      <div class="legal-txt">United Patient Advocate is an independent medical billing review and dispute documentation preparation service. Potential review areas flagged during the review process are informational and are not professional legal, medical, insurance, or financial services. Dispute outcomes vary based on provider policies, insurer determinations, and individual circumstances. A 7-day satisfaction guarantee applies as described in the Refund Policy. United Patient Advocate is not a law firm and does not provide legal representation.</div>
+      <nav aria-label="Legal links" style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px;font-size:.55rem;color:rgba(235,244,255,.42)"><span>United Patient Advocate&trade;</span><span>&middot;</span><a href="terms.html" style="color:inherit;text-decoration:none">Terms</a><span>&middot;</span><a href="refund-policy.html" style="color:inherit;text-decoration:none">Refund Policy</a><span>&middot;</span><a href="mailto:support@unitedpatientadvocate.com" style="color:inherit;text-decoration:none">Contact</a></nav>
     </div>
 
   </div>

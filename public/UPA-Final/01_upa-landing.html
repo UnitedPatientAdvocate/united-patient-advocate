@@ -642,6 +642,42 @@ html,body{max-width:100%;overflow-x:hidden}
 .nav-btns{padding:14px 20px 22px}
 }
 @media(max-width:760px){.hero-trust-row{gap:10px;flex-direction:column}.social-proof-section,.faq-section{padding:44px 18px}.social-proof-title,.faq-title{font-size:1.65rem}.social-proof-grid{grid-template-columns:1fr}.pricing-grid,.value-stack-list{grid-template-columns:1fr}.preview-pricing-grid{grid-template-columns:1fr}}
+
+/* Premium visual system */
+.hero{min-height:600px;display:flex;flex-direction:column;align-items:center;justify-content:center;background-image:url("../images/hero-stress.jpg");background-size:cover;background-position:center top;padding:88px 40px 72px}
+.hero::before{background:linear-gradient(135deg,rgba(13,27,42,.85) 0%,rgba(22,32,51,.75) 50%,rgba(13,27,42,.65) 100%);z-index:0}
+.hero>*{position:relative;z-index:2}
+.hero .phase4-hero-hl{font-family:"Playfair Display",Georgia,serif;font-size:52px;font-weight:700;line-height:1.15;letter-spacing:-.02em;color:#fff;text-shadow:0 3px 24px rgba(0,0,0,.35)}
+.hero .phase4-hero-hl em{color:#fff}
+.hero .phase4-hero-sub{font-family:"DM Sans",system-ui,sans-serif;font-size:18px;font-weight:400;line-height:1.7;color:rgba(255,255,255,.75)}
+.hero-price{color:#fff}
+.hero-savings-line{color:#7BE5C1}
+.hero-urgency,.hero-trust-row,.hero-cta-secondary,.hero-microcopy{color:rgba(255,255,255,.75)}
+.hero-microcopy svg{stroke:rgba(255,255,255,.75)}
+.hero-cta,.tier-btn,.btn-primary,.comp-cta-box a{background:#1D9E75;color:#fff;padding:18px 40px;border-radius:10px;font-family:"DM Sans",system-ui,sans-serif;font-size:17px;font-weight:600;letter-spacing:.01em;box-shadow:0 4px 20px rgba(29,158,117,.35);border:none;cursor:pointer;transition:all .2s ease}
+.hero-cta:hover,.tier-btn:hover,.btn-primary:hover,.comp-cta-box a:hover{background:#178a65;box-shadow:0 6px 28px rgba(29,158,117,.5);transform:translateY(-1px)}
+.premium-trust-strip{background:rgba(29,158,117,.06);border-top:1px solid rgba(29,158,117,.12);border-bottom:1px solid rgba(29,158,117,.12);padding:16px 24px;display:flex;justify-content:center;gap:40px;flex-wrap:wrap}
+.premium-trust-badge{display:inline-flex;align-items:center;gap:9px;color:#162033;font-family:"DM Sans",system-ui,sans-serif;font-size:13px;font-weight:500;letter-spacing:.02em}
+.premium-trust-badge svg{width:20px;height:20px;stroke:#1D9E75;stroke-width:1.5;fill:none;flex-shrink:0}
+.stats-bar-section{background:#162033;padding:32px 24px;border-top:1px solid rgba(255,255,255,.06)}
+.stats-number{font-family:"Playfair Display",Georgia,serif;font-size:36px;font-weight:700;color:#1D9E75}
+.stats-label{font-family:"DM Sans",system-ui,sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,.60);text-transform:uppercase;letter-spacing:.06em}
+.tier-card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04)}
+.tier-card.featured{border:2px solid #1D9E75;border-radius:16px;box-shadow:0 8px 40px rgba(29,158,117,.2);transform:scale(1.03);overflow:hidden}
+.tier-card.featured::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:#1D9E75;border-radius:16px 16px 0 0}
+.tier-price{font-family:"Playfair Display",Georgia,serif;font-size:48px;font-weight:700;color:#162033}
+.section-hl,.pricing-title,.value-stack-title,.social-proof-title,.faq-title{font-family:"Playfair Display",Georgia,serif;font-size:38px;font-weight:700;line-height:1.2;color:#162033;text-align:center;margin-bottom:12px}
+.section-hl::after,.pricing-title::after,.value-stack-title::after,.social-proof-title::after,.faq-title::after{content:"";display:block;width:40px;height:3px;background:#1D9E75;border-radius:2px;margin:12px auto 32px}
+@media(max-width:767px){
+  .hero{min-height:420px;background-position:center center;padding:54px 18px 46px}
+  .hero .phase4-hero-hl{font-size:36px}
+  .section-hl,.pricing-title,.value-stack-title,.social-proof-title,.faq-title{font-size:26px}
+  .premium-trust-strip{gap:20px;padding:16px}
+  .premium-trust-badge{width:calc(50% - 10px);justify-content:flex-start}
+  .hero-cta,.tier-btn,.btn-primary,.comp-cta-box a{width:100%;padding:18px 24px;justify-content:center}
+  .pricing-grid{grid-template-columns:1fr}
+  .tier-card.featured{transform:none;border:2px solid #1D9E75}
+}
 </style>
 </head>
 <body>
@@ -716,6 +752,13 @@ html,body{max-width:100%;overflow-x:hidden}
       </g>
     </svg>
   </div>
+</div>
+
+<div class="premium-trust-strip" aria-label="Why patients choose United Patient Advocate">
+  <span class="premium-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v6c0 4.8 2.9 8.2 7 9 4.1-.8 7-4.2 7-9V6l-7-3Z"/></svg>Flat Fee. No Surprises.</span>
+  <span class="premium-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Review Ready in Minutes</span>
+  <span class="premium-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Your Data Stays Yours</span>
+  <span class="premium-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>7-Day Satisfaction Guarantee</span>
 </div>
 
 <!-- SOCIAL PROOF NUMBERS -->
@@ -1373,6 +1416,7 @@ html,body{max-width:100%;overflow-x:hidden}
     </div>
     <div class="footer-disc">United Patient Advocate is an independent medical billing review and dispute preparation service. We provide educational billing analysis, Medicare benchmark comparisons, coding review references, and consumer dispute documentation tools. Results vary based on provider policies, insurer determinations, and individual circumstances. Nothing on this site provides professional legal, medical, or financial services. Institutions referenced — including Harvard Medical School, Johns Hopkins Medicine, The Commonwealth Fund, CMS, CFPB, AARP, UnitedHealthcare, Aetna, Cigna, Blue Cross Blue Shield, and Humana — are cited solely for informational and research reference purposes. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any referenced institution. 7-Day Satisfaction Guarantee — if you're not satisfied with your review within 7 days, we'll make it right.</div>
     <div class="footer-copy">2026 United Patient Advocate — unitedpatientadvocate.com</div>
+    <nav aria-label="Legal links" style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:.55rem;color:var(--ink-4)"><span>United Patient Advocate&trade;</span><span>&middot;</span><a href="terms.html" style="color:inherit;text-decoration:none">Terms</a><span>&middot;</span><a href="refund-policy.html" style="color:inherit;text-decoration:none">Refund Policy</a><span>&middot;</span><a href="mailto:support@unitedpatientadvocate.com" style="color:inherit;text-decoration:none">Contact</a></nav>
   </div>
 </div>
 

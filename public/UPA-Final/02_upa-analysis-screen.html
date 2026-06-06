@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>United Patient Advocate — Reviewing Your Bill</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#1C2B48;--navy-deep:#0E1828;--green:#1EB87A;--green-dk:#158A5C;
+  --navy:#1C2B48;--navy-deep:#0E1828;--green:#1D9E75;--green-dk:#178A65;
   --gold:#C9A84C;--gold-dk:#A8881A;--crimson:#E03B3B;--cobalt:#3B6EE0;
   --on-dark:rgba(235,244,255,.94);--on-dark-2:rgba(235,244,255,.58);
   --on-dark-3:rgba(235,244,255,.30);--on-dark-4:rgba(235,244,255,.14);
   --serif:'Playfair Display',Georgia,serif;
-  --sans:'Plus Jakarta Sans',system-ui,sans-serif;
+  --sans:'DM Sans',system-ui,sans-serif;
   --mono:'DM Mono',monospace;
   --ease:cubic-bezier(0.22,1,0.36,1);
   --pop:cubic-bezier(.16,1,.3,1);
@@ -60,7 +60,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);-webkit-font-smoot
   background:linear-gradient(160deg,rgba(255,255,255,.044),rgba(255,255,255,.020));
   border:1px solid rgba(255,255,255,.10);border-radius:16px;
   backdrop-filter:blur(28px) saturate(1.4);
-  box-shadow:0 0 0 1px rgba(255,255,255,.05),0 4px 12px rgba(0,0,0,.25),0 20px 60px rgba(0,0,0,.36),0 50px 120px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08);
+  box-shadow:0 8px 40px rgba(0,0,0,.4),0 2px 8px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.08);
   overflow:hidden;animation:card-rise 1.0s var(--pop) both}
 @keyframes card-rise{0%{opacity:0;transform:translateY(32px) scale(.95);filter:blur(4px)}60%{filter:blur(0)}100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;z-index:2;
@@ -579,5 +579,6 @@ function reveal(){
 
 window.addEventListener('load',function(){setTimeout(run,800);});
 </script>
+<footer aria-label="Legal links" style="position:fixed;left:0;right:0;bottom:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:7px 12px;background:rgba(14,24,40,.90);border-top:1px solid rgba(255,255,255,.07);color:rgba(235,244,255,.40);font-family:'DM Sans',system-ui,sans-serif;font-size:.6rem;backdrop-filter:blur(10px)"><span>United Patient Advocate&trade;</span><span>&middot;</span><a href="terms.html" style="color:inherit;text-decoration:none">Terms</a><span>&middot;</span><a href="refund-policy.html" style="color:inherit;text-decoration:none">Refund Policy</a><span>&middot;</span><a href="mailto:support@unitedpatientadvocate.com" style="color:inherit;text-decoration:none">Contact</a></footer>
 </body>
 </html>

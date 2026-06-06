@@ -1053,5 +1053,54 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 <script src="/UPA-Final/upa-state-persistence.js"></script>
 <script src="/UPA-Final/upa-download-packet.js"></script>
 <script src="/UPA-Final/upa-case-personalization.js"></script>
+<script>
+(function(){
+  function hydratePacketPlaceholders(){
+    const s = k => sessionStorage.getItem(k) || localStorage.getItem(k) || '';
+    var patientName = s('patientName') || 'patient';
+    var providerName = s('providerName') || 'provider on statement';
+    var dateOfService = s('dateOfService') || 'date on statement';
+    var totalBilled = s('totalBilled') || 'amount on statement';
+    var referenceNumber = s('referenceNumber') || 'on file';
+    document.querySelectorAll('.lhd-name,.lbs-name').forEach(function(el){
+      var text = (el.textContent || '').trim();
+      if(text === 'Patient' || text === 'Patient Name Not Provided') el.textContent = patientName;
+    });
+    var replacements = [
+      ['Patient Name Not Provided', patientName],
+      ['Service date on statement', dateOfService],
+      ['date of service', dateOfService],
+      ['Date of Service', 'Date of Service'],
+      ['Amount to review', totalBilled],
+      ['Bill amount', totalBilled],
+      ['St Johns', providerName],
+      ['St. Johns', providerName],
+      ['Your Provider', providerName],
+      ['Account number on statement', referenceNumber],
+      ['Account: account number', 'Account: ' + referenceNumber],
+      ['Account number', referenceNumber],
+      ['account number', referenceNumber]
+    ];
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: function(node){
+        var parent = node.parentElement;
+        if(!parent || /^(SCRIPT|STYLE)$/i.test(parent.tagName)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var nodes = [];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function(node){
+      var text = node.nodeValue;
+      replacements.forEach(function(pair){
+        if(pair[1]) text = text.split(pair[0]).join(pair[1]);
+      });
+      node.nodeValue = text;
+    });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hydratePacketPlaceholders);
+  else hydratePacketPlaceholders();
+})();
+</script>
 </body>
 </html>

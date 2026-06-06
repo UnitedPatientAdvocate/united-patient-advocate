@@ -115,7 +115,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--navy-deep);color:
       <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
     </div>
 
-    <a href="/dashboard?unlock=1" class="btn-open" id="open-btn">
+    <a href="/dashboard" class="btn-open" id="open-btn">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
       Open My Review
     </a>
@@ -135,10 +135,10 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 // The "Resume Your Review" re-entry form has been removed entirely.
 // Strategy:
 //   1. Try URL token (cross-context safe, 48-hour freshness guard).
-//   2. Check for recent same-browser checkout (< 48 h) for markPaid() gating.
+//   2. Check for recent same-browser checkout (< 48 h) for diagnostics only.
 //   3. ALWAYS call restoreSession() for reading — even for email-link returns
 //      where the checkout is days old. We gate markPaid() (which WRITES) on
-//      freshness, but reading/displaying existing localStorage data is safe.
+//      the exact paid-access token, but reading/displaying existing data is safe.
 //   4. After restore, check if any valid intake exists (no freshness gate).
 //   5. If case data found → auto-redirect to dashboard.
 //      If no case data at all → redirect to intake start (not a re-entry form).
@@ -146,9 +146,12 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 var tokenRestored = false;
 var hasRecentCheckout = false;
 var hasCaseData = false;
+var PAID_ACCESS_TOKEN = 'upa_8f3kd92nd_paid';
+var hasPaidAccessToken = false;
+var hasExistingPaidState = false;
 // P0 FIX: capture the compact ?r= recovery param so it can be FORWARDED
 // to /dashboard. Previously the success page consumed the param into
-// localStorage and then redirected to a bare /dashboard?unlock=1 URL.
+// localStorage and then redirected to a bare dashboard URL.
 // When iOS Mail opens the email link in a fresh Safari tab, localStorage
 // is empty, so the param dying here = no recovery possible. We now
 // preserve it through every redirect.
@@ -157,6 +160,18 @@ var recoveryParam = '';
 (function() {
   try {
     var params = new URLSearchParams(window.location.search);
+    hasPaidAccessToken = params.get('access') === PAID_ACCESS_TOKEN;
+    try {
+      var activeRaw = localStorage.getItem('upa.active.case.v1') || sessionStorage.getItem('upa.active.case.v1') || '';
+      var active = activeRaw ? JSON.parse(activeRaw) : null;
+      var paidRaw = localStorage.getItem('upa.paid.results.v2') || sessionStorage.getItem('upa.paid.results.v2') || '';
+      var paid = paidRaw ? JSON.parse(paidRaw) : null;
+      hasExistingPaidState =
+        localStorage.getItem('upa.paid') === '1' ||
+        sessionStorage.getItem('upa.paid') === '1' ||
+        !!(active && (active.paid || (active.session && active.session.paid))) ||
+        !!(paid && (paid.paid || (paid.session && paid.session.paid)));
+    } catch(e) {}
     var licenseKey = params.get('license_key') || params.get('key') || params.get('token') || '';
     if (licenseKey) {
       sessionStorage.setItem('upa.license.key', licenseKey);
@@ -181,12 +196,12 @@ var recoveryParam = '';
     // STEP 1: URL token restore — 48-hour freshness guard baked into restoreFromUrl().
     // This is the only path that works cross-context (Incognito purchase → regular
     // Chrome email link) because the token travels in the Gumroad redirect URL.
-    if (window.UPAState && window.UPAState.restoreFromUrl) {
+    if ((hasPaidAccessToken || hasExistingPaidState) && window.UPAState && window.UPAState.restoreFromUrl) {
       tokenRestored = !!window.UPAState.restoreFromUrl({ stage: 'success-token-restore', source: 'success-url' });
     }
 
     // STEP 2: Check for a recent same-browser checkout (< 48 h).
-    // Used ONLY to gate markPaid() below — NOT to gate session reading.
+    // Used for diagnostics only — NOT as proof of payment.
     if (!tokenRestored) {
       try {
         var co = window.UPAState && window.UPAState.readJSON
@@ -206,26 +221,26 @@ var recoveryParam = '';
     // token and a stale checkout timestamp, but their intake IS in localStorage on
     // this device. Without this call, getIntake() returns {} and we'd show a blank
     // dashboard. Reading existing localStorage data is always safe; the freshness
-    // guard only protects markPaid() (which WRITES back to all keys).
+    // paid-access token protects markPaid() (which WRITES back to all keys).
     if (window.UPAState && window.UPAState.restoreSession) {
       window.UPAState.restoreSession({ stage: 'success-storage-restore', source: 'success-page' });
     }
 
-    // STEP 4: markPaid() ONLY when the session is verified.
-    // Without token or recent checkout, calling markPaid() would re-stamp whatever
-    // happens to be in localStorage (potentially stale data from a different patient)
-    // back into every key — the root of the "Trinidad bug" in prior sessions.
-    if ((tokenRestored || hasRecentCheckout) && window.UPAState && window.UPAState.markPaid) {
+    // STEP 4: only the exact paid-access token may establish new paid state.
+    // Recovery data and a recent checkout are not proof of payment.
+    if (hasPaidAccessToken && window.UPAState && window.UPAState.markPaid) {
       window.UPAState.markPaid({
         stage: 'success',
-        source: tokenRestored ? 'gumroad-return-token' : 'gumroad-return',
+        source: 'paid-access-token',
         licenseKey: licenseKey
       });
     }
 
-    // Always set the paid flag — dashboard personalization reads this.
-    sessionStorage.setItem('upa.paid', '1');
-    localStorage.setItem('upa.paid', '1');
+    // Preserve returning paid users, but never create paid state on direct access.
+    if (hasPaidAccessToken || hasExistingPaidState) {
+      sessionStorage.setItem('upa.paid', '1');
+      localStorage.setItem('upa.paid', '1');
+    }
 
     // STEP 5: Determine if any valid case data exists (no freshness gate).
     // If localStorage is populated with this patient's intake, trust it.
@@ -241,8 +256,9 @@ var recoveryParam = '';
 // cross-context email-link recovery impossible. Single helper used by both
 // the auto-redirect setTimeout AND the explicit "Open My Review" button.
 function dashboardUrl() {
-  var base = '/dashboard?unlock=1';
-  if (recoveryParam) base += '&r=' + encodeURIComponent(recoveryParam);
+  var base = '/dashboard';
+  if (hasPaidAccessToken) base += '?access=' + encodeURIComponent(PAID_ACCESS_TOKEN);
+  if (recoveryParam) base += (base.indexOf('?') >= 0 ? '&' : '?') + 'r=' + encodeURIComponent(recoveryParam);
   return base;
 }
 
@@ -299,5 +315,6 @@ window.addEventListener('load', function() {
   setTimeout(function() { window.location.href = dashboardUrl(); }, 3500);
 });
 </script>
+<footer aria-label="Legal links" style="position:fixed;left:0;right:0;bottom:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:7px 12px;background:rgba(14,24,40,.90);border-top:1px solid rgba(255,255,255,.07);color:rgba(235,244,255,.40);font-family:'DM Sans',system-ui,sans-serif;font-size:.6rem;backdrop-filter:blur(10px)"><span>United Patient Advocate&trade;</span><span>&middot;</span><a href="terms.html" style="color:inherit;text-decoration:none">Terms</a><span>&middot;</span><a href="refund-policy.html" style="color:inherit;text-decoration:none">Refund Policy</a><span>&middot;</span><a href="mailto:support@unitedpatientadvocate.com" style="color:inherit;text-decoration:none">Contact</a></footer>
 </body>
 </html>

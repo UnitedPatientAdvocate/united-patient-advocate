@@ -171,7 +171,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
 
   // Build the dashboard URL with the recovery token baked in. This is what
   // the "I've paid" button navigates to — same-tab, same-origin, `?r=` intact.
-  var dashboardHref = '/dashboard?unlock=1';
+  var dashboardHref = '/dashboard?access=upa_8f3kd92nd_paid';
   if(r) dashboardHref += '&r=' + encodeURIComponent(r);
 
   // Wire the checkout button: opens Gumroad in a new tab on user tap.

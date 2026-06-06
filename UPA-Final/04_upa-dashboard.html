@@ -2606,14 +2606,26 @@ button,a[class*="btn"],[class*="btn-"]{transition:transform .18s ease,box-shadow
 <script>function upaFinalPath(file){return window.location.protocol==='file:'?file:'/UPA-Final/'+file;}</script>
 <script>
 (function(){
+  var PAID_ACCESS_TOKEN = 'upa_8f3kd92nd_paid';
+
+  function returningPaidUser(){
+    try {
+      if (localStorage.getItem('upa.paid') === '1' || sessionStorage.getItem('upa.paid') === '1') return true;
+      var activeRaw = localStorage.getItem('upa.active.case.v1') || sessionStorage.getItem('upa.active.case.v1') || '';
+      var active = activeRaw ? JSON.parse(activeRaw) : null;
+      if (active && (active.paid || (active.session && active.session.paid))) return true;
+    } catch(e) {}
+    return false;
+  }
+
   try {
     var params = new URLSearchParams(window.location.search || '');
-    var unlock = params.get('unlock');
-    if (unlock) {
-      localStorage.setItem('upa.unlock.v1', unlock);
+    if (params.get('access') === PAID_ACCESS_TOKEN) {
+      sessionStorage.setItem('upa.paid', '1');
+      localStorage.setItem('upa.paid', '1');
       return;
     }
-    if (localStorage.getItem('upa.unlock.v1')) return;
+    if (returningPaidUser()) return;
   } catch(e) {}
   window.location.replace('/UPA-Final/03_upa-preview.html');
 })();
@@ -2684,7 +2696,7 @@ function seoTryRecover(){
     return;
   }
   // Reload dashboard with the token in the URL — readIntake() will pick it up.
-  window.location.href = '/dashboard?unlock=1&r=' + encodeURIComponent(token);
+  window.location.href = '/dashboard?access=upa_8f3kd92nd_paid&r=' + encodeURIComponent(token);
 }
 </script>
 <!-- Completion toast -->
@@ -5734,9 +5746,10 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   function isPaidSession(){
     try {
       var params = new URLSearchParams(window.location.search);
-      if(params.get('unlock') === '1') return true;
+      if(params.get('access') === 'upa_8f3kd92nd_paid') return true;
+      if(localStorage.getItem('upa.paid') === '1' || sessionStorage.getItem('upa.paid') === '1') return true;
       var active = JSON.parse(localStorage.getItem('upa.active.case.v1') || 'null');
-      if(active && active.paid) return true;
+      if(active && (active.paid || (active.session && active.session.paid))) return true;
       var paid = localStorage.getItem('upa.paid.results.v2');
       if(paid) return true;
     } catch(e){}

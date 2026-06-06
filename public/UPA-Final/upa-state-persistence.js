@@ -14,6 +14,8 @@
   var MAX_TOKEN_LENGTH = 6000;
   var MAX_CASE_PARAM_LENGTH = 1200;
   var MAX_CHECKOUT_URL_LENGTH = 1800;
+  var PAID_ACCESS_PARAM = 'access';
+  var PAID_ACCESS_TOKEN = 'upa_8f3kd92nd_paid';
   var ATTRIBUTION_KEY = 'upa.attribution.v1';
   var ATTRIBUTION_EVENTS_KEY = 'upa.attribution.events.v1';
   var VISITOR_KEY = 'upa.visitor.id.v1';
@@ -22,6 +24,15 @@
 
   function now(){
     return new Date().toISOString();
+  }
+
+  function hasPaidAccessToken(search){
+    try{
+      var params = new URLSearchParams(typeof search === 'string' ? search : (window.location.search || ''));
+      return params.get(PAID_ACCESS_PARAM) === PAID_ACCESS_TOKEN;
+    }catch(e){
+      return false;
+    }
   }
 
   function readJSON(key){
@@ -1400,7 +1411,7 @@
         var active = activeEnvelope();
         var caseId = active && (active.caseId || caseIdFromIntake(active.intake || {})) || '';
         var hasCase = !!(active && active.intake && hasIntake(active.intake));
-        var paidVisit = /[?&]unlock=1/.test(window.location.search || '') ||
+        var paidVisit = hasPaidAccessToken(window.location.search || '') ||
           localStorage.getItem('upa.paid') === '1' ||
           !!(active && (active.paid || (active.session && active.session.paid)));
         var tourKey = 'upa_tour_paid_case_' + (caseId || 'unknown');
@@ -1446,6 +1457,7 @@
     checkoutBridgeUrl:checkoutBridgeUrl,
     markCheckout:markCheckout,
     markPaid:markPaid,
+    hasPaidAccessToken:hasPaidAccessToken,
     attribution:captureAttribution,
     attributedUrl:attributedUrl,
     track:track

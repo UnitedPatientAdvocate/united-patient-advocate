@@ -14,9 +14,20 @@
   var MAX_TOKEN_LENGTH = 6000;
   var MAX_CASE_PARAM_LENGTH = 1200;
   var MAX_CHECKOUT_URL_LENGTH = 1800;
+  var PAID_ACCESS_PARAM = 'access';
+  var PAID_ACCESS_TOKEN = 'upa_8f3kd92nd_paid';
 
   function now(){
     return new Date().toISOString();
+  }
+
+  function hasPaidAccessToken(search){
+    try{
+      var params = new URLSearchParams(typeof search === 'string' ? search : (window.location.search || ''));
+      return params.get(PAID_ACCESS_PARAM) === PAID_ACCESS_TOKEN;
+    }catch(e){
+      return false;
+    }
   }
 
   function readJSON(key){
@@ -1091,7 +1102,8 @@
     checkoutUrlWithToken:checkoutUrlWithToken,
     checkoutBridgeUrl:checkoutBridgeUrl,
     markCheckout:markCheckout,
-    markPaid:markPaid
+    markPaid:markPaid,
+    hasPaidAccessToken:hasPaidAccessToken
   };
 
   restoreSession({ stage:'script-load' });

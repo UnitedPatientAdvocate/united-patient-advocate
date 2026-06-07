@@ -23,16 +23,27 @@ const REVIEW_REASONING_RULES = `Review method:
 
 const PROMPT_CONFIGS = {
   free_preview: {
-    maxTokens: 700,
-    buildPrompt: intake => `Return ONLY compact valid JSON for a FREE medical-bill preview. No markdown. No raw newlines inside strings. Keep all text short.
+    maxTokens: 2500,
+    buildPrompt: intake => `Return ONLY compact valid JSON for a FREE medical-bill preview. No markdown. No raw newlines inside strings. Keep the response concise but specific.
 
 Rules:
 - Careful consumer-guidance language only.
 - Do not accuse anyone or promise savings/outcomes.
-- Do not provide full scripts, letters, or tactics.
-- Output under 220 words total.
-- Extract lineItems only when both a code and billed amount are visible in the bill text. Each line item must contain only code, shortDescription, and billedAmount. Do not include rates, Medicare rates, benchmark rates, percentages, sources, or guessed amounts.
+- Do not provide full scripts, letters, tactics, legal advice, or medical advice.
+- Do not use the words "overcharged" or "recover".
+- Output only what is supported by the submitted text.
 - If RAW BILL TEXT is provided below, use the actual charges, CPT codes, amounts, and line items from it to make findings specific and real, not generic.
+- Detect and flag duplicate codes, quantity or unit anomalies, EOB vs itemized mismatches, CLFS lab markup only for matching lab codes, and out-of-network / balance exposure issues when the text supports them.
+- No savings promises, no guaranteed corrections, no legal conclusions.
+
+GOOD headline examples:
+- "A few bill details deserve a closer look"
+- "Your bill has some specific review points"
+
+BAD headline examples:
+- "You were definitely overcharged"
+- "We can recover your money fast"
+- "Guaranteed savings"
 
 ${REVIEW_REASONING_RULES}
 
@@ -48,11 +59,17 @@ JSON schema:
     "errorsFound": ["One cautious teaser finding referencing specific charges/codes from the bill if available"],
     "keyFindings": "Two concise sentences referencing specifics from the actual bill."
   },
+  "findings": [
+    {
+      "headline": "Short headline",
+      "teaser": "One visible personalized teaser finding referencing the actual bill details.",
+      "fullExplanation": "",
+      "preparedRequest": "",
+      "lineItem": "Code, description, date, page reference, or total"
+    }
+  ],
   "lineItems": [
     {"code":"HCPCS/CPT code exactly as printed, including modifier suffix only if printed","shortDescription":"Short service label from the bill text","billedAmount":123.45}
-  ],
-  "findings": [
-    {"title":"Cautious finding title","oneLineExplanation":"One short possible or flagged-for-review explanation","lineItem":"Code, description, date, page reference, or total"}
   ],
   "preview": {
     "screeningHeadline": "Short headline",

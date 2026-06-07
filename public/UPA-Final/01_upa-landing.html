@@ -67,7 +67,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 600px 300px at 50% 0%,rgba(30,107,90,.06) 0%,transparent 60%);pointer-events:none}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--teal);background:rgba(30,107,90,.07);border:1px solid rgba(30,107,90,.18);border-radius:100px;padding:5px 14px;margin-bottom:22px}
 .hero-eyebrow::before{content:"•";color:var(--teal)}
-.hero-hl{font-family:var(--serif);font-size:3.25rem;font-weight:700;color:var(--navy);letter-spacing:-.035em;line-height:1.12;margin-bottom:14px;position:relative;z-index:1}
+.hero-hl{font-family:var(--serif);font-size:3.05rem;font-weight:700;color:var(--navy);letter-spacing:-.035em;line-height:1.08;margin-bottom:14px;position:relative;z-index:1;max-width:11ch}
 .hero-hl em{font-style:italic;color:var(--teal)}
 .hero-sub{font-size:1rem;color:var(--ink-3);line-height:1.75;max-width:520px;margin:0 auto 32px;position:relative;z-index:1}
 .hero-cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-size:.9375rem;font-weight:700;color:white;background:var(--teal);padding:15px 32px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .22s var(--ease);box-shadow:0 4px 20px rgba(30,107,90,.35),0 8px 40px rgba(30,107,90,.15);position:relative;z-index:1}
@@ -538,7 +538,7 @@ html,body{max-width:100%;overflow-x:hidden}
 .banner{padding:9px 14px;font-size:.6875rem}
 .hero,.section,.data-section,.quick-q,.examine-section,.steps-section,.comparison-section,.findings-section,.scenarios-section,.expect-section,.editorial-section,.intake-section{padding-left:20px;padding-right:20px}
 .hero{padding-top:64px}
-.hero-hl{font-size:2.35rem}
+.hero-hl{font-size:2.12rem;max-width:12ch}
 .hero-microcopy,.hero-stats{max-width:100%}
 .hero-stats{grid-template-columns:1fr}
 .hero-stat{border-right:none;border-bottom:1px solid var(--bdr)}
@@ -597,7 +597,7 @@ html,body{max-width:100%;overflow-x:hidden}
 <body>
 
 <!-- ANNOUNCEMENT BANNER -->
-<div class="banner">🔥 <strong>$668 worth of tools — yours for $97.</strong> Dispute letter + appeal template + call script + CPT guide + action plan. Launch price only.</div>
+<div class="banner">🔥 <strong></strong> Dispute letter + appeal template + call script + CPT guide + action plan. Launch price only.</div>
 
 <!-- NAV -->
 <div class="nav">
@@ -631,7 +631,7 @@ html,body{max-width:100%;overflow-x:hidden}
     <div class="hero-stat"><div class="hs-val">$88B</div><div class="hs-label">in billing errors on U.S. credit reports</div><div class="hs-source">CFPB · 2025</div></div>
     <div class="hero-stat"><div class="hs-val">45%</div><div class="hs-label">of insured patients reported unexpected bills</div><div class="hs-source">Commonwealth Fund · 2024</div></div>
     <div class="hero-stat"><div class="hs-val">&lt;30s</div><div class="hs-label">to scan your bill and identify findings</div><div class="hs-source">United Patient Advocate</div></div>
-    <div class="hero-stat"><div class="hs-val">$668 → $97</div><div class="hs-label">Launch Price</div><div class="hs-source">Limited-time offer</div></div>
+    <div class="hero-stat"><div class="hs-val"></div><div class="hs-label"></div><div class="hs-source"></div></div>
   </div>
   <div style="max-width:1120px;margin:34px auto 0;padding:0 6px;border-radius:22px;overflow:hidden;box-shadow:0 14px 46px rgba(28,43,72,.14);border:1px solid rgba(28,43,72,.08)">
     <svg viewBox="0 0 1600 700" role="img" aria-label="Complete Bill Defense Toolkit — a five-step system: See what's wrong, Take action, Stay on track, Fast start, Workspace" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">
@@ -642,7 +642,7 @@ html,body{max-width:100%;overflow-x:hidden}
       <rect width="1600" height="700" fill="url(#lhbg)"/>
       <g filter="url(#lhsh)"><rect x="400" y="60" width="800" height="316" rx="30" fill="#1C2B48"/></g>
       <rect x="440" y="100" width="720" height="236" rx="24" fill="none" stroke="#C9A84C" stroke-opacity=".38"/>
-      <text x="800" y="174" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="18" font-weight="700" fill="#C9A84C" letter-spacing="4">RN-LED · PLAIN ENGLISH · READY TODAY</text>
+      <text x="800" y="174" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="18" font-weight="700" fill="#C9A84C" letter-spacing="4">PLAIN ENGLISH · READY TODAY</text>
       <text x="800" y="244" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="50" font-weight="700" fill="#FFFFFF">Complete Bill</text>
       <text x="800" y="302" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="50" font-weight="700" fill="#FFFFFF">Defense Toolkit</text>
       <text x="800" y="348" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="19" fill="#9FB3CC">See what's wrong · Take action · Stay on track</text>
@@ -667,7 +667,7 @@ html,body{max-width:100%;overflow-x:hidden}
       <text x="70" y="74" font-family="Georgia, 'Times New Roman', serif" font-size="36" font-weight="700" fill="#1C2B48">What You Get Today</text>
       <text x="70" y="112" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="17" fill="#4A6480">Ten tools, organized into one calm system — every one personalized to your case.</text>
       <rect x="1060" y="46" width="270" height="40" rx="20" fill="#C9A84C" fill-opacity=".14" stroke="#C9A84C" stroke-opacity=".42"/>
-      <text x="1195" y="72" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="14" font-weight="700" fill="#9A7B25">$668 VALUE · $97 TODAY</text>
+      <text x="1195" y="72" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="14" font-weight="700" fill="#9A7B25"></text>
       <g font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
         <!-- Card 1: See What's Wrong -->
         <g filter="url(#gsh)"><rect x="70" y="160" width="400" height="380" rx="20" fill="#FFFFFF" stroke="#D8E0EC"/></g>
@@ -726,466 +726,9 @@ html,body{max-width:100%;overflow-x:hidden}
     <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">
       <span style="padding:7px 11px;border-radius:999px;background:#F7F9FC;border:1px solid rgba(28,43,72,.10);font-size:.75rem;line-height:1.2;color:#2E4060;font-weight:600">✓ Independent billing review documentation</span>
       <span style="padding:7px 11px;border-radius:999px;background:#F7F9FC;border:1px solid rgba(28,43,72,.10);font-size:.75rem;line-height:1.2;color:#2E4060;font-weight:600">✓ Based on public CMS / Medicare / EOB references</span>
-      <span style="padding:7px 11px;border-radius:999px;background:#F7F9FC;border:1px solid rgba(28,43,72,.10);font-size:.75rem;line-height:1.2;color:#2E4060;font-weight:600">✓ Built by an RN with healthcare experience</span>
     </div>
   </div>
 </div>
-
-<!-- ═══════════════════════════════════
-     INTAKE SECTION — NEW PREMIUM FORM
-     replaces old "Upload Bill / Take Photo / Type it In"
-═══════════════════════════════════ -->
-<div class="intake-section" id="begin-review">
-  <div class="is-vignette"></div>
-  <div class="is-orb is-orb1"></div>
-  <div class="is-orb is-orb2"></div>
-  <div class="is-orb is-orb3"></div>
-
-  <div class="intake-section-inner">
-    <!-- Header -->
-    <div class="is-header">
-      <span class="is-label">Your Next Step</span>
-      <div class="is-hl">Every patient has the right<br>to <span>review their bill.</span></div>
-      <div class="is-sub">Medical bills in the United States may include coding inconsistencies, billing issue charges, or amounts that appear inconsistent with published Medicare benchmarks. We provide a structured, documented billing review to help you understand and respond to your charges.</div>
-    </div>
-
-    <!-- Step indicator -->
-    <div class="step-indicator">
-      <span class="si-label" id="si-label">Step 1 of 7</span>
-      <div class="si-dots" id="si-dots"></div>
-      <div class="si-bar-wrap"><div class="si-bar-fill" id="si-bar" style="width:14%"></div></div>
-    </div>
-
-    <!-- CARD with all 7 steps embedded -->
-    <!-- CARD -->
-    <div class="card">
-
-      <!-- ═══ STEP 1: BILL TYPE ═══ -->
-      <div class="step active" id="step-1">
-        <span class="step-icon">🏥</span>
-        <div class="step-label">Step 1 of 7</div>
-        <div class="step-title">What type of medical bill<br>are you reviewing?</div>
-        <div class="step-sub">Choose the option that best describes your situation. You can only have one bill type per review.</div>
-        <div class="opt-grid-2">
-          <button class="opt" data-val="hospital" onclick="selectOpt(this,'s1')">
-            <span class="opt-emoji">🏥</span>
-            <span class="opt-text"><span class="opt-name">Hospital Bill</span><span class="opt-desc">Inpatient stay, ER visit, or outpatient procedure</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt" data-val="er" onclick="selectOpt(this,'s1')">
-            <span class="opt-emoji">🚨</span>
-            <span class="opt-text"><span class="opt-name">Emergency Room</span><span class="opt-desc">ER visit billed separately from the hospital</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt" data-val="doctor" onclick="selectOpt(this,'s1')">
-            <span class="opt-emoji">👨‍⚕️</span>
-            <span class="opt-text"><span class="opt-name">Doctor's Office</span><span class="opt-desc">Primary care, specialist, or clinic visit</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt" data-val="lab" onclick="selectOpt(this,'s1')">
-            <span class="opt-emoji">🧪</span>
-            <span class="opt-text"><span class="opt-name">Lab or Diagnostic</span><span class="opt-desc">Blood work, imaging, X-ray, MRI, CT scan</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt" data-val="surgery" onclick="selectOpt(this,'s1')">
-            <span class="opt-emoji">🩺</span>
-            <span class="opt-text"><span class="opt-name">Surgery or Procedure</span><span class="opt-desc">Surgical center, outpatient or inpatient procedure</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt" data-val="ambulance" onclick="selectOpt(this,'s1')">
-            <span class="opt-emoji">🚑</span>
-            <span class="opt-text"><span class="opt-name">Ambulance</span><span class="opt-desc">Emergency or non-emergency medical transport</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt" data-val="mental" onclick="selectOpt(this,'s1')">
-            <span class="opt-emoji">🧠</span>
-            <span class="opt-text"><span class="opt-name">Mental Health</span><span class="opt-desc">Therapy, psychiatry, or behavioral health services</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt" data-val="pharmacy" onclick="selectOpt(this,'s1')">
-            <span class="opt-emoji">💊</span>
-            <span class="opt-text"><span class="opt-name">Pharmacy</span><span class="opt-desc">Prescription medication billing or co-pay dispute</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt" data-val="other" onclick="selectOpt(this,'s1')">
-            <span class="opt-emoji">+</span>
-            <span class="opt-text"><span class="opt-name">Other / Not Listed</span><span class="opt-desc">Type the bill type in your own words</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-        </div>
-        <div class="field-row full other-entry" id="s1-other-wrap">
-          <div class="field">
-            <label class="field-label">Other Bill Type</label>
-            <input type="text" id="s1-other-input" placeholder="Type the kind of medical bill" oninput="updateOther('s1')"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ STEP 2: INSURANCE ═══ -->
-      <div class="step" id="step-2">
-        <span class="step-icon">🛡️</span>
-        <div class="step-label">Step 2 of 7</div>
-        <div class="step-title">What is your primary<br>insurance coverage?</div>
-        <div class="step-sub">This helps us identify the specific billing rules and federal protections that apply to your situation.</div>
-        <div class="opt-list">
-          <button class="opt list-item" data-val="medicare" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">🏛️</span>
-            <span class="opt-text"><span class="opt-name">Medicare (Part A &amp; B)</span><span class="opt-desc">Federal program for adults 65+ and some disabilities</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="medicare-advantage" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">🏛️</span>
-            <span class="opt-text"><span class="opt-name">Medicare Advantage (Part C)</span><span class="opt-desc">Medicare plan run by a private insurance company</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="medigap" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">🏛️</span>
-            <span class="opt-text"><span class="opt-name">Medicare + Supplement (Medigap)</span><span class="opt-desc">Medicare with additional private supplemental coverage</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="medicaid" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">📋</span>
-            <span class="opt-text"><span class="opt-name">Medicaid</span><span class="opt-desc">State and federal program for lower-income individuals</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="dual" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">📋</span>
-            <span class="opt-text"><span class="opt-name">Medicare + Medicaid (Dual Eligible)</span><span class="opt-desc">Covered by both Medicare and Medicaid</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="employer" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">💼</span>
-            <span class="opt-text"><span class="opt-name">Employer / Group Insurance</span><span class="opt-desc">Private insurance through your job or a family member's job</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="marketplace" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">🏪</span>
-            <span class="opt-text"><span class="opt-name">Marketplace / ACA Plan</span><span class="opt-desc">Insurance purchased on healthcare.gov or a state exchange</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="tricare" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">🎖️</span>
-            <span class="opt-text"><span class="opt-name">TRICARE (Military)</span><span class="opt-desc">Health coverage for active duty, veterans, or military families</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="va" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">🎖️</span>
-            <span class="opt-text"><span class="opt-name">VA Benefits</span><span class="opt-desc">Veterans Affairs health coverage</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="chip" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">👶</span>
-            <span class="opt-text"><span class="opt-name">CHIP (Children's Health Insurance)</span><span class="opt-desc">State insurance program for children and some pregnant women</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="workers-comp" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">🏗️</span>
-            <span class="opt-text"><span class="opt-name">Workers' Compensation</span><span class="opt-desc">Injury or illness resulting from workplace accident</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="uninsured" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">📄</span>
-            <span class="opt-text"><span class="opt-name">No Insurance (Self-Pay)</span><span class="opt-desc">Paying out of pocket without any insurance coverage</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="other" onclick="selectOpt(this,'s2')">
-            <span class="opt-emoji">+</span>
-            <span class="opt-text"><span class="opt-name">Other / Not Listed</span><span class="opt-desc">Type your coverage or payer name</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-        </div>
-        <div class="field-row full other-entry" id="s2-other-wrap">
-          <div class="field">
-            <label class="field-label">Other Coverage</label>
-            <input type="text" id="s2-other-input" placeholder="Type your insurance, payer, or coverage" oninput="updateOther('s2')"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ STEP 3: BILL AMOUNT ═══ -->
-      <div class="step" id="step-3">
-        <span class="step-icon">💰</span>
-        <div class="step-label">Step 3 of 7</div>
-        <div class="step-title">Approximately how much<br>is your bill?</div>
-        <div class="step-sub">A rough estimate is fine. This helps us assess the urgency and scope of your review. Every amount deserves a second look.</div>
-        <div class="opt-grid-3">
-          <button class="opt center" data-val="under500" onclick="selectOpt(this,'s3')">
-            <span class="opt-center-emoji">💵</span>
-            <span class="opt-name">Under $500</span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt center" data-val="500-1k" onclick="selectOpt(this,'s3')">
-            <span class="opt-center-emoji">💵</span>
-            <span class="opt-name">$500 – $1,000</span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt center" data-val="1k-5k" onclick="selectOpt(this,'s3')">
-            <span class="opt-center-emoji">💴</span>
-            <span class="opt-name">$1,000 – $5,000</span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt center" data-val="5k-10k" onclick="selectOpt(this,'s3')">
-            <span class="opt-center-emoji">💶</span>
-            <span class="opt-name">$5,000 – $10,000</span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt center" data-val="10k-25k" onclick="selectOpt(this,'s3')">
-            <span class="opt-center-emoji">💷</span>
-            <span class="opt-name">$10,000 – $25,000</span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt center" data-val="25k-50k" onclick="selectOpt(this,'s3')">
-            <span class="opt-center-emoji">🏦</span>
-            <span class="opt-name">$25,000 – $50,000</span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt center" data-val="50k-100k" onclick="selectOpt(this,'s3')">
-            <span class="opt-center-emoji">🏦</span>
-            <span class="opt-name">$50,000 – $100,000</span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt center" data-val="over100k" onclick="selectOpt(this,'s3')">
-            <span class="opt-center-emoji">🚨</span>
-            <span class="opt-name">Over $100,000</span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt center" data-val="unknown" onclick="selectOpt(this,'s3')">
-            <span class="opt-center-emoji">❓</span>
-            <span class="opt-name">Not Sure</span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt center" data-val="other" onclick="selectOpt(this,'s3')">
-            <span class="opt-center-emoji">+</span>
-            <span class="opt-name">Other Amount</span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-        </div>
-        <div class="field-row full other-entry" id="s3-other-wrap">
-          <div class="field">
-            <label class="field-label">Other Amount</label>
-            <input type="text" id="s3-other-input" placeholder="Type the approximate amount or range" oninput="updateOther('s3')"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ STEP 4: PAYMENT STATUS ═══ -->
-      <div class="step" id="step-4">
-        <span class="step-icon">📋</span>
-        <div class="step-label">Step 4 of 7</div>
-        <div class="step-title">What is the current status<br>of this bill?</div>
-        <div class="step-sub">Your payment status affects which options are available and how urgently we recommend acting.</div>
-        <div class="calm-banner">
-          <span class="calm-icon">💡</span>
-          <div class="calm-text"><strong>Good news:</strong> If you haven't paid yet, you are in the strongest possible position. You have every right to review before paying anything.</div>
-        </div>
-        <div class="opt-list">
-          <button class="opt list-item" data-val="unpaid" onclick="selectOpt(this,'s4')">
-            <span class="opt-emoji">✅</span>
-            <span class="opt-text"><span class="opt-name">I haven't paid anything yet</span><span class="opt-desc">Best position to be in — full review and dispute options available</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="partial" onclick="selectOpt(this,'s4')">
-            <span class="opt-emoji">🔄</span>
-            <span class="opt-text"><span class="opt-name">I made a partial payment</span><span class="opt-desc">Review still possible for remaining balance and any overpayment</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="payment-plan" onclick="selectOpt(this,'s4')">
-            <span class="opt-emoji">📅</span>
-            <span class="opt-text"><span class="opt-name">I'm on a payment plan</span><span class="opt-desc">Review may help reduce your balance or monthly amount</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="paid" onclick="selectOpt(this,'s4')">
-            <span class="opt-emoji">💳</span>
-            <span class="opt-text"><span class="opt-name">I paid in full</span><span class="opt-desc">You may still be able to dispute or request reimbursement for incorrect billing charges.</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="collections" onclick="selectOpt(this,'s4')">
-            <span class="opt-emoji">⚠️</span>
-            <span class="opt-text"><span class="opt-name">It went to collections</span><span class="opt-desc">Dispute rights still apply — we'll help you navigate this</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="insurance-dispute" onclick="selectOpt(this,'s4')">
-            <span class="opt-emoji">🔁</span>
-            <span class="opt-text"><span class="opt-name">My insurance denied or underpaid</span><span class="opt-desc">Claim denial or coverage dispute with your insurer</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-          <button class="opt list-item" data-val="other" onclick="selectOpt(this,'s4')">
-            <span class="opt-emoji">+</span>
-            <span class="opt-text"><span class="opt-name">Other / Not Listed</span><span class="opt-desc">Type the current status in your own words</span></span>
-            <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-          </button>
-        </div>
-        <div class="field-row full other-entry" id="s4-other-wrap">
-          <div class="field">
-            <label class="field-label">Other Bill Status</label>
-            <input type="text" id="s4-other-input" placeholder="Type the current status of the bill" oninput="updateOther('s4')"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ STEP 5: WHAT CONCERNS YOU ═══ -->
-      <div class="step" id="step-5">
-        <span class="step-icon">🔍</span>
-        <div class="step-label">Step 5 of 7</div>
-        <div class="step-title">What concerns you about<br>this bill?</div>
-        <div class="step-sub">Select everything that applies. You can choose more than one. This is what we'll focus on during your review.</div>
-        <div class="concern-grid" id="concern-grid">
-          <button class="chip" onclick="toggleChip(this)" data-val="too-high">
-            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-            <span class="chip-name">Charges seem too high or inflated</span>
-          </button>
-          <button class="chip" onclick="toggleChip(this)" data-val="billing issue">
-            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-            <span class="chip-name">I think I was charged twice for something</span>
-          </button>
-          <button class="chip" onclick="toggleChip(this)" data-val="not-received">
-            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-            <span class="chip-name">I was billed for services I didn't receive</span>
-          </button>
-          <button class="chip" onclick="toggleChip(this)" data-val="out-of-network">
-            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-            <span class="chip-name">Billed out-of-network during in-network visit</span>
-          </button>
-          <button class="chip" onclick="toggleChip(this)" data-val="lab-charges">
-            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-            <span class="chip-name">Unexpected lab or test charges</span>
-          </button>
-          <button class="chip" onclick="toggleChip(this)" data-val="coding">
-            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-            <span class="chip-name">I think the wrong billing code was used</span>
-          </button>
-          <button class="chip" onclick="toggleChip(this)" data-val="denied">
-            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-            <span class="chip-name">My insurance claim was denied</span>
-          </button>
-          <button class="chip" onclick="toggleChip(this)" data-val="confusing">
-            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-            <span class="chip-name">I just don't understand what I'm being charged for</span>
-          </button>
-          <button class="chip" onclick="toggleChip(this)" data-val="surprise-bill">
-            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-            <span class="chip-name">I received a surprise bill I wasn't expecting</span>
-          </button>
-          <button class="chip" onclick="toggleChip(this)" data-val="no-itemized">
-            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-            <span class="chip-name">I never received an itemized bill</span>
-          </button>
-          <button class="chip" onclick="toggleChip(this)" data-val="other">
-            <div class="chip-box"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-            <span class="chip-name">Other concern</span>
-          </button>
-        </div>
-        <div class="field-row full other-entry" id="s5-other-wrap">
-          <div class="field">
-            <label class="field-label">Other Concern</label>
-            <textarea id="s5-other-input" placeholder="Type the billing concern that was not listed" oninput="updateOther('s5')"></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ STEP 6: YOUR INFORMATION ═══ -->
-      <div class="step" id="step-6">
-        <span class="step-icon">📝</span>
-        <div class="step-label">Step 6 of 7</div>
-        <div class="step-title">Tell us a little about<br>you and your bill</div>
-        <div class="step-sub">This information is used only to prepare your personalized review documents. Nothing is shared.</div>
-        <div class="field-row">
-          <div class="field">
-            <label class="field-label">Your First Name</label>
-            <input type="text" id="f-first" placeholder="First Name" autocomplete="given-name" required/>
-          </div>
-          <div class="field">
-            <label class="field-label">Last Name</label>
-            <input type="text" id="f-last" placeholder="Last Name" autocomplete="family-name" required/>
-          </div>
-        </div>
-        <div class="field-row full">
-          <div class="field">
-            <label class="field-label">Email Address</label>
-            <input type="email" id="f-email" placeholder="your@email.com" autocomplete="email" oninput="validateStep6()"/>
-            <div class="email-hint" id="email-hint">Please enter a valid email address (e.g. name@example.com)</div>
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label class="field-label">Provider / Hospital Name</label>
-            <input type="text" id="f-provider" placeholder="Provider or hospital name"/>
-          </div>
-          <div class="field">
-            <label class="field-label">Date of Service</label>
-            <input type="date" id="f-dos"/>
-          </div>
-        </div>
-        <!-- Description textarea -->
-        <div class="field-row full">
-          <div class="field">
-            <label class="field-label">Other details about your billing situation <span class="optional-badge">Optional</span></label>
-            <textarea id="f-desc" placeholder="In your own words, tell us anything unusual, confusing, or not covered above. The more detail you share, the more personalized your review will be."></textarea>
-          </div>
-        </div>
-        <!-- Upload zone -->
-        <div class="field-row full" style="margin-bottom:6px">
-          <div class="field">
-            <label class="field-label">Upload Your Bill <span class="optional-badge">Optional</span></label>
-            <div class="upload-zone" id="upload-zone">
-              <input type="file" class="uz-input" id="f-file" accept=".pdf,.jpg,.jpeg,.png,.heic" onchange="handleFile(this)"/>
-              <span class="uz-icon">📄</span>
-              <div class="uz-title">Tap to upload your bill</div>
-              <div class="uz-sub">Accepted: PDF, JPG, PNG · Max 20MB<br>No bill yet? No problem — you can upload later</div>
-              <div class="uz-badge"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Encrypted &amp; Secure</div>
-            </div>
-            <div id="uz-filename" class="uz-filename"></div>
-            <div id="bill-scan-result" class="scan-result" aria-live="polite"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ STEP 7: REVIEW + SUBMIT ═══ -->
-      <div class="step" id="step-7">
-        <span class="step-icon">✅</span>
-        <div class="step-label">Step 7 of 7 — Ready</div>
-        <div class="step-title">Your review is ready<br>to begin.</div>
-        <div class="step-sub">Here is a summary of what you told us. Confirm and start your analysis — it takes about 60 seconds.</div>
-        <div class="summary" id="summary-panel">
-          <!-- Populated by JS -->
-        </div>
-        <div class="calm-banner">
-          <span class="calm-icon">🛡️</span>
-          <div class="calm-text">Our system will scan your bill for billing issue charges, coding issues, and out-of-network rate discrepancies. <strong>Your review is completely private</strong> and your information is never shared or sold.</div>
-        </div>
-        <button class="btn-submit" onclick="startAnalysis()">
-          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Start My Free Review Now
-          <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </button>
-        <div style="text-align:center;margin-top:8px;font-size:.5rem;color:rgba(235,244,255,.28);letter-spacing:.06em;text-transform:uppercase">Results in under 60 seconds</div>
-      </div>
-
-
-      <!-- NAV BUTTONS (rendered per step) -->
-      <div class="nav-btns" id="nav-btns">
-        <button class="btn-back" id="btn-back" onclick="prevStep()" style="visibility:hidden">
-          <svg viewBox="0 0 24 24"><polyline points="19 12 5 12"/><polyline points="12 5 5 12 12 19"/></svg>
-          Back
-        </button>
-        <button class="btn-next" id="btn-next" onclick="nextStep()" disabled>
-          Continue
-          <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </button>
-      </div>
-
-
-    </div><!-- /card -->
-
-
-    </div><!-- /intake-section-inner -->
-
-  <!-- Tagline -->
-  <div class="is-tagline">
-    <div class="tg-txt">"You don't have to navigate this alone."</div>
-  </div>
-
-</div><!-- /intake-section -->
 
 <!-- FOOTER -->
 <div class="footer">

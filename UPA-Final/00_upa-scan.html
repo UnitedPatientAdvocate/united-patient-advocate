@@ -688,6 +688,7 @@ const UPA_SCAN_CONFIG = {
 let selectedFile    = null;
 let extractedData   = null;
 let scanFindings    = [];
+var _aiHeadlines    = [];
 let animHoldReached = false;
 let animResumeFn    = null;
 let animTimers      = [];
@@ -1065,6 +1066,7 @@ function resumeAnimation(data) {
 
 /* ─── ROUTING AFTER SCAN ─── */
 function routeAfterScan(data) {
+  _aiHeadlines = [];
   if (data.confidence === 'low' || data.confidence === 'failed') {
     showState('state-fallback');
     return;
@@ -1132,8 +1134,7 @@ function callFreePreviewAI(data) {
         var aiFindings = rawAiFindings.map(function(item) {
           if (typeof item === 'string') {
             return {
-              title: item,
-              teaser: 'Flagged for review based on your uploaded bill.'
+              title: item
             };
           }
           if (!item || typeof item !== 'object') return null;
@@ -1141,12 +1142,13 @@ function callFreePreviewAI(data) {
         }).filter(function(item) {
           return item && (item.title || item.headline);
         });
+        _aiHeadlines = aiFindings.map(function(item) {
+          return item.title || item.headline;
+        });
         if (aiFindings.length && window._upaScanData && Array.isArray(window._upaScanFindings)) {
           window._upaScanFindings.forEach(function(f, i) {
             if (f && aiFindings[i]) {
-              var aiHeadline = aiFindings[i].title || aiFindings[i].headline;
               var aiTeaser = aiFindings[i].teaser || aiFindings[i].body;
-              if (aiHeadline) f.headline = aiHeadline;
               if (aiTeaser) f.aiTeaser = aiTeaser;
             }
           });
@@ -1217,6 +1219,11 @@ function renderFindings(data, findings) {
   scroll.innerHTML = '';
 
   // Finding cards
+  if (_aiHeadlines.length) {
+    findings.forEach(function(f, i) {
+      if (f && _aiHeadlines[i]) f.headline = _aiHeadlines[i];
+    });
+  }
   findings.forEach(function(f) {
     const card = document.createElement('div');
     card.className = 'finding-card' + (f.gated ? ' fc-gated' : '');
@@ -1396,6 +1403,7 @@ function resetToUpload() {
   clearTimers();
   extractedData = null;
   scanFindings  = [];
+  _aiHeadlines  = [];
   animHoldReached = false;
   animResumeFn    = null;
   // Reset canvas

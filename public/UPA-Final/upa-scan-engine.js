@@ -465,22 +465,24 @@ function buildCaseValueEstimate(ext) {
 
   if (bal !== null && bal > 0) {
     const min = Math.max(10, Math.round(bal * 0.40 / 10) * 10);
+    const display = (min < bal) ? formatCurrency(min) + '–' + formatCurrency(bal) : null;
     return {
       anchor: formatCurrency(bal),
       min:    formatCurrency(min),
       max:    formatCurrency(bal),
-      display:formatCurrency(min) + '–' + formatCurrency(bal),
+      display,
       basis:  'patient_balance'
     };
   }
   if (total !== null && total > 0) {
     const min = Math.max(10, Math.round(total * 0.05 / 10) * 10);
     const max = Math.round(total * 0.18 / 10) * 10;
+    const display = (max > 0 && max > min) ? formatCurrency(min) + '–' + formatCurrency(max) : null;
     return {
       anchor: formatCurrency(total),
       min:    formatCurrency(min),
       max:    formatCurrency(max),
-      display:formatCurrency(min) + '–' + formatCurrency(max),
+      display,
       basis:  'total_billed'
     };
   }

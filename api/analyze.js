@@ -11,37 +11,54 @@ const PREFERRED_MODELS = [
 
 const PROMPT_CONFIGS = {
   free_preview: {
-    maxTokens: 700,
-    buildPrompt: intake => `Return ONLY compact valid JSON for a FREE medical-bill preview. No markdown. No raw newlines inside strings. Keep all text short.
+    maxTokens: 2500,
+    buildPrompt: intake => `Return ONLY compact valid JSON for a FREE medical-bill pre-screening. No markdown. No raw newlines inside strings. All values must be valid JSON strings (escape any internal quotes).
 
-Rules:
-- Careful consumer-guidance language only.
-- Do not accuse anyone or promise savings/outcomes.
-- Do not provide full scripts, letters, or tactics.
-- Output under 220 words total.
-- If RAW BILL TEXT is provided below, use the actual charges, CPT codes, amounts, and line items from it to make findings specific and real — not generic.
+Framing rules (follow exactly):
+- Observational, careful consumer-guidance language only.
+- Never accuse a provider, insurer, or biller of wrongdoing.
+- Never promise savings, reductions, corrections, or specific outcomes.
+- Never use words like "overcharged," "fraud," "billing error confirmed," or language implying legal or medical advice.
+- Do not fabricate CPT codes, amounts, or dates that are not present in the submitted data.
+- If RAW BILL TEXT is supplied, base every finding on patterns actually present in it.
+
+Scan for these specific patterns (only generate a finding if evidence exists in the data):
+1. Duplicate procedure codes: the same CPT or HCPCS code appearing more than once, potentially on the same date
+2. Quantity anomalies: unit counts that appear high relative to typical usage for that procedure type
+3. EOB vs itemized mismatch: a patient balance that does not reconcile with the adjustments described
+4. CLFS lab markup: laboratory charges that appear above typical Clinical Laboratory Fee Schedule reference levels
+5. Balance or out-of-network exposure: out-of-network charges on an otherwise in-network claim, or unexplained balance after insurance
+
+Generate between 1 and 4 findings based strictly on what the data supports. Do not invent findings when the data is absent.
+
+For each finding:
+- "headline": short specific title naming the actual pattern (no savings promises, no accusation)
+- "teaser": 1-2 sentences visible in the free scan, referencing specific codes, amounts, or dates from the bill; end mid-thought to signal locked detail
+- "fullExplanation": "" (empty string, locked in free tier)
+- "preparedRequest": "" (empty string, locked in free tier)
 
 Patient submission:
 ${formatIntake(intake)}
 
-JSON schema:
+Return exactly this JSON with no markdown fences:
 {
   "generationMode": "free_preview",
   "summary": {
     "riskLevel": "LOW | MEDIUM | HIGH",
-    "severityLabel": "Short label",
-    "estimatedSavingsMin": "",
-    "estimatedSavingsMax": "",
-    "errorsFound": ["One cautious teaser finding referencing specific charges/codes from the bill if available"],
-    "keyFindings": "Two concise sentences referencing specifics from the actual bill."
+    "severityLabel": "Short label, 6 words max"
   },
   "preview": {
-    "screeningHeadline": "Short headline",
-    "teaserFinding": "One visible personalized teaser finding referencing the actual bill details.",
-    "cliffhanger": "One sentence about what unlocks.",
-    "lockedModuleReferences": ["CPT review","Benchmark comparison","Call script","Action plan"]
+    "screeningHeadline": "One sentence describing what type of review this bill warrants",
+    "teaserFinding": "One sentence about the single most notable specific pattern found in this bill"
   },
-  "paidDossier": null
+  "findings": [
+    {
+      "headline": "Specific finding title",
+      "teaser": "1-2 sentences referencing actual bill details, ending mid-thought",
+      "fullExplanation": "",
+      "preparedRequest": ""
+    }
+  ]
 }`
   },
   paid_dossier: {
@@ -186,19 +203,20 @@ function buildFallbackPreview(intake) {
     generationMode: 'free_preview',
     summary: {
       riskLevel: intake.totalBilled && Number(String(intake.totalBilled).replace(/[^0-9.]/g, '')) > 5000 ? 'HIGH' : 'MEDIUM',
-      severityLabel: 'Review recommended',
-      estimatedSavingsMin: '',
-      estimatedSavingsMax: '',
-      errorsFound: [finding],
-      keyFindings: 'Your intake suggests the bill should be reviewed against itemized charges, coverage context, and common billing documentation gaps. The full review unlocks the deeper workflow.'
+      severityLabel: 'Review recommended'
     },
     preview: {
       screeningHeadline: 'A closer billing review may be useful.',
-      teaserFinding: finding,
-      cliffhanger: 'The Complete Billing Review unlocks benchmark context, prepared questions, call guidance, and next steps.',
-      lockedModuleReferences: ['CPT review', 'Benchmark comparison', 'Call script', 'Action plan']
+      teaserFinding: finding
     },
-    paidDossier: null
+    findings: [
+      {
+        headline: 'Itemized review warranted',
+        teaser: finding,
+        fullExplanation: '',
+        preparedRequest: ''
+      }
+    ]
   };
 }
 

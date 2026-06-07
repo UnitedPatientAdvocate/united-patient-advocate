@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════
-   UPA SCAN ENGINE - v1.0
+   UPA SCAN ENGINE — v1.0
    PDF.js extraction · findings generation · state bridge
 
    Dependency : PDF.js loaded by 00_upa-scan.html before this script
@@ -124,7 +124,7 @@ function buildLines(textContent) {
 }
 
 /* ─────────────────────────────────────────────
-   EXTRACTION - AMOUNTS
+   EXTRACTION — AMOUNTS
 ───────────────────────────────────────────── */
 
 function extractAmounts(text) {
@@ -133,7 +133,7 @@ function extractAmounts(text) {
     insurancePaid: null, adjustmentAmount: null, allAmounts: []
   };
 
-  /* All dollar amounts - deduplicated, sorted descending */
+  /* All dollar amounts — deduplicated, sorted descending */
   const raw = text.match(/\$\s*[\d,]+(?:\.\d{1,2})?/g) || [];
   result.allAmounts = [...new Set(raw.map(parseAmount).filter(v => v && v > 0))].sort((a,b)=>b-a);
 
@@ -175,7 +175,7 @@ function extractAmounts(text) {
     if (v && result.adjustmentAmount === null) result.adjustmentAmount = v;
   }
 
-  /* Positional fallback - label extraction missed totals */
+  /* Positional fallback — label extraction missed totals */
   if (result.totalBilled === null && result.allAmounts.length > 0) {
     result.totalBilled = result.allAmounts[0];
   }
@@ -190,7 +190,7 @@ function extractAmounts(text) {
 }
 
 /* ─────────────────────────────────────────────
-   EXTRACTION - DATES
+   EXTRACTION — DATES
 ───────────────────────────────────────────── */
 
 function extractDates(text) {
@@ -237,7 +237,7 @@ function extractDates(text) {
 }
 
 /* ─────────────────────────────────────────────
-   EXTRACTION - PROVIDER NAME
+   EXTRACTION — PROVIDER NAME
 ───────────────────────────────────────────── */
 
 function extractProvider(text, lines) {
@@ -253,7 +253,7 @@ function extractProvider(text, lines) {
     }
   }
 
-  /* Strategy 2: top-of-document - prefer lines with provider suffixes */
+  /* Strategy 2: top-of-document — prefer lines with provider suffixes */
   const topLines = lines.slice(0, 20).filter(l => l.length >= 4 && l.length <= 80);
   for (const line of topLines) {
     const c = safeProperNounScan(line);
@@ -270,7 +270,7 @@ function extractProvider(text, lines) {
 }
 
 /* ─────────────────────────────────────────────
-   EXTRACTION - CLAIM / ACCOUNT NUMBER
+   EXTRACTION — CLAIM / ACCOUNT NUMBER
 ───────────────────────────────────────────── */
 
 function extractClaimNumber(text) {
@@ -291,11 +291,11 @@ function extractClaimNumber(text) {
 }
 
 /* ─────────────────────────────────────────────
-   EXTRACTION - INSURANCE
+   EXTRACTION — INSURANCE
 ───────────────────────────────────────────── */
 
 function extractInsurance(text) {
-  /* Known payer list - fastest, most reliable */
+  /* Known payer list — fastest, most reliable */
   const lower = text.toLowerCase();
   for (const p of UPA_KNOWN_PAYERS) {
     if (lower.includes(p.toLowerCase())) return p;
@@ -311,7 +311,7 @@ function extractInsurance(text) {
 }
 
 /* ─────────────────────────────────────────────
-   EXTRACTION - CPT CODES
+   EXTRACTION — CPT CODES
 ───────────────────────────────────────────── */
 
 function extractCPTCodes(text) {
@@ -340,63 +340,6 @@ function extractCPTCodes(text) {
   rawAll.forEach(c => { seen[c] = (seen[c]||0)+1; if (seen[c]===2) dupes.push(c); });
 
   return { codes: [...new Set(codes)], hasDuplicates: dupes.length > 0, duplicateCodes: dupes };
-}
-
-function parseMoneyValue(value) {
-  if (value == null) return null;
-  const cleaned = String(value).replace(/[^0-9.]/g, '');
-  if (!cleaned) return null;
-  const n = Number(cleaned);
-  return Number.isFinite(n) && n > 0 ? n : null;
-}
-
-function moneyValuesFromLine(line) {
-  const text = String(line || '');
-  const matches = text.match(/\$?\s*\d{1,3}(?:,\d{3})*(?:\.\d{2})|\$\s*\d+(?:\.\d{2})?/g) || [];
-  return matches
-    .map(parseMoneyValue)
-    .filter(function(n){ return n != null && n >= 1; });
-}
-
-function normalizeCptCode(code) {
-  return String(code || '').trim().toUpperCase();
-}
-
-function extractCodeAnalysis(text, lines) {
-  const sourceLines = Array.isArray(lines) && lines.length ? lines : String(text || '').split(/\r?\n/);
-  const byCode = {};
-
-  sourceLines.forEach(function(line, index){
-    const current = String(line || '').replace(/\s+/g, ' ').trim();
-    if (!current) return;
-    const codeMatches = current.match(/\b(?:\d{5}|\d{4}U)\b/gi) || [];
-    if (!codeMatches.length) return;
-
-    const localLines = [current];
-    for (let offset = 1; offset <= 6; offset += 1) {
-      localLines.push(sourceLines[index + offset] || '');
-    }
-    localLines.push(sourceLines[index - 1] || '');
-    const amounts = localLines.reduce(function(list, candidate){
-      return list.concat(moneyValuesFromLine(candidate));
-    }, []);
-    const billedAmount = amounts.length ? amounts[0] : null;
-    if (billedAmount == null) return;
-
-    codeMatches.forEach(function(rawCode){
-      const code = normalizeCptCode(rawCode);
-      if (/^(19|20)\d{3}$/.test(code) || code === '00000') return;
-      if (!byCode[code]) {
-        byCode[code] = {
-          code: code,
-          shortDescription: '',
-          billedAmount: billedAmount
-        };
-      }
-    });
-  });
-
-  return Object.keys(byCode).map(function(code){ return byCode[code]; });
 }
 
 /* ─────────────────────────────────────────────
@@ -450,7 +393,6 @@ async function extractFromPDF(file) {
     insurancePaid: null, adjustmentAmount: null, allAmounts: [],
     claimNumber: null, insuranceName: null,
     cptCodes: [], hasDuplicateCodes: false, duplicateCodes: [],
-    codeAnalysis: [], lineItems: [],
     denialDetected: false, pageCount: 0,
     rawText: '', lines: [],
     confidence: 'low', _scan: true, _scanTimestamp: Date.now()
@@ -485,8 +427,6 @@ async function extractFromPDF(file) {
     const amounts  = extractAmounts(fullText);
     const dates    = extractDates(fullText);
     const cpt      = extractCPTCodes(fullText);
-    const codeAnalysis = extractCodeAnalysis(fullText, allLines);
-    const allCodes = Array.from(new Set((cpt.codes || []).concat(codeAnalysis.map(function(item){ return item.code; }))));
 
     Object.assign(result, {
       totalBilled:      amounts.totalBilled,
@@ -499,9 +439,7 @@ async function extractFromPDF(file) {
       provider:         extractProvider(fullText, allLines),
       claimNumber:      extractClaimNumber(fullText),
       insuranceName:    extractInsurance(fullText),
-      cptCodes:         allCodes,
-      codeAnalysis:     codeAnalysis,
-      lineItems:        codeAnalysis,
+      cptCodes:         cpt.codes,
       hasDuplicateCodes:cpt.hasDuplicates,
       duplicateCodes:   cpt.duplicateCodes,
       denialDetected:   detectDenial(fullText)
@@ -522,18 +460,39 @@ async function extractFromPDF(file) {
 ───────────────────────────────────────────── */
 
 function buildCaseValueEstimate(ext) {
+  const bal   = ext.patientBalance;
   const total = ext.totalBilled;
+  const floor = 10;
 
+  const neutral = { anchor: null, min: null, max: null, display: null, basis: 'none' };
+
+  if (bal !== null && bal > 0) {
+    if (bal < floor) return neutral;
+    const min = Math.max(floor, Math.round(bal * 0.40 / 10) * 10);
+    const max = bal;
+    if (max <= 0 || max < min) return neutral;
+    return {
+      anchor: formatCurrency(bal),
+      min:    formatCurrency(min),
+      max:    formatCurrency(max),
+      display:formatCurrency(min) + '–' + formatCurrency(max),
+      basis:  'patient_balance'
+    };
+  }
   if (total !== null && total > 0) {
+    if (total < floor) return neutral;
+    const min = Math.max(floor, Math.round(total * 0.05 / 10) * 10);
+    const max = Math.round(total * 0.18 / 10) * 10;
+    if (max <= 0 || max < min) return neutral;
     return {
       anchor: formatCurrency(total),
-      min:    null,
-      max:    null,
-      display:formatCurrency(total),
+      min:    formatCurrency(min),
+      max:    formatCurrency(max),
+      display:formatCurrency(min) + '–' + formatCurrency(max),
       basis:  'total_billed'
     };
   }
-  return { anchor: null, min: null, max: null, display: null, basis: 'none' };
+  return neutral;
 }
 
 /* ─────────────────────────────────────────────
@@ -600,7 +559,7 @@ function buildScanFindings(ext) {
     const code = ext.duplicateCodes[0];
     findings.push({
       id: 'duplicate-code', priority: 2, severity: 'HIGH', gated: true,
-      title:  'Possible Duplicate Billing - Code ' + code,
+      title:  'Possible Duplicate Billing — Code ' + code,
       teaser: 'Procedure code ' + code + ' appears more than once in your billing document. That may be valid in some cases, but',
       body:   'Procedure code ' + code + ' appears more than once in your billing document. That may be valid in some cases, but it should be checked against the dates, units, modifiers, and service descriptions before the balance is accepted.\n\nThe prepared request asks the provider to identify the line items and documentation supporting each occurrence of the code. If the duplicate is confirmed, you can ask for a corrected statement.',
       letterIncluded: true, letterType: 'duplicate-code',
@@ -613,7 +572,7 @@ function buildScanFindings(ext) {
     const code = ext.cptCodes[0];
     findings.push({
       id: 'cpt-verification', priority: 3, severity: 'MEDIUM', gated: true,
-      title:  'Procedure Code Verification - Code ' + code,
+      title:  'Procedure Code Verification — Code ' + code,
       teaser: 'Procedure code ' + code + ' was identified in your bill. The full review helps you ask whether that code matches',
       body:   'Procedure code ' + code + ' was identified in your bill. The full review helps you ask whether that code matches the service, date, units, and documentation tied to the visit.\n\nThis does not determine whether the code is wrong. It prepares a professional written request for the provider to explain the code basis and any patient-responsibility calculation tied to it.',
       letterIncluded: true, letterType: 'itemized-request',
@@ -633,7 +592,7 @@ function buildScanFindings(ext) {
     });
   }
 
-  /* ── G: Itemized Billing Request (universal - always included) ── */
+  /* ── G: Itemized Billing Request (universal — always included) ── */
   findings.push({
     id: 'itemized-request', priority: 5, severity: 'MEDIUM', gated: true,
     title:  'Itemized Billing Documentation Request',
@@ -657,7 +616,7 @@ function buildScanFindings(ext) {
 }
 
 /* ─────────────────────────────────────────────
-   STATE BRIDGE - write compatible state to storage
+   STATE BRIDGE — write compatible state to storage
 ───────────────────────────────────────────── */
 
 function writeScanStateToStorage(ext) {
@@ -697,7 +656,7 @@ function writeScanStateToStorage(ext) {
     bill_amount:      rawAmount != null ? formatCurrency(rawAmount) : '',
     bill_amount_raw:  '',
     bill_amount_other:rawAmount != null ? formatCurrency(rawAmount) : '',
-    /* Extracted amount path - takes priority in amountInfo() when confidence >= 0.5 */
+    /* Extracted amount path — takes priority in amountInfo() when confidence >= 0.5 */
     extracted_bill_amount:           rawAmount != null ? String(rawAmount) : '',
     extracted_bill_amount_confidence: rawAmount != null ? 0.9 : 0,
     /* Structured fields */
@@ -717,8 +676,8 @@ function writeScanStateToStorage(ext) {
     payment_status:   ext.patientBalance  != null
                         ? (ext.patientBalance > 0 ? 'balance due' : 'paid in full')
                         : 'unknown',
-    concern_other:    ext.denialDetected ? 'Claim denial detected - appeal review needed' : '',
-    /* Scan meta flags - used by applyDashboard() for copy variants */
+    concern_other:    ext.denialDetected ? 'Claim denial detected — appeal review needed' : '',
+    /* Scan meta flags — used by applyDashboard() for copy variants */
     _scan:            true,
     _patient_balance: ext.patientBalance,
     _total_billed:    ext.totalBilled,
@@ -727,9 +686,6 @@ function writeScanStateToStorage(ext) {
     _denial:          ext.denialDetected,
     _has_duplicates:  ext.hasDuplicateCodes,
     _cpt_codes:       ext.cptCodes        || [],
-    codeAnalysis:     ext.codeAnalysis    || [],
-    lineItems:        ext.codeAnalysis    || [],
-    _code_analysis:   ext.codeAnalysis    || [],
     _page_count:      ext.pageCount       || 1,
     _scan_ts:         ext._scanTimestamp
   };
@@ -747,10 +703,10 @@ function writeScanStateToStorage(ext) {
       intake: compat
     };
     const active = { version: 1, caseId: caseId, source: 'scan', updatedAt: activeAt, intake: compat, session: session, scan: ext };
-    // ── STALE-KEY WIPE - runs FIRST, before any setItem ────────────────────────
+    // ── STALE-KEY WIPE — runs FIRST, before any setItem ────────────────────────
     // Previously these removals were at the END of the try block. If any setItem
     // above threw (QuotaExceededError etc.) the outer catch fired and CASE_KEY was
-    // never removed - leaving upa.case.snapshot.v1 with old hospital/amount data
+    // never removed — leaving upa.case.snapshot.v1 with old hospital/amount data
     // that then won the timestamp race in newestIntakeCandidate().
     // Moving removals to the TOP means stale data is always gone regardless of
     // whether the subsequent writes succeed.
@@ -768,7 +724,7 @@ function writeScanStateToStorage(ext) {
       var secure = location.protocol === 'https:' ? '; Secure' : '';
       document.cookie = 'upa_r=; path=/; max-age=0; SameSite=Lax' + secure;
     }catch(e){}
-    console.log('[UPA] 🗑 Stale keys cleared | caseId:', caseId, '| provider:', compat.provider || '-', '| provisional:', !!(ext._provisional));
+    console.log('[UPA] 🗑 Stale keys cleared | caseId:', caseId, '| provider:', compat.provider || '—', '| provisional:', !!(ext._provisional));
     // ────────────────────────────────────────────────────────────────────────────
 
     sessionStorage.setItem(INTAKE_KEY, JSON.stringify(compat));
@@ -779,7 +735,7 @@ function writeScanStateToStorage(ext) {
     localStorage.setItem(CHECKOUT_KEY,   JSON.stringify(session));
     sessionStorage.setItem(REVIEW_KEY, JSON.stringify(session));
     localStorage.setItem(REVIEW_KEY,   JSON.stringify(session));
-    console.log('[UPA] ✅ Active case written | caseId:', caseId, '| provider:', compat.provider || '-', '| amount:', compat.bill_amount || '-', '| provisional:', !!(ext._provisional));
+    console.log('[UPA] ✅ Active case written | caseId:', caseId, '| provider:', compat.provider || '—', '| amount:', compat.bill_amount || '—', '| provisional:', !!(ext._provisional));
   } catch(e){ console.warn('[UPA Scan Engine] Storage write failed', e); }
 }
 
@@ -789,7 +745,6 @@ function writeScanStateToStorage(ext) {
 
 window.UPAScanEngine = {
   extractFromPDF,
-  extractCodeAnalysis,
   buildScanFindings,
   buildCaseValueEstimate,
   writeScanStateToStorage,

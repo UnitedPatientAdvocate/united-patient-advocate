@@ -387,6 +387,24 @@
     line-height: 1.5;
   }
 
+  /* wkhtmltopdf compatibility overrides:
+     Qt WebKit has no CSS Grid support and no flex gap support.
+     Replace grid with display:table and gap with explicit margins. */
+  .features-grid { display:table; width:100%; table-layout:fixed; border-collapse:collapse; }
+  .feature       { display:table-cell; vertical-align:top; }
+  .footer        { display:flex; flex-direction:row; }
+  .footer-col    { flex:1; }
+  .footer-col + .footer-col { margin-left:0.24in; }
+  .page          { display:block; }
+  .hdr-logo      { margin-right:0.18in; }
+  .hdr-tag-icon  { margin-right:0.14in; }
+  .hero-rule-l   { margin-right:0.15in; }
+  .hero-rule-r   { margin-left:0.15in; }
+  .url-label-pip { margin:0 0.07in; }
+  .url-globe     { margin-right:0.11in; }
+  .info-icon-circle { margin-right:0.14in; }
+  .footer-icon   { margin-right:0.12in; }
+
   /* ── DISCLAIMER ──────────────────────────────── */
   .disclaimer {
     background: #EEF2F7;

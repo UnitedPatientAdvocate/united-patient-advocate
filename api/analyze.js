@@ -3,8 +3,23 @@ const path = require('node:path');
 
 const CLFS_DATA_PATH = path.join(__dirname, 'data', 'cms-clfs-2026.json');
 const CLFS_SOURCE = 'CMS CLFS 2026';
-const CLFS_UNAVAILABLE_REASON = 'benchmark unavailable \u2014 not a CLFS lab code';
+const CLFS_UNAVAILABLE_REASON = 'benchmark unavailable - not a CLFS lab code';
 let clfsCache = null;
+
+const REVIEW_REASONING_RULES = `Review method:
+- Examine the full RAW BILL TEXT as one document before returning findings. Compare every visible line item across all pages.
+- Look for duplicate charges, including the same code, description, date, or service repeated on different pages.
+- Look for quantity or unit anomalies, such as an unusual count, repeated units, or a quantity that may not match the described service.
+- Look for possible unbundling, where related services may have been split into separate line items. Flag this only as possible and request documentation.
+- Compare EOB totals, itemized-bill totals, adjustments, insurer-paid amounts, and patient-responsibility totals. Flag totals that do not reconcile, but do not decide what the patient owes.
+- Identify remark or adjustment codes, especially CO-97 and CO-18, and explain what should be checked without making a coverage conclusion.
+- For emergency care, examine out-of-network and balance-billing language and flag possible review questions without making a legal conclusion.
+- Treat the CMS CLFS lab benchmark as one limited input for matching laboratory codes only. Do not use it as the whole analysis or apply it to non-lab codes.
+- Include only findings supported by the submitted text. Do not fabricate a finding to fill a category.
+- For a verified matching lab code, "above Medicare benchmark" is allowed. For every other finding, use "possible", "may", or "flagged for review".
+- For non-lab findings, never state a dollar amount owed, savings amount, overcharge amount, guaranteed correction, or guaranteed outcome.
+- Do not mention privacy compliance claims, professional credentials, or internal reasoning. Do not use em dashes.
+- Return findings as objects with exactly: title, oneLineExplanation, and lineItem. lineItem should identify the code, description, date, page reference, or total being reviewed without claiming it is incorrect.`;
 
 const PROMPT_CONFIGS = {
   free_preview: {
@@ -17,7 +32,9 @@ Rules:
 - Do not provide full scripts, letters, or tactics.
 - Output under 220 words total.
 - Extract lineItems only when both a code and billed amount are visible in the bill text. Each line item must contain only code, shortDescription, and billedAmount. Do not include rates, Medicare rates, benchmark rates, percentages, sources, or guessed amounts.
-- If RAW BILL TEXT is provided below, use the actual charges, CPT codes, amounts, and line items from it to make findings specific and real — not generic.
+- If RAW BILL TEXT is provided below, use the actual charges, CPT codes, amounts, and line items from it to make findings specific and real, not generic.
+
+${REVIEW_REASONING_RULES}
 
 Patient submission:
 ${formatIntake(intake)}
@@ -28,13 +45,14 @@ JSON schema:
   "summary": {
     "riskLevel": "LOW | MEDIUM | HIGH",
     "severityLabel": "Short label",
-    "estimatedSavingsMin": "",
-    "estimatedSavingsMax": "",
     "errorsFound": ["One cautious teaser finding referencing specific charges/codes from the bill if available"],
     "keyFindings": "Two concise sentences referencing specifics from the actual bill."
   },
   "lineItems": [
     {"code":"HCPCS/CPT code exactly as printed, including modifier suffix only if printed","shortDescription":"Short service label from the bill text","billedAmount":123.45}
+  ],
+  "findings": [
+    {"title":"Cautious finding title","oneLineExplanation":"One short possible or flagged-for-review explanation","lineItem":"Code, description, date, page reference, or total"}
   ],
   "preview": {
     "screeningHeadline": "Short headline",
@@ -62,7 +80,9 @@ Framing rules:
 - Every Phase 3 item must cite a sourceType such as "uploaded bill", "patient intake", "CLFS benchmark", "EOB text", or "plan information if provided".
 - Keep Phase 3 cautious and review-first: use "may", "can", "possible", "worth checking", and "request written explanation". Do not make legal conclusions or say a billing error is proven.
 - JSON validity is critical: escape every quote inside string values, use \\n for line breaks inside long letters/scripts, do not include markdown fences, and do not put raw newline characters inside JSON strings.
-- CRITICAL: If RAW BILL TEXT is provided below, your entire analysis MUST be based on the actual charges, CPT codes, line items, dates, amounts, and billing patterns found in that text. Reference specific codes, amounts, and line items by name. This is a real bill — give a real review, not a template.
+- CRITICAL: If RAW BILL TEXT is provided below, your entire analysis MUST be based on the actual charges, CPT codes, line items, dates, amounts, and billing patterns found in that text. Reference specific codes, amounts, and line items by name. This is a real bill, so give a real review, not a template.
+
+${REVIEW_REASONING_RULES}
 
 Patient submission:
 ${formatIntake(intake)}
@@ -73,13 +93,14 @@ Return exactly this JSON structure with no markdown:
   "summary": {
     "riskLevel": "LOW | MEDIUM | HIGH",
     "severityLabel": "Short screening label",
-    "estimatedSavingsMin": "",
-    "estimatedSavingsMax": "",
     "errorsFound": ["Observation 1", "Observation 2", "Observation 3"],
     "keyFindings": "Concise premium overview of the strongest review themes."
   },
   "lineItems": [
     {"code":"HCPCS/CPT code exactly as printed, including modifier suffix only if printed","shortDescription":"Short service label from the bill text","billedAmount":123.45}
+  ],
+  "findings": [
+    {"title":"Cautious finding title","oneLineExplanation":"One-line explanation using possible, may, or flagged for review unless it is a verified matching lab benchmark","lineItem":"Code, description, date, page reference, or total being reviewed"}
   ],
   "paidDossier": {
     "executiveOverview": "Premium overview paragraph or two.",
@@ -195,9 +216,8 @@ function formatIntake(intake) {
     `- Specific concerns: ${intake.specificConcerns}`
   ];
   if (intake.billText && intake.billText.trim().length > 20) {
-    // Truncate to ~6000 chars to stay within token budget
-    const text = intake.billText.trim().slice(0, 6000);
-    lines.push(`\nRAW BILL TEXT (extracted from uploaded PDF — use this to identify specific charges, CPT codes, dates, amounts, and billing patterns):\n---\n${text}\n---`);
+    const text = intake.billText.trim();
+    lines.push(`\nRAW BILL TEXT (full text extracted from all uploaded PDF pages; use this to identify specific charges, CPT codes, dates, amounts, and billing patterns):\n---\n${text}\n---`);
   }
   if (Array.isArray(intake.codeAnalysis) && intake.codeAnalysis.length) {
     lines.push(`\nDETERMINISTIC EXTRACTED LINE ITEMS (from scanner; use these as source bill line items, but do not add benchmark rates yourself):\n${JSON.stringify(intake.codeAnalysis)}`);
@@ -217,8 +237,6 @@ function buildFallbackPreview(intake) {
     summary: {
       riskLevel: intake.totalBilled && Number(String(intake.totalBilled).replace(/[^0-9.]/g, '')) > 5000 ? 'HIGH' : 'MEDIUM',
       severityLabel: 'Review recommended',
-      estimatedSavingsMin: '',
-      estimatedSavingsMax: '',
       errorsFound: [finding],
       keyFindings: 'Your intake suggests the bill should be reviewed against itemized charges, coverage context, and common billing documentation gaps. The full review unlocks the deeper workflow.'
     },
@@ -463,6 +481,63 @@ function uniqueNonEmptyList(values = [], limit = 0) {
   return limit > 0 ? list.slice(0, limit) : list;
 }
 
+function normalizeStructuredFindings(payload = {}, lineItems = []) {
+  const candidates = [
+    payload?.findings,
+    payload?.paidDossier?.findings,
+    payload?.paidDossier?.structuredFindings,
+    payload?.phase3CaseGeneration?.structuredFindings
+  ];
+  const findings = [];
+  const seen = new Set();
+
+  function addFinding(value) {
+    if (!value || typeof value !== 'object') return;
+
+    const title = cleanText(value.title);
+    const oneLineExplanation = cleanText(value.oneLineExplanation || value.explanation || value.reviewReason);
+    const lineItem = cleanText(value.lineItem || value.lineItemReference || value.code || value.shortDescription);
+    if (!title || !oneLineExplanation) return;
+
+    const key = `${title}|${oneLineExplanation}|${lineItem}`.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    findings.push({ title, oneLineExplanation, lineItem });
+  }
+
+  candidates.forEach(candidate => {
+    if (Array.isArray(candidate)) candidate.forEach(addFinding);
+  });
+
+  lineItems.forEach(item => {
+    if (!item?.benchmarkAvailable) return;
+
+    const code = cleanText(item.code);
+    const description = cleanText(item.shortDescription || item.benchmarkDescription);
+    const percent = Number(item.percentAboveBenchmark);
+    const lineItem = [code, description].filter(Boolean).join(' - ') || 'Matching laboratory code';
+    const comparison = Number.isFinite(percent)
+      ? `This matching laboratory code is ${roundPercent(percent)}% above the Medicare benchmark and may be worth asking the provider to review.`
+      : 'This matching laboratory code is above the Medicare benchmark and may be worth asking the provider to review.';
+
+    addFinding({
+      title: `Lab charge above Medicare benchmark${code ? `: ${code}` : ''}`,
+      oneLineExplanation: comparison,
+      lineItem
+    });
+  });
+
+  return findings.slice(0, 20);
+}
+
+function structuredFindingStatement(finding = {}) {
+  const title = cleanText(finding.title);
+  const explanation = cleanText(finding.oneLineExplanation);
+  const lineItem = cleanText(finding.lineItem);
+  if (!title || !explanation) return '';
+  return `${title}. ${explanation}${lineItem ? ` Line item: ${lineItem}.` : ''}`;
+}
+
 function formatMoneyLabel(value) {
   const amount = parseMoneyAmount(value);
   if (amount == null) return '';
@@ -684,6 +759,7 @@ function attachPhase3CaseGenerationToPayload(payload, intake = {}) {
   const defaultRiskScoring = buildLineItemRiskScoring(lineItems);
   const existingSummary = cleanText(existing.patientFindingSummary);
   const lineItemRiskScoring = defaultRiskScoring;
+  const structuredFindings = normalizeStructuredFindings(payload, lineItems);
   const phase3 = {
     ...existing,
     sourceTypes: Array.isArray(existing.sourceTypes) && existing.sourceTypes.length
@@ -692,6 +768,7 @@ function attachPhase3CaseGenerationToPayload(payload, intake = {}) {
     patientFindingSummary: /source type/i.test(existingSummary)
       ? existingSummary
       : buildPatientFindingSummary(payload, lineItems),
+    structuredFindings,
     lineItemRiskScoring,
     customLetters: buildCustomLetters(intake, payload, lineItemRiskScoring),
     providerSpecificGuidance: buildProviderSpecificGuidance(intake, payload),
@@ -702,6 +779,7 @@ function attachPhase3CaseGenerationToPayload(payload, intake = {}) {
 
   const next = {
     ...payload,
+    findings: structuredFindings,
     phase3CaseGeneration: phase3
   };
 
@@ -709,13 +787,17 @@ function attachPhase3CaseGenerationToPayload(payload, intake = {}) {
     const riskSummary = lineItemRiskScoring.length
       ? `Line-item risk scoring (Source type: uploaded bill${lineItems.some(item => item?.benchmarkAvailable) ? ' and CLFS benchmark' : ''}): ${lineItemRiskScoring.slice(0, 3).map(item => `${item.code || 'line item'} ${item.riskLevel}`).join(', ')}.`
       : '';
-    const billingPatternAnalysis = prependUniqueStatement(
-      prependUniqueStatement(next.paidDossier.billingPatternAnalysis, phase3.patientFindingSummary),
+    const billingPatternAnalysis = uniqueNonEmptyList([
+      structuredFindings.map(structuredFindingStatement),
+      next.paidDossier.billingPatternAnalysis,
+      phase3.patientFindingSummary,
       riskSummary
-    );
+    ]);
 
     next.paidDossier = {
       ...next.paidDossier,
+      findings: structuredFindings,
+      structuredFindings,
       phase3CaseGeneration: phase3,
       patientFindingSummary: phase3.patientFindingSummary,
       lineItemRiskScoring: phase3.lineItemRiskScoring,
@@ -749,9 +831,18 @@ function attachClfsBenchmarksToPayload(payload, requestLineItems = [], intake = 
   const lineItems = getPayloadLineItems(payload);
   const sourceLineItems = lineItems.length ? lineItems : (Array.isArray(requestLineItems) ? requestLineItems : []);
   if (!sourceLineItems.length) {
-    const emptyPayload = { ...payload, codeAnalysis: [] };
+    const emptyPayload = {
+      ...payload,
+      codeAnalysis: [],
+      findings: normalizeStructuredFindings(payload, [])
+    };
     if (emptyPayload.paidDossier && typeof emptyPayload.paidDossier === 'object') {
-      emptyPayload.paidDossier = { ...emptyPayload.paidDossier, codeAnalysis: [] };
+      emptyPayload.paidDossier = {
+        ...emptyPayload.paidDossier,
+        codeAnalysis: [],
+        findings: emptyPayload.findings,
+        structuredFindings: emptyPayload.findings
+      };
     }
     return attachPhase3CaseGenerationToPayload(emptyPayload, intake);
   }
@@ -764,12 +855,15 @@ function attachClfsBenchmarksToPayload(payload, requestLineItems = [], intake = 
     clfsBenchmarkCoverage: enriched.coverage,
     clfsOverchargeTotal: enriched.overchargeTotal
   };
+  next.findings = normalizeStructuredFindings(next, enriched.lineItems);
 
   if (next.paidDossier && typeof next.paidDossier === 'object') {
     next.paidDossier = {
       ...next.paidDossier,
       codeAnalysis: enriched.lineItems,
       lineItems: enriched.lineItems,
+      findings: next.findings,
+      structuredFindings: next.findings,
       benchmarkCoverageStatement: enriched.coverage.statement,
       billingPatternAnalysis: prependUniqueStatement(next.paidDossier.billingPatternAnalysis, enriched.coverage.statement)
     };
@@ -895,7 +989,7 @@ async function buildModelCandidates(apiKey, requestedModel) {
 }
 
 async function handler(req, res) {
-  const MODEL = 'claude-sonnet-4-6'; // hardcoded — do not change
+  const MODEL = 'claude-sonnet-4-20250514'; // hardcoded, do not change
   if (req.method !== 'POST') return res.status(405).end();
 
   const apiKey = getAnthropicApiKey();

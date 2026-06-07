@@ -196,7 +196,7 @@ body{background:var(--navy)}
   font-size:0.4375rem;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;
   color:var(--green);white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,0.50);
 }
-/* Heuristic positions — top-right (date area), top-left (provider), bottom-center (totals) */
+/* Heuristic positions - top-right (date area), top-left (provider), bottom-center (totals) */
 .callout-1{top:8%;right:5%;width:38%;height:10%}
 .callout-2{top:5%;left:3%;width:45%;height:12%}
 .callout-3{bottom:12%;left:5%;right:5%;height:8%}
@@ -659,7 +659,7 @@ body{background:var(--navy)}
      SCRIPTS
 ═══════════════════════════════════ -->
 <script>
-// BFCache guard — if browser serves this page from back/forward cache, force a fresh load
+// BFCache guard - if browser serves this page from back/forward cache, force a fresh load
 // so scan state is always re-initialized from storage (not a frozen DOM snapshot)
 window.addEventListener('pageshow', function(e){ if(e.persisted){ window.location.reload(); } });
 // Set PDF.js worker before any extraction runs
@@ -672,7 +672,7 @@ if (typeof pdfjsLib !== 'undefined') {
 <script src="upa-scan-engine.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   UPA SCAN PAGE — Orchestration Layer
+   UPA SCAN PAGE - Orchestration Layer
    Coordinates: upload handling · animation timing · extraction ·
                  fallback routing · findings render · CTA
 ═══════════════════════════════════════════════════════════════ */
@@ -871,7 +871,7 @@ function renderDocumentPreview(file) {
         });
       });
     }).catch(function(){
-      // Preview failed silently — animation still runs
+      // Preview failed silently - animation still runs
     });
   };
   reader.readAsArrayBuffer(file);
@@ -939,7 +939,7 @@ function runAnimationSequence() {
   after(3000, function() { setStatus(STATUS_STEPS[2]); setProgress(40); });
   // T+4200: status 4 + date/line areas
   after(4200, function() { setStatus(STATUS_STEPS[3]); setProgress(55); showCallout(1); showCallout(4); });
-  // T+5400: HOLD POINT — wait for extraction
+  // T+5400: HOLD POINT - wait for extraction
   after(5400, function() {
     setStatus(STATUS_STEPS[4]);
     setProgress(68);
@@ -1069,7 +1069,7 @@ function routeAfterScan(data) {
     showState('state-fallback');
     return;
   }
-  // Write final scan data — overwrites the provisional placeholder written in startScan()
+  // Write final scan data - overwrites the provisional placeholder written in startScan()
   UPAScanEngine.writeScanStateToStorage(data);
   mirrorScanSessionFields(data);
   // Generate local fallback findings while the service review runs
@@ -1243,13 +1243,9 @@ function renderFindings(data, findings) {
   if (estimate.display) {
     caseValBlock.innerHTML =
       '<div class="cvb-left">' +
-        '<div class="cvb-label">Potential review range</div>' +
+        '<div class="cvb-label">Extracted bill total</div>' +
         '<div class="cvb-amount">' + esc(estimate.display) + '</div>' +
-        '<div class="cvb-desc">Based on the ' +
-          (estimate.basis === 'patient_balance'
-            ? 'patient balance identified in your document'
-            : 'charges identified in your document') +
-        '. Actual savings or reductions depend on provider, payer, and document review.</div>' +
+        '<div class="cvb-desc">This is the total read from your uploaded document. Confirm it against your statement.</div>' +
       '</div>';
   } else {
     caseValBlock.innerHTML =
@@ -1280,7 +1276,7 @@ function renderFindings(data, findings) {
     gatedCount + ' additional written request' + (gatedCount !== 1 ? 's' : '') + ' prepared for you to review and send',
     'Step-by-step action plan with timeline',
     'Call scripts for billing departments and insurance carriers',
-    'Downloadable patient packet — everything in one file'
+    'Downloadable patient packet - everything in one file'
   ];
 
   upgradeBlock.innerHTML =

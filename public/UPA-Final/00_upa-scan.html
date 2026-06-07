@@ -196,7 +196,7 @@ body{background:var(--navy)}
   font-size:0.4375rem;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;
   color:var(--green);white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,0.50);
 }
-/* Heuristic positions — top-right (date area), top-left (provider), bottom-center (totals) */
+/* Heuristic positions - top-right (date area), top-left (provider), bottom-center (totals) */
 .callout-1{top:8%;right:5%;width:38%;height:10%}
 .callout-2{top:5%;left:3%;width:45%;height:12%}
 .callout-3{bottom:12%;left:5%;right:5%;height:8%}
@@ -544,7 +544,7 @@ body{background:var(--navy)}
 
   <div class="upload-card">
     <h1 class="upload-headline">Find billing errors<br>in under 30 seconds.</h1>
-    <p class="upload-sub">Upload your bill or EOB and we'll scan for duplicate charges, benchmark overages, and coding issues — free. If we find problems, your dispute documentation is ready to unlock instantly.</p>
+    <p class="upload-sub">Upload your bill or EOB and we'll scan for duplicate charges, benchmark overages, and coding issues - free. If we find problems, your dispute documentation is ready to unlock instantly.</p>
 
     <div class="drop-zone" id="drop-zone">
       <input type="file" accept=".pdf" class="drop-input" id="file-input">
@@ -717,7 +717,7 @@ body{background:var(--navy)}
      SCRIPTS
 ═══════════════════════════════════ -->
 <script>
-// BFCache guard — if browser serves this page from back/forward cache, force a fresh load
+// BFCache guard - if browser serves this page from back/forward cache, force a fresh load
 // so scan state is always re-initialized from storage (not a frozen DOM snapshot)
 window.addEventListener('pageshow', function(e){ if(e.persisted){ window.location.reload(); } });
 // Set PDF.js worker before any extraction runs
@@ -731,7 +731,7 @@ if (typeof pdfjsLib !== 'undefined') {
 <script src="upa-scan-engine.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   UPA SCAN PAGE — Orchestration Layer
+   UPA SCAN PAGE - Orchestration Layer
    Coordinates: upload handling · animation timing · extraction ·
                  fallback routing · findings render · CTA
 ═══════════════════════════════════════════════════════════════ */
@@ -930,7 +930,7 @@ function renderDocumentPreview(file) {
         });
       });
     }).catch(function(){
-      // Preview failed silently — animation still runs
+      // Preview failed silently - animation still runs
     });
   };
   reader.readAsArrayBuffer(file);
@@ -998,7 +998,7 @@ function runAnimationSequence() {
   after(3000, function() { setStatus(STATUS_STEPS[2]); setProgress(40); });
   // T+4200: status 4 + date/line areas
   after(4200, function() { setStatus(STATUS_STEPS[3]); setProgress(55); showCallout(1); showCallout(4); });
-  // T+5400: HOLD POINT — wait for extraction
+  // T+5400: HOLD POINT - wait for extraction
   after(5400, function() {
     setStatus(STATUS_STEPS[4]);
     setProgress(68);
@@ -1128,7 +1128,7 @@ function routeAfterScan(data) {
     showState('state-fallback');
     return;
   }
-  // Write final scan data — overwrites the provisional placeholder written in startScan()
+  // Write final scan data - overwrites the provisional placeholder written in startScan()
   UPAScanEngine.writeScanStateToStorage(data);
   mirrorScanSessionFields(data);
   // Generate local fallback findings while the service review runs
@@ -1302,13 +1302,9 @@ function renderFindings(data, findings) {
   if (estimate.display) {
     caseValBlock.innerHTML =
       '<div class="cvb-left">' +
-        '<div class="cvb-label">Potential review range</div>' +
+        '<div class="cvb-label">Extracted bill total</div>' +
         '<div class="cvb-amount">' + esc(estimate.display) + '</div>' +
-        '<div class="cvb-desc">Based on the ' +
-          (estimate.basis === 'patient_balance'
-            ? 'patient balance identified in your document'
-            : 'charges identified in your document') +
-        '. Actual savings or reductions depend on provider, payer, and document review.</div>' +
+        '<div class="cvb-desc">This is the total read from your uploaded document. Confirm it against your statement.</div>' +
       '</div>';
   } else {
     caseValBlock.innerHTML =
@@ -1330,7 +1326,7 @@ function renderFindings(data, findings) {
   leadBlock.innerHTML =
     '<div class="lc-eyebrow">Free Summary</div>' +
     '<div class="lc-headline">Get your free findings summary emailed to you</div>' +
-    '<div class="lc-sub">Enter your email and we\'ll send you exactly what we found — plus flag new billing errors that match your case.</div>' +
+    '<div class="lc-sub">Enter your email and we\'ll send you exactly what we found - plus flag new billing errors that match your case.</div>' +
     '<div class="lc-form">' +
       '<input type="email" class="lc-input" id="lc-email-input" placeholder="your@email.com" autocomplete="email">' +
       '<button class="lc-btn" id="lc-submit-btn">Send My Free Summary</button>' +
@@ -1402,12 +1398,12 @@ function renderFindings(data, findings) {
     gatedCount + ' additional written request' + (gatedCount !== 1 ? 's' : '') + ' prepared for you to review and send',
     'Step-by-step action plan with timeline',
     'Call scripts for billing departments and insurance carriers',
-    'Downloadable patient packet — everything in one file'
+    'Downloadable patient packet - everything in one file'
   ];
 
   upgradeBlock.innerHTML =
     '<div class="ub-title">We found items worth reviewing. Here is your action plan.</div>' +
-    '<div class="ub-sub">Your scan identified ' + findings.length + ' billing items worth reviewing. The complete package gives you every written request, the call script, the 30-day action plan, and all explanations — ready to use today.</div>' +
+    '<div class="ub-sub">Your scan identified ' + findings.length + ' billing items worth reviewing. The complete package gives you every written request, the call script, the 30-day action plan, and all explanations - ready to use today.</div>' +
     '<div class="ub-includes">' +
       includeItems.map(function(item) {
         return '<div class="ub-include-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' + esc(item) + '</div>';
@@ -1415,7 +1411,7 @@ function renderFindings(data, findings) {
     '</div>' +
     '<a class="btn-upgrade" href="' + esc(checkoutHref) + '" style="font-size:1.0625rem;padding:17px;">' +
       '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' +
-      'Start My Full Review — $97' +
+      'Start My Full Review - $97' +
     '</a>' +
     '<div style="text-align:center;margin-top:10px;font-size:0.625rem;color:#425A72;">✓ Instant access &nbsp;·&nbsp; One-time payment &nbsp;·&nbsp; No subscription</div>' +
     '<div class="ub-trust-row">' +
@@ -1448,7 +1444,7 @@ function scrollToUpgrade() {
   const el = document.getElementById('upgrade-block');
   const lc = document.getElementById('lead-capture-block');
   if (el && el.style.display === 'none') {
-    // Lead capture not yet completed — scroll to lead capture block first
+    // Lead capture not yet completed - scroll to lead capture block first
     if (lc) lc.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }

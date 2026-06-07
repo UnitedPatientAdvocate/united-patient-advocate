@@ -1191,23 +1191,22 @@ function callFreePreviewAI(data) {
         var aiFindings = rawAiFindings.map(function(item) {
           if (typeof item === 'string') {
             return {
-              headline: item,
+              title: item,
               teaser: 'Flagged for review based on your uploaded bill.'
             };
           }
           if (!item || typeof item !== 'object') return null;
-          return {
-            headline: item.headline || item.title || '',
-            teaser: item.teaser || item.oneLineExplanation || item.explanation || item.lineItem || 'Flagged for review based on your uploaded bill.'
-          };
+          return item;
         }).filter(function(item) {
-          return item && item.headline;
+          return item && (item.title || item.headline);
         });
         if (aiFindings.length && window._upaScanData && Array.isArray(window._upaScanFindings)) {
           window._upaScanFindings.forEach(function(f, i) {
             if (f && aiFindings[i]) {
-              f.headline = aiFindings[i].headline;
-              f.aiTeaser = aiFindings[i].teaser;
+              var aiHeadline = aiFindings[i].title || aiFindings[i].headline;
+              var aiTeaser = aiFindings[i].teaser || aiFindings[i].body;
+              if (aiHeadline) f.headline = aiHeadline;
+              if (aiTeaser) f.aiTeaser = aiTeaser;
             }
           });
           renderFindings(window._upaScanData, window._upaScanFindings);

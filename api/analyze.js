@@ -12,30 +12,36 @@ const PREFERRED_MODELS = [
 const PROMPT_CONFIGS = {
   free_preview: {
     maxTokens: 2500,
-    buildPrompt: intake => `Return ONLY compact valid JSON for a FREE medical-bill pre-screening. No markdown. No raw newlines inside strings. All values must be valid JSON strings (escape any internal quotes).
+    buildPrompt: intake => `Return ONLY compact valid JSON for a FREE medical-bill pre-screening. No markdown. No raw newlines inside strings. All values must be valid JSON strings.
 
-Framing rules (follow exactly):
-- Observational, careful consumer-guidance language only.
-- Never accuse a provider, insurer, or biller of wrongdoing.
-- Never promise savings, reductions, corrections, or specific outcomes.
-- Never use words like "overcharged," "fraud," "billing error confirmed," or language implying legal or medical advice.
-- Do not fabricate CPT codes, amounts, or dates that are not present in the submitted data.
-- If RAW BILL TEXT is supplied, base every finding on patterns actually present in it.
+You are reading a patient's submitted bill information and, if present, raw bill text. Identify specific observable patterns worth a closer look — not to conclude errors exist, not to promise savings, not to advise medically or legally.
 
-Scan for these specific patterns (only generate a finding if evidence exists in the data):
-1. Duplicate procedure codes: the same CPT or HCPCS code appearing more than once, potentially on the same date
-2. Quantity anomalies: unit counts that appear high relative to typical usage for that procedure type
-3. EOB vs itemized mismatch: a patient balance that does not reconcile with the adjustments described
-4. CLFS lab markup: laboratory charges that appear above typical Clinical Laboratory Fee Schedule reference levels
-5. Balance or out-of-network exposure: out-of-network charges on an otherwise in-network claim, or unexplained balance after insurance
+Framing rules (non-negotiable):
+- Never use: "overcharged," "overpaid," "recover," "error confirmed," "billed incorrectly," or language implying a definite mistake or money owed back.
+- Never promise any financial outcome.
+- Frame every finding as something that "may be worth questioning" or "appears worth a closer look."
+- No legal or medical advice.
+- Do not fabricate CPT codes, amounts, dates, or patterns not present in the submitted data.
+- If a field is empty or the bill text is absent, do not invent data to fill a finding.
 
-Generate between 1 and 4 findings based strictly on what the data supports. Do not invent findings when the data is absent.
+Headline style — write headlines as specific, plain observations, not category labels:
+GOOD: "A charge for code 99285 appears more than once in your bill."
+BAD:  "Procedure Code Verification — 99285."
+GOOD: "Your itemized total ($25,752) and the insurer's allowed amount ($7,904) differ by roughly $17,800."
+BAD:  "Charge Amount Needs Itemized Review."
 
-For each finding:
-- "headline": short specific title naming the actual pattern (no savings promises, no accusation)
-- "teaser": 1-2 sentences visible in the free scan, referencing specific codes, amounts, or dates from the bill; end mid-thought to signal locked detail
-- "fullExplanation": "" (empty string, locked in free tier)
-- "preparedRequest": "" (empty string, locked in free tier)
+Scan for these five patterns using the bill text and structured fields below. Only generate a finding when the data actually supports it:
+1. Duplicate codes — the same CPT or HCPCS code appearing more than once, on the same or adjacent dates
+2. Quantity anomalies — unit counts that appear unusually high for the procedure type billed
+3. Itemized-vs-EOB mismatch — the itemized charges do not reconcile with the insurer's allowed amount or EOB total
+4. Out-of-network exposure — OON charges on an otherwise in-network visit, or an unexplained patient balance after insurance
+5. Lab markup vs CLFS — laboratory line items that appear significantly above typical Clinical Laboratory Fee Schedule reference levels
+
+Special case — if the bill text is absent or too short to analyze (fewer than 20 meaningful characters), return exactly one finding:
+  headline: "Requesting a full itemized statement is the recommended first step."
+  teaser: "Without an itemized statement listing each charge by code and date, it is not possible to identify specific patterns worth questioning. Providers are generally expected to supply one on written request."
+
+Generate 1 to 4 findings. Never invent a finding not supported by the submitted data.
 
 Patient submission:
 ${formatIntake(intake)}
@@ -49,12 +55,12 @@ Return exactly this JSON with no markdown fences:
   },
   "preview": {
     "screeningHeadline": "One sentence describing what type of review this bill warrants",
-    "teaserFinding": "One sentence about the single most notable specific pattern found in this bill"
+    "teaserFinding": "One sentence naming the single most notable specific observable pattern in this bill"
   },
   "findings": [
     {
-      "headline": "Specific finding title",
-      "teaser": "1-2 sentences referencing actual bill details, ending mid-thought",
+      "headline": "Plain-sentence observation naming the specific pattern and the code or amount involved",
+      "teaser": "1-2 sentences referencing actual codes, amounts, or dates from the bill; end mid-thought to signal that locked detail follows",
       "fullExplanation": "",
       "preparedRequest": ""
     }
@@ -193,11 +199,18 @@ function formatIntake(intake) {
 }
 
 function buildFallbackPreview(intake) {
+  const hasBillText = intake.billText && intake.billText.trim().length > 20;
   const provider = intake.providerName && intake.providerName !== 'Unknown Hospital'
     ? intake.providerName
     : 'your provider';
-  const amount = intake.totalBilled ? `$${intake.totalBilled}` : 'the submitted bill';
-  const finding = `The ${amount} bill from ${provider} has enough detail to justify a closer itemized review before you rely on the balance as final.`;
+  const amount = intake.totalBilled ? `$${intake.totalBilled}` : '';
+
+  const headline = hasBillText
+    ? `The bill from ${provider}${amount ? ` totaling ${amount}` : ''} contains patterns that may be worth a closer look.`
+    : 'Requesting a full itemized statement is the recommended first step.';
+  const teaser = hasBillText
+    ? `The charges submitted from ${provider} include enough detail to warrant a structured review of codes, quantities, and coverage applied.`
+    : 'Without an itemized statement listing each charge by code and date, it is not possible to identify specific patterns worth questioning. Providers are generally expected to supply one on written request.';
 
   return {
     generationMode: 'free_preview',
@@ -206,13 +219,15 @@ function buildFallbackPreview(intake) {
       severityLabel: 'Review recommended'
     },
     preview: {
-      screeningHeadline: 'A closer billing review may be useful.',
-      teaserFinding: finding
+      screeningHeadline: hasBillText
+        ? `This bill warrants a structured review of codes, quantities, and coverage.`
+        : 'An itemized statement is needed before specific patterns can be identified.',
+      teaserFinding: teaser
     },
     findings: [
       {
-        headline: 'Itemized review warranted',
-        teaser: finding,
+        headline,
+        teaser,
         fullExplanation: '',
         preparedRequest: ''
       }

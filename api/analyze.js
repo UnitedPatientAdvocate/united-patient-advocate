@@ -989,7 +989,7 @@ async function buildModelCandidates(apiKey, requestedModel) {
 }
 
 async function handler(req, res) {
-  const MODEL = 'claude-sonnet-4-20250514'; // hardcoded, do not change
+  const MODEL = 'claude-sonnet-4-6'; // hardcoded, do not change
   if (req.method !== 'POST') return res.status(405).end();
 
   const apiKey = getAnthropicApiKey();

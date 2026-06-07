@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>United Patient Advocate, Medical Billing Review</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>United Patient Advocate — Medical Billing Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -70,8 +70,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .hero-hl{font-family:var(--serif);font-size:3.25rem;font-weight:700;color:var(--navy);letter-spacing:-.035em;line-height:1.12;margin-bottom:14px;position:relative;z-index:1}
 .hero-hl em{font-style:italic;color:var(--teal)}
 .hero-sub{font-size:1rem;color:var(--ink-3);line-height:1.75;max-width:520px;margin:0 auto 32px;position:relative;z-index:1}
-.hero .hero-hl:not(.phase4-hero-hl),.hero .hero-sub:not(.phase4-hero-sub),.hero .hero-stats{display:none}
-.hero-cta{display:inline-flex;align-items:center;gap:9px;min-height:44px;font-family:var(--sans);font-size:.9375rem;font-weight:700;color:white;background:var(--teal);padding:15px 32px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .22s var(--ease);box-shadow:0 4px 20px rgba(30,107,90,.35),0 8px 40px rgba(30,107,90,.15);position:relative;z-index:1}
+.hero-cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-size:.9375rem;font-weight:700;color:white;background:var(--teal);padding:15px 32px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .22s var(--ease);box-shadow:0 4px 20px rgba(30,107,90,.35),0 8px 40px rgba(30,107,90,.15);position:relative;z-index:1}
 .hero-cta:hover{background:var(--teal-lt);transform:translateY(-2px);box-shadow:0 6px 28px rgba(30,107,90,.45)}
 .hero-cta svg{width:16px;height:16px;stroke:white;stroke-width:2.2;fill:none}
 .hero-cta-secondary{display:block;font-size:.6875rem;color:var(--ink-3);margin-top:11px;text-decoration:none;position:relative;z-index:1}
@@ -79,18 +78,30 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .hero-microcopy{font-size:.5625rem;color:var(--ink-4);margin-top:10px;display:flex;align-items:center;justify-content:center;gap:14px;position:relative;z-index:1}
 .hero-microcopy span{display:flex;align-items:center;gap:5px}
 .hero-microcopy svg{width:11px;height:11px;stroke:var(--ink-4);stroke-width:1.8;fill:none}
-.hero-price{font-family:var(--serif);font-size:2.15rem;font-weight:900;color:var(--navy);letter-spacing:-.04em;line-height:1;margin:-4px 0 8px;position:relative;z-index:1}
-.hero-savings-line{font-family:"DM Sans",var(--sans);font-size:1rem;font-weight:500;color:#1D9E75;line-height:1.45;margin:-2px 0 20px;position:relative;z-index:1}
-.hero-urgency{font-family:"DM Sans",var(--sans);font-size:.875rem;font-weight:400;color:#64748b;line-height:1.45;margin:0 0 12px;position:relative;z-index:1}
-.hero-trust-row{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap;font-family:"DM Sans",var(--sans);font-size:.8rem;font-weight:300;color:#64748b;line-height:1.45;margin:12px 0 0;position:relative;z-index:1}
-.hero-trust-row span{display:inline-flex;align-items:center;gap:6px}
-/* Social proof stats bar */
-.stats-bar-section{background:#162033;padding:22px 40px}
-.stats-bar{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.025)}
-.stats-item{padding:18px 20px;text-align:center;border-right:1px solid rgba(255,255,255,.10)}
-.stats-item:last-child{border-right:none}
-.stats-number{font-family:"DM Sans",var(--sans);font-size:1.35rem;font-weight:800;color:#1D9E75;line-height:1.15;margin-bottom:4px}
-.stats-label{font-family:"DM Sans",var(--sans);font-size:.72rem;font-weight:500;color:rgba(235,244,255,.78);line-height:1.45}
+/* Stats row */
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);max-width:600px;margin:40px auto 0;border:1px solid var(--bdr);border-radius:12px;overflow:hidden;background:white;box-shadow:0 2px 12px rgba(28,43,72,.07)}
+.hero-stat{padding:18px 20px;text-align:center;border-right:1px solid var(--bdr)}
+.hero-stat:last-child{border-right:none}
+.hs-val{font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--teal);letter-spacing:-.03em;line-height:1;margin-bottom:4px}
+.hs-label{font-size:.5625rem;color:var(--ink-3);line-height:1.5;margin-bottom:2px}
+.hs-source{font-family:var(--mono);font-size:.375rem;color:var(--ink-4);letter-spacing:.04em}
+
+/* ISSUE SELECTOR */
+.issue-selector{background:white;border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);padding:30px 20px 34px}
+.issue-selector-inner{max-width:860px;margin:0 auto}
+.issue-selector-label{font-size:.4375rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);text-align:center;margin-bottom:10px}
+.issue-selector-title{font-family:var(--serif);font-size:1.55rem;font-weight:700;color:var(--navy);line-height:1.2;text-align:center;margin-bottom:8px}
+.issue-selector-sub{font-size:.8125rem;color:var(--ink-3);line-height:1.65;text-align:center;max-width:560px;margin:0 auto 18px}
+.issue-selector-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.issue-card{display:flex;flex-direction:column;min-height:172px;background:var(--bg-warm);border:1px solid var(--bdr);border-radius:10px;padding:18px;text-decoration:none;color:inherit;box-shadow:0 1px 5px rgba(28,43,72,.05);transition:all .2s var(--ease)}
+.issue-card:hover{transform:translateY(-2px);border-color:rgba(30,107,90,.28);box-shadow:0 6px 18px rgba(28,43,72,.10)}
+.issue-card.featured{background:linear-gradient(180deg,#FFFFFF 0%,#F7F9FC 100%);border-color:rgba(30,107,90,.24)}
+.issue-icon{width:34px;height:34px;border-radius:9px;background:rgba(30,107,90,.09);border:1px solid rgba(30,107,90,.15);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.issue-icon svg{width:16px;height:16px;stroke:var(--teal);stroke-width:2;fill:none}
+.issue-card-title{font-size:.9rem;font-weight:800;color:var(--navy);line-height:1.3;margin-bottom:6px}
+.issue-card-desc{font-size:.625rem;color:var(--ink-3);line-height:1.6;margin-bottom:14px;flex:1}
+.issue-card-action{display:flex;align-items:center;gap:6px;font-size:.625rem;font-weight:800;color:var(--teal)}
+.issue-card-action svg{width:12px;height:12px;stroke:currentColor;stroke-width:2.2;fill:none}
 
 /* ═══════════════════════════════════
    INSURANCE LOGOS
@@ -102,44 +113,6 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .logo-abbr{font-family:var(--mono);font-size:.625rem;font-weight:700;color:var(--ink-3);letter-spacing:.06em}
 .logo-name{font-size:.3125rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)}
 .logos-disclaimer{font-size:.4375rem;color:var(--ink-4);text-align:center;max-width:640px;margin:12px auto 0;line-height:1.60}
-
-/* PRICING */
-.pricing-section{background:#fff;padding:64px 40px;border-bottom:1px solid var(--bdr)}
-.pricing-inner{max-width:1080px;margin:0 auto}
-.pricing-title{font-family:var(--serif);font-size:2.1rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;text-align:center;margin-bottom:10px}
-.pricing-sub{font-family:"DM Sans",var(--sans);font-size:.95rem;color:var(--ink-3);line-height:1.65;text-align:center;max-width:640px;margin:0 auto 30px}
-.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}
-.tier-card{position:relative;background:#F7F9FC;border:1px solid rgba(28,43,72,.10);border-radius:14px;padding:24px 22px;display:flex;flex-direction:column;min-height:100%;box-shadow:0 6px 22px rgba(28,43,72,.06)}
-.tier-card.featured{background:#fff;border:2px solid #1D9E75;box-shadow:0 14px 42px rgba(29,158,117,.16);transform:translateY(-4px)}
-.tier-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-family:"DM Sans",var(--sans);font-size:.58rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:white;background:#1D9E75;padding:6px 12px;border-radius:100px;white-space:nowrap}
-.tier-kicker{font-family:"DM Sans",var(--sans);font-size:.62rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-4);margin-bottom:7px}
-.tier-name{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--navy);line-height:1.15;margin-bottom:6px}
-.tier-price{font-family:var(--serif);font-size:2.35rem;font-weight:900;color:#1D9E75;line-height:1;margin-bottom:14px}
-.tier-list{display:flex;flex-direction:column;gap:8px;margin-bottom:22px;flex:1}
-.tier-list li{font-family:"DM Sans",var(--sans);font-size:.78rem;color:var(--ink-2);line-height:1.45;list-style:none;display:flex;gap:8px}
-.tier-list li::before{content:"✓";color:#1D9E75;font-weight:800}
-.tier-btn{display:flex;align-items:center;justify-content:center;width:100%;border-radius:100px;padding:12px 14px;font-family:"DM Sans",var(--sans);font-size:.82rem;font-weight:800;text-decoration:none;border:0;background:#1D9E75;color:#fff;cursor:pointer}
-.tier-btn.disabled{background:#D9E0EA;color:#7A8698;cursor:not-allowed}
-@media(max-width:760px){.pricing-section{padding:44px 18px}.pricing-title{font-size:1.65rem}.pricing-grid{grid-template-columns:1fr}.tier-card.featured{transform:none}.hero-price{font-size:1.8rem}.hero-savings-line{font-size:1rem}}
-
-/* WHAT WE HELP YOU CATCH */
-.catch-section{background:#EEF1F6;padding:72px 40px;border-bottom:1px solid rgba(22,32,51,.08)}
-.catch-inner{max-width:1120px;margin:0 auto}
-.catch-title{font-family:"Playfair Display",Georgia,serif;font-size:2.35rem;font-weight:700;line-height:1.18;color:#162033;text-align:center;margin-bottom:12px}
-.catch-intro{max-width:720px;margin:0 auto 28px;font-family:"DM Sans",var(--sans);font-size:1rem;font-weight:400;line-height:1.7;color:#3A4658;text-align:center}
-.catch-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;overflow:hidden;max-width:980px;margin:0 auto 28px;background:rgba(22,32,51,.09);border:1px solid rgba(22,32,51,.08);border-radius:14px;box-shadow:0 6px 22px rgba(22,32,51,.05)}
-.catch-stat{display:flex;align-items:center;justify-content:center;min-height:92px;padding:18px 20px;background:#fff;font-family:"DM Sans",var(--sans);font-size:.9rem;font-weight:600;line-height:1.45;color:#162033;text-align:center}
-.catch-stat strong{color:#1D9E75;font-weight:800}
-.catch-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
-.catch-card{position:relative;min-height:210px;background:#fff;border:1px solid rgba(22,32,51,.08);border-radius:14px;padding:24px 22px;box-shadow:0 6px 22px rgba(22,32,51,.06)}
-.catch-card::before{content:"";position:absolute;top:0;left:22px;width:42px;height:3px;background:#1D9E75;border-radius:0 0 3px 3px}
-.catch-card.lab-card::before{background:#B8862E}
-.catch-card-title{font-family:"Playfair Display",Georgia,serif;font-size:1.28rem;font-weight:700;line-height:1.25;color:#162033;margin:8px 0 10px}
-.catch-card-copy{font-family:"DM Sans",var(--sans);font-size:.88rem;font-weight:400;line-height:1.65;color:#3A4658}
-.catch-forever{display:flex;align-items:center;justify-content:center;max-width:760px;margin:28px auto 0;padding:18px 22px;background:#162033;border-radius:14px;box-shadow:0 10px 28px rgba(22,32,51,.14);font-family:"DM Sans",var(--sans);font-size:1rem;font-weight:600;line-height:1.5;color:#fff;text-align:center}
-.catch-forever strong{color:#1D9E75}
-@media(max-width:980px){.catch-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:620px){.catch-section{padding:48px 18px}.catch-title{font-size:1.8rem}.catch-intro{font-size:.94rem;margin-bottom:22px}.catch-stats{grid-template-columns:1fr;gap:1px;margin-bottom:22px}.catch-stat{min-height:0;padding:16px 18px}.catch-grid{grid-template-columns:1fr;gap:12px}.catch-card{min-height:0;padding:22px 20px}.catch-forever{margin-top:22px;padding:17px 18px;font-size:.94rem}}
 
 /* ═══════════════════════════════════
    WHAT THE DATA SHOWS
@@ -222,15 +195,30 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .rt-footer-badge{display:inline-flex;align-items:center;gap:5px;font-size:.5rem;font-weight:700;color:var(--green);letter-spacing:.04em}
 .rt-footer-badge svg{width:11px;height:11px;stroke:var(--green);stroke-width:2;fill:none}
 .rt-footer-sub{font-size:.4375rem;color:var(--ink-3);margin-top:4px}
-.see-btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-family:var(--sans);font-size:.875rem;font-weight:700;color:white;background:var(--navy);padding:13px 28px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .2s var(--ease);box-shadow:0 3px 12px rgba(28,43,72,.20);margin-top:16px}
+.see-btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:.875rem;font-weight:700;color:white;background:var(--navy);padding:13px 28px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .2s var(--ease);box-shadow:0 3px 12px rgba(28,43,72,.20);margin-top:16px}
 .see-btn:hover{background:var(--navy-mid);transform:translateY(-1px)}
 .see-btn svg{width:14px;height:14px;stroke:white;stroke-width:2.2;fill:none}
 
+/* ═══════════════════════════════════
+   WHAT WE EXAMINE
+═══════════════════════════════════ */
+.examine-section{padding:72px 40px;background:var(--bg-lt)}
+.examine-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:700px;margin:0 auto}
+.examine-card{background:white;border:1px solid var(--bdr);border-radius:10px;padding:18px;display:flex;align-items:flex-start;gap:13px;box-shadow:0 1px 4px rgba(28,43,72,.05);transition:box-shadow .2s ease,transform .2s ease}
+.examine-card:hover{box-shadow:0 4px 16px rgba(28,43,72,.10);transform:translateY(-1px)}
+.ec-icon{width:32px;height:32px;border-radius:7px;background:rgba(30,107,90,.08);border:1px solid rgba(30,107,90,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ec-icon svg{width:14px;height:14px;stroke:var(--teal);stroke-width:2;fill:none}
+.ec-icon.crimson{background:rgba(224,59,59,.08);border-color:rgba(224,59,59,.15)}
+.ec-icon.crimson svg{stroke:var(--crimson)}
+.ec-icon.cobalt{background:rgba(59,110,224,.08);border-color:rgba(59,110,224,.15)}
+.ec-icon.cobalt svg{stroke:var(--cobalt)}
+.ec-icon.amber{background:rgba(208,112,0,.08);border-color:rgba(208,112,0,.15)}
+.ec-icon.amber svg{stroke:var(--amber)}
 .ec-title{font-size:.8125rem;font-weight:700;color:var(--navy);margin-bottom:4px}
 .ec-desc{font-size:.625rem;color:var(--ink-3);line-height:1.60}
 
 /* ═══════════════════════════════════
-   HOW IT WORKS, THREE STEPS
+   HOW IT WORKS — THREE STEPS
 ═══════════════════════════════════ */
 .steps-section{background:var(--navy);padding:72px 40px;position:relative;overflow:hidden}
 .steps-section::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 600px 300px at 30% 50%,rgba(30,107,90,.10) 0%,transparent 60%);pointer-events:none}
@@ -282,9 +270,24 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .ccb-text{}
 .ccb-title{font-size:.9375rem;font-weight:700;color:white;margin-bottom:4px;line-height:1.35}
 .ccb-sub{font-size:.625rem;color:rgba(235,244,255,.45);line-height:1.55}
-.ccb-btn{display:flex;align-items:center;gap:7px;min-height:44px;background:var(--teal);color:white;font-size:.8125rem;font-weight:700;padding:11px 22px;border-radius:100px;border:none;cursor:pointer;white-space:nowrap;text-decoration:none;transition:all .2s var(--ease);flex-shrink:0;box-shadow:0 3px 12px rgba(30,107,90,.30)}
+.ccb-btn{display:flex;align-items:center;gap:7px;background:var(--teal);color:white;font-size:.8125rem;font-weight:700;padding:11px 22px;border-radius:100px;border:none;cursor:pointer;white-space:nowrap;text-decoration:none;transition:all .2s var(--ease);flex-shrink:0;box-shadow:0 3px 12px rgba(30,107,90,.30)}
 .ccb-btn:hover{background:var(--teal-lt);transform:translateY(-1px)}
 .ccb-btn svg{width:13px;height:13px;stroke:white;stroke-width:2.2;fill:none}
+
+/* ═══════════════════════════════════
+   EXAMPLE FINDINGS
+═══════════════════════════════════ */
+.findings-section{padding:72px 40px;background:var(--bg-warm)}
+.finding-card{background:white;border:1px solid var(--bdr);border-radius:10px;padding:20px 22px;margin-bottom:10px;max-width:680px;margin-left:auto;margin-right:auto;box-shadow:0 1px 4px rgba(28,43,72,.05)}
+.fc-tag-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.fc-tag{font-size:.375rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:100px;border:1px solid}
+.fct-duplicate{color:var(--crimson);border-color:rgba(224,59,59,.25);background:rgba(224,59,59,.06)}
+.fct-benchmark{color:var(--cobalt);border-color:rgba(59,110,224,.25);background:rgba(59,110,224,.06)}
+.fct-coding{color:var(--amber);border-color:rgba(208,112,0,.25);background:rgba(208,112,0,.06)}
+.fc-illus{font-size:.4375rem;color:var(--ink-4);font-style:italic}
+.fc-title{font-size:.9375rem;font-weight:700;color:var(--navy);line-height:1.35;margin-bottom:6px}
+.fc-desc{font-size:.6875rem;color:var(--ink-3);line-height:1.68}
+.findings-disclaimer{max-width:680px;margin:16px auto 0;background:rgba(28,43,72,.04);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;font-size:.4375rem;color:var(--ink-4);text-align:center;line-height:1.65}
 
 /* ═══════════════════════════════════
    PATIENT SCENARIOS
@@ -324,7 +327,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .ei-badge.ins{background:rgba(208,112,0,.08);color:var(--amber);border-color:rgba(208,112,0,.18)}
 
 /* ═══════════════════════════════════
-   EDITORIAL, NOT YOUR FAULT
+   EDITORIAL — NOT YOUR FAULT
 ═══════════════════════════════════ */
 .editorial-section{padding:72px 40px;background:var(--bg-lt)}
 .editorial-inner{max-width:600px;margin:0 auto}
@@ -341,7 +344,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .ed-chip-desc{font-size:.4375rem;color:var(--ink-4)}
 
 /* ═══════════════════════════════════
-   INTAKE SECTION, dark, premium, embedded
+   INTAKE SECTION — dark, premium, embedded
 ═══════════════════════════════════ */
 .intake-section{background:var(--navy-deep);padding:72px 40px;position:relative;overflow:hidden}
 /* Blueprint grid */
@@ -527,32 +530,28 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(-
 .footer-logo-name sub{font-size:.4rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-4);display:block;margin-top:1px}
 .footer-disc{font-size:.4375rem;color:var(--ink-4);line-height:1.68;margin-bottom:8px}
 .footer-copy{font-size:.4375rem;color:var(--ink-4)}
-.faq-section{background:white;padding:68px 40px;border-top:1px solid var(--bdr)}
-.faq-inner{max-width:860px;margin:0 auto}
-.faq-title{font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.18;text-align:center;margin-bottom:26px}
-.faq-list{display:flex;flex-direction:column;gap:10px}
-.faq-item{background:#F7F9FC;border:1px solid rgba(28,43,72,.10);border-radius:12px;padding:18px 20px}
-.faq-q{font-family:"DM Sans",var(--sans);font-size:.95rem;font-weight:700;color:var(--navy);line-height:1.4;margin-bottom:7px}
-.faq-a{font-family:"DM Sans",var(--sans);font-size:.88rem;font-weight:300;color:var(--ink-2);line-height:1.7}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (max-width:600px){
 html,body{max-width:100%;overflow-x:hidden}
 .nav{height:auto;min-height:60px;padding:0 16px;gap:10px;flex-wrap:wrap}
 .btn-primary{margin-left:0;padding:9px 14px;font-size:.75rem}
 .banner{padding:9px 14px;font-size:.6875rem}
-.hero,.section,.data-section,.quick-q,.steps-section,.comparison-section,.scenarios-section,.expect-section,.editorial-section,.intake-section{padding-left:20px;padding-right:20px}
+.hero,.section,.data-section,.quick-q,.examine-section,.steps-section,.comparison-section,.findings-section,.scenarios-section,.expect-section,.editorial-section,.intake-section{padding-left:20px;padding-right:20px}
 .hero{padding-top:64px}
 .hero-hl{font-size:2.35rem}
-.hero-microcopy{max-width:100%}
-.stats-bar-section{padding:18px 16px}
-.stats-bar{grid-template-columns:1fr}
-.stats-item{border-right:none;border-bottom:1px solid rgba(255,255,255,.10);padding:16px 14px}
-.stats-item:last-child{border-bottom:none}
+.hero-microcopy,.hero-stats{max-width:100%}
+.hero-stats{grid-template-columns:1fr}
+.hero-stat{border-right:none;border-bottom:1px solid var(--bdr)}
+.hero-stat:last-child{border-bottom:none}
+.issue-selector{padding:28px 20px 32px}
+.issue-selector-title{font-size:1.35rem}
+.issue-selector-grid{grid-template-columns:1fr}
+.issue-card{min-height:0}
 .research-grid{grid-template-columns:1fr;gap:10px}
 .research-card,.rc-header>div{min-width:0}
 .rc-source,.rc-citation,.rc-desc,.rd-txt{overflow-wrap:anywhere}
 .rc-pair{flex-wrap:wrap}
-.steps-grid,.scenarios-grid,.concern-grid,.field-row,.opt-grid-2,.opt-grid-3{grid-template-columns:1fr}
+.examine-grid,.steps-grid,.scenarios-grid,.concern-grid,.field-row,.opt-grid-2,.opt-grid-3{grid-template-columns:1fr}
 .sc-num::after{display:none}
 /* ── Comparison: mobile two-column redesign ─────────────────────────────
    On ≤600px the three-column grid collapses to a scannable two-column
@@ -561,7 +560,7 @@ html,body{max-width:100%;overflow-x:hidden}
    ─────────────────────────────────────────────────────────────────────── */
 .comparison-section{padding:40px 16px 36px}
 .comp-table{max-width:100%;border-radius:14px}
-/* Header, hide "The Situation" label; show only column labels */
+/* Header — hide "The Situation" label; show only column labels */
 .ct-head{display:grid;grid-template-columns:1fr 1.2fr}
 .ct-head-cell:first-child{display:none}
 .ct-head-cell:nth-child(2){border-right:1px solid var(--bdr);padding:11px 13px;font-size:.425rem;letter-spacing:.09em}
@@ -593,53 +592,16 @@ html,body{max-width:100%;overflow-x:hidden}
 .step{padding:24px 20px 20px}
 .nav-btns{padding:14px 20px 22px}
 }
-@media(max-width:760px){.hero-trust-row{gap:10px;flex-direction:column}.faq-section{padding:44px 18px}.faq-title{font-size:1.65rem}.pricing-grid{grid-template-columns:1fr}.preview-pricing-grid{grid-template-columns:1fr}}
-
-/* Premium visual system */
-.hero{min-height:600px;display:flex;flex-direction:column;align-items:center;justify-content:center;background-image:url("../images/hero-stress.jpg");background-size:cover;background-position:center top;padding:88px 40px 72px}
-.hero::before{background:linear-gradient(135deg,rgba(13,27,42,.85) 0%,rgba(22,32,51,.75) 50%,rgba(13,27,42,.65) 100%);z-index:0}
-.hero>*{position:relative;z-index:2}
-.hero .phase4-hero-hl{font-family:"Playfair Display",Georgia,serif;font-size:52px;font-weight:700;line-height:1.15;letter-spacing:-.02em;color:#fff;text-shadow:0 3px 24px rgba(0,0,0,.35)}
-.hero .phase4-hero-hl em{color:#fff}
-.hero .phase4-hero-sub{font-family:"DM Sans",system-ui,sans-serif;font-size:18px;font-weight:400;line-height:1.7;color:rgba(255,255,255,.75)}
-.hero-price{color:#fff}
-.hero-savings-line{color:#7BE5C1}
-.hero-urgency,.hero-trust-row,.hero-cta-secondary,.hero-microcopy{color:rgba(255,255,255,.75)}
-.hero-microcopy svg{stroke:rgba(255,255,255,.75)}
-.hero-cta,.tier-btn,.btn-primary,.comp-cta-box a{background:#1D9E75;color:#fff;padding:18px 40px;border-radius:10px;font-family:"DM Sans",system-ui,sans-serif;font-size:17px;font-weight:600;letter-spacing:.01em;box-shadow:0 4px 20px rgba(29,158,117,.35);border:none;cursor:pointer;transition:all .2s ease}
-.hero-cta:hover,.tier-btn:hover,.btn-primary:hover,.comp-cta-box a:hover{background:#178a65;box-shadow:0 6px 28px rgba(29,158,117,.5);transform:translateY(-1px)}
-.premium-trust-strip{background:rgba(29,158,117,.06);border-top:1px solid rgba(29,158,117,.12);border-bottom:1px solid rgba(29,158,117,.12);padding:16px 24px;display:flex;justify-content:center;gap:40px;flex-wrap:wrap}
-.premium-trust-badge{display:inline-flex;align-items:center;gap:9px;color:#162033;font-family:"DM Sans",system-ui,sans-serif;font-size:13px;font-weight:500;letter-spacing:.02em}
-.premium-trust-badge svg{width:20px;height:20px;stroke:#1D9E75;stroke-width:1.5;fill:none;flex-shrink:0}
-.stats-bar-section{background:#162033;padding:32px 24px;border-top:1px solid rgba(255,255,255,.06)}
-.stats-number{font-family:"Playfair Display",Georgia,serif;font-size:36px;font-weight:700;color:#1D9E75}
-.stats-label{font-family:"DM Sans",system-ui,sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,.60);text-transform:uppercase;letter-spacing:.06em}
-.tier-card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04)}
-.tier-card.featured{border:2px solid #1D9E75;border-radius:16px;box-shadow:0 8px 40px rgba(29,158,117,.2);transform:scale(1.03);overflow:hidden}
-.tier-card.featured::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:#1D9E75;border-radius:16px 16px 0 0}
-.tier-price{font-family:"Playfair Display",Georgia,serif;font-size:48px;font-weight:700;color:#162033}
-.section-hl,.pricing-title,.faq-title{font-family:"Playfair Display",Georgia,serif;font-size:38px;font-weight:700;line-height:1.2;color:#162033;text-align:center;margin-bottom:12px}
-.section-hl::after,.pricing-title::after,.faq-title::after{content:"";display:block;width:40px;height:3px;background:#1D9E75;border-radius:2px;margin:12px auto 32px}
-@media(max-width:767px){
-  .hero{min-height:420px;background-position:center center;padding:54px 18px 46px}
-  .hero .phase4-hero-hl{font-size:36px}
-  .section-hl,.pricing-title,.faq-title{font-size:26px}
-  .premium-trust-strip{gap:20px;padding:16px}
-  .premium-trust-badge{width:calc(50% - 10px);justify-content:flex-start}
-  .hero-cta,.tier-btn,.btn-primary,.comp-cta-box a{width:100%;padding:18px 24px;justify-content:center}
-  .pricing-grid{grid-template-columns:1fr}
-  .tier-card.featured{transform:none;border:2px solid #1D9E75}
-}
 </style>
 </head>
 <body>
 
 <!-- ANNOUNCEMENT BANNER -->
-<div class="banner">🔥 <strong>Initial Launch Pricing</strong>, Our price will be going up. Lock in your rate now while you still can.</div>
+<div class="banner">🔥 <strong>$668 worth of tools — yours for $97.</strong> Dispute letter + appeal template + call script + CPT guide + action plan. Launch price only.</div>
 
 <!-- NAV -->
 <div class="nav">
-  <a href="/" class="nav-brand">
+  <a href="javascript:void(0)" class="nav-brand">
     <div class="nav-shield">
       <img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate">
     </div>
@@ -653,163 +615,59 @@ html,body{max-width:100%;overflow-x:hidden}
 
 <!-- ═══ HERO ═══ -->
 <div class="hero">
+  <div class="hero-eyebrow">Free Medical Bill Scan · Independent Dispute Documentation</div>
   <div class="hero-hl phase4-hero-hl">Medical Bills Are Negotiable.<br><em>Most People Never Know.</em></div>
   <p class="hero-sub phase4-hero-sub">We review your bill line by line, generate your complete dispute package, and you keep 100% of what you recover.</p>
-  <div class="hero-eyebrow">Free Medical Bill Scan · Independent Dispute Documentation</div>
-  <div class="hero-hl">Upload Your Bill.<br><em>We Flag What to Review.</em></div>
-  <div class="hero-sub">Upload your medical bill or EOB and our bill scanner reads it in seconds, identifying the specific charges, codes, and discrepancies that give you the best grounds for dispute. Then we prepare your complete documentation package.</div>
-  <div class="hero-price">$97 Full Dispute Kit</div>
-  <div class="hero-savings-line">Flat $97, you keep 100% of your savings.</div>
-  <div class="hero-urgency">⏱ </div>
   <a href="/UPA-Final/00_upa-scan.html" class="hero-cta">
     <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    Upload My Bill, Free Scan
+    Scan My Bill Free — See What We Find
   </a>
-  <a href="/scanner" class="hero-cta-secondary">Not sure yet? Check your bill for red flags first</a>
-  <div class="hero-trust-row">
-    <span>🔒 Secure Checkout</span>
-    <span>↩ 7-Day Satisfaction Guarantee</span>
-    <span>👤 Your data stays yours</span>
-  </div>
   <a href="#begin-review" class="hero-cta-secondary">No bill yet? Start with the review form →</a>
   <div class="hero-microcopy">
     <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/></svg> No account required</span>
-    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Most reviews are ready quickly</span>
     <span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 100% confidential</span>
   </div>
   <div class="hero-stats">
     <div class="hero-stat"><div class="hs-val">$88B</div><div class="hs-label">in billing errors on U.S. credit reports</div><div class="hs-source">CFPB · 2025</div></div>
     <div class="hero-stat"><div class="hs-val">45%</div><div class="hs-label">of insured patients reported unexpected bills</div><div class="hs-source">Commonwealth Fund · 2024</div></div>
     <div class="hero-stat"><div class="hs-val">&lt;30s</div><div class="hs-label">to scan your bill and identify findings</div><div class="hs-source">United Patient Advocate</div></div>
+    <div class="hero-stat"><div class="hs-val">$668 → $97</div><div class="hs-label">Launch Price</div><div class="hs-source">Limited-time offer</div></div>
+  </div>
+  <div style="max-width:1120px;margin:34px auto 0;padding:0 6px;border-radius:22px;overflow:hidden;box-shadow:0 14px 46px rgba(28,43,72,.14);border:1px solid rgba(28,43,72,.08)">
+    <svg viewBox="0 0 1600 700" role="img" aria-label="Complete Bill Defense Toolkit — a five-step system: See what's wrong, Take action, Stay on track, Fast start, Workspace" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="lhbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF2F7"/><stop offset="1" stop-color="#F7F9FC"/></linearGradient>
+        <filter id="lhsh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#0E1828" flood-opacity=".16"/></filter>
+      </defs>
+      <rect width="1600" height="700" fill="url(#lhbg)"/>
+      <g filter="url(#lhsh)"><rect x="400" y="60" width="800" height="316" rx="30" fill="#1C2B48"/></g>
+      <rect x="440" y="100" width="720" height="236" rx="24" fill="none" stroke="#C9A84C" stroke-opacity=".38"/>
+      <text x="800" y="174" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="18" font-weight="700" fill="#C9A84C" letter-spacing="4">RN-LED · PLAIN ENGLISH · READY TODAY</text>
+      <text x="800" y="244" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="50" font-weight="700" fill="#FFFFFF">Complete Bill</text>
+      <text x="800" y="302" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="50" font-weight="700" fill="#FFFFFF">Defense Toolkit</text>
+      <text x="800" y="348" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="19" fill="#9FB3CC">See what's wrong · Take action · Stay on track</text>
+      <line x1="160" y1="510" x2="1440" y2="510" stroke="#C9D4E0" stroke-width="3"/>
+      <g font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+        <circle cx="160" cy="510" r="34" fill="#1E6B5A"/><text x="160" y="520" text-anchor="middle" font-size="26" font-weight="800" fill="#FFFFFF">1</text><text x="160" y="592" text-anchor="middle" font-size="21" font-weight="700" fill="#1C2B48">See What's Wrong</text><text x="160" y="620" text-anchor="middle" font-size="14" fill="#5A6E88">Understand it</text>
+        <circle cx="480" cy="510" r="34" fill="#C9A84C"/><text x="480" y="520" text-anchor="middle" font-size="26" font-weight="800" fill="#1C2B48">2</text><text x="480" y="592" text-anchor="middle" font-size="21" font-weight="700" fill="#1C2B48">Take Action</text><text x="480" y="620" text-anchor="middle" font-size="14" fill="#5A6E88">Send the move</text>
+        <circle cx="800" cy="510" r="34" fill="#1EB87A"/><text x="800" y="520" text-anchor="middle" font-size="26" font-weight="800" fill="#FFFFFF">3</text><text x="800" y="592" text-anchor="middle" font-size="21" font-weight="700" fill="#1C2B48">Stay On Track</text><text x="800" y="620" text-anchor="middle" font-size="14" fill="#5A6E88">Hit deadlines</text>
+        <circle cx="1120" cy="510" r="34" fill="#1C2B48"/><text x="1120" y="520" text-anchor="middle" font-size="26" font-weight="800" fill="#FFFFFF">4</text><text x="1120" y="592" text-anchor="middle" font-size="21" font-weight="700" fill="#1C2B48">Fast Start</text><text x="1120" y="620" text-anchor="middle" font-size="14" fill="#5A6E88">Begin calmly</text>
+        <circle cx="1440" cy="510" r="34" fill="#243058"/><text x="1440" y="520" text-anchor="middle" font-size="26" font-weight="800" fill="#FFFFFF">5</text><text x="1440" y="592" text-anchor="middle" font-size="21" font-weight="700" fill="#1C2B48">Workspace</text><text x="1440" y="620" text-anchor="middle" font-size="14" fill="#5A6E88">One place</text>
+      </g>
+    </svg>
   </div>
 </div>
 
-<div class="premium-trust-strip" aria-label="Why patients choose United Patient Advocate">
-  <span class="premium-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v6c0 4.8 2.9 8.2 7 9 4.1-.8 7-4.2 7-9V6l-7-3Z"/></svg>Flat Fee. No Surprises.</span>
-  <span class="premium-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Review Ready in Minutes</span>
-  <span class="premium-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Your Data Stays Yours</span>
-  <span class="premium-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>7-Day Satisfaction Guarantee</span>
-</div>
-
-<!-- SOCIAL PROOF NUMBERS -->
-<section class="stats-bar-section" aria-label="Medical billing review proof points">
-  <div class="stats-bar">
-    <div class="stats-item"><div class="stats-number">3 in 4</div><div class="stats-label">bills contain errors</div></div>
-    <div class="stats-item"><div class="stats-number">&lt;60 sec</div><div class="stats-label">to complete</div></div>
-    <div class="stats-item"><div class="stats-number">$0</div><div class="stats-label">taken from your savings</div></div>
-  </div>
-</section>
-
-<!-- PRICING TIERS -->
-<section class="pricing-section" id="pricing">
-  <div class="pricing-inner">
-    <div class="pricing-title">Choose your review level</div>
-    <div class="pricing-sub">Complete is available today. Basic and Household are shown for launch positioning and will open later.</div>
-    <div class="pricing-grid">
-      <div class="tier-card">
-        <div class="tier-kicker">Basic</div>
-        <div class="tier-name">Bill Check</div>
-        <div class="tier-price">$47</div>
-        <ul class="tier-list">
-          <li>Single bill review</li>
-          <li>Discrepancy report</li>
-          <li>One dispute letter template</li>
-        </ul>
-        <button class="tier-btn disabled" type="button" disabled>Coming Soon</button>
-      </div>
-      <div class="tier-card featured">
-        <div class="tier-badge">Most Popular</div>
-        <div class="tier-kicker">Complete</div>
-        <div class="tier-name">Full Dispute Kit</div>
-        <div class="tier-price">$97</div>
-        <ul class="tier-list">
-          <li>Full medical bill review</li>
-          <li>Plain-English error report</li>
-          <li>Itemized bill request letter</li>
-          <li>Custom dispute + appeal letters</li>
-          <li>Escalation roadmap</li>
-          <li>Deadline tracker</li>
-          <li>Phone negotiation scripts</li>
-          <li>EOB &amp; CPT code decoder</li>
-          <li><span><strong>7-Day Satisfaction Guarantee</strong><br>If you're not satisfied with your review within 7 days, we'll make it right.</span></li>
-        </ul>
-        <a class="tier-btn" href="/UPA-Final/00_upa-scan.html">Start Full Dispute Kit</a>
-      </div>
-      <div class="tier-card">
-        <div class="tier-kicker">Household</div>
-        <div class="tier-name">Family Vault</div>
-        <div class="tier-price">$197</div>
-        <ul class="tier-list">
-          <li>Everything in Complete</li>
-          <li>Unlimited bills, whole family.</li>
-          <li>Entire household covered</li>
-          <li>Priority processing</li>
-        </ul>
-        <button class="tier-btn disabled" type="button" disabled>Coming Soon</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- WHAT WE HELP YOU CATCH -->
-<section class="catch-section">
-  <div class="catch-inner">
-    <h2 class="catch-title">What we help you catch.</h2>
-    <p class="catch-intro">You don't need to know medical billing. You just need to know what to look for. Here's what we help you spot.</p>
-    <p class="catch-intro">Behind the plain language, every review includes CPT and ICD-10 coding checks and a Medicare lab-rate comparison.</p>
-    <div class="catch-stats" aria-label="Medical billing facts">
-      <div class="catch-stat"><span><strong>Around 80%</strong>&nbsp;of medical bills have an error.</span></div>
-      <div class="catch-stat"><span><strong>Big bills</strong>&nbsp;can hide about $1,300 in overcharges.</span></div>
-      <div class="catch-stat"><span><strong>More than 45%</strong>&nbsp;of insured people get billed for something they thought was covered.</span></div>
-    </div>
-    <div class="catch-grid">
-      <article class="catch-card">
-        <h3 class="catch-card-title">Billed twice.</h3>
-        <p class="catch-card-copy">You paid for the same thing once but it shows up two times.</p>
-      </article>
-      <article class="catch-card">
-        <h3 class="catch-card-title">Charged for stuff that never happened.</h3>
-        <p class="catch-card-copy">A test got cancelled, you still got the bill.</p>
-      </article>
-      <article class="catch-card">
-        <h3 class="catch-card-title">One thing split into many.</h3>
-        <p class="catch-card-copy">A single service chopped into pieces so it adds up to more.</p>
-      </article>
-      <article class="catch-card">
-        <h3 class="catch-card-title">Wrong amounts.</h3>
-        <p class="catch-card-copy">Billed for a week of medicine when you took it for a day.</p>
-      </article>
-      <article class="catch-card">
-        <h3 class="catch-card-title">Things you never got.</h3>
-        <p class="catch-card-copy">Charges for care that was never given to you.</p>
-      </article>
-      <article class="catch-card">
-        <h3 class="catch-card-title">Should have been covered.</h3>
-        <p class="catch-card-copy">Your insurance was supposed to pay and somehow didn't.</p>
-      </article>
-      <article class="catch-card lab-card">
-        <h3 class="catch-card-title">Overpriced lab work.</h3>
-        <p class="catch-card-copy">Lab charges marked way up. We check yours against the actual Medicare rate to show you the gap.</p>
-      </article>
-      <article class="catch-card">
-        <h3 class="catch-card-title">Small mistakes, big problems.</h3>
-        <p class="catch-card-copy">A misspelled name or wrong policy number that quietly gets your whole claim denied.</p>
-      </article>
-    </div>
-    <div class="catch-forever"><strong>Pay once.</strong>&nbsp;No cut of your savings, ever.</div>
-  </div>
-</section>
-
-<!-- WHAT YOU GET, accurate 5-pillar system -->
+<!-- WHAT YOU GET — accurate 5-pillar system, the real 10 deliverables (inline SVG) -->
 <div style="padding:42px 40px 28px;background:linear-gradient(180deg,#F7F9FC 0%,#EEF2F7 100%);border-top:1px solid rgba(28,43,72,.08);border-bottom:1px solid rgba(28,43,72,.08)">
   <div style="max-width:1120px;margin:0 auto;border-radius:18px;overflow:hidden;background:#fff;border:1px solid rgba(28,43,72,.08);box-shadow:0 10px 30px rgba(28,43,72,.08)">
-    <svg viewBox="0 0 1400 980" role="img" aria-label="What you get today across five pillars: See What's Wrong, Take Action, Stay On Track, Fast Start, and Workspace" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 1400 980" role="img" aria-label="What you get today: ten tools across five pillars — See What's Wrong, Take Action, Stay On Track, Fast Start, and Workspace" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">
       <defs><filter id="gsh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0E1828" flood-opacity=".10"/></filter></defs>
       <rect width="1400" height="980" fill="#FFFFFF"/>
       <text x="70" y="74" font-family="Georgia, 'Times New Roman', serif" font-size="36" font-weight="700" fill="#1C2B48">What You Get Today</text>
-      <text x="70" y="112" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="17" fill="#4A6480">Everything organized into one calm system, personalized to your case.</text>
+      <text x="70" y="112" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="17" fill="#4A6480">Ten tools, organized into one calm system — every one personalized to your case.</text>
       <rect x="1060" y="46" width="270" height="40" rx="20" fill="#C9A84C" fill-opacity=".14" stroke="#C9A84C" stroke-opacity=".42"/>
-      <text x="1195" y="72" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="14" font-weight="700" fill="#9A7B25">ONE FLAT PRICE · $97 TODAY</text>
+      <text x="1195" y="72" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="14" font-weight="700" fill="#9A7B25">$668 VALUE · $97 TODAY</text>
       <g font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
         <!-- Card 1: See What's Wrong -->
         <g filter="url(#gsh)"><rect x="70" y="160" width="400" height="380" rx="20" fill="#FFFFFF" stroke="#D8E0EC"/></g>
@@ -867,187 +725,14 @@ html,body{max-width:100%;overflow-x:hidden}
     <div style="font-size:.6875rem;font-weight:800;letter-spacing:.20em;text-transform:uppercase;color:#7A98B0">Independent advocacy · not affiliated with any insurer or hospital</div>
     <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">
       <span style="padding:7px 11px;border-radius:999px;background:#F7F9FC;border:1px solid rgba(28,43,72,.10);font-size:.75rem;line-height:1.2;color:#2E4060;font-weight:600">✓ Independent billing review documentation</span>
-      <span style="padding:7px 11px;border-radius:999px;background:#F7F9FC;border:1px solid rgba(28,43,72,.10);font-size:.75rem;line-height:1.2;color:#2E4060;font-weight:600">✓ Based on public CMS lab fee schedule / Medicare / EOB references</span>
-      <span style="padding:7px 11px;border-radius:999px;background:#F7F9FC;border:1px solid rgba(28,43,72,.10);font-size:.75rem;line-height:1.2;color:#2E4060;font-weight:600">✓ Built for patients navigating U.S. medical bills</span>
-    </div>
-  </div>
-</div>
-
-<!-- INSURANCE LOGOS -->
-<div class="logos-strip">
-  <div class="logos-label">Experienced with Major U.S. Insurance Providers &amp; Hospital Systems</div>
-  <div class="logos-row">
-    <div class="logo-chip"><div class="logo-abbr">UHC</div><div class="logo-name">UnitedHealth</div></div>
-    <div class="logo-chip"><div class="logo-abbr">AETNA</div><div class="logo-name">Aetna</div></div>
-    <div class="logo-chip"><div class="logo-abbr">CIGNA</div><div class="logo-name">Cigna</div></div>
-    <div class="logo-chip"><div class="logo-abbr">BCBS</div><div class="logo-name">Blue Cross</div></div>
-    <div class="logo-chip"><div class="logo-abbr">HUM</div><div class="logo-name">Humana</div></div>
-  </div>
-  <div class="logos-disclaimer">All institutions listed are referenced solely for informational and research reference purposes. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any institution listed above. Referenced institutions include UnitedHealthcare, Aetna, Cigna, Blue Cross Blue Shield, and Humana.</div>
-</div>
-
-<!-- WHAT THE DATA SHOWS -->
-<div class="data-section">
-  <div class="section-inner wide">
-    <div class="eyebrow">Industry Research &amp; Public Reporting References</div>
-    <div class="section-hl" style="color:var(--on-dark)">What the data shows</div>
-    <div class="section-sub">Peer-reviewed publications, federal government reports, and independent research organizations cited for informational reference only.</div>
-    <div class="research-grid">
-      <div class="research-card"><div class="rc-header"><div class="rc-badge">JHM</div><div><div class="rc-source">Johns Hopkins Medicine</div><div class="rc-citation">Armstrong Institute &amp; Harvard Risk Management Foundation, BMJ Quality &amp; Safety · July 2023</div></div></div><div class="rc-stat">795,000</div><div class="rc-desc">Americans experience death or permanent disability from diagnostic and medical errors annually.</div></div>
-      <div class="research-card"><div class="rc-header"><div class="rc-badge">HMS</div><div><div class="rc-source">Harvard Medical School</div><div class="rc-citation">Dr. Edward P. Hoffer, Mayo Clinic Proceedings: Digital Health · May 2023</div></div></div><div class="rc-desc">Published research documents how electronic medical record systems may contribute to billing entries that do not reflect the services as actually rendered.</div></div>
-      <div class="research-card"><div class="rc-header"><div class="rc-badge" style="color:rgba(30,184,122,.80)">CF</div><div><div class="rc-source">The Commonwealth Fund</div><div class="rc-citation">Survey of 7,800+ Insured U.S. adults · August 2024</div></div></div><div class="rc-pair"><div><div class="rc-pair-val g">45%</div><div class="rc-pair-sub">unexpected bills</div></div><div><div class="rc-pair-val amber">38%</div><div class="rc-pair-sub">who disputed saw corrections</div></div></div><div class="rc-desc">Of 7,800+ insured U.S. adults surveyed.</div></div>
-      <div class="research-card"><div class="rc-header"><div class="rc-badge" style="font-size:.4rem">CFPB</div><div><div class="rc-source">U.S. Consumer Financial Protection Bureau</div><div class="rc-citation">Federal Government Report · 2025</div></div></div><div class="rc-stat">$88B</div><div class="rc-desc">In medical billing-related debt on consumer credit reports. A 2025 federal rule addressed this for an estimated 15 million Americans.</div></div>
-      <div class="research-card"><div class="rc-header"><div class="rc-badge" style="font-size:.4rem">OAm</div><div><div class="rc-source">CFPB Office for Older Americans</div><div class="rc-citation">Federal Government Research · 2023</div></div></div><div class="rc-stat gold">4 million</div><div class="rc-desc">Adults 65+ reporting unpaid medical bills, despite 98% holding health insurance.</div></div>
-      <div class="research-card"><div class="rc-header"><div class="rc-badge" style="font-size:.4rem">CMS</div><div><div class="rc-source">Centers for Medicare &amp; Medicaid Services</div><div class="rc-citation">U.S. Federal Government Annual Report · FY 2024</div></div></div><div class="rc-pair"><div><div class="rc-pair-val g">$31.7B</div><div class="rc-pair-sub">improper payments</div></div><div><div class="rc-pair-val amber">7.66%</div><div class="rc-pair-sub">error rate</div></div></div><div class="rc-desc">Medicare program, FY 2024 annual report.</div></div>
-      <div class="research-card"><div class="rc-header"><div class="rc-badge" style="font-size:.4rem;color:rgba(201,168,76,.80)">AARP</div><div><div class="rc-source">AARP Public Policy Institute</div><div class="rc-citation">National Policy Research · 2025</div></div></div><div class="rc-stat amber">#1 financial concern</div><div class="rc-desc">Medical debt identified as the leading financial concern for Americans over 50.</div></div>
-    </div>
-    <div class="research-disclaimer"><div class="rd-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="rd-txt"><strong>Research Reference Disclosure:</strong> Institutions and studies cited above are referenced solely for informational and research reference purposes. Statistics reflect the findings of the original publishing organizations and are not claims made by United Patient Advocate. United Patient Advocate is not affiliated with, endorsed by, or sponsored by Johns Hopkins Medicine, Harvard Medical School, The Commonwealth Fund, the Consumer Financial Protection Bureau, the Centers for Medicare &amp; Medicaid Services, AARP, or any other institution referenced. Individual billing outcomes vary and are not implied by any statistic cited above.</div></div>
-  </div>
-</div>
-
-<!-- QUICK QUESTION -->
-<div class="quick-q" id="bill-range">
-  <div class="quick-q-inner">
-    <div class="quick-q-label">Quick Question, 5 Seconds</div>
-    <div class="quick-q-hl">How much is your medical bill?</div>
-    <div class="quick-q-sub">Select your range, we'll show you what errors are most common in bills like yours.</div>
-    <div class="range-opts">
-      <div class="range-opt" data-val="low" onclick="selectRange(this,this.dataset.val)"><div class="ro-radio"><div class="ro-dot"></div></div><div class="ro-text"><div class="ro-name">Under $1,000</div><div class="ro-desc">Outpatient visits, minor procedures</div></div></div>
-      <div class="range-opt" data-val="mid" onclick="selectRange(this,this.dataset.val)"><div class="ro-radio"><div class="ro-dot"></div></div><div class="ro-text"><div class="ro-name">$1,000 – $5,000</div><div class="ro-desc">ER visits, imaging, specialist care</div></div></div>
-      <div class="range-opt" data-val="high" onclick="selectRange(this,this.dataset.val)"><div class="ro-radio"><div class="ro-dot"></div></div><div class="ro-text"><div class="ro-name">Over $5,000</div><div class="ro-desc">Surgeries, hospital stays</div></div></div>
-    </div>
-    <div class="range-reveal" id="range-reveal"></div>
-
-    <div class="sr-label">Sample Billing Review</div>
-    <div class="sr-hl">This is what we prepare<br><em>for your bill</em></div>
-    <div class="sr-sub">CPT codes, ICD-10 references, verified lab benchmarks, billing issue charges, and coding indicators. Choose your review package to access your complete report.</div>
-    <div class="report-table">
-      <div class="rt-header"><div class="rt-title">United Patient Advocate, Billing Analysis Report</div><div class="rt-badges"><span class="rt-badge rtb-review">IN REVIEW</span><span class="rt-badge rtb-flags">3 FLAGS</span></div></div>
-      <div class="rt-row"><div class="rt-col-label">Billing Lines Identified</div><div class="rt-col-content"><div class="rt-cpt-tags"><span class="rt-cpt">Line item</span><span class="rt-cpt">Charge</span><span class="rt-cpt">Coverage</span></div></div><div class="rt-col-status"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
-      <div class="rt-row"><div class="rt-col-label">ICD-10 Diagnoses</div><div class="rt-col-content rt-blurred">M47.816 · S07.0xxA · T14</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
-      <div class="rt-row"><div class="rt-col-label">Lab Benchmark</div><div class="rt-col-content"><div class="rt-flag-txt">Matched lab code: Charge above benchmark</div></div><div class="rt-col-status"><span class="rt-chip rtc-flagged">Flagged</span></div></div>
-      <div class="rt-row"><div class="rt-col-label">Matched Lab Charge Analysis</div><div class="rt-col-content rt-blurred">Billed amount compared with the published Medicare lab rate.</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
-      <div class="rt-row"><div class="rt-col-label">Line Item Check</div><div class="rt-col-content"><div class="rt-flag-txt">Line items are checked for repeated or unclear charges</div><div style="font-size:.4375rem;color:var(--ink-4);margin-top:2px">Billing line item review</div></div><div class="rt-col-status"><span class="rt-chip rtc-flagged">Flagged</span></div></div>
-      <div class="rt-row"><div class="rt-col-label">Coding Mismatch</div><div class="rt-col-content rt-blurred">Diagnosis code does not support billed procedure level. Specify indication present.</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
-      <div class="rt-row"><div class="rt-col-label">Insurance Billing Analysis</div><div class="rt-col-content rt-blurred">Out-of-network rate applied to in-network eligible procedure. No Surprises Act applicability.</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Reviewing</span></div></div>
-      <div class="rt-row"><div class="rt-col-label">Dispute Letter</div><div class="rt-col-content rt-blurred">Your Billing Department: Pursuant to federal billing regulations, we formally dispute...</div><div class="rt-col-status rt-blurred"><span class="rt-chip rtc-reviewing">Ready</span></div></div>
-      <div class="rt-footer"><div class="rt-footer-badge"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Your review documentation has already been prepared.</div><div class="rt-footer-sub">Choose your review package to access your complete billing analysis, dispute reference letter, phone script, and action plan.</div></div>
-    </div>
-    <div style="text-align:center"><a href="#begin-review" class="see-btn"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg>See My Billing Review</a></div>
-  </div>
-</div>
-
-<!-- THREE STEPS -->
-<div class="steps-section">
-  <div class="section-inner">
-    <div class="steps-label">How It Works</div>
-    <div class="section-hl" style="color:var(--on-dark);text-align:center;margin-bottom:6px">Three steps.<br><em>That is all.</em></div>
-    <div class="steps-sub">No legal training. No preparation. No medical knowledge required.</div>
-    <div class="steps-grid">
-      <div class="step-card"><div class="sc-num">1</div><div class="sc-title">Upload or enter your bill</div><div class="sc-desc">Photo, PDF, or screenshot. Or type the key amounts manually. Either way works.</div><span class="sc-tag">Upload in minutes</span></div>
-      <div class="step-card"><div class="sc-num">2</div><div class="sc-title">We prepare your review documentation</div><div class="sc-desc">CPT coding reference review, verified lab benchmark comparison, billing issue charge identification, and dispute documentation preparation.</div><span class="sc-tag cobalt">Automated document analysis</span></div>
-      <div class="step-card"><div class="sc-num">3</div><div class="sc-title">You receive your report</div><div class="sc-desc">Dispute reference letter, structured phone script, action plan, and consumer billing rights overview sent to your inbox.</div><span class="sc-tag gold">Results in minutes</span></div>
-    </div>
-  </div>
-</div>
-
-<!-- COMPARISON TABLE -->
-<div class="comparison-section">
-  <div class="section-inner">
-    <div class="comp-label">An Independent Comparison</div>
-    <div class="section-hl" style="text-align:center;margin-bottom:6px">Navigating alone<br><em style="color:var(--teal)">vs having documentation prepared</em></div>
-    <div class="section-sub">Four areas where having organized documentation may support a more informed billing review.</div>
-    <div class="comp-table" style="margin-bottom:14px">
-      <div class="ct-head">
-        <div class="ct-head-cell">The Situation</div>
-        <div class="ct-head-cell">On Your Own</div>
-        <div class="ct-head-cell" style="background:var(--teal);color:rgba(255,255,255,.90);border-right:none;padding:12px 14px;display:flex;align-items:center;justify-content:space-between">United Patient Advocate <span class="ct-rec"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg> Recommended</span></div>
-      </div>
-      <div class="ct-row">
-        <div class="ct-cell"><div class="ct-cell-title">Reaching billing</div><div style="font-size:.5rem;color:var(--ink-3)">Communicating with a provider's billing department</div></div>
-        <div class="ct-cell"><div class="ct-x"><div class="ct-x-icon"><svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg></div>Navigation can be time-consuming. Multiple transfers are common.</div></div>
-        <div class="ct-cell"><div class="ct-check"><div class="ct-check-icon"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Structured billing communication guide prepared.</div></div>
-      </div>
-      <div class="ct-row">
-        <div class="ct-cell"><div class="ct-cell-title">Understanding the bill</div><div style="font-size:.5rem;color:var(--ink-3)">Interpreting procedure codes and itemized line items</div></div>
-        <div class="ct-cell"><div class="ct-x"><div class="ct-x-icon"><svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg></div>Billing codes can be difficult to interpret without reference tools.</div></div>
-        <div class="ct-cell"><div class="ct-check"><div class="ct-check-icon"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Billing codes cross-referenced and explained in plain language.</div></div>
-      </div>
-      <div class="ct-row">
-        <div class="ct-cell"><div class="ct-cell-title">Dispute documentation</div><div style="font-size:.5rem;color:var(--ink-3)">Having organized references and documentation before contacting a provider</div></div>
-        <div class="ct-cell"><div class="ct-x"><div class="ct-x-icon"><svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg></div>No organized reference documentation. No benchmark comparisons available.</div></div>
-        <div class="ct-cell"><div class="ct-check"><div class="ct-check-icon"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Relevant federal billing protections referenced. Verified lab benchmark comparisons included.</div></div>
-      </div>
-      <div class="ct-row">
-        <div class="ct-cell"><div class="ct-cell-title">Likely outcome</div><div style="font-size:.5rem;color:var(--ink-3)">What many patients experience with billing review resources</div></div>
-        <div class="ct-cell"><div class="ct-x"><div class="ct-x-icon"><svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg></div>Many patients are unfamiliar with billing review resources.</div></div>
-        <div class="ct-cell"><div class="ct-check"><div class="ct-check-icon"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Organized billing review documentation prepared and ready to reference.</div></div>
-      </div>
-      <div class="ct-outcome">
-        <div class="cto-label">Outcome</div>
-        <div class="cto-bad">Typical Result<br><span style="font-size:.875rem;font-weight:700">Unprepared</span></div>
-        <div class="cto-good">Documentation prepared</div>
-      </div>
-    </div>
-    <div class="comp-cta-box">
-      <div class="ccb-text"><div class="ccb-title">Every patient has the right to understand their medical bill and access independent review resources.</div><div class="ccb-sub">Independent billing review and dispute documentation preparation service. No medical knowledge required.</div></div>
-      <a href="#begin-review" class="ccb-btn"><svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>Start My Billing Review</a>
-    </div>
-  </div>
-</div>
-
-<!-- PATIENT SCENARIOS -->
-<div class="scenarios-section">
-  <div class="section-inner">
-    <div class="eyebrow" style="color:var(--teal)">Example Billing Situations Reviewed</div>
-    <div class="section-hl">Patients in situations<br><em>just like yours</em></div>
-    <div class="section-sub">These anonymized scenarios illustrate the types of billing situations our review process is designed to help document and clarify.</div>
-    <div class="scenarios-grid">
-      <div class="scenario-card"><div class="sc-header"><div class="sc-avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sc-name">Retired Medicare Patient</div><div class="sc-type">Hospital outpatient visit</div></div></div><div class="sc-story">After receiving a hospital statement that included charges she did not recognize, a retired patient in her late 60s submitted her bill for review. She was unfamiliar with the CPT codes listed and unsure whether her Medicare coverage had been correctly applied.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">CPT code reference breakdown, verified lab benchmark comparison when matching codes are present, insurance billing reference, and a structured dispute letter for her records.</div></div></div>
-      <div class="scenario-card"><div class="sc-header"><div class="sc-avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sc-name">Retired School Teacher</div><div class="sc-type">Emergency room balance</div></div></div><div class="sc-story">A retired teacher received an ER billing statement months after her visit. The balance was significantly higher than she expected given her insurance coverage. She was unsure which charges were her responsibility and whether the No Surprises Act applied to her situation.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">ER billing code reference review, No Surprises Act applicability analysis, insurance billing reference, and a structured communication guide for contacting the billing department.</div></div></div>
-      <div class="scenario-card"><div class="sc-header"><div class="sc-avatar building"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sc-name">Parent Reviewing Child's Bill</div><div class="sc-type">Outpatient procedure charges</div></div></div><div class="sc-story">A parent received an outpatient billing statement for her child's procedure that contained several unfamiliar line items. One procedure code appeared more than once on the itemized bill. She wanted to understand the charges before making any payment.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">Line-item CPT code reference analysis, billing issues flagged for review, and a dispute documentation package.</div></div></div>
-      <div class="scenario-card"><div class="sc-header"><div class="sc-avatar building"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><div><div class="sc-name">Insured Employee, Age 48</div><div class="sc-type">Post-insurance adjustment discrepancy</div></div></div><div class="sc-story">An insured employee received a bill from a specialist after insurance adjustments had been applied. The remaining balance did not match what his Explanation of Benefits document showed as his responsibility. He submitted the bill to understand the discrepancy.</div><div class="sc-prepared"><div class="sc-prepared-label">Review prepared:</div><div class="sc-prepared-txt green">EOB vs billed amount cross-reference analysis, in-network rate applicability review, insurance billing reference analysis, and a structured letter for the billing department.</div></div></div>
-    </div>
-    <div class="scenarios-disclaimer">All scenarios above are anonymized and illustrative. They represent common billing review categories and do not represent specific findings, specific outcomes, or individual patient results.</div>
-  </div>
-</div>
-
-<!-- WHAT TO EXPECT -->
-<div class="expect-section">
-  <div class="section-inner">
-    <div class="eyebrow" style="color:var(--teal)">Why Patients Trust Us</div>
-    <div class="section-hl">What you can expect<br><em>working with us</em></div>
-    <div class="section-sub" style="margin-bottom:28px">.</div>
-    <div class="expect-list">
-      <div class="expect-item"><div class="ei-icon"><svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div><div class="ei-content"><div class="ei-title">Confidential document handling</div><div class="ei-desc">Your bill and personal information are handled with strict confidentiality. Documents are used solely to prepare your billing review and are not retained, shared, or sold.</div></div><span class="ei-badge">Private</span></div>
-      <div class="expect-item"><div class="ei-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="ei-content"><div class="ei-title">Built for the U.S. billing system</div><div class="ei-desc">Our review process is built specifically for American healthcare billing, including published Medicare lab rates, federal billing references, and U.S. provider practices.</div></div><span class="ei-badge us">U.S. Focused</span></div>
-      <div class="expect-item"><div class="ei-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><div class="ei-content"><div class="ei-title">Billing review and dispute documentation</div><div class="ei-desc">We prepare a dispute reference letter citing applicable federal billing protections, a structured phone communication guide, and a step-by-step action plan for your reference when contacting your provider's billing department.</div></div><span class="ei-badge pkg">Complete Package</span></div>
-      <div class="expect-item"><div class="ei-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><div class="ei-content"><div class="ei-title">Experienced with all major U.S. insurers</div><div class="ei-desc">Our billing review process covers all major insurance providers and hospital billing systems across the United States.</div></div><span class="ei-badge ins">All Major Insurers</span></div>
-    </div>
-  </div>
-</div>
-
-<!-- EDITORIAL -->
-<div class="editorial-section">
-  <div class="editorial-inner">
-    <div class="ed-label">A Note Before You Begin</div>
-    <div class="ed-hl">Medical bills are confusing<br><em>by design. That is not your fault.</em></div>
-    <div style="margin-top:16px"></div>
-    <div class="ed-body">
-      <div class="ed-p">Many patients avoid reviewing their medical bills not because they do not care, but because billing statements are written in a language most people were never taught to read. CPT procedure codes, ICD-10 diagnosis references, explanation of benefits documents, and provider charge breakdowns can feel unfamiliar and overwhelming, even to educated, attentive adults.</div>
-      <div class="ed-p">According to published research from <strong>The Commonwealth Fund (2024)</strong>, 45% of insured Americans received unexpected bills for services they believed were covered, and most did not know where to begin when reviewing them.</div>
-      <div class="ed-p">Reviewing a medical bill is a normal, reasonable, and often important step in managing your healthcare. You do not need a medical background or legal training. You need organized documentation, clear references, and a structured process. That is what we prepare for you.</div>
-    </div>
-    <div class="ed-chips">
-      <div class="ed-chip"><div class="ed-chip-title">CPT codes explained</div><div class="ed-chip-desc">Plain-language billing code reference included</div></div>
-      <div class="ed-chip"><div class="ed-chip-title">Verified lab benchmarks</div><div class="ed-chip-desc">Matching laboratory code rate comparisons provided</div></div>
-      <div class="ed-chip"><div class="ed-chip-title">Dispute guide prepared</div><div class="ed-chip-desc">Structured letter and communication guide ready</div></div>
+      <span style="padding:7px 11px;border-radius:999px;background:#F7F9FC;border:1px solid rgba(28,43,72,.10);font-size:.75rem;line-height:1.2;color:#2E4060;font-weight:600">✓ Based on public CMS / Medicare / EOB references</span>
+      <span style="padding:7px 11px;border-radius:999px;background:#F7F9FC;border:1px solid rgba(28,43,72,.10);font-size:.75rem;line-height:1.2;color:#2E4060;font-weight:600">✓ Built by an RN with healthcare experience</span>
     </div>
   </div>
 </div>
 
 <!-- ═══════════════════════════════════
-     INTAKE SECTION, NEW PREMIUM FORM
+     INTAKE SECTION — NEW PREMIUM FORM
      replaces old "Upload Bill / Take Photo / Type it In"
 ═══════════════════════════════════ -->
 <div class="intake-section" id="begin-review">
@@ -1061,7 +746,7 @@ html,body{max-width:100%;overflow-x:hidden}
     <div class="is-header">
       <span class="is-label">Your Next Step</span>
       <div class="is-hl">Every patient has the right<br>to <span>review their bill.</span></div>
-      <div class="is-sub">Medical bills in the United States may include coding inconsistencies, billing issue charges, or matching lab charges that appear inconsistent with published Medicare lab benchmarks. We provide a structured, documented billing review to help you understand and respond to your charges.</div>
+      <div class="is-sub">Medical bills in the United States may include coding inconsistencies, billing issue charges, or amounts that appear inconsistent with published Medicare benchmarks. We provide a structured, documented billing review to help you understand and respond to your charges.</div>
     </div>
 
     <!-- Step indicator -->
@@ -1296,7 +981,7 @@ html,body{max-width:100%;overflow-x:hidden}
         <div class="opt-list">
           <button class="opt list-item" data-val="unpaid" onclick="selectOpt(this,'s4')">
             <span class="opt-emoji">✅</span>
-            <span class="opt-text"><span class="opt-name">I haven't paid anything yet</span><span class="opt-desc">Best position to be in, full review and dispute options available</span></span>
+            <span class="opt-text"><span class="opt-name">I haven't paid anything yet</span><span class="opt-desc">Best position to be in — full review and dispute options available</span></span>
             <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
           </button>
           <button class="opt list-item" data-val="partial" onclick="selectOpt(this,'s4')">
@@ -1316,7 +1001,7 @@ html,body{max-width:100%;overflow-x:hidden}
           </button>
           <button class="opt list-item" data-val="collections" onclick="selectOpt(this,'s4')">
             <span class="opt-emoji">⚠️</span>
-            <span class="opt-text"><span class="opt-name">It went to collections</span><span class="opt-desc">Dispute rights still apply, we'll help you navigate this</span></span>
+            <span class="opt-text"><span class="opt-name">It went to collections</span><span class="opt-desc">Dispute rights still apply — we'll help you navigate this</span></span>
             <div class="opt-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
           </button>
           <button class="opt list-item" data-val="insurance-dispute" onclick="selectOpt(this,'s4')">
@@ -1407,11 +1092,11 @@ html,body{max-width:100%;overflow-x:hidden}
         <div class="field-row">
           <div class="field">
             <label class="field-label">Your First Name</label>
-            <input type="text" id="f-first" placeholder="First Name" autocomplete="given-name"/>
+            <input type="text" id="f-first" placeholder="First Name" autocomplete="given-name" required/>
           </div>
           <div class="field">
             <label class="field-label">Last Name</label>
-            <input type="text" id="f-last" placeholder="Last Name" autocomplete="family-name"/>
+            <input type="text" id="f-last" placeholder="Last Name" autocomplete="family-name" required/>
           </div>
         </div>
         <div class="field-row full">
@@ -1446,7 +1131,7 @@ html,body{max-width:100%;overflow-x:hidden}
               <input type="file" class="uz-input" id="f-file" accept=".pdf,.jpg,.jpeg,.png,.heic" onchange="handleFile(this)"/>
               <span class="uz-icon">📄</span>
               <div class="uz-title">Tap to upload your bill</div>
-              <div class="uz-sub">Accepted: PDF, JPG, PNG · Max 20MB<br>No bill yet? No problem, you can upload later</div>
+              <div class="uz-sub">Accepted: PDF, JPG, PNG · Max 20MB<br>No bill yet? No problem — you can upload later</div>
               <div class="uz-badge"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Encrypted &amp; Secure</div>
             </div>
             <div id="uz-filename" class="uz-filename"></div>
@@ -1458,9 +1143,9 @@ html,body{max-width:100%;overflow-x:hidden}
       <!-- ═══ STEP 7: REVIEW + SUBMIT ═══ -->
       <div class="step" id="step-7">
         <span class="step-icon">✅</span>
-        <div class="step-label">Step 7 of 7, Ready</div>
+        <div class="step-label">Step 7 of 7 — Ready</div>
         <div class="step-title">Your review is ready<br>to begin.</div>
-        <div class="step-sub">Here is a summary of what you told us. Confirm and start your analysis. It takes minutes.</div>
+        <div class="step-sub">Here is a summary of what you told us. Confirm and start your analysis — it takes about 60 seconds.</div>
         <div class="summary" id="summary-panel">
           <!-- Populated by JS -->
         </div>
@@ -1473,7 +1158,7 @@ html,body{max-width:100%;overflow-x:hidden}
           Start My Free Review Now
           <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
-        <div style="text-align:center;margin-top:8px;font-size:.5rem;color:rgba(235,244,255,.28);letter-spacing:.06em;text-transform:uppercase">Results in minutes</div>
+        <div style="text-align:center;margin-top:8px;font-size:.5rem;color:rgba(235,244,255,.28);letter-spacing:.06em;text-transform:uppercase">Results in under 60 seconds</div>
       </div>
 
 
@@ -1502,30 +1187,15 @@ html,body{max-width:100%;overflow-x:hidden}
 
 </div><!-- /intake-section -->
 
-<!-- FAQ -->
-<section class="faq-section">
-  <div class="faq-inner">
-    <div class="faq-title">Frequently Asked Questions</div>
-    <div class="faq-list">
-      <div class="faq-item"><div class="faq-q">Is this a law firm or legal service?</div><div class="faq-a">No. United Patient Advocate is a consumer documentation and guidance service. We help you understand your bill and generate dispute materials. You stay in control of the process.</div></div>
-      <div class="faq-item"><div class="faq-q">What if I don't find any errors?</div><div class="faq-a">Our 7-day satisfaction guarantee means if you're not satisfied with your review, we'll make it right.</div></div>
-      <div class="faq-item"><div class="faq-q">How is this different from doing it myself?</div><div class="faq-a">We benchmark matching lab codes against published Medicare rates, flag other charges for review, generate professionally formatted dispute letters, and walk you through the next steps in minutes.</div></div>
-      <div class="faq-item"><div class="faq-q">Do you take a percentage of my savings?</div><div class="faq-a">Never. Flat $97. You keep 100% of whatever you save.</div></div>
-      <div class="faq-item"><div class="faq-q">What types of bills can you review?</div><div class="faq-a">Hospital bills, outpatient procedures, ER visits, specialist visits, lab work, imaging, and more.</div></div>
-    </div>
-  </div>
-</section>
-
 <!-- FOOTER -->
 <div class="footer">
   <div class="footer-inner">
     <div class="footer-logo">
-      <div class="footer-logo-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate" loading="lazy"></div>
+      <div class="footer-logo-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
       <div class="footer-logo-name">United Patient Advocate<sub>ADVOCATE</sub></div>
     </div>
-    <div class="footer-disc">United Patient Advocate is an independent medical billing review and dispute preparation service. We provide educational billing analysis, verified Medicare lab benchmark comparisons, coding review references, and consumer dispute documentation tools. Results vary based on provider policies, insurer determinations, and individual circumstances. Nothing on this site provides professional legal, medical, or financial services. Referenced institutions include Harvard Medical School, Johns Hopkins Medicine, The Commonwealth Fund, CMS, CFPB, AARP, UnitedHealthcare, Aetna, Cigna, Blue Cross Blue Shield, and Humana. They are cited solely for informational and research reference purposes. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any referenced institution. 7-Day Satisfaction Guarantee. If you're not satisfied with your review within 7 days, we'll make it right.</div>
-    <div class="footer-copy">2026 United Patient Advocate. unitedpatientadvocate.com</div>
-    <nav aria-label="Legal links" style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:.55rem;color:var(--ink-4)"><span>United Patient Advocate&trade;</span><span>&middot;</span><a href="terms.html" style="color:inherit;text-decoration:none">Terms</a><span>&middot;</span><a href="refund-policy.html" style="color:inherit;text-decoration:none">Refund Policy</a><span>&middot;</span><a href="mailto:support@unitedpatientadvocate.com" style="color:inherit;text-decoration:none">Contact</a></nav>
+    <div class="footer-disc">United Patient Advocate is an independent medical billing review and dispute preparation service. We provide educational billing analysis, Medicare benchmark comparisons, coding review references, and consumer dispute documentation tools. Results vary based on provider policies, insurer determinations, and individual circumstances. Nothing on this site constitutes legal, medical, or financial advice. Institutions referenced — including Harvard Medical School, Johns Hopkins Medicine, The Commonwealth Fund, CMS, CFPB, AARP, UnitedHealthcare, Aetna, Cigna, Blue Cross Blue Shield, and Humana — are cited solely for informational and research reference purposes. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any referenced institution. Due to the personalized nature of the review materials, guidance tools, and document preparation services provided through UPA, refunds are not provided once access has been granted.</div>
+    <div class="footer-copy">2026 United Patient Advocate — unitedpatientadvocate.com</div>
   </div>
 </div>
 
@@ -1623,7 +1293,7 @@ function selectOpt(btn,group){
   state[group]=btn.dataset.val;
   syncOtherVisibility(group);
   document.getElementById('btn-next').disabled=!isSingleStepValid(group);
-  /* Selection confirmed, user clicks Continue to proceed */
+  /* Selection confirmed — user clicks Continue to proceed */
 }
 
 /* Toggle multi-select chip */
@@ -1648,7 +1318,7 @@ function smartConcerns(){
 
   var s1=state.s1, s2=state.s2, s3=state.s3, s4=state.s4;
 
-  // Score table, each key matches a chip data-val
+  // Score table — each key matches a chip data-val
   var score={
     'too-high':0,'billing issue':0,'not-received':0,'out-of-network':0,
     'lab-charges':0,'coding':0,'denied':0,'confusing':0,
@@ -1755,7 +1425,7 @@ function smartConcerns(){
       });
     }
   } else {
-    // No scoring data yet (user skipped earlier steps), restore original order
+    // No scoring data yet (user skipped earlier steps) — restore original order
     sorted.forEach(function(v){var c=chipMap[v];if(c)grid.appendChild(c);});
   }
 }
@@ -1850,17 +1520,24 @@ document.addEventListener('DOMContentLoaded',function(){
 
 /* Validate step 6 */
 var emailRx=/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-function validateStep6(){
+function step6Values(){
   var first=document.getElementById('f-first').value.trim();
   var last=document.getElementById('f-last').value.trim();
   var email=document.getElementById('f-email').value.trim();
   var provider=document.getElementById('f-provider').value.trim();
-  var emailOk=emailRx.test(email);
+  return {first:first,last:last,email:email,provider:provider,emailOk:emailRx.test(email)};
+}
+function isStep6Valid(){
+  var v=step6Values();
+  return !!(v.first&&v.last&&v.emailOk&&v.provider);
+}
+function validateStep6(){
+  var v=step6Values();
   var emailField=document.getElementById('f-email');
-  emailField.style.borderColor=email.length>0?(emailOk?'rgba(30,184,122,.55)':'rgba(224,59,59,.55)'):'';
+  emailField.style.borderColor=v.email.length>0?(v.emailOk?'rgba(30,184,122,.55)':'rgba(224,59,59,.55)'):'';
   var emailHint=document.getElementById('email-hint');
-  if(emailHint)emailHint.classList.toggle('show',email.length>4&&!emailOk);
-  document.getElementById('btn-next').disabled=!(first&&last&&emailOk&&provider);
+  if(emailHint)emailHint.classList.toggle('show',v.email.length>4&&!v.emailOk);
+  document.getElementById('btn-next').disabled=!isStep6Valid();
 }
 document.addEventListener('input',function(e){
   if(e.target.id==='f-dos')enforceServiceDateLimit();
@@ -1912,7 +1589,16 @@ function buildSummary(){
 
 /* Navigation */
 function nextStep(){
-  if(currentStep===6){buildSummary();}
+  if(currentStep===6){
+    validateStep6();
+    if(!isStep6Valid()){
+      var target=!getFieldValue('f-first')?'f-first':(!getFieldValue('f-last')?'f-last':(!emailRx.test(getFieldValue('f-email'))?'f-email':'f-provider'));
+      var el=document.getElementById(target);
+      if(el&&el.focus)el.focus();
+      return;
+    }
+    buildSummary();
+  }
   goTo(currentStep+1);
 }
 function prevStep(){goTo(currentStep-1);}
@@ -1972,9 +1658,21 @@ function getFieldValue(id){
   var el=document.getElementById(id);
   return el?el.value.trim():'';
 }
+function stripOtherPrefix(value){
+  return String(value||'').replace(/^other:\s*/i,'').trim();
+}
+function formatLooseMoney(value){
+  var text=stripOtherPrefix(value);
+  var match=text.match(/\d[\d,]*(?:\.\d+)?/);
+  if(!match)return text;
+  var n=parseFloat(match[0].replace(/,/g,''));
+  if(!isFinite(n))return text;
+  return '$'+n.toLocaleString('en-US',{maximumFractionDigits:n%1?2:0});
+}
 function selectedOptionLabel(group,value){
   if(value==='other'){
     var other=getOtherValue(group);
+    if(group==='s3')return other?formatLooseMoney(other):'Other';
     return other?'Other: '+other:'Other';
   }
   return labels[group]&&labels[group][value]?labels[group][value]:(value||'');
@@ -1992,6 +1690,7 @@ function selectedConcernLabels(){
 function buildLeadPayload(){
   state.first=getFieldValue('f-first');
   state.last=getFieldValue('f-last');
+  var patientName=(state.first+' '+state.last).trim();
   state.email=getFieldValue('f-email');
   state.provider=getFieldValue('f-provider');
   enforceServiceDateLimit();
@@ -2003,6 +1702,7 @@ function buildLeadPayload(){
   var provider=state.provider||scanPatch.extracted_provider||'';
   var dos=state.dos||scanPatch.extracted_date_of_service||'';
   var billAmount=selectedOptionLabel('s3',state.s3);
+  billAmount=formatLooseMoney(billAmount);
   if((!billAmount||/not sure|unknown/i.test(billAmount))&&scanPatch.extracted_bill_amount)billAmount=scanPatch.extracted_bill_amount;
   var insurance=selectedOptionLabel('s2',state.s2);
   if((!insurance||/other|not listed/i.test(insurance))&&scanPatch.extracted_insurance)insurance=scanPatch.extracted_insurance;
@@ -2011,7 +1711,9 @@ function buildLeadPayload(){
     source:'UPA-Final standalone intake',
     submitted_at:new Date().toISOString(),
     page_url:window.location.href,
-    name:(state.first+' '+state.last).trim(),
+    name:patientName,
+    patient_name:patientName,
+    full_name:patientName,
     first_name:state.first,
     last_name:state.last,
     email:state.email,
@@ -2034,7 +1736,7 @@ function buildLeadPayload(){
     payment_status_raw:state.s4||'',
     bill_type_other:state.s1==='other'?getOtherValue('s1'):'',
     insurance_other:state.s2==='other'?getOtherValue('s2'):'',
-    bill_amount_other:state.s3==='other'?getOtherValue('s3'):'',
+    bill_amount_other:state.s3==='other'?formatLooseMoney(getOtherValue('s3')):'',
     payment_status_other:state.s4==='other'?getOtherValue('s4'):''
   },scanPatch);
 }
@@ -2106,26 +1808,6 @@ function submitLeadToFormspree(){
 function upaFinalPath(file){
   return window.location.protocol==='file:'?file:'/UPA-Final/'+file;
 }
-function mirrorSimpleFunnelKeys(payload){
-  if(!payload) return;
-  var patientName = payload.patient_name || payload.full_name || [payload.first_name, payload.last_name].filter(Boolean).join(' ');
-  var simple = {
-    patientName: patientName,
-    providerName: payload.provider || payload.providerName || payload.extracted_provider || '',
-    dateOfService: payload.date_of_service || payload.dos || payload.extracted_date_of_service || '',
-    insuranceName: payload.insurance || payload.insuranceName || payload.extracted_insurance || '',
-    totalBilled: payload.bill_amount_other || payload.bill_amount || payload.totalBilled || payload.extracted_bill_amount || '',
-    referenceNumber: payload.account_number || payload.accountNumber || payload.account || payload.billing_reference || payload.billingReference || payload.extracted_account_number || '',
-    billRange: payload.bill_amount_raw || payload.bill_amount || '',
-    visitReason: payload.bill_type || payload.billType || payload.bill_type_other || ''
-  };
-  Object.keys(simple).forEach(function(key){
-    var value = simple[key];
-    if(value === null || value === undefined || value === '') return;
-    try { sessionStorage.setItem(key, String(value)); } catch(e) {}
-    try { localStorage.setItem(key, String(value)); } catch(e) {}
-  });
-}
 function saveIntakeSession(){
   // FIX 3 (root): make the intake save loud and resilient. Three problems
   // were converging: (1) silent try/catch swallowing storage failures,
@@ -2151,7 +1833,7 @@ function saveIntakeSession(){
     has_description: !!payload.description,
     field_count: Object.keys(payload).length
   };
-
+  console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', 'Saving intake with fields:', snapshot);
 
   // Step 2: persist via UPAState (writes to ALL canonical keys + manages timestamps)
   var persisted = null;
@@ -2163,7 +1845,6 @@ function saveIntakeSession(){
     console.error('[UPA INTAKE SAVE] UPAState.persistIntake threw:', e);
   }
   var activePayload = (persisted && persisted.intake) ? persisted.intake : payload;
-  mirrorSimpleFunnelKeys(activePayload);
 
   // Step 3: keep a raw intake backup. Canonical active/review keys must
   // remain structured envelopes, so only the fallback below writes them.
@@ -2179,7 +1860,7 @@ function saveIntakeSession(){
     try { sessionStorage.setItem(k, json); sessionOk = !!sessionStorage.getItem(k); } catch(e) { console.error('[UPA INTAKE SAVE] sessionStorage.setItem failed for ' + k + ':', e); }
     writeReport[k] = { local: localOk, session: sessionOk };
   });
-
+  console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', 'Write verification:', writeReport, '(payload size ' + json.length + ' bytes)');
 
   if (!persisted) {
     try {
@@ -2224,7 +1905,7 @@ function saveIntakeSession(){
   // P0 FIX: build a FULL recovery URL for cross-context return. base64url-
   // encoded case data rides along on the checkout redirect AND can be
   // copy-pasted by support to reconstitute a case in any browser/device.
-  // Includes EVERY field the dashboard needs to render, not just the seven
+  // Includes EVERY field the dashboard needs to render — not just the seven
   // core fields. This is the only mechanism that survives iOS Mail opening
   // the receipt link in a fresh Safari tab.
   try {
@@ -2254,7 +1935,9 @@ function saveIntakeSession(){
       window.__UPA_RECOVERY_PARAMS__ = b64;
       try { sessionStorage.setItem('upa.recovery.params.v1', b64); } catch(e){}
       try { localStorage.setItem('upa.recovery.params.v1', b64); } catch(e){}
-
+      console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700',
+        'Recovery URL built: ' + Object.keys(core).length + ' fields, base64 length ' + b64.length + ' chars',
+        '\nFull recovery URL: https://unitedpatientadvocate.com/dashboard?r=' + b64);
     }
   } catch(e) { console.warn('[UPA INTAKE SAVE] recovery params build failed:', e); }
 }
@@ -2325,23 +2008,22 @@ function selectRange(el, val) {
         stat('#1', 'issue: duplicate charges per visit', '#C0392B'),
         stat('$180', 'avg. overcharge flagged', '#1E6B5A')
       ],
-      checks: ['CPT code reference review', 'Duplicate charge flag', 'Matching lab rate comparison', 'Dispute letter + call script']
+      checks: ['CPT code verification', 'Duplicate charge scan', 'Medicare rate comparison', 'Dispute letter + call script']
     },
     mid: {
       stats: [
-        stat('64%', 'of ER bills have billing errors, AMA', '#C0392B'),
-        stat('#1', 'issue: facility fee flagged for review', '#1C2B48'),
+        stat('64%', 'of ER bills have billing errors — AMA', '#C0392B'),
+        stat('#1', 'issue: facility fee above Medicare rate', '#1C2B48'),
         stat('$480', 'avg. overcharge flagged', '#1E6B5A')
       ],
-      checks: ['ER facility fee review', 'Matching lab benchmark analysis', 'In-network rate reference', 'CPT reference review + dispute letter']
+      checks: ['ER facility fee audit', 'Medicare benchmark analysis', 'In-network rate verification', 'Full CPT review + dispute letter']
     },
     high: {
       stats: [
         stat('80%', 'of hospital bills have billing errors', '#C0392B'),
         stat('#1', 'issue: upcoding and unbundling', '#1C2B48'),
-        
       ],
-      checks: ['Upcoding & unbundling flags', 'No Surprises Act reference', 'Matching lab benchmark', 'Multi-document dispute package']
+      checks: ['Upcoding & unbundling detection', 'No Surprises Act applicability', 'Full Medicare benchmark', 'Multi-document dispute package']
     }
   };
 
@@ -2362,6 +2044,204 @@ function selectRange(el, val) {
     revealEl.classList.add("show");
   }
 }
+</script>
+
+<!-- ═══════════════════════════════════
+     EXIT-INTENT POPUP
+═══════════════════════════════════ -->
+<div id="upa-exit-popup" style="
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(8,14,26,0.72);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:20px;
+" role="dialog" aria-modal="true" aria-label="Free checklist offer">
+  <div style="
+    background:linear-gradient(145deg,#162036 0%,#1C2D45 100%);
+    border:1px solid rgba(0,210,255,0.18);border-radius:20px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.04);
+    padding:36px 32px 28px;max-width:440px;width:100%;position:relative;
+  ">
+    <!-- Close button -->
+    <button id="upa-exit-close" style="
+      position:absolute;top:14px;right:14px;
+      background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.10);
+      border-radius:50%;width:30px;height:30px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      color:rgba(235,244,255,0.55);font-size:1rem;line-height:1;
+      transition:all 150ms;
+    " aria-label="Close">&times;</button>
+
+    <!-- Eyebrow -->
+    <div style="
+      font-size:0.5rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;
+      color:rgba(0,210,255,0.75);margin-bottom:12px;display:flex;align-items:center;gap:8px;
+    ">
+      <span style="display:inline-block;width:18px;height:1px;background:rgba(0,210,255,0.40)"></span>
+      Free Resource
+      <span style="display:inline-block;width:18px;height:1px;background:rgba(0,210,255,0.40)"></span>
+    </div>
+
+    <!-- Headline -->
+    <h2 style="
+      font-family:'Playfair Display',Georgia,serif;font-size:1.5rem;font-weight:700;
+      color:rgba(235,244,255,0.96);letter-spacing:-0.02em;line-height:1.2;margin-bottom:8px;
+    ">Wait — before you go</h2>
+
+    <!-- Subtext -->
+    <p style="
+      font-size:0.875rem;color:rgba(235,244,255,0.65);line-height:1.60;margin-bottom:20px;
+    ">Get a free checklist: <strong style="color:rgba(235,244,255,0.90);">7 Things to Check on Every Medical Bill</strong> — sent straight to your inbox.</p>
+
+    <!-- Form -->
+    <div id="upa-exit-form" style="display:flex;flex-direction:column;gap:10px;">
+      <input
+        type="email"
+        id="upa-exit-email"
+        placeholder="your@email.com"
+        autocomplete="email"
+        style="
+          background:rgba(255,255,255,0.07);border:1px solid rgba(0,210,255,0.25);
+          border-radius:9px;padding:12px 15px;font-size:0.9rem;
+          font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+          color:rgba(235,244,255,0.94);outline:none;width:100%;
+          transition:border-color 180ms;
+        "
+        onfocus="this.style.borderColor='rgba(0,210,255,0.55)'"
+        onblur="this.style.borderColor='rgba(0,210,255,0.25)'"
+      >
+      <button id="upa-exit-submit" style="
+        width:100%;padding:13px;
+        background:linear-gradient(135deg,#00C6FF 0%,#0072B5 100%);
+        border:none;border-radius:9px;cursor:pointer;
+        font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+        font-size:0.9rem;font-weight:700;color:#fff;letter-spacing:0.01em;
+        box-shadow:0 4px 16px rgba(0,114,181,0.40);
+        transition:all 180ms cubic-bezier(0.22,1,0.36,1);
+      ">Send Me the Checklist</button>
+    </div>
+
+    <!-- Confirmation (hidden initially) -->
+    <div id="upa-exit-confirm" style="
+      display:none;text-align:center;padding:14px 0 6px;
+      font-size:0.9375rem;font-weight:600;
+      color:rgba(0,210,255,0.90);
+    ">✓ On its way! Check your inbox.</div>
+
+    <p style="font-size:0.5625rem;color:rgba(235,244,255,0.28);margin-top:12px;line-height:1.5;text-align:center;">
+      We respect your privacy. Unsubscribe anytime. No spam.
+    </p>
+  </div>
+</div>
+
+<script>
+(function() {
+  var POPUP_KEY = 'upa_exit_popup_shown';
+  var LEAD_KEY  = 'upa_lead_email';
+
+  // Only show once per session
+  if (sessionStorage.getItem(POPUP_KEY)) return;
+
+  var popup   = document.getElementById('upa-exit-popup');
+  var closeBtn= document.getElementById('upa-exit-close');
+  var submitBtn=document.getElementById('upa-exit-submit');
+  var emailIn = document.getElementById('upa-exit-email');
+  var form    = document.getElementById('upa-exit-form');
+  var confirm = document.getElementById('upa-exit-confirm');
+
+  if (!popup) return;
+
+  function openPopup() {
+    if (sessionStorage.getItem(POPUP_KEY)) return;
+    popup.style.display = 'flex';
+    sessionStorage.setItem(POPUP_KEY, '1');
+    // Auto-focus email after transition
+    setTimeout(function() { if (emailIn) emailIn.focus(); }, 150);
+  }
+
+  function closePopup() {
+    popup.style.display = 'none';
+  }
+
+  // Exit intent: mouse leaves toward top of viewport
+  var triggered = false;
+  document.addEventListener('mouseleave', function(e) {
+    if (triggered) return;
+    if (e.clientY <= 8) { // heading toward browser chrome
+      triggered = true;
+      // Small delay so it doesn't feel jarring
+      setTimeout(openPopup, 200);
+    }
+  });
+
+  // Mobile fallback: show after 45s of inactivity on mobile
+  if (/Mobi|Android/i.test(navigator.userAgent)) {
+    setTimeout(openPopup, 45000);
+  }
+
+  // Close on backdrop click
+  popup.addEventListener('click', function(e) {
+    if (e.target === popup) closePopup();
+  });
+
+  // Close button
+  if (closeBtn) closeBtn.addEventListener('click', closePopup);
+
+  // Close on Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && popup.style.display !== 'none') closePopup();
+  });
+
+  // Hover effect on close btn
+  if (closeBtn) {
+    closeBtn.addEventListener('mouseenter', function() {
+      this.style.background = 'rgba(255,255,255,0.14)';
+      this.style.color = 'rgba(235,244,255,0.90)';
+    });
+    closeBtn.addEventListener('mouseleave', function() {
+      this.style.background = 'rgba(255,255,255,0.07)';
+      this.style.color = 'rgba(235,244,255,0.55)';
+    });
+  }
+
+  // Submit hover effect
+  if (submitBtn) {
+    submitBtn.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-1px)';
+      this.style.boxShadow = '0 6px 22px rgba(0,114,181,0.55)';
+    });
+    submitBtn.addEventListener('mouseleave', function() {
+      this.style.transform = '';
+      this.style.boxShadow = '0 4px 16px rgba(0,114,181,0.40)';
+    });
+  }
+
+  // Submit
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function() {
+      var val = emailIn ? emailIn.value.trim() : '';
+      if (!val || !val.includes('@')) {
+        if (emailIn) {
+          emailIn.focus();
+          emailIn.style.borderColor = 'rgba(224,59,59,0.70)';
+        }
+        return;
+      }
+      // Store lead
+      try { localStorage.setItem(LEAD_KEY, val); } catch(e) {}
+      // Send to formspree
+      fetch('https://formspree.io/f/xkgnrdnp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: val, source: 'exit-intent-popup', page: 'landing', checklist: '7-things' })
+      }).then(function(r){ console.log('[UPA] Exit intent lead →', r.status); })
+        .catch(function(e){ console.warn('[UPA] Exit popup send failed (non-blocking)', e); });
+      // Show confirmation
+      if (form) form.style.display = 'none';
+      if (confirm) confirm.style.display = 'block';
+      // Auto-close after 2.8s
+      setTimeout(closePopup, 2800);
+    });
+  }
+})();
 </script>
 
 </body>

@@ -1095,6 +1095,18 @@ function callFreePreviewAI(data) {
           localStorage.setItem('upa.intake.v1', JSON.stringify(stored2));
         } catch(e) {}
         console.log('[UPA] ✅ AI free preview loaded | risk:', aiData.summary && aiData.summary.riskLevel);
+        // Merge AI findings into template findings and re-render cards with real headlines/teasers
+        if (aiData.findings && aiData.findings.length) {
+          aiData.findings.forEach(function(af, i) {
+            if (scanFindings[i] && (af.headline || af.teaser)) {
+              scanFindings[i] = Object.assign({}, scanFindings[i], {
+                headline: af.headline || '',
+                aiTeaser: af.teaser  || ''
+              });
+            }
+          });
+          renderFindings(data, scanFindings);
+        }
       } catch(e) {
         console.warn('[UPA] AI preview parse error', e);
       }
@@ -1160,15 +1172,17 @@ function renderFindings(data, findings) {
     const card = document.createElement('div');
     card.className = 'finding-card' + (f.gated ? ' fc-gated' : '');
 
-    const bodyText = f.gated
-      ? '<span>' + esc(f.teaser) + '</span><span class="fc-text-blurred">' + esc(f.body.slice(f.teaser.length)) + '</span>'
-      : esc(f.body).replace(/\n\n/g, '</p><p class="fc-text">');
+    const bodyText = f.aiTeaser
+      ? esc(f.aiTeaser)
+      : f.gated
+        ? '<span>' + esc(f.teaser) + '</span><span class="fc-text-blurred">' + esc(f.body.slice(f.teaser.length)) + '</span>'
+        : esc(f.body).replace(/\n\n/g, '</p><p class="fc-text">');
 
     card.innerHTML =
       '<div class="' + severityStripeClass(f.severity) + '"></div>' +
       '<div class="fc-body">' +
         '<div class="fc-header">' +
-          '<div class="fc-title">' + esc(f.title) + '</div>' +
+          '<div class="fc-title">' + esc(f.headline || f.title) + '</div>' +
           '<div class="fc-badge ' + severityBadgeClass(f.severity) + '">' + esc(f.severity) + '</div>' +
         '</div>' +
         '<p class="fc-text">' + bodyText + '</p>' +

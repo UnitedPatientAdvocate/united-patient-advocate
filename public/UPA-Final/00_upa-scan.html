@@ -1202,12 +1202,14 @@ function callFreePreviewAI(data) {
           return item && (item.title || item.headline);
         });
         _aiHeadlines = aiFindings.map(function(item) {
-          return item.title || item.headline;
+          return item.headline || item.title;
         });
         if (aiFindings.length && window._upaScanData && Array.isArray(window._upaScanFindings)) {
           window._upaScanFindings.forEach(function(f, i) {
             if (f && aiFindings[i]) {
-              var aiTeaser = aiFindings[i].teaser || aiFindings[i].body;
+              var aiHeadline = aiFindings[i].headline || aiFindings[i].title;
+              var aiTeaser = aiFindings[i].teaser || aiFindings[i].oneLineExplanation || aiFindings[i].body || '';
+              if (aiHeadline) f.headline = aiHeadline;
               if (aiTeaser) f.aiTeaser = aiTeaser;
             }
           });

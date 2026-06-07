@@ -1133,6 +1133,8 @@ function routeAfterScan(data) {
   mirrorScanSessionFields(data);
   // Generate local fallback findings while the service review runs
   scanFindings = UPAScanEngine.buildScanFindings(data);
+  window._upaScanData = data;
+  window._upaScanFindings = scanFindings;
   renderFindings(data, scanFindings);
   showState('state-findings');
   // Call /api/analyze with real bill text for personalized findings
@@ -1140,7 +1142,7 @@ function routeAfterScan(data) {
 }
 
 /* ─── FREE PREVIEW CALL ─── */
-function callFreePreviewAnalysis(data) {
+function callFreePreviewAI(data) {
   try {
     var codeAnalysis = Array.isArray(data.codeAnalysis) ? data.codeAnalysis : [];
     var codeList = codeAnalysis.length
@@ -1173,28 +1175,29 @@ function callFreePreviewAnalysis(data) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ generationMode: 'free_preview', intake: intake })
     })
-    .then(function(res) { return res.json(); })
     .then(function(resp) {
       try {
         var text = Array.isArray(resp.content) ? resp.content.map(function(p){ return p.text||''; }).join('') : '';
         if (!text) return;
         var aiData = JSON.parse(text);
-        if (!aiData || !aiData.preview) return;
-        // Inject preview teaser into the findings heading area
-        var teaserEl = document.getElementById('fh-subline');
-        if (teaserEl && aiData.preview.teaserFinding) {
-          teaserEl.textContent = aiData.preview.teaserFinding;
+        if (!aiData) return;
+        var aiFindings = (aiData.findings) || (aiData.preview && aiData.preview.findings) || [];
+        if (aiFindings.length && window._upaScanData && window._upaScanFindings) {
+          window._upaScanFindings.forEach(function(f, i) {
+            if (aiFindings[i]) {
+              if (aiFindings[i].headline) f.headline = aiFindings[i].headline;
+              if (aiFindings[i].teaser)   f.aiTeaser = aiFindings[i].teaser;
+            }
+          });
+          renderFindings(window._upaScanData, window._upaScanFindings);
         }
-        // Store preview result for dashboard
         try {
           var stored2 = JSON.parse(localStorage.getItem('upa.intake.v1') || '{}');
           stored2._aiPreview = aiData;
           stored2._aiRiskLevel = aiData.summary && aiData.summary.riskLevel;
           localStorage.setItem('upa.intake.v1', JSON.stringify(stored2));
         } catch(e) {}
-      } catch(e) {
-        console.warn('[UPA] preview parse error', e);
-      }
+      } catch(e) { console.warn('[UPA] preview parse error', e); }
     })
     .catch(function(e) {
       console.warn('[UPA] preview call failed (non-blocking)', e);
@@ -1257,15 +1260,17 @@ function renderFindings(data, findings) {
     const card = document.createElement('div');
     card.className = 'finding-card' + (f.gated ? ' fc-gated' : '');
 
+    const aiTeaser = f.aiTeaser || '';
+    const cardTitle = f.headline || f.title;
     const bodyText = f.gated
-      ? '<span>' + esc(f.teaser) + '</span><span class="fc-text-blurred">' + esc(f.body.slice(f.teaser.length)) + '</span>'
-      : esc(f.body).replace(/\n\n/g, '</p><p class="fc-text">');
+      ? '<span>' + esc(aiTeaser || f.teaser) + '</span><span class="fc-text-blurred">' + esc(f.body.slice((aiTeaser || f.teaser).length)) + '</span>'
+      : esc(aiTeaser || f.body).replace(/\n\n/g, '</p><p class="fc-text">');
 
     card.innerHTML =
       '<div class="' + severityStripeClass(f.severity) + '"></div>' +
       '<div class="fc-body">' +
         '<div class="fc-header">' +
-          '<div class="fc-title">' + esc(f.title) + '</div>' +
+          '<div class="fc-title">' + esc(cardTitle) + '</div>' +
           '<div class="fc-badge ' + severityBadgeClass(f.severity) + '">' + esc(f.severity) + '</div>' +
         '</div>' +
         '<p class="fc-text">' + bodyText + '</p>' +

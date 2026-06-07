@@ -1079,7 +1079,7 @@ function routeAfterScan(data) {
   renderFindings(data, scanFindings);
   showState('state-findings');
   // Call /api/analyze with real bill text for personalized findings
-  callFreePreviewAnalysis(data);
+  callFreePreviewAI(data);
 }
 
 /* ─── FREE PREVIEW CALL ─── */
@@ -1122,12 +1122,33 @@ function callFreePreviewAI(data) {
         if (!text) return;
         var aiData = JSON.parse(text);
         if (!aiData) return;
-        var aiFindings = (aiData.findings) || (aiData.preview && aiData.preview.findings) || [];
-        if (aiFindings.length && window._upaScanData && window._upaScanFindings) {
+        var rawAiFindings = Array.isArray(aiData.findings) && aiData.findings.length
+          ? aiData.findings
+          : aiData.summary && Array.isArray(aiData.summary.errorsFound) && aiData.summary.errorsFound.length
+            ? aiData.summary.errorsFound
+            : aiData.preview && aiData.preview.teaserFinding
+              ? [aiData.preview.teaserFinding]
+              : [];
+        var aiFindings = rawAiFindings.map(function(item) {
+          if (typeof item === 'string') {
+            return {
+              headline: item,
+              teaser: 'Flagged for review based on your uploaded bill.'
+            };
+          }
+          if (!item || typeof item !== 'object') return null;
+          return {
+            headline: item.headline || item.title || '',
+            teaser: item.teaser || item.oneLineExplanation || item.explanation || item.lineItem || 'Flagged for review based on your uploaded bill.'
+          };
+        }).filter(function(item) {
+          return item && item.headline;
+        });
+        if (aiFindings.length && window._upaScanData && Array.isArray(window._upaScanFindings)) {
           window._upaScanFindings.forEach(function(f, i) {
-            if (aiFindings[i]) {
-              if (aiFindings[i].headline) f.headline = aiFindings[i].headline;
-              if (aiFindings[i].teaser)   f.aiTeaser = aiFindings[i].teaser;
+            if (f && aiFindings[i]) {
+              f.headline = aiFindings[i].headline;
+              f.aiTeaser = aiFindings[i].teaser;
             }
           });
           renderFindings(window._upaScanData, window._upaScanFindings);
@@ -1144,7 +1165,7 @@ function callFreePreviewAI(data) {
       console.warn('[UPA] preview call failed (non-blocking)', e);
     });
   } catch(e) {
-    console.warn('[UPA] callFreePreviewAnalysis error (non-blocking)', e);
+    console.warn('[UPA] callFreePreviewAI error (non-blocking)', e);
   }
 }
 

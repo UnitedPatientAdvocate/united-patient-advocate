@@ -26,6 +26,10 @@
       "dest": "/UPA-Final/06_upa-checkout.html"
     },
     {
+      "src": "/scanner/?",
+      "dest": "/UPA-Final/06_upa-scanner.html"
+    },
+    {
       "src": "/dashboard/?",
       "dest": "/UPA-Final/04_upa-dashboard.html"
     },

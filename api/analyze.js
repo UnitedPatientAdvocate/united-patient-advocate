@@ -649,6 +649,39 @@ function buildItemizedBillScripts(lineItems = [], triggers = [], dossierContext 
   return scripts;
 }
 
+function buildCharityCarePack(triggers = [], dossierContext = {}) {
+  const context = dossierContext && typeof dossierContext === 'object' ? dossierContext : {};
+  const sourceTriggers = Array.isArray(triggers) ? triggers.filter(trigger => trigger && typeof trigger === 'object') : [];
+  const provider = cleanText(
+    context.providerName
+    || context.provider
+    || context.hospitalName
+    || context.facilityName
+  );
+  const providerReference = provider && !/^(unknown|unknown hospital|unknown provider)$/i.test(provider)
+    ? provider
+    : 'the billing office';
+  const eligible = sourceTriggers.some(trigger => trigger.type === 'charity_care_eligible');
+
+  return {
+    eligible,
+    hospitalName: providerReference,
+    guideText: eligible
+      ? 'Nonprofit hospitals must maintain a financial assistance policy under IRS 501(r), and patients can ask to be screened under that policy.'
+      : '',
+    applicationSteps: eligible
+      ? [
+          `Call ${providerReference} and ask for the billing or financial assistance office.`,
+          'Ask for the current financial assistance application.',
+          'Request the financial assistance policy criteria in writing.',
+          'Submit the completed application with the requested income documentation.',
+          'Follow up in writing and keep a copy of the response.'
+        ]
+      : [],
+    locked: true
+  };
+}
+
 function lookupClfsBenchmark(codeValue, explicitModifier = '') {
   const { code, modifier } = normalizeCodeAndModifier(codeValue, explicitModifier);
   const unavailable = {
@@ -1172,11 +1205,19 @@ function attachLegalTriggersToPayload(payload, intake = {}) {
     codes: payload.codes,
     cptCodes: payload.cptCodes
   });
+  const charityCarePack = buildCharityCarePack(triggers, {
+    providerName: payload.providerName
+      || payload.provider
+      || payload.hospitalName
+      || payload.paidDossier?.providerName
+      || intake.providerName
+  });
 
   return {
     ...payload,
     triggers,
-    scripts
+    scripts,
+    charityCarePack
   };
 }
 

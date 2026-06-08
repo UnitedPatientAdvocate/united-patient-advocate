@@ -18,6 +18,7 @@ const REVIEW_REASONING_RULES = `Review method:
 - Include only findings supported by the submitted text. Do not fabricate a finding to fill a category.
 - For a verified matching lab code, "above Medicare benchmark" is allowed. For every other finding, use "possible", "may", or "flagged for review".
 - For non-lab findings, never state a dollar amount owed, savings amount, overcharge amount, guaranteed correction, or guaranteed outcome.
+- Every summary.errorsFound entry must be an object with headline and detail. headline must be a plain-language 3-6 word card title. detail must be the full cautious finding sentence. Do not use AI, recovery, or guarantee wording in either field.
 - Do not mention privacy compliance claims, professional credentials, or internal reasoning. Do not use em dashes.
 - Return findings as objects with exactly: title, oneLineExplanation, and lineItem. lineItem should identify the code, description, date, page reference, or total being reviewed without claiming it is incorrect.`;
 
@@ -56,7 +57,12 @@ JSON schema:
   "summary": {
     "riskLevel": "LOW | MEDIUM | HIGH",
     "severityLabel": "Short label",
-    "errorsFound": ["One cautious teaser finding referencing specific charges/codes from the bill if available"],
+    "errorsFound": [
+      {
+        "headline": "Charge Amount Needs Itemized Review",
+        "detail": "One full cautious finding sentence referencing specific charges or codes from the bill if available."
+      }
+    ],
     "keyFindings": "Two concise sentences referencing specifics from the actual bill."
   },
   "findings": [
@@ -110,7 +116,12 @@ Return exactly this JSON structure with no markdown:
   "summary": {
     "riskLevel": "LOW | MEDIUM | HIGH",
     "severityLabel": "Short screening label",
-    "errorsFound": ["Observation 1", "Observation 2", "Observation 3"],
+    "errorsFound": [
+      {
+        "headline": "Duplicate Charge Needs Review",
+        "detail": "Full cautious observation sentence referencing the reviewed bill details."
+      }
+    ],
     "keyFindings": "Concise premium overview of the strongest review themes."
   },
   "lineItems": [
@@ -200,6 +211,9 @@ function normalizeIntake(input = {}) {
   const insurance = input.hasInsurance === false
     ? 'none'
     : (input.insuranceType || input.insurance || input.planType || 'unspecified');
+  const providedDossierFlags = input.dossierFlags && typeof input.dossierFlags === 'object'
+    ? input.dossierFlags
+    : {};
   return {
     providerName: input.providerName || 'Unknown Hospital',
     totalBilled: input.totalBilled || '',
@@ -214,7 +228,21 @@ function normalizeIntake(input = {}) {
     specificConcerns: input.specificConcerns || 'bill seems too high',
     billText: input.billText || input.rawText || '',
     codeAnalysis,
-    lineItems: codeAnalysis
+    lineItems: codeAnalysis,
+    dossierFlags: {
+      hasInsurance: input.hasInsurance,
+      insurance,
+      planType: input.planType || input.insuranceType || input.insurance || insurance,
+      selfPay: input.selfPay ?? input.isSelfPay,
+      goodFaithEstimateAmount: input.goodFaithEstimateAmount ?? input.gfeAmount ?? input.estimateAmount,
+      actualBilledAmount: input.actualBilledAmount ?? input.totalBilled,
+      emergencyCare: input.emergencyCare ?? input.isEmergencyCare,
+      ancillaryServiceType: input.ancillaryServiceType ?? input.serviceType,
+      nonprofitHospital: input.nonprofitHospital ?? input.isNonprofitHospital ?? input.nonprofitHospitalIndicator,
+      collections: input.collections ?? input.inCollections ?? input.sentToCollections,
+      billStatus: input.billStatus || '',
+      ...providedDossierFlags
+    }
   };
 }
 
@@ -254,7 +282,10 @@ function buildFallbackPreview(intake) {
     summary: {
       riskLevel: intake.totalBilled && Number(String(intake.totalBilled).replace(/[^0-9.]/g, '')) > 5000 ? 'HIGH' : 'MEDIUM',
       severityLabel: 'Review recommended',
-      errorsFound: [finding],
+      errorsFound: [{
+        headline: 'Charge Amount Needs Itemized Review',
+        detail: finding
+      }],
       keyFindings: 'Your intake suggests the bill should be reviewed against itemized charges, coverage context, and common billing documentation gaps. The full review unlocks the deeper workflow.'
     },
     preview: {
@@ -349,6 +380,146 @@ function roundMoney(value) {
 
 function roundPercent(value) {
   return Math.round((Number(value) + Number.EPSILON) * 10) / 10;
+}
+
+function explicitBoolean(value) {
+  if (value === true || value === false) return value;
+  const normalized = String(value ?? '').trim().toLowerCase();
+  if (['true', 'yes', 'y', '1'].includes(normalized)) return true;
+  if (['false', 'no', 'n', '0'].includes(normalized)) return false;
+  return null;
+}
+
+function firstKnownMoney(values = []) {
+  for (const value of values) {
+    const amount = parseMoneyAmount(value);
+    if (amount != null) return amount;
+  }
+  return null;
+}
+
+function isClearAncillaryCode(item = {}) {
+  if (item.benchmarkAvailable === true) return true;
+
+  const { code } = normalizeCodeAndModifier(item.code || item.hcpcs || item.cptCode || item.procedureCode || '');
+  if (lookupClfsBenchmark(code, item.modifier).available) return true;
+  if (!/^\d{5}$/.test(code)) return false;
+
+  const numericCode = Number(code);
+  const isAnesthesia = (numericCode >= 100 && numericCode <= 1999)
+    || (numericCode >= 99100 && numericCode <= 99140);
+  const isRadiology = numericCode >= 70010 && numericCode <= 79999;
+  const isPathologyOrLab = numericCode >= 80047 && numericCode <= 89398;
+  return isAnesthesia || isRadiology || isPathologyOrLab;
+}
+
+function buildLegalTriggers(lineItems = [], dossierFlags = {}) {
+  const items = Array.isArray(lineItems) ? lineItems.filter(item => item && typeof item === 'object') : [];
+  const flags = dossierFlags && typeof dossierFlags === 'object' ? dossierFlags : {};
+  const triggers = [];
+
+  function addTrigger(trigger) {
+    if (!triggers.some(existing => existing.type === trigger.type)) triggers.push(trigger);
+  }
+
+  const normalizedCodes = items.map(item => normalizeCodeAndModifier(
+    item.code || item.hcpcs || item.cptCode || item.procedureCode || ''
+  ).code);
+  const emergencyCode = normalizedCodes.find(code => /^9928[1-5]$/.test(code));
+  const emergencyCare = explicitBoolean(flags.emergencyCare) === true
+    || explicitBoolean(flags.isEmergencyCare) === true;
+  if (emergencyCode || emergencyCare) {
+    addTrigger({
+      id: 'legal-surprise-billing-emergency',
+      type: 'surprise_billing_emergency',
+      label: 'Emergency surprise-billing review',
+      plainRight: 'Federal surprise-billing protections may limit out-of-network cost sharing for covered emergency services, so the plan and provider records can be reviewed for how the charge was handled.',
+      citation: 'No Surprises Act',
+      severity: 'HIGH',
+      unlocksTool: 'dispute_letter'
+    });
+  }
+
+  const ancillaryServiceType = String(flags.ancillaryServiceType || '').trim().toLowerCase();
+  const ancillaryService = items.some(isClearAncillaryCode)
+    || ['anesthesia', 'radiology', 'pathology', 'lab', 'laboratory'].includes(ancillaryServiceType);
+  if (ancillaryService) {
+    addTrigger({
+      id: 'legal-surprise-billing-ancillary',
+      type: 'surprise_billing_ancillary',
+      label: 'Ancillary surprise-billing review',
+      plainRight: 'Federal surprise-billing protections may apply to certain out-of-network ancillary services at an in-network facility, so network status and consent records can be reviewed.',
+      citation: 'No Surprises Act',
+      severity: 'HIGH',
+      unlocksTool: 'dispute_letter'
+    });
+  }
+
+  const insuranceText = String(flags.insurance || flags.insuranceType || flags.planType || '').trim().toLowerCase();
+  const selfPayText = String(flags.selfPay ?? flags.isSelfPay ?? '').trim().toLowerCase();
+  const selfPay = explicitBoolean(flags.selfPay) === true
+    || explicitBoolean(flags.isSelfPay) === true
+    || explicitBoolean(flags.hasInsurance) === false
+    || ['self-pay', 'self pay', 'uninsured'].includes(selfPayText)
+    || ['none', 'uninsured', 'self-pay', 'self pay'].includes(insuranceText);
+  const goodFaithEstimate = firstKnownMoney([
+    flags.goodFaithEstimateAmount,
+    flags.gfeAmount,
+    flags.estimateAmount
+  ]);
+  const actualBilledAmount = firstKnownMoney([
+    flags.actualBilledAmount,
+    flags.totalBilled,
+    flags.billTotal
+  ]);
+  if (selfPay && goodFaithEstimate != null && actualBilledAmount != null && actualBilledAmount - goodFaithEstimate >= 400) {
+    addTrigger({
+      id: 'legal-gfe-dispute-400',
+      type: 'gfe_dispute_400',
+      label: 'Good faith estimate gap review',
+      plainRight: 'For uninsured or self-pay care, a bill at least $400 above a provided good faith estimate may qualify for the federal patient-provider dispute process.',
+      citation: 'Good Faith Estimate rule',
+      severity: 'HIGH',
+      unlocksTool: 'itemized_bill'
+    });
+  }
+
+  const nonprofitText = String(flags.nonprofitHospital ?? flags.isNonprofitHospital ?? '').trim().toLowerCase();
+  const nonprofitHospital = explicitBoolean(flags.nonprofitHospital) === true
+    || explicitBoolean(flags.isNonprofitHospital) === true
+    || ['nonprofit', 'non-profit', '501(c)(3)', '501c3'].includes(nonprofitText);
+  if (nonprofitHospital) {
+    addTrigger({
+      id: 'legal-charity-care-eligible',
+      type: 'charity_care_eligible',
+      label: 'Hospital financial assistance review',
+      plainRight: 'Nonprofit hospitals must maintain a written financial assistance policy, and patients can ask to be screened under that policy.',
+      citation: 'Hospital financial assistance policy rules',
+      severity: 'MEDIUM',
+      unlocksTool: 'charity_care'
+    });
+  }
+
+  const billStatus = String(flags.billStatus || '').trim().toLowerCase();
+  const collectionsText = String(flags.collections ?? flags.inCollections ?? flags.sentToCollections ?? '').trim().toLowerCase();
+  const collections = explicitBoolean(flags.collections) === true
+    || explicitBoolean(flags.inCollections) === true
+    || explicitBoolean(flags.sentToCollections) === true
+    || ['collections', 'sent to collections', 'in collections'].includes(collectionsText)
+    || ['collections', 'sent to collections', 'in collections'].includes(billStatus);
+  if (collections) {
+    addTrigger({
+      id: 'legal-collections-validation',
+      type: 'collections_validation',
+      label: 'Collections validation review',
+      plainRight: 'A consumer can request written debt-validation information from a third-party debt collector and keep records of the response.',
+      citation: 'Fair Debt Collection Practices Act',
+      severity: 'HIGH',
+      unlocksTool: 'collections_defense'
+    });
+  }
+
+  return triggers;
 }
 
 function lookupClfsBenchmark(codeValue, explicitModifier = '') {
@@ -842,6 +1013,25 @@ function attachPhase3CaseGenerationToPayload(payload, intake = {}) {
   return next;
 }
 
+function attachLegalTriggersToPayload(payload, intake = {}) {
+  if (!payload || typeof payload !== 'object') return payload;
+
+  const payloadLineItems = getPayloadLineItems(payload);
+  const lineItems = payloadLineItems.length ? payloadLineItems : getRequestLineItems(intake);
+  const flags = {
+    insurance: intake.insurance,
+    planType: intake.planType,
+    totalBilled: intake.totalBilled,
+    billStatus: intake.billStatus,
+    ...(intake.dossierFlags && typeof intake.dossierFlags === 'object' ? intake.dossierFlags : {})
+  };
+
+  return {
+    ...payload,
+    triggers: buildLegalTriggers(lineItems, flags)
+  };
+}
+
 function attachClfsBenchmarksToPayload(payload, requestLineItems = [], intake = {}) {
   if (!payload || typeof payload !== 'object') return payload;
 
@@ -861,7 +1051,7 @@ function attachClfsBenchmarksToPayload(payload, requestLineItems = [], intake = 
         structuredFindings: emptyPayload.findings
       };
     }
-    return attachPhase3CaseGenerationToPayload(emptyPayload, intake);
+    return attachLegalTriggersToPayload(attachPhase3CaseGenerationToPayload(emptyPayload, intake), intake);
   }
 
   const enriched = enrichLineItemsWithClfsBenchmarks(sourceLineItems);
@@ -886,7 +1076,7 @@ function attachClfsBenchmarksToPayload(payload, requestLineItems = [], intake = 
     };
   }
 
-  return attachPhase3CaseGenerationToPayload(next, intake);
+  return attachLegalTriggersToPayload(attachPhase3CaseGenerationToPayload(next, intake), intake);
 }
 
 function extractJsonCandidate(raw) {

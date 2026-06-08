@@ -233,6 +233,7 @@ function normalizeIntake(input = {}) {
       hasInsurance: input.hasInsurance,
       insurance,
       planType: input.planType || input.insuranceType || input.insurance || insurance,
+      state: input.state || input.patientState || input.billingState || input.usState || input.locationState || '',
       selfPay: input.selfPay ?? input.isSelfPay,
       goodFaithEstimateAmount: input.goodFaithEstimateAmount ?? input.gfeAmount ?? input.estimateAmount,
       actualBilledAmount: input.actualBilledAmount ?? input.totalBilled,
@@ -413,10 +414,42 @@ function isClearAncillaryCode(item = {}) {
   return isAnesthesia || isRadiology || isPathologyOrLab;
 }
 
+const STATE_SURPRISE_BILLING_PROTECTIONS = {
+  CA: 'California',
+  NY: 'New York',
+  TX: 'Texas',
+  FL: 'Florida',
+  IL: 'Illinois',
+  CT: 'Connecticut',
+  CO: 'Colorado',
+  NJ: 'New Jersey',
+  MD: 'Maryland',
+  OTHER: ''
+};
+
+function getStateSurpriseBillingNote(value) {
+  const state = String(value || '').trim();
+  if (!state) return '';
+
+  const upperState = state.toUpperCase();
+  const stateCode = Object.prototype.hasOwnProperty.call(STATE_SURPRISE_BILLING_PROTECTIONS, upperState)
+    ? upperState
+    : Object.keys(STATE_SURPRISE_BILLING_PROTECTIONS).find(code => (
+      code !== 'OTHER' && STATE_SURPRISE_BILLING_PROTECTIONS[code].toUpperCase() === upperState
+    )) || 'OTHER';
+  const stateName = STATE_SURPRISE_BILLING_PROTECTIONS[stateCode];
+  return stateName
+    ? `${stateName} may have additional surprise-billing protections that can be reviewed alongside federal protections.`
+    : '';
+}
+
 function buildLegalTriggers(lineItems = [], dossierFlags = {}) {
   const items = Array.isArray(lineItems) ? lineItems.filter(item => item && typeof item === 'object') : [];
   const flags = dossierFlags && typeof dossierFlags === 'object' ? dossierFlags : {};
   const triggers = [];
+  const stateNote = getStateSurpriseBillingNote(
+    flags.state || flags.patientState || flags.billingState || flags.usState || flags.locationState
+  );
 
   function addTrigger(trigger) {
     if (!triggers.some(existing => existing.type === trigger.type)) triggers.push(trigger);
@@ -436,7 +469,8 @@ function buildLegalTriggers(lineItems = [], dossierFlags = {}) {
       plainRight: 'Federal surprise-billing protections may limit out-of-network cost sharing for covered emergency services, so the plan and provider records can be reviewed for how the charge was handled.',
       citation: 'No Surprises Act',
       severity: 'HIGH',
-      unlocksTool: 'dispute_letter'
+      unlocksTool: 'dispute_letter',
+      ...(stateNote ? { stateNote } : {})
     });
   }
 
@@ -451,7 +485,8 @@ function buildLegalTriggers(lineItems = [], dossierFlags = {}) {
       plainRight: 'Federal surprise-billing protections may apply to certain out-of-network ancillary services at an in-network facility, so network status and consent records can be reviewed.',
       citation: 'No Surprises Act',
       severity: 'HIGH',
-      unlocksTool: 'dispute_letter'
+      unlocksTool: 'dispute_letter',
+      ...(stateNote ? { stateNote } : {})
     });
   }
 
@@ -1023,7 +1058,14 @@ function attachLegalTriggersToPayload(payload, intake = {}) {
     planType: intake.planType,
     totalBilled: intake.totalBilled,
     billStatus: intake.billStatus,
-    ...(intake.dossierFlags && typeof intake.dossierFlags === 'object' ? intake.dossierFlags : {})
+    ...(intake.dossierFlags && typeof intake.dossierFlags === 'object' ? intake.dossierFlags : {}),
+    state: payload.state
+      || payload.patientState
+      || payload.dossierFlags?.state
+      || payload.paidDossier?.state
+      || intake.state
+      || intake.dossierFlags?.state
+      || ''
   };
 
   return {

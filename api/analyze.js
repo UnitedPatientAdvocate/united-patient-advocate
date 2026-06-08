@@ -557,6 +557,98 @@ function buildLegalTriggers(lineItems = [], dossierFlags = {}) {
   return triggers;
 }
 
+function buildItemizedBillScripts(lineItems = [], triggers = [], dossierContext = {}) {
+  const context = dossierContext && typeof dossierContext === 'object' ? dossierContext : {};
+  const sourceItems = [
+    Array.isArray(lineItems) ? lineItems : [],
+    Array.isArray(context.lineItems) ? context.lineItems : [],
+    Array.isArray(context.codeAnalysis) ? context.codeAnalysis : []
+  ].find(items => items.length) || [];
+  const sourceTriggers = Array.isArray(triggers) ? triggers.filter(trigger => trigger && typeof trigger === 'object') : [];
+  const provider = cleanText(
+    context.providerName
+    || context.provider
+    || context.hospitalName
+    || context.facilityName
+  );
+  const providerReference = provider && !/^(unknown|unknown hospital|unknown provider)$/i.test(provider)
+    ? provider
+    : 'the billing office';
+  const codes = uniqueNonEmptyList([
+    sourceItems.map(item => normalizeCodeAndModifier(
+      item?.code || item?.hcpcs || item?.cptCode || item?.procedureCode || ''
+    ).code),
+    Array.isArray(context.codes) ? context.codes : [],
+    Array.isArray(context.cptCodes) ? context.cptCodes : []
+  ]).slice(0, 4);
+  const codeReference = codes.length
+    ? ` The bill lists ${codes.map(code => `code ${code}`).join(', ')}.`
+    : '';
+  const scripts = [];
+
+  function findTrigger(types) {
+    return sourceTriggers.find(trigger => types.includes(trigger.type));
+  }
+
+  function addScript(script) {
+    if (!scripts.some(existing => existing.id === script.id)) scripts.push(script);
+  }
+
+  addScript({
+    id: 'script-itemized-bill-request',
+    title: 'Request an itemized bill',
+    scriptText: `Hello, I am calling about my bill from ${providerReference}.${codeReference} Please send me a complete itemized bill showing each service, code, date, unit, adjustment, and the amount assigned to me. I would also like the explanation in writing so I can review it carefully.`,
+    locked: false,
+    sourceTrigger: 'always'
+  });
+
+  const surpriseBillingTrigger = findTrigger(['surprise_billing_emergency', 'surprise_billing_ancillary']);
+  if (surpriseBillingTrigger) {
+    addScript({
+      id: 'script-in-network-repricing-review',
+      title: 'Ask for an in-network pricing review',
+      scriptText: `Hello, I am calling about my bill from ${providerReference}.${codeReference} Please review whether these services should be handled using in-network cost sharing and send me the network-status and pricing explanation in writing.`,
+      locked: true,
+      sourceTrigger: surpriseBillingTrigger.type
+    });
+  }
+
+  const charityCareTrigger = findTrigger(['charity_care_eligible']);
+  if (charityCareTrigger) {
+    addScript({
+      id: 'script-charity-care-request',
+      title: 'Request financial assistance screening',
+      scriptText: `Hello, I am calling about my bill from ${providerReference}. Please send me your current financial assistance policy and application, and let me know what documents are needed for a complete screening. I would like the application steps and account status in writing.`,
+      locked: true,
+      sourceTrigger: charityCareTrigger.type
+    });
+  }
+
+  const gfeTrigger = findTrigger(['gfe_dispute_400']);
+  if (gfeTrigger) {
+    addScript({
+      id: 'script-good-faith-estimate-review',
+      title: 'Request a good faith estimate review',
+      scriptText: `Hello, I am calling about my bill from ${providerReference}.${codeReference} I received a good faith estimate before care, and I would like a written review comparing that estimate with the final itemized bill and explaining each difference.`,
+      locked: true,
+      sourceTrigger: gfeTrigger.type
+    });
+  }
+
+  const collectionsTrigger = findTrigger(['collections_validation']);
+  if (collectionsTrigger) {
+    addScript({
+      id: 'script-debt-validation-request',
+      title: 'Request debt validation information',
+      scriptText: `Hello, I am requesting written validation information for the account connected to ${providerReference}.${codeReference} Please send the original creditor name, an itemized account history, and the records used to calculate the balance so I can review them.`,
+      locked: true,
+      sourceTrigger: collectionsTrigger.type
+    });
+  }
+
+  return scripts;
+}
+
 function lookupClfsBenchmark(codeValue, explicitModifier = '') {
   const { code, modifier } = normalizeCodeAndModifier(codeValue, explicitModifier);
   const unavailable = {
@@ -1068,9 +1160,23 @@ function attachLegalTriggersToPayload(payload, intake = {}) {
       || ''
   };
 
+  const triggers = buildLegalTriggers(lineItems, flags);
+  const scripts = buildItemizedBillScripts(lineItems, triggers, {
+    providerName: payload.providerName
+      || payload.provider
+      || payload.hospitalName
+      || payload.paidDossier?.providerName
+      || intake.providerName,
+    lineItems,
+    codeAnalysis: payload.codeAnalysis,
+    codes: payload.codes,
+    cptCodes: payload.cptCodes
+  });
+
   return {
     ...payload,
-    triggers: buildLegalTriggers(lineItems, flags)
+    triggers,
+    scripts
   };
 }
 

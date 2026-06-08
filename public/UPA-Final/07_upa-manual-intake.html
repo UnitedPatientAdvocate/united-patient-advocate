@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>United Patient Advocate - Add Case Details</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#162033;--teal:#1D9E75;--teal-dark:#168560;--teal-soft:#E6F4EE;--gold:#B8862E;--gold-soft:#F7F0DF;--page:#EEF1F6;--ink:#162033;--body:#3A4658;--muted:#6B7688;--line:rgba(22,32,51,.10);--serif:"Playfair Display",Georgia,serif;--sans:"DM Sans",system-ui,sans-serif}
+html{scroll-behavior:smooth}
+body{min-height:100vh;background:radial-gradient(800px 440px at 92% -8%,rgba(29,158,117,.08),transparent 62%),linear-gradient(170deg,#F6F8FB,#EEF1F6);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit}
+.topbar{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 28px;background:#fff;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:11px;color:var(--navy);text-decoration:none}
+.mark{width:38px;height:42px;border-radius:12px;background:linear-gradient(155deg,var(--navy),#2A3B59);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(22,32,51,.16)}
+.mark svg{width:22px;height:26px;stroke:#fff;stroke-width:2;fill:none}
+.brand-name{font-family:var(--serif);font-size:1.05rem;font-weight:700;line-height:1}
+.brand-sub{display:block;color:var(--muted);font-size:.66rem;font-weight:500;margin-top:4px}
+.back-link{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1px solid var(--line);border-radius:12px;color:var(--body);background:#fff;text-decoration:none;font-size:.9rem;font-weight:500}
+.hero{text-align:center;padding:52px 20px 26px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:var(--teal-soft);color:var(--teal-dark);font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px}
+.eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold)}
+h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03;letter-spacing:-.035em;max-width:760px;margin:0 auto 14px}
+.hero-copy{max-width:650px;margin:0 auto;color:var(--body);font-size:1.04rem;line-height:1.7;font-weight:300}
+.shell{width:100%;max-width:920px;margin:0 auto;padding:18px 20px 60px}
+.form-card{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 12px 42px rgba(22,32,51,.08);padding:30px}
+.intro{padding:17px 18px;background:var(--gold-soft);border:1px solid rgba(184,134,46,.18);border-radius:14px;color:var(--body);font-size:.92rem;line-height:1.65;margin-bottom:26px}
+.question{padding:24px 0;border-bottom:1px solid rgba(22,32,51,.08)}
+.question:first-of-type{padding-top:0}
+.question:last-of-type{border-bottom:0}
+.q-number{font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.q-title{font-family:var(--serif);font-size:1.35rem;line-height:1.25;color:var(--navy);margin-bottom:14px}
+.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.choices.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.choice{position:relative}
+.choice input{position:absolute;opacity:0;pointer-events:none}
+.choice label{min-height:58px;display:flex;align-items:center;justify-content:center;text-align:center;padding:13px 15px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--body);font-size:1rem;font-weight:500;cursor:pointer;transition:.18s ease}
+.choice label:hover{border-color:rgba(29,158,117,.55);background:rgba(29,158,117,.04)}
+.choice input:focus-visible+label{outline:3px solid rgba(29,158,117,.25);outline-offset:2px}
+.choice input:checked+label{border-color:var(--teal);background:var(--teal-soft);color:var(--teal-dark);box-shadow:0 0 0 3px rgba(29,158,117,.09)}
+.field{width:100%;min-height:56px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:14px 16px;font-size:1rem}
+.field:focus{outline:0;border-color:var(--teal);box-shadow:0 0 0 3px rgba(29,158,117,.12)}
+.field-note{font-size:.82rem;color:var(--muted);line-height:1.5;margin-top:8px}
+.action-row{padding-top:28px;display:grid;gap:12px}
+.submit{min-height:56px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 8px 24px rgba(29,158,117,.25);transition:.18s ease}
+.submit:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(29,158,117,.30)}
+.submit:disabled{opacity:.58;cursor:wait;transform:none}
+.status{min-height:24px;text-align:center;color:var(--body);font-size:.9rem;line-height:1.5}
+.status.error{color:#B42318}
+.privacy{text-align:center;color:var(--muted);font-size:.78rem;line-height:1.55}
+@media(max-width:650px){.topbar{padding:10px 14px}.back-link{font-size:.8rem;padding:9px 11px}.brand-sub{display:none}.hero{padding:38px 18px 18px}.hero-copy{font-size:.96rem}.shell{padding:12px 12px 44px}.form-card{padding:22px 18px;border-radius:16px}.question{padding:22px 0}.q-title{font-size:1.22rem}.choices,.choices.two{grid-template-columns:1fr}.choice label{min-height:56px;justify-content:flex-start;text-align:left;padding:14px 16px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/dashboard" aria-label="United Patient Advocate dashboard">
+    <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 28"><path d="M12 2 4 5.5v7.2c0 5.6 3.2 10.3 8 12.3 4.8-2 8-6.7 8-12.3V5.5L12 2Z"/><path d="m8.2 14 2.4 2.5 5.4-6"/></svg></span>
+    <span><span class="brand-name">United Patient Advocate</span><span class="brand-sub">Add case details</span></span>
+  </a>
+  <a class="back-link" href="/dashboard">Back to dashboard</a>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">Complete your case details</div>
+    <h1>A few details your bill may not show.</h1>
+    <p class="hero-copy">These answers help personalize the educational tools and review paths in your case. Choose only what you know.</p>
+  </section>
+
+  <section class="shell">
+    <form class="form-card" id="manual-intake-form">
+      <div class="intro">Your answers are added to the case information stored in this browser and reviewed with the same process used for uploaded bill details.</div>
+
+      <fieldset class="question">
+        <div class="q-number">Question 1</div>
+        <legend class="q-title">Is this a nonprofit or community hospital? Most U.S. hospitals are.</legend>
+        <div class="choices">
+          <div class="choice"><input id="nonprofit-yes" type="radio" name="nonprofit" value="yes" required><label for="nonprofit-yes">Yes</label></div>
+          <div class="choice"><input id="nonprofit-no" type="radio" name="nonprofit" value="no"><label for="nonprofit-no">No</label></div>
+          <div class="choice"><input id="nonprofit-unsure" type="radio" name="nonprofit" value="unsure"><label for="nonprofit-unsure">Not sure</label></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="question">
+        <div class="q-number">Question 2</div>
+        <legend class="q-title">Are you uninsured or paying out of pocket (self-pay)?</legend>
+        <div class="choices two">
+          <div class="choice"><input id="self-pay-yes" type="radio" name="selfPay" value="yes" required><label for="self-pay-yes">Yes</label></div>
+          <div class="choice"><input id="self-pay-no" type="radio" name="selfPay" value="no"><label for="self-pay-no">No</label></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="question">
+        <div class="q-number">Question 3</div>
+        <legend class="q-title">Was this care from an emergency room?</legend>
+        <div class="choices two">
+          <div class="choice"><input id="er-yes" type="radio" name="emergencyCare" value="yes" required><label for="er-yes">Yes</label></div>
+          <div class="choice"><input id="er-no" type="radio" name="emergencyCare" value="no"><label for="er-no">No</label></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="question">
+        <div class="q-number">Question 4</div>
+        <legend class="q-title">Has this bill been sent to collections?</legend>
+        <div class="choices two">
+          <div class="choice"><input id="collections-yes" type="radio" name="inCollections" value="yes" required><label for="collections-yes">Yes</label></div>
+          <div class="choice"><input id="collections-no" type="radio" name="inCollections" value="no"><label for="collections-no">No</label></div>
+        </div>
+      </fieldset>
+
+      <div class="question">
+        <div class="q-number">Question 5</div>
+        <label class="q-title" for="care-state">What state was the care in?</label>
+        <select class="field" id="care-state" name="state" required>
+          <option value="">Select a state</option>
+          <option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option>
+          <option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option>
+          <option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option>
+          <option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option>
+          <option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option>
+          <option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option>
+          <option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option>
+          <option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option>
+          <option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option>
+          <option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option>
+          <option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option>
+          <option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option>
+          <option value="WI">Wisconsin</option><option value="WY">Wyoming</option><option value="DC">District of Columbia</option>
+        </select>
+      </div>
+
+      <div class="question">
+        <div class="q-number">Question 6 · Optional</div>
+        <label class="q-title" for="bill-total">Roughly how much is the total bill?</label>
+        <input class="field" id="bill-total" name="billTotal" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Enter the total shown on the bill">
+        <div class="field-note">Leave this blank if you do not know.</div>
+      </div>
+
+      <div class="action-row">
+        <button class="submit" id="submit-button" type="submit">Save details and update my review</button>
+        <div class="status" id="form-status" role="status" aria-live="polite"></div>
+        <div class="privacy">Educational review only. Your answers do not determine a legal, medical, insurance, or financial outcome.</div>
+      </div>
+    </form>
+  </section>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var DOSSIER_KEY = 'upa.ai.dossier.v1';
+  var INTAKE_KEY = 'upa.intake.v1';
+  var SCAN_KEY = 'upa.scan.v1';
+
+  function readJSON(key){
+    try{
+      var raw = localStorage.getItem(key) || sessionStorage.getItem(key) || '';
+      return raw ? JSON.parse(raw) : {};
+    }catch(e){ return {}; }
+  }
+
+  function writeJSON(key, value){
+    var text = JSON.stringify(value);
+    localStorage.setItem(key, text);
+    sessionStorage.setItem(key, text);
+  }
+
+  function selectedValue(name){
+    var input = document.querySelector('input[name="' + name + '"]:checked');
+    return input ? input.value : '';
+  }
+
+  function buildFlags(){
+    var nonprofit = selectedValue('nonprofit');
+    var billTotalRaw = document.getElementById('bill-total').value.trim();
+    var flags = {
+      selfPay: selectedValue('selfPay') === 'yes',
+      emergencyCare: selectedValue('emergencyCare') === 'yes',
+      inCollections: selectedValue('inCollections') === 'yes',
+      state: document.getElementById('care-state').value
+    };
+    if(nonprofit === 'yes') flags.nonprofitHospital = true;
+    if(nonprofit === 'no') flags.nonprofitHospital = false;
+    if(billTotalRaw) flags.billTotal = Number(billTotalRaw);
+    return flags;
+  }
+
+  function providerFrom(dossier, intake, scan){
+    return dossier.providerName
+      || dossier.provider
+      || dossier.hospitalName
+      || dossier.paidDossier && dossier.paidDossier.providerName
+      || intake.providerName
+      || intake.provider
+      || intake.extracted_provider
+      || scan.provider
+      || 'Unknown Provider';
+  }
+
+  function lineItemsFrom(dossier, intake, scan){
+    var candidates = [
+      dossier.lineItems,
+      dossier.codeAnalysis,
+      dossier.paidDossier && dossier.paidDossier.lineItems,
+      intake.lineItems,
+      intake.codeAnalysis,
+      intake._code_analysis,
+      scan.codeAnalysis
+    ];
+    for(var i=0;i<candidates.length;i+=1){
+      if(Array.isArray(candidates[i]) && candidates[i].length) return candidates[i];
+    }
+    return [];
+  }
+
+  function parseResponsePayload(response){
+    if(response && response.normalizedPayload) return response.normalizedPayload;
+    var text = response && Array.isArray(response.content)
+      ? response.content.map(function(part){ return part && part.text || ''; }).join('')
+      : '';
+    return text ? JSON.parse(text) : null;
+  }
+
+  function prefill(){
+    var dossier = readJSON(DOSSIER_KEY);
+    var intake = readJSON(INTAKE_KEY);
+    var flags = Object.assign({}, intake.dossierFlags || {}, dossier.dossierFlags || {});
+    function choose(name, value){
+      var input = document.querySelector('input[name="' + name + '"][value="' + value + '"]');
+      if(input) input.checked = true;
+    }
+    if(flags.nonprofitHospital === true) choose('nonprofit','yes');
+    else if(flags.nonprofitHospital === false) choose('nonprofit','no');
+    if(flags.selfPay === true) choose('selfPay','yes');
+    else if(flags.selfPay === false) choose('selfPay','no');
+    if(flags.emergencyCare === true) choose('emergencyCare','yes');
+    else if(flags.emergencyCare === false) choose('emergencyCare','no');
+    if(flags.inCollections === true || flags.collections === true) choose('inCollections','yes');
+    else if(flags.inCollections === false || flags.collections === false) choose('inCollections','no');
+    document.getElementById('care-state').value = flags.state || dossier.state || intake.state || '';
+    document.getElementById('bill-total').value = flags.billTotal || '';
+  }
+
+  document.getElementById('manual-intake-form').addEventListener('submit', function(event){
+    event.preventDefault();
+    var form = event.currentTarget;
+    var status = document.getElementById('form-status');
+    var button = document.getElementById('submit-button');
+    if(!form.reportValidity()) return;
+
+    var dossier = readJSON(DOSSIER_KEY);
+    var intake = readJSON(INTAKE_KEY);
+    var scan = readJSON(SCAN_KEY);
+    var flags = Object.assign({}, intake.dossierFlags || {}, dossier.dossierFlags || {}, buildFlags());
+    var lineItems = lineItemsFrom(dossier, intake, scan);
+    var providerName = providerFrom(dossier, intake, scan);
+    var storedDossier = Object.assign({}, dossier, {
+      providerName: providerName,
+      state: flags.state,
+      dossierFlags: flags
+    });
+    var storedIntake = Object.assign({}, intake, {
+      providerName: providerName,
+      state: flags.state,
+      dossierFlags: flags
+    });
+    writeJSON(DOSSIER_KEY, storedDossier);
+    writeJSON(INTAKE_KEY, storedIntake);
+
+    var paid = localStorage.getItem('upa.paid') === '1'
+      || sessionStorage.getItem('upa.paid') === '1'
+      || dossier.generationMode === 'paid_dossier';
+    var requestIntake = {
+      providerName: providerName,
+      totalBilled: intake.totalBilled || scan.totalBilled || flags.billTotal || '',
+      amountOwed: intake.amountOwed || scan.patientBalance || '',
+      hasInsurance: flags.selfPay === true ? false : intake.hasInsurance,
+      insuranceType: intake.insuranceType || intake.insurance || scan.insuranceName || '',
+      planType: intake.planType || intake.insuranceType || intake.insurance || '',
+      state: flags.state,
+      visitReason: intake.visitReason || scan.billType || '',
+      servicesReceived: intake.servicesReceived || '',
+      stayDuration: intake.stayDuration || '',
+      billStatus: flags.inCollections ? 'collections' : intake.billStatus || 'received',
+      specificConcerns: intake.specificConcerns || 'manual case details added',
+      billText: intake.billText || scan.rawText || '',
+      codeAnalysis: lineItems,
+      lineItems: lineItems,
+      dossierFlags: flags
+    };
+
+    button.disabled = true;
+    button.textContent = 'Updating your review...';
+    status.className = 'status';
+    status.textContent = 'Saving your answers and updating the case.';
+
+    var requestBody = {
+      generationMode: paid ? 'paid_dossier' : 'free_preview',
+      intake: Object.assign({}, requestIntake, { dossierFlags: flags })
+    };
+
+    fetch('/api/analyze', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(requestBody)
+    })
+    .then(function(response){
+      if(!response.ok) throw new Error('Review update failed');
+      return response.json();
+    })
+    .then(function(response){
+      var normalized = parseResponsePayload(response);
+      if(!normalized) throw new Error('Review response was incomplete');
+      var nextDossier = Object.assign({}, storedDossier, normalized, {
+        providerName: providerName,
+        state: flags.state,
+        dossierFlags: flags
+      });
+      writeJSON(DOSSIER_KEY, nextDossier);
+      status.textContent = 'Your case details were added. Opening your dashboard...';
+      window.setTimeout(function(){ window.location.href = '/dashboard'; }, 500);
+    })
+    .catch(function(){
+      button.disabled = false;
+      button.textContent = 'Save details and update my review';
+      status.className = 'status error';
+      status.textContent = 'Your answers were saved, but the review could not update. Please try again.';
+    });
+  });
+
+  prefill();
+})();
+</script>
+</body>
+</html>

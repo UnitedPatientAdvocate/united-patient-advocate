@@ -391,64 +391,6 @@ body{background:var(--navy)}
 .cvb-desc{font-size:0.75rem;color:var(--on-dark-2);line-height:1.55;max-width:340px}
 .cvb-right{position:relative;z-index:1;flex-shrink:0}
 
-/* ─── LEAD CAPTURE BLOCK ─── */
-.lead-capture-block{
-  background:linear-gradient(135deg,var(--navy-card) 0%,var(--dark) 100%);
-  border:1px solid rgba(0,210,255,0.18);border-radius:14px;
-  padding:26px 24px 22px;margin:0 0 16px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.30);
-}
-.lc-eyebrow{
-  font-size:0.5625rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
-  color:rgba(0,210,255,0.70);margin-bottom:10px;display:flex;align-items:center;gap:8px;
-}
-.lc-eyebrow::before{content:"✉";font-size:0.75rem;letter-spacing:0}
-.lc-headline{
-  font-family:var(--serif);font-size:1.125rem;font-weight:700;
-  color:var(--on-dark);letter-spacing:-0.01em;line-height:1.25;margin-bottom:6px;
-}
-.lc-sub{
-  font-size:0.75rem;color:var(--on-dark-2);line-height:1.55;margin-bottom:16px;
-}
-.lc-form{display:flex;gap:8px;flex-wrap:wrap}
-.lc-input{
-  flex:1;min-width:180px;
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(0,210,255,0.25);
-  border-radius:8px;padding:11px 14px;
-  font-family:var(--sans);font-size:0.875rem;
-  color:var(--on-dark);outline:none;
-  transition:border-color 180ms;
-}
-.lc-input::placeholder{color:var(--on-dark-3)}
-.lc-input:focus{border-color:rgba(0,210,255,0.55);background:rgba(255,255,255,0.10)}
-.lc-btn{
-  white-space:nowrap;padding:11px 20px;
-  background:linear-gradient(135deg,#00C6FF 0%,#0072B5 100%);
-  border:none;border-radius:8px;cursor:pointer;
-  font-family:var(--sans);font-size:0.8125rem;font-weight:700;
-  color:#fff;letter-spacing:0.01em;
-  transition:all 180ms var(--ease);
-  box-shadow:0 3px 12px rgba(0,114,181,0.35);
-}
-.lc-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(0,114,181,0.50)}
-.lc-skip{
-  display:block;text-align:center;margin-top:11px;
-  font-size:0.6875rem;color:var(--on-dark-3);cursor:pointer;
-  text-decoration:underline;text-underline-offset:2px;
-  transition:color 150ms;
-}
-.lc-skip:hover{color:var(--on-dark-2)}
-.lc-confirm{
-  display:none;text-align:center;padding:10px 0 4px;
-  font-size:0.875rem;font-weight:600;
-  color:rgba(0,210,255,0.90);
-}
-.lc-microcopy{
-  font-size:0.625rem;color:var(--on-dark-3);
-  line-height:1.5;margin-top:10px;
-}
-
 /* Upgrade CTA */
 .upgrade-block{
   background:var(--white);border:1px solid var(--bdr);border-radius:12px;
@@ -543,8 +485,8 @@ body{background:var(--navy)}
   </a>
 
   <div class="upload-card">
-    <h1 class="upload-headline">Find billing errors<br>in under 30 seconds.</h1>
-    <p class="upload-sub">Upload your bill or EOB and we'll scan for duplicate charges, benchmark overages, and coding issues - free. If we find problems, your dispute documentation is ready to unlock instantly.</p>
+    <h1 class="upload-headline">Upload your bill.<br>See what stands out.</h1>
+    <p class="upload-sub">We scan the PDF text for real bill details like provider, amount, service date, insurance, and account numbers. No account needed. You can confirm anything the scan cannot read clearly.</p>
 
     <div class="drop-zone" id="drop-zone">
       <input type="file" accept=".pdf" class="drop-input" id="file-input">
@@ -726,7 +668,6 @@ if (typeof pdfjsLib !== 'undefined') {
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 </script>
-<script src="upa-case-model.js"></script>
 <script src="upa-state-persistence.js"></script>
 <script src="upa-scan-engine.js"></script>
 <script>
@@ -747,7 +688,7 @@ const UPA_SCAN_CONFIG = {
 let selectedFile    = null;
 let extractedData   = null;
 let scanFindings    = [];
-var _aiHeadlines    = [];
+var _aiMergedFindings = [];
 let animHoldReached = false;
 let animResumeFn    = null;
 let animTimers      = [];
@@ -1125,7 +1066,7 @@ function resumeAnimation(data) {
 
 /* ─── ROUTING AFTER SCAN ─── */
 function routeAfterScan(data) {
-  _aiHeadlines = [];
+  _aiMergedFindings = [];
   if (data.confidence === 'low' || data.confidence === 'failed') {
     showState('state-fallback');
     return;
@@ -1153,7 +1094,7 @@ function callFreePreviewAI(data) {
     var intake = {
       providerName:      data.provider || '',
       totalBilled:       data.totalBilled   != null ? String(data.totalBilled)   : '',
-      amountOwed:        data.patientBalance != null ? String(data.patientBalance) : (data.totalBilled != null ? String(data.totalBilled) : ''),
+      amountOwed:        data.patientBalance != null ? String(data.patientBalance) : '',
       hasInsurance:      !!(data.insuranceName),
       insuranceType:     data.insuranceName  || '',
       visitReason:       data.billType       || '',
@@ -1178,42 +1119,114 @@ function callFreePreviewAI(data) {
       body: JSON.stringify({ generationMode: 'free_preview', intake: intake })
     })
     .then(function(resp) {
+      if (!resp.ok) throw new Error('Preview analysis failed');
+      return resp.json();
+    })
+    .then(function(resp) {
       try {
+        var aiData = resp && resp.normalizedPayload;
         var text = Array.isArray(resp.content) ? resp.content.map(function(p){ return p.text||''; }).join('') : '';
-        if (!text) return;
-        var aiData = JSON.parse(text);
+        if (!aiData && text) aiData = JSON.parse(text);
         if (!aiData) return;
-        var rawAiFindings = Array.isArray(aiData.findings) && aiData.findings.length
-          ? aiData.findings
-          : aiData.summary && Array.isArray(aiData.summary.errorsFound) && aiData.summary.errorsFound.length
-            ? aiData.summary.errorsFound
-            : aiData.preview && aiData.preview.teaserFinding
-              ? [aiData.preview.teaserFinding]
-              : [];
-        var aiFindings = rawAiFindings.map(function(item) {
+        var structuredFindings = Array.isArray(aiData.findings) ? aiData.findings : [];
+        var summaryFindings = aiData.summary && Array.isArray(aiData.summary.errorsFound) && aiData.summary.errorsFound.length
+          ? aiData.summary.errorsFound
+          : aiData.preview && aiData.preview.teaserFinding
+            ? [aiData.preview.teaserFinding]
+            : [];
+        function normalizeAiFinding(item) {
           if (typeof item === 'string') {
-            return {
-              title: item
-            };
+            return { headline: '', detail: item, lineItem: '' };
           }
           if (!item || typeof item !== 'object') return null;
-          return item;
-        }).filter(function(item) {
-          return item && (item.title || item.headline);
-        });
-        _aiHeadlines = aiFindings.map(function(item) {
-          return item.headline || item.title;
-        });
-        if (aiFindings.length && window._upaScanData && Array.isArray(window._upaScanFindings)) {
-          window._upaScanFindings.forEach(function(f, i) {
-            if (f && aiFindings[i]) {
-              var aiHeadline = aiFindings[i].headline || aiFindings[i].title;
-              var aiTeaser = aiFindings[i].teaser || aiFindings[i].oneLineExplanation || aiFindings[i].body || '';
-              if (aiHeadline) f.headline = aiHeadline;
-              if (aiTeaser) f.aiTeaser = aiTeaser;
-            }
+          return {
+            headline: item.headline || item.title || '',
+            detail: item.detail || item.oneLineExplanation || item.body || item.teaser || '',
+            lineItem: item.lineItem || item.lineItemReference || item.code || '',
+            severity: item.severity || ''
+          };
+        }
+        function findingCodes(item) {
+          var text = [item.headline, item.detail, item.lineItem].filter(Boolean).join(' ');
+          return (text.match(/\b(?:[A-Z]?\d{5}[A-Z]?|\d{4}[A-Z])\b/gi) || []).map(function(code) {
+            return code.toUpperCase();
           });
-          renderFindings(window._upaScanData, window._upaScanFindings);
+        }
+        function normalizedLineItem(item) {
+          return String(item.lineItem || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+        }
+        function sameAiFinding(left, right) {
+          var leftLine = normalizedLineItem(left);
+          var rightLine = normalizedLineItem(right);
+          if (leftLine && rightLine && (leftLine === rightLine || leftLine.indexOf(rightLine) !== -1 || rightLine.indexOf(leftLine) !== -1)) return true;
+          var leftCodes = findingCodes(left);
+          var rightCodes = findingCodes(right);
+          if (leftCodes.some(function(code) { return rightCodes.indexOf(code) !== -1; })) return true;
+          if (leftLine || rightLine || leftCodes.length || rightCodes.length) return false;
+          var leftHeadline = String(left.headline || '').toLowerCase().trim();
+          var rightHeadline = String(right.headline || '').toLowerCase().trim();
+          if (leftHeadline && rightHeadline && leftHeadline === rightHeadline) return true;
+          return !!left.detail && !!right.detail && left.detail.toLowerCase().trim() === right.detail.toLowerCase().trim();
+        }
+        function severityForFinding(item) {
+          if (item.severity) return String(item.severity).toUpperCase();
+          var text = (item.headline + ' ' + item.detail).toLowerCase();
+          if (/denial|balance billing|out.of.network/.test(text)) return 'CRITICAL';
+          if (/duplicate|mismatch|does not match|does not reconcile|above medicare benchmark/.test(text)) return 'HIGH';
+          return 'MEDIUM';
+        }
+        function teaserForFinding(detail) {
+          if (!detail || detail.length <= 90) return detail;
+          var teaser = detail.slice(0, 90);
+          return teaser.slice(0, teaser.lastIndexOf(' ') > 45 ? teaser.lastIndexOf(' ') : 90);
+        }
+        function findingCard(item, index, source) {
+          return {
+            id: 'ai-' + source + '-' + index,
+            priority: index,
+            severity: severityForFinding(item),
+            gated: true,
+            title: item.headline || 'Billing Detail Needs Review',
+            teaser: teaserForFinding(item.detail),
+            body: item.detail,
+            lineItem: item.lineItem,
+            letterIncluded: true,
+            letterType: 'itemized-request',
+            _aiSource: source,
+            _aiIdentity: item
+          };
+        }
+        var normalizedStructured = structuredFindings.map(normalizeAiFinding).filter(function(item) {
+          return item && (item.headline || item.detail);
+        });
+        var normalizedSummary = summaryFindings.map(normalizeAiFinding).filter(function(item) {
+          return item && item.detail;
+        });
+        var mergedCards = normalizedStructured.map(function(item, index) {
+          return findingCard(item, index, 'findings');
+        });
+        if (!mergedCards.length && Array.isArray(window._upaScanFindings)) {
+          mergedCards = window._upaScanFindings.slice();
+        }
+        var mergedIdentities = normalizedStructured.length
+          ? normalizedStructured.slice()
+          : mergedCards.map(normalizeAiFinding).filter(Boolean);
+        normalizedSummary.forEach(function(item, index) {
+          var duplicate = mergedIdentities.some(function(existing) {
+            return sameAiFinding(existing, item);
+          });
+          if (!duplicate) {
+            mergedCards.push(findingCard(item, mergedCards.length + index, 'summary'));
+            mergedIdentities.push(item);
+          }
+        });
+        if (mergedCards.length && window._upaScanData) {
+          mergedCards.forEach(function(card, index) {
+            card.gated = index !== 0;
+          });
+          _aiMergedFindings = mergedCards;
+          window._upaScanFindings = mergedCards;
+          renderFindings(window._upaScanData, mergedCards);
         }
         try {
           var stored2 = JSON.parse(localStorage.getItem('upa.intake.v1') || '{}');
@@ -1221,6 +1234,17 @@ function callFreePreviewAI(data) {
           stored2._aiRiskLevel = aiData.summary && aiData.summary.riskLevel;
           localStorage.setItem('upa.intake.v1', JSON.stringify(stored2));
         } catch(e) {}
+        try {
+          var existingDossier = JSON.parse(localStorage.getItem('upa.ai.dossier.v1') || '{}');
+          var nextDossier = Object.assign({}, existingDossier, aiData, {
+            providerName: data.provider || aiData.providerName || '',
+            codeAnalysis: Array.isArray(aiData.codeAnalysis) ? aiData.codeAnalysis : codeAnalysis,
+            lineItems: Array.isArray(aiData.lineItems) ? aiData.lineItems : codeAnalysis
+          });
+          localStorage.setItem('upa.ai.dossier.v1', JSON.stringify(nextDossier));
+          sessionStorage.setItem('upa.ai.dossier.v1', JSON.stringify(nextDossier));
+          window.location.href = '/dashboard';
+        } catch(e) { console.warn('[UPA] dashboard dossier write failed', e); }
       } catch(e) { console.warn('[UPA] preview parse error', e); }
     })
     .catch(function(e) {
@@ -1244,6 +1268,7 @@ function severityBadgeClass(sev) {
 }
 
 function renderFindings(data, findings) {
+  if (_aiMergedFindings.length) findings = _aiMergedFindings;
   // Header
   const provider = data.provider || null;
   const date     = data.serviceDate || null;
@@ -1280,11 +1305,6 @@ function renderFindings(data, findings) {
   scroll.innerHTML = '';
 
   // Finding cards
-  if (_aiHeadlines.length) {
-    findings.forEach(function(f, i) {
-      if (f && _aiHeadlines[i]) f.headline = _aiHeadlines[i];
-    });
-  }
   findings.forEach(function(f) {
     const card = document.createElement('div');
     card.className = 'finding-card' + (f.gated ? ' fc-gated' : '');
@@ -1350,74 +1370,11 @@ function renderFindings(data, findings) {
   }
   scroll.appendChild(caseValBlock);
 
-  // ── Lead capture block (inserted before upgrade) ──────────────────────
-  var existingLC = document.getElementById('lead-capture-block');
-  if (existingLC) existingLC.remove();
-
-  var leadBlock = document.createElement('div');
-  leadBlock.className = 'lead-capture-block';
-  leadBlock.id = 'lead-capture-block';
-  leadBlock.innerHTML =
-    '<div class="lc-eyebrow">Free Summary</div>' +
-    '<div class="lc-headline">Get your free findings summary emailed to you</div>' +
-    '<div class="lc-sub">Enter your email and we\'ll send you exactly what we found - plus flag new billing errors that match your case.</div>' +
-    '<div class="lc-form">' +
-      '<input type="email" class="lc-input" id="lc-email-input" placeholder="your@email.com" autocomplete="email">' +
-      '<button class="lc-btn" id="lc-submit-btn">Send My Free Summary</button>' +
-    '</div>' +
-    '<div class="lc-confirm" id="lc-confirm">✓ Sent! Check your inbox.</div>' +
-    '<p class="lc-microcopy">We will also flag if new billing errors match your case. Unsubscribe anytime.</p>' +
-    '<span class="lc-skip" id="lc-skip-btn">Skip and see upgrade options →</span>';
-  scroll.appendChild(leadBlock);
-
-  // Lead capture logic
-  function revealUpgradeBlock() {
-    var ub = document.getElementById('upgrade-block');
-    if (ub) {
-      ub.style.display = '';
-      setTimeout(function() { ub.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120);
-    }
-  }
-
-  document.getElementById('lc-submit-btn').addEventListener('click', function() {
-    var emailVal = document.getElementById('lc-email-input').value.trim();
-    if (!emailVal || !emailVal.includes('@')) {
-      document.getElementById('lc-email-input').focus();
-      document.getElementById('lc-email-input').style.borderColor = 'rgba(224,59,59,0.70)';
-      return;
-    }
-    // Store lead email
-    try { localStorage.setItem('upa_lead_email', emailVal); } catch(e) {}
-    // Send to formspree
-    fetch('https://formspree.io/f/xkgnrdnp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ email: emailVal, source: 'scan-findings-gate', page: 'bill-scan' })
-    }).then(function(r){ return r; })
-      .catch(function(e){ console.warn('[UPA] Lead capture send failed (non-blocking)', e); });
-    // Show confirmation then reveal upgrade
-    var form = leadBlock.querySelector('.lc-form');
-    var skip = document.getElementById('lc-skip-btn');
-    var micro = leadBlock.querySelector('.lc-microcopy');
-    var confirm = document.getElementById('lc-confirm');
-    if (form) form.style.display = 'none';
-    if (skip) skip.style.display = 'none';
-    if (micro) micro.style.display = 'none';
-    if (confirm) confirm.style.display = 'block';
-    setTimeout(revealUpgradeBlock, 900);
-  });
-
-  document.getElementById('lc-skip-btn').addEventListener('click', function() {
-    revealUpgradeBlock();
-  });
-  // ── End lead capture block ────────────────────────────────────────────
-
   // Upgrade block
   const gatedCount = findings.filter(f => f.gated).length;
   const upgradeBlock = document.createElement('div');
   upgradeBlock.className = 'upgrade-block';
   upgradeBlock.id = 'upgrade-block';
-  upgradeBlock.style.display = 'none'; // hidden until lead capture step completes
   let checkoutHref = UPA_SCAN_CONFIG.gumroadURL;
   try {
     if (window.UPAState && window.UPAState.checkoutBridgeUrl) {
@@ -1436,21 +1393,22 @@ function renderFindings(data, findings) {
   ];
 
   upgradeBlock.innerHTML =
-    '<div class="ub-title">We found items worth reviewing. Here is your action plan.</div>' +
-    '<div class="ub-sub">Your scan identified ' + findings.length + ' billing items worth reviewing. The complete package gives you every written request, the call script, the 30-day action plan, and all explanations - ready to use today.</div>' +
+    '<div class="ub-title">Unlock your prepared review</div>' +
+    '<div class="ub-sub">Your scan prepared ' + findings.length + ' review items from the PDF. Unlock the full packet to see the complete explanations, written requests, and next steps prepared for you to review and send.</div>' +
     '<div class="ub-includes">' +
       includeItems.map(function(item) {
         return '<div class="ub-include-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' + esc(item) + '</div>';
       }).join('') +
     '</div>' +
-    '<a class="btn-upgrade" href="' + esc(checkoutHref) + '" style="font-size:1.0625rem;padding:17px;">' +
+    '<a class="btn-upgrade" href="' + esc(checkoutHref) + '">' +
       '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' +
-      'Start My Full Review - $97' +
+      'Unlock my full review' +
+      '<span class="ub-price">' + esc(UPA_SCAN_CONFIG.upgradePrice) + '</span>' +
     '</a>' +
-    '<div style="text-align:center;margin-top:10px;font-size:0.625rem;color:#425A72;">✓ Instant access &nbsp;·&nbsp; One-time payment &nbsp;·&nbsp; No subscription</div>' +
+    '<div class="ub-loss">Timelines vary by provider, payer, and notice type. Written requests help preserve a clear paper trail while you review the bill.</div>' +
     '<div class="ub-trust-row">' +
-      '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Instant download</div>' +
-      '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>One-time $97</div>' +
+      '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Instant access</div>' +
+      '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>One-time payment</div>' +
       '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>No subscription</div>' +
       '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Review before sending</div>' +
     '</div>';
@@ -1476,12 +1434,6 @@ function renderFindings(data, findings) {
 
 function scrollToUpgrade() {
   const el = document.getElementById('upgrade-block');
-  const lc = document.getElementById('lead-capture-block');
-  if (el && el.style.display === 'none') {
-    // Lead capture not yet completed - scroll to lead capture block first
-    if (lc) lc.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
@@ -1532,7 +1484,7 @@ function resetToUpload() {
   clearTimers();
   extractedData = null;
   scanFindings  = [];
-  _aiHeadlines  = [];
+  _aiMergedFindings = [];
   animHoldReached = false;
   animResumeFn    = null;
   // Reset canvas
@@ -1576,6 +1528,8 @@ function hydrateCurrentScanCase() {
 
   extractedData = scan;
   scanFindings = UPAScanEngine.buildScanFindings(scan);
+  window._upaScanData = scan;
+  window._upaScanFindings = scanFindings;
   renderFindings(scan, scanFindings);
   showState('state-findings');
 }

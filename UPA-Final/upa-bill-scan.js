@@ -68,6 +68,11 @@
     return m ? moneyText(m[1]) : '';
   }
 
+  function moneyNumber(value){
+    var n = Number(String(value || '').replace(/[$,\s]/g, ''));
+    return isFinite(n) ? n : null;
+  }
+
   function linesFromText(text){
     return String(text || '')
       .replace(/\r/g, '\n')
@@ -98,24 +103,44 @@
     return null;
   }
 
-  function extractAmount(joined){
-    var labels = [
-      'amount due','total amount due','balance due','patient responsibility','patient balance',
-      'current balance','total due','amount owed','please pay','total charges','total billed'
-    ];
+  function labeledMoney(lines, labels){
     for(var i = 0; i < labels.length; i++){
-      var rx = new RegExp(labels[i].replace(/\s+/g, '\\s+') + '[^$0-9]{0,50}(\\$?\\s*(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d{2})?)', 'i');
-      var m = joined.match(rx);
-      if(m){
-        var amount = firstMoney(m[1]);
-        if(amount) return { value:amount, confidence:i < 7 ? 0.86 : 0.66, source:labels[i] };
+      for(var j = 0; j < lines.length; j++){
+        var match = lines[j].match(labels[i].pattern);
+        if(!match) continue;
+        var afterLabel = lines[j].slice((match.index || 0) + match[0].length);
+        var amount = firstMoney(afterLabel) || firstMoney(lines[j]);
+        if(amount){
+          return { value:amount, confidence:0.9, source:labels[i].source };
+        }
       }
     }
-    var all = joined.match(/\$\s*(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{2})/g) || [];
-    if(all.length){
-      return { value:moneyText(all[all.length - 1]), confidence:0.42, source:'currency value on bill' };
-    }
     return null;
+  }
+
+  function extractAmounts(lines, joined){
+    var totalBilled = labeledMoney(lines, [
+      { pattern:/\btotal\s+billed\s+charges?\b/i, source:'total billed charges' },
+      { pattern:/\btotal\s+charges?\b/i, source:'total charges' },
+      { pattern:/\btotal\s+amount\s+billed\b/i, source:'total amount billed' },
+      { pattern:/\btotal\s+due\b/i, source:'total due' },
+      { pattern:/\bamount\s+due\b/i, source:'amount due' },
+      { pattern:/^\s*total\b/i, source:'total' }
+    ]);
+    var amountOwed = labeledMoney(lines, [
+      { pattern:/\bpatient\s+responsibility\b/i, source:'patient responsibility' },
+      { pattern:/\bpatient\s+balance\b/i, source:'patient balance' },
+      { pattern:/\bamount\s+you\s+owe\b/i, source:'amount you owe' },
+      { pattern:/\bbalance\s+due\b/i, source:'balance due' }
+    ]);
+
+    if(!totalBilled){
+      var all = joined.match(/\$\s*(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{2})?/g) || [];
+      var largest = all.map(moneyNumber).filter(function(value){ return value !== null && value > 0; }).sort(function(a,b){ return b-a; })[0];
+      if(largest != null) totalBilled = { value:moneyText(largest), confidence:0.42, source:'largest currency value on bill' };
+    }
+
+    return { totalBilled:totalBilled, amountOwed:amountOwed };
   }
 
   function extractServiceDate(joined){
@@ -201,12 +226,15 @@
     var joined = clean(lines.join(' '));
     var fields = {};
     var provider = extractProvider(lines, joined);
-    var amount = extractAmount(joined);
+    var amounts = extractAmounts(lines, joined);
+    var amount = amounts.totalBilled;
+    var amountOwed = amounts.amountOwed;
     var serviceDate = extractServiceDate(joined);
     var account = extractAccount(joined);
     var insurance = extractInsurance(joined);
     if(provider) fields.provider = provider;
     if(amount) fields.amount = amount;
+    if(amountOwed) fields.amountOwed = amountOwed;
     if(serviceDate) fields.serviceDate = serviceDate;
     if(account) fields.account = account;
     if(insurance) fields.insurance = insurance;
@@ -218,6 +246,8 @@
       file:fileMeta || null,
       pageTextLength:text.length,
       fields:fields,
+      totalBilled:amount ? moneyNumber(amount.value) : null,
+      amountOwed:amountOwed ? moneyNumber(amountOwed.value) : null,
       findings:buildFindings(fields),
       confidence:Math.round(confidence * 100) / 100,
       textSample:joined.slice(0, 4000),
@@ -237,7 +267,17 @@
     for(var pageNo = 1; pageNo <= maxPages; pageNo++){
       var page = await pdf.getPage(pageNo);
       var content = await page.getTextContent();
-      chunks.push(content.items.map(function(item){ return item.str || ''; }).join(' '));
+      var pageLines = [];
+      var currentLine = [];
+      content.items.forEach(function(item){
+        if(item.str) currentLine.push(item.str);
+        if(item.hasEOL){
+          if(currentLine.length) pageLines.push(currentLine.join(' '));
+          currentLine = [];
+        }
+      });
+      if(currentLine.length) pageLines.push(currentLine.join(' '));
+      chunks.push(pageLines.join('\n'));
     }
     return chunks.join('\n');
   }
@@ -280,6 +320,11 @@
     };
     if(fields.provider){ patch.extracted_provider = fields.provider.value; patch.extracted_provider_confidence = fields.provider.confidence; }
     if(fields.amount){ patch.extracted_bill_amount = fields.amount.value; patch.extracted_bill_amount_confidence = fields.amount.confidence; }
+    if(fields.amount){
+      patch.totalBilled = moneyNumber(fields.amount.value);
+      patch.dossierFlags = { billTotal:patch.totalBilled };
+    }
+    if(fields.amountOwed){ patch.amountOwed = moneyNumber(fields.amountOwed.value); }
     if(fields.serviceDate){ patch.extracted_date_of_service = fields.serviceDate.value; patch.extracted_date_confidence = fields.serviceDate.confidence; }
     if(fields.account){ patch.extracted_account_number = fields.account.value; patch.extracted_account_confidence = fields.account.confidence; }
     if(fields.insurance){ patch.extracted_insurance = fields.insurance.value; patch.extracted_insurance_confidence = fields.insurance.confidence; }

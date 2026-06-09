@@ -217,7 +217,7 @@ function normalizeIntake(input = {}) {
   return {
     providerName: input.providerName || 'Unknown Hospital',
     totalBilled: input.totalBilled || '',
-    amountOwed: input.amountOwed || input.totalBilled || '',
+    amountOwed: input.amountOwed || '',
     insurance,
     planType: input.planType || input.insuranceType || input.insurance || insurance,
     state: input.state || input.patientState || input.billingState || input.usState || input.locationState || '',
@@ -237,6 +237,7 @@ function normalizeIntake(input = {}) {
       selfPay: input.selfPay ?? input.isSelfPay,
       goodFaithEstimateAmount: input.goodFaithEstimateAmount ?? input.gfeAmount ?? input.estimateAmount,
       actualBilledAmount: input.actualBilledAmount ?? input.totalBilled,
+      billTotal: input.billTotal ?? input.totalBilled,
       emergencyCare: input.emergencyCare ?? input.isEmergencyCare,
       ancillaryServiceType: input.ancillaryServiceType ?? input.serviceType,
       nonprofitHospital: input.nonprofitHospital ?? input.isNonprofitHospital ?? input.nonprofitHospitalIndicator,

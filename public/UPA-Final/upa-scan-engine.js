@@ -127,39 +127,47 @@ function buildLines(textContent) {
    EXTRACTION — AMOUNTS
 ───────────────────────────────────────────── */
 
+function extractLabeledAmount(lines, labelPatterns) {
+  for (const pattern of labelPatterns) {
+    for (const line of lines) {
+      const label = line.match(pattern);
+      if (!label) continue;
+      const afterLabel = line.slice((label.index || 0) + label[0].length);
+      const match = afterLabel.match(/\$?\s*((?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?)/)
+        || line.match(/\$\s*([\d,]+(?:\.\d{1,2})?)/);
+      const amount = match ? parseAmount(match[1]) : null;
+      if (amount !== null && amount >= 0) return amount;
+    }
+  }
+  return null;
+}
+
 function extractAmounts(text) {
   const result = {
     totalBilled: null, patientBalance: null,
     insurancePaid: null, adjustmentAmount: null, allAmounts: []
   };
+  const lines = String(text || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
 
   /* All dollar amounts — deduplicated, sorted descending */
   const raw = text.match(/\$\s*[\d,]+(?:\.\d{1,2})?/g) || [];
   result.allAmounts = [...new Set(raw.map(parseAmount).filter(v => v && v > 0))].sort((a,b)=>b-a);
 
-  /* Labeled: total billed */
-  const totalPat = [
-    /(?:total\s+(?:charges?|billed|amount\s+billed|claim\s+amount)|amount\s+billed|billed\s+amount|gross\s+charges?)[:\s]*\$?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-    /(?:total\s+amount)[:\s]*\$?\s*([\d,]+(?:\.\d{1,2})?)/gi
-  ];
-  for (const p of totalPat) {
-    let m; while ((m = p.exec(text)) !== null) {
-      const v = parseAmount(m[1]);
-      if (v && (!result.totalBilled || v > result.totalBilled)) result.totalBilled = v;
-    }
-  }
+  result.totalBilled = extractLabeledAmount(lines, [
+    /\btotal\s+billed\s+charges?\b/i,
+    /\btotal\s+charges?\b/i,
+    /\btotal\s+amount\s+billed\b/i,
+    /\btotal\s+due\b/i,
+    /\bamount\s+due\b/i,
+    /^\s*total\b/i
+  ]);
 
-  /* Labeled: patient balance */
-  const balancePat = [
-    /(?:patient\s+(?:responsibility|balance|amount\s+due|total\s+due)|balance\s+due|amount\s+due|your\s+(?:responsibility|balance|share|total)|you\s+owe|total\s+patient\s+(?:responsibility|due))[:\s]*\$?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-    /(?:amount\s+you\s+(?:owe|are\s+responsible\s+for|may\s+owe))[:\s]*\$?\s*([\d,]+(?:\.\d{1,2})?)/gi
-  ];
-  for (const p of balancePat) {
-    let m; while ((m = p.exec(text)) !== null) {
-      const v = parseAmount(m[1]);
-      if (v !== null && v >= 0 && result.patientBalance === null) result.patientBalance = v;
-    }
-  }
+  result.patientBalance = extractLabeledAmount(lines, [
+    /\bpatient\s+responsibility\b/i,
+    /\bpatient\s+balance\b/i,
+    /\bamount\s+you\s+owe\b/i,
+    /\bbalance\s+due\b/i
+  ]);
 
   /* Labeled: insurance paid */
   const insPat = /(?:plan\s+(?:paid|payment|amount)|insurance\s+(?:paid|payment|amount)|benefit\s+(?:paid|payment))[:\s]*\$?\s*([\d,]+(?:\.\d{1,2})?)/gi;
@@ -175,15 +183,9 @@ function extractAmounts(text) {
     if (v && result.adjustmentAmount === null) result.adjustmentAmount = v;
   }
 
-  /* Positional fallback — label extraction missed totals */
+  /* Fallback for total only: use the largest dollar amount found. */
   if (result.totalBilled === null && result.allAmounts.length > 0) {
     result.totalBilled = result.allAmounts[0];
-  }
-  if (result.patientBalance === null && result.allAmounts.length > 1) {
-    const smallerAmounts = result.allAmounts.filter(a => a < (result.totalBilled || Infinity) && a > 0);
-    if (smallerAmounts.length > 0) {
-      result.patientBalance = smallerAmounts[smallerAmounts.length - 1]; // smallest = patient portion
-    }
   }
 
   return result;
@@ -460,39 +462,17 @@ async function extractFromPDF(file) {
 ───────────────────────────────────────────── */
 
 function buildCaseValueEstimate(ext) {
-  const bal   = ext.patientBalance;
   const total = ext.totalBilled;
-  const floor = 10;
-
-  const neutral = { anchor: null, min: null, max: null, display: null, basis: 'none' };
-
-  if (bal !== null && bal > 0) {
-    if (bal < floor) return neutral;
-    const min = Math.max(floor, Math.round(bal * 0.40 / 10) * 10);
-    const max = bal;
-    if (max <= 0 || max < min) return neutral;
-    return {
-      anchor: formatCurrency(bal),
-      min:    formatCurrency(min),
-      max:    formatCurrency(max),
-      display:formatCurrency(min) + '–' + formatCurrency(max),
-      basis:  'patient_balance'
-    };
-  }
   if (total !== null && total > 0) {
-    if (total < floor) return neutral;
-    const min = Math.max(floor, Math.round(total * 0.05 / 10) * 10);
-    const max = Math.round(total * 0.18 / 10) * 10;
-    if (max <= 0 || max < min) return neutral;
     return {
       anchor: formatCurrency(total),
-      min:    formatCurrency(min),
-      max:    formatCurrency(max),
-      display:formatCurrency(min) + '–' + formatCurrency(max),
+      min:    null,
+      max:    null,
+      display:formatCurrency(total),
       basis:  'total_billed'
     };
   }
-  return neutral;
+  return { anchor: null, min: null, max: null, display: 'amount not detected', basis: 'none' };
 }
 
 /* ─────────────────────────────────────────────
@@ -645,8 +625,7 @@ function writeScanStateToStorage(ext) {
 
   /* Intake-compatible for existing personalization pipeline.
      Field names must match what upa-case-personalization.js expects. */
-  const rawAmount = ext.patientBalance != null ? ext.patientBalance
-                  : ext.totalBilled    != null ? ext.totalBilled : null;
+  const rawAmount = ext.totalBilled != null ? ext.totalBilled : null;
   const compat = {
     /* Core fields read by amountInfo() */
     _upa_case_id:     caseId,
@@ -656,6 +635,9 @@ function writeScanStateToStorage(ext) {
     bill_amount:      rawAmount != null ? formatCurrency(rawAmount) : '',
     bill_amount_raw:  '',
     bill_amount_other:rawAmount != null ? formatCurrency(rawAmount) : '',
+    totalBilled:      ext.totalBilled,
+    amountOwed:       ext.patientBalance,
+    dossierFlags:     ext.totalBilled != null ? { billTotal: ext.totalBilled } : {},
     /* Extracted amount path — takes priority in amountInfo() when confidence >= 0.5 */
     extracted_bill_amount:           rawAmount != null ? String(rawAmount) : '',
     extracted_bill_amount_confidence: rawAmount != null ? 0.9 : 0,
@@ -712,18 +694,11 @@ function writeScanStateToStorage(ext) {
     // whether the subsequent writes succeed.
     [CASE_KEY, PAID_KEY, DASHBOARD_KEY, CHECKOUT_KEY, REVIEW_KEY,
      'upa.case.handoff.token.v1',
-     'upa.dashboard.state.v1',
-     'upa.recovery.params.v1',
-     'upa.ai.dossier.v1'
+     'upa.dashboard.state.v1'
     ].forEach(function(key){
       try{ sessionStorage.removeItem(key); localStorage.removeItem(key); }catch(e){}
     });
     try{ sessionStorage.removeItem('upa.paid'); localStorage.removeItem('upa.paid'); }catch(e){}
-    try{ if(String(window.name || '').indexOf('UPA_RECOVERY:') === 0) window.name = ''; }catch(e){}
-    try{
-      var secure = location.protocol === 'https:' ? '; Secure' : '';
-      document.cookie = 'upa_r=; path=/; max-age=0; SameSite=Lax' + secure;
-    }catch(e){}
     console.log('[UPA] 🗑 Stale keys cleared | caseId:', caseId, '| provider:', compat.provider || '—', '| provisional:', !!(ext._provisional));
     // ────────────────────────────────────────────────────────────────────────────
 

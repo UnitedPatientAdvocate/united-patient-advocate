@@ -16,11 +16,6 @@
   var MAX_CHECKOUT_URL_LENGTH = 1800;
   var PAID_ACCESS_PARAM = 'access';
   var PAID_ACCESS_TOKEN = 'upa_8f3kd92nd_paid';
-  var ATTRIBUTION_KEY = 'upa.attribution.v1';
-  var ATTRIBUTION_EVENTS_KEY = 'upa.attribution.events.v1';
-  var VISITOR_KEY = 'upa.visitor.id.v1';
-  var VISIT_SESSION_KEY = 'upa.visit.session.v1';
-  var TRACK_ENDPOINT = '/api/track';
 
   function now(){
     return new Date().toISOString();
@@ -56,18 +51,6 @@
   function removeJSON(key){
     try{ sessionStorage.removeItem(key); }catch(e){}
     try{ localStorage.removeItem(key); }catch(e){}
-  }
-
-  function clearRecoveryState(){
-    removeJSON(TOKEN_KEY);
-    removeJSON('upa.recovery.params.v1');
-    try{
-      if(String(window.name || '').indexOf('UPA_RECOVERY:') === 0) window.name = '';
-    }catch(e){}
-    try{
-      var secure = location.protocol === 'https:' ? '; Secure' : '';
-      document.cookie = 'upa_r=; path=/; max-age=0; SameSite=Lax' + secure;
-    }catch(e){}
   }
 
   function clean(value){
@@ -116,13 +99,9 @@
 
   function ensureActiveFields(intake, meta){
     var out = clone(intake);
-    var attribution = captureAttribution(meta || {});
     var ts = out._upa_active_at || (meta && meta.activeAt) || now();
     out._upa_active_at = ts;
     out._upa_source = out._upa_source || (meta && meta.source) || 'UPA';
-    out._traffic_source = out._traffic_source || attribution.lastSource || 'direct';
-    out._first_source = out._first_source || attribution.firstSource || out._traffic_source;
-    out._visitor_id = out._visitor_id || attribution.visitorId || '';
     out._upa_case_id = caseIdFromIntake(out) || simpleCaseId(out, out._scan ? 'scan' : 'intake');
     out.active_case_id = out._upa_case_id;
     return out;
@@ -131,7 +110,7 @@
   function normalizeScanIntake(scan){
     if(!scan || typeof scan !== 'object') return {};
     if(!(scan.provider || scan.totalBilled != null || scan.patientBalance != null || scan.claimNumber || scan.serviceDate || scan.insuranceName)) return {};
-    var scanAmt = scan.patientBalance != null ? scan.patientBalance : (scan.totalBilled != null ? scan.totalBilled : null);
+    var scanAmt = scan.totalBilled != null ? scan.totalBilled : null;
     var fmtAmt = scanAmt != null ? ('$' + Number(scanAmt).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})) : '';
     var ts = scan._upa_active_at || scan._scanTimestamp || now();
     var intake = {
@@ -144,6 +123,9 @@
       extracted_provider_confidence:scan.provider ? 0.75 : 0,
       bill_amount:fmtAmt,
       bill_amount_other:fmtAmt,
+      totalBilled:scan.totalBilled,
+      amountOwed:scan.patientBalance,
+      dossierFlags:scan.totalBilled != null ? {billTotal:scan.totalBilled} : {},
       extracted_bill_amount:scanAmt != null ? String(scanAmt) : '',
       extracted_bill_amount_confidence:scanAmt != null ? 0.9 : 0,
       date_of_service:scan.serviceDateRaw || scan.serviceDate || '',
@@ -300,8 +282,6 @@
       removeJSON(DASHBOARD_KEY);
       removeJSON(PAID_KEY);
       removeJSON('upa.paid');
-      removeJSON('upa.ai.dossier.v1');
-      clearRecoveryState();
     }
     var session = {
       version:4,
@@ -401,200 +381,6 @@
     return out;
   }
 
-  function safeGet(key, sessionOnly){
-    try{
-      var raw = sessionStorage.getItem(key) || '';
-      if(raw || sessionOnly) return raw;
-    }catch(e){}
-    try{ return localStorage.getItem(key) || ''; }catch(e){ return ''; }
-  }
-
-  function safeSet(key, value){
-    try{ sessionStorage.setItem(key, value); }catch(e){}
-    try{ localStorage.setItem(key, value); }catch(e){}
-  }
-
-  function visitorId(){
-    var id = safeGet(VISITOR_KEY);
-    if(!id){
-      id = 'upa-v-' + Date.now().toString(36) + '-' + Math.random().toString(16).slice(2, 10);
-      safeSet(VISITOR_KEY, id);
-    }
-    return id;
-  }
-
-  function visitSessionId(){
-    var id = safeGet(VISIT_SESSION_KEY, true);
-    if(!id){
-      id = 'upa-s-' + Date.now().toString(36) + '-' + Math.random().toString(16).slice(2, 10);
-      try{ sessionStorage.setItem(VISIT_SESSION_KEY, id); }catch(e){}
-    }
-    return id;
-  }
-
-  function normalizeTrafficSource(value){
-    value = clean(value).toLowerCase();
-    if(!value) return '';
-    value = value.replace(/^@+/, '');
-    if(value === 'twitter' || value === 't.co' || value === 'x.com') return 'x';
-    if(value.indexOf('reddit') > -1) return 'reddit';
-    if(value === 'x') return 'x';
-    if(value.indexOf('quora') > -1) return 'quora';
-    if(value === 'denied-claim' || value === 'denied_claim') return '';
-    return value.replace(/[^a-z0-9_-]/g, '').slice(0, 40);
-  }
-
-  function sourceFromReferrer(referrer){
-    try{
-      var host = new URL(referrer || '').hostname.toLowerCase();
-      if(host.indexOf('reddit.com') > -1) return 'reddit';
-      if(host === 't.co' || host.indexOf('x.com') > -1 || host.indexOf('twitter.com') > -1) return 'x';
-      if(host.indexOf('quora.com') > -1) return 'quora';
-    }catch(e){}
-    return '';
-  }
-
-  function urlTrafficSource(params){
-    params = params || new URLSearchParams(window.location.search || '');
-    return normalizeTrafficSource(params.get('src') || params.get('utm_source') || params.get('ref') || params.get('source') || '');
-  }
-
-  function readAttribution(){
-    return readJSON(ATTRIBUTION_KEY) || {};
-  }
-
-  function captureAttribution(meta){
-    var existing = readAttribution();
-    var params = new URLSearchParams(window.location.search || '');
-    var fromUrl = urlTrafficSource(params);
-    var fromReferrer = sourceFromReferrer(document.referrer || '');
-    var detected = fromUrl || fromReferrer || '';
-    var id = visitorId();
-    var sessionId = visitSessionId();
-    var current = {
-      version:1,
-      visitorId:id,
-      visitSessionId:sessionId,
-      firstSource:existing.firstSource || detected || 'direct',
-      lastSource:detected || existing.lastSource || existing.firstSource || 'direct',
-      firstSeenAt:existing.firstSeenAt || now(),
-      lastSeenAt:now(),
-      landingUrl:existing.landingUrl || window.location.href,
-      landingPath:existing.landingPath || window.location.pathname,
-      currentUrl:window.location.href,
-      currentPath:window.location.pathname,
-      referrer:document.referrer || existing.referrer || '',
-      utm:{
-        source:params.get('utm_source') || existing.utm && existing.utm.source || '',
-        medium:params.get('utm_medium') || existing.utm && existing.utm.medium || '',
-        campaign:params.get('utm_campaign') || existing.utm && existing.utm.campaign || '',
-        content:params.get('utm_content') || existing.utm && existing.utm.content || '',
-        term:params.get('utm_term') || existing.utm && existing.utm.term || ''
-      },
-      meta:clone(meta || {})
-    };
-    writeJSON(ATTRIBUTION_KEY, current);
-    try{
-      document.cookie = 'upa_src=' + encodeURIComponent(current.lastSource || 'direct') + '; path=/; max-age=2592000; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
-      document.cookie = 'upa_vid=' + encodeURIComponent(current.visitorId) + '; path=/; max-age=2592000; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
-    }catch(e){}
-    return current;
-  }
-
-  function eventId(){
-    return 'upa-e-' + Date.now().toString(36) + '-' + Math.random().toString(16).slice(2, 10);
-  }
-
-  function track(eventName, meta){
-    var attribution = captureAttribution(Object.assign({ event:eventName }, meta || {}));
-    var event = {
-      id:eventId(),
-      event:clean(eventName),
-      occurredAt:now(),
-      visitorId:attribution.visitorId,
-      visitSessionId:attribution.visitSessionId,
-      source:attribution.lastSource || 'direct',
-      firstSource:attribution.firstSource || attribution.lastSource || 'direct',
-      path:window.location.pathname,
-      url:window.location.href,
-      referrer:document.referrer || '',
-      meta:clone(meta || {})
-    };
-    var events = readJSON(ATTRIBUTION_EVENTS_KEY);
-    if(!Array.isArray(events)) events = [];
-    events.push(event);
-    if(events.length > 100) events = events.slice(events.length - 100);
-    writeJSON(ATTRIBUTION_EVENTS_KEY, events);
-    try{
-      var body = JSON.stringify(event);
-      if(navigator.sendBeacon){
-        var blob = new Blob([body], { type:'application/json' });
-        navigator.sendBeacon(TRACK_ENDPOINT, blob);
-      } else {
-        fetch(TRACK_ENDPOINT, { method:'POST', headers:{ 'Content-Type':'application/json' }, body:body, keepalive:true }).catch(function(){});
-      }
-    }catch(e){}
-    return event;
-  }
-
-  function applyAttributionParams(url){
-    var attribution = captureAttribution({ stage:'url-decoration' });
-    var source = attribution.lastSource || '';
-    if(source && source !== 'direct'){
-      url.searchParams.set('src', source);
-      if(!url.searchParams.get('utm_source')) url.searchParams.set('utm_source', source);
-      if(attribution.firstSource && attribution.firstSource !== source) url.searchParams.set('first_src', attribution.firstSource);
-    }
-    if(attribution.visitorId) url.searchParams.set('upa_vid', attribution.visitorId);
-    return url;
-  }
-
-  function attributedUrl(href){
-    try{
-      var url = new URL(href || '', window.location.href);
-      applyAttributionParams(url);
-      if(String(href || '').charAt(0) === '/' && url.origin === window.location.origin) return url.pathname + url.search + url.hash;
-      return url.href;
-    }catch(e){
-      return href || '';
-    }
-  }
-
-  function stampSessionAttribution(session, meta){
-    session = session || {};
-    var attribution = captureAttribution(meta || {});
-    session.attribution = clone(attribution);
-    session.visitorId = attribution.visitorId;
-    session.visitSessionId = attribution.visitSessionId;
-    session.trafficSource = attribution.lastSource || 'direct';
-    session.firstTrafficSource = attribution.firstSource || session.trafficSource;
-    if(session.intake && typeof session.intake === 'object'){
-      session.intake._traffic_source = session.trafficSource;
-      session.intake._first_source = session.firstTrafficSource;
-      session.intake._visitor_id = session.visitorId;
-    }
-    session.meta = Object.assign({}, session.meta || {}, { attribution:clone(attribution) }, meta || {});
-    return session;
-  }
-
-  function decorateRevenueLinks(){
-    try{
-      var links = document.querySelectorAll('a[href]');
-      Array.prototype.forEach.call(links, function(link){
-        var href = link.getAttribute('href') || '';
-        if(!href || href.charAt(0) === '#') return;
-        var decorates = href.indexOf('/checkout') === 0 || href.indexOf('/denied-claim-help') === 0 || href.indexOf('upadvocate.gumroad.com') > -1;
-        if(!decorates) return;
-        link.setAttribute('href', attributedUrl(href));
-        if(href.indexOf('/checkout') === 0 || href.indexOf('upadvocate.gumroad.com') > -1){
-          link.addEventListener('click', function(){
-            track('checkout_link_click', { href:link.getAttribute('href') || '', text:clean(link.textContent || '') });
-          }, { once:false });
-        }
-      });
-    }catch(e){}
-  }
-
   function currentSession(){
     var active = activeEnvelope();
     var activeCaseId = active.caseId || '';
@@ -673,7 +459,7 @@
     session.pageUrl = window.location.href;
     session.referrer = document.referrer || session.referrer || '';
     session.intake = clone(intake);
-    session = stampSessionAttribution(session, meta || {});
+    session.meta = Object.assign({}, session.meta || {}, meta || {});
     writeJSON(INTAKE_KEY, session.intake);
     writeJSON(CHECKOUT_KEY, session);
     writeJSON(REVIEW_KEY, session);
@@ -705,14 +491,13 @@
     if(window.UPACase) session.case = clone(window.UPACase);
     session.updatedAt = now();
     session.stage = (meta && meta.stage) || session.stage || 'review';
-    session = stampSessionAttribution(session, meta || {});
     session.dashboard = Object.assign({}, session.dashboard || {}, {
       location: window.location.href,
       path: window.location.pathname,
       search: window.location.search,
-      capturedAt: now(),
-      attribution: clone(session.attribution || {})
+      capturedAt: now()
     });
+    session.meta = Object.assign({}, session.meta || {}, meta || {});
     writeJSON(CHECKOUT_KEY, session);
     writeJSON(REVIEW_KEY, session);
     writeJSON(DASHBOARD_KEY, session.dashboard);
@@ -743,10 +528,6 @@
         updatedAt:session.updatedAt || now(),
         stage:session.stage || 'review',
         source:session.source || '',
-        trafficSource:session.trafficSource || '',
-        firstTrafficSource:session.firstTrafficSource || '',
-        visitorId:session.visitorId || '',
-        attribution:clone(session.attribution || {}),
         meta:clone(session.meta || {})
       };
       payload.caseData = compactCase(caseData);
@@ -758,11 +539,7 @@
         createdAt:session.createdAt || '',
         updatedAt:now(),
         stage:'token-intake-restore',
-        source:session.source || '',
-        trafficSource:session.trafficSource || '',
-        firstTrafficSource:session.firstTrafficSource || '',
-        visitorId:session.visitorId || '',
-        attribution:clone(session.attribution || {})
+        source:session.source || ''
       };
       payload.caseData = {};
       payload.dashboard = {};
@@ -861,7 +638,7 @@
       try{
         var namedRecovery = (window.name || '').match(/^UPA_RECOVERY:(.+)$/);
         if(namedRecovery && namedRecovery[1]){
-          var windowNameResult = shouldUseFallbackRecovery(namedRecovery[1]) ? importRecoveryToken(namedRecovery[1], Object.assign({ source:'window-name-recovery' }, meta || {})) : null;
+          var windowNameResult = importRecoveryToken(namedRecovery[1], Object.assign({ source:'window-name-recovery' }, meta || {}));
           if(windowNameResult) return windowNameResult;
         }
       }catch(e){}
@@ -880,7 +657,7 @@
             var recoveryTime = rp && rp.ts ? Date.parse(rp.ts) : 0;
             recoveryAgeOk = !recoveryTime || (Date.now() - recoveryTime < 48 * 60 * 60 * 1000);
           }catch(re){}
-          if(recoveryAgeOk && shouldUseFallbackRecovery(storedRecovery)){
+          if(recoveryAgeOk){
             var storedRecoveryResult = importRecoveryToken(storedRecovery, Object.assign({ source:'stored-recovery' }, meta || {}));
             if(storedRecoveryResult) return storedRecoveryResult;
           }
@@ -918,20 +695,6 @@
     return importCaseToken(token, Object.assign({ source: token ? 'stored-token' : 'no-token' }, meta || {}));
   }
 
-  function shouldUseFallbackRecovery(token){
-    if(!token) return false;
-    var tokenIntake = intakeFromRecoveryToken(token);
-    if(!hasIntake(tokenIntake)) return false;
-    var active = activeEnvelope();
-    var activeIntake = active && active.intake || {};
-    var activeCaseId = active && (active.caseId || caseIdFromIntake(activeIntake)) || '';
-    if(activeCaseId && hasIntake(activeIntake)){
-      var tokenCaseId = caseIdFromIntake(tokenIntake);
-      return !!(tokenCaseId && tokenCaseId === activeCaseId);
-    }
-    return true;
-  }
-
   function importRecoveryToken(token, meta){
     if(!token) return null;
     var text = base64UrlDecode(token);
@@ -954,9 +717,6 @@
       ph:'phone',
       acct:'account_number',
       cid:'_upa_case_id',
-      src:'_traffic_source',
-      fs:'_first_source',
-      vid:'_visitor_id',
       ts:'submitted_at'
     };
     var intake = {};
@@ -976,7 +736,7 @@
     session.stage = (meta && meta.stage) || 'url-recovery-restore';
     session.source = (meta && meta.source) || 'url-recovery';
     session.intake = clone(restored);
-    session = stampSessionAttribution(session, meta || {});
+    session.meta = Object.assign({}, session.meta || {}, meta || {});
     writeJSON(INTAKE_KEY, restored);
     writeJSON(CHECKOUT_KEY, session);
     writeJSON(REVIEW_KEY, session);
@@ -1041,26 +801,26 @@
 
   function bestRecoveryIntake(){
     var candidates = [];
-    function add(intake, container, source, priority){
+    function add(intake, container, source){
       if(!intake || typeof intake !== 'object') return;
       var score = recoveryScore(intake);
       if(!score) return;
-      candidates.push({ intake:intake, score:score, time:Math.max(timeValue(intake), timeValue(container || {})), source:source || '', priority:priority || 0 });
+      candidates.push({ intake:intake, score:score, time:Math.max(timeValue(intake), timeValue(container || {})), source:source || '' });
     }
     var active = activeEnvelope();
-    if(active && active.intake) add(active.intake, active, 'active', 100);
-    if(active && active.scan) add(normalizeScanIntake(active.scan), active.scan, 'active-scan', 95);
-    add(readJSON(INTAKE_KEY), null, 'intake', 80);
+    if(active && active.intake) add(active.intake, active, 'active');
+    if(active && active.scan) add(normalizeScanIntake(active.scan), active.scan, 'active-scan');
+    add(readJSON(INTAKE_KEY), null, 'intake');
     var scan = readJSON(SCAN_KEY);
-    add(normalizeScanIntake(scan), scan, 'scan', 75);
+    add(normalizeScanIntake(scan), scan, 'scan');
     var checkout = readJSON(CHECKOUT_KEY);
-    if(checkout && checkout.intake) add(checkout.intake, checkout, 'checkout', 60);
+    if(checkout && checkout.intake) add(checkout.intake, checkout, 'checkout');
     var review = readJSON(REVIEW_KEY);
-    if(review && review.intake) add(review.intake, review, 'review', 55);
+    if(review && review.intake) add(review.intake, review, 'review');
     var paid = readJSON(PAID_KEY);
-    if(paid && paid.intake) add(paid.intake, paid, 'paid', 40);
-    if(paid && paid.session && paid.session.intake) add(paid.session.intake, paid.session, 'paid-session', 35);
-    candidates.sort(function(a,b){ return (b.priority - a.priority) || (b.time - a.time) || (b.score - a.score); });
+    if(paid && paid.intake) add(paid.intake, paid, 'paid');
+    if(paid && paid.session && paid.session.intake) add(paid.session.intake, paid.session, 'paid-session');
+    candidates.sort(function(a,b){ return (b.score - a.score) || (b.time - a.time); });
     return candidates[0] ? candidates[0].intake : {};
   }
 
@@ -1086,9 +846,6 @@
       ph:'phone',
       acct:'account_number',
       cid:'_upa_case_id',
-      src:'_traffic_source',
-      fs:'_first_source',
-      vid:'_visitor_id',
       ts:'submitted_at'
     };
     var intake = {};
@@ -1107,7 +864,6 @@
 
   function compactRecoveryToken(intake){
     if(!intake || typeof intake !== 'object' || !recoveryScore(intake)) return '';
-    var attribution = captureAttribution({ stage:'recovery-token' });
     var core = {
       p: recoveryText(intake.provider || intake.providerName || intake.extracted_provider || '', 80),
       a: recoveryAmount(intake),
@@ -1123,9 +879,6 @@
       ph: recoveryText(intake.phone || '', 30),
       acct: recoveryText(intake.account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || intake.extracted_account_number || '', 50),
       cid: recoveryText(intake._upa_case_id || intake.active_case_id || intake.caseId || '', 80),
-      src: recoveryText(intake._traffic_source || attribution.lastSource || '', 40),
-      fs: recoveryText(intake._first_source || attribution.firstSource || '', 40),
-      vid: recoveryText(intake._visitor_id || attribution.visitorId || '', 80),
       ts: recoveryText(intake.submitted_at || intake._upa_active_at || now(), 40)
     };
     var token = encodeRecoveryCore(Object.assign({}, core));
@@ -1169,11 +922,7 @@
     var storedScore = recoveryScore(storedIntake);
     var freshIntake = bestRecoveryIntake();
     var freshScore = recoveryScore(freshIntake);
-    var storedCaseId = caseIdFromIntake(storedIntake);
-    var freshCaseId = caseIdFromIntake(freshIntake);
-    var differentActiveCase = !!(freshCaseId && freshCaseId !== storedCaseId);
-    var freshIsNewer = timeValue(freshIntake) >= timeValue(storedIntake);
-    if(freshScore > 0 && (!storedScore || differentActiveCase || freshIsNewer || freshScore >= storedScore)){
+    if(freshScore >= storedScore && freshScore > 0){
       var freshToken = compactRecoveryToken(freshIntake);
       if(freshToken){
         try{ sessionStorage.setItem('upa.recovery.params.v1', freshToken); }catch(e){}
@@ -1208,7 +957,6 @@
     var fallback = '/success';
     try{
       var url = new URL('/success', window.location.origin);
-      applyAttributionParams(url);
       var token = exportCaseToken(Object.assign({ stage:'success-link-token' }, meta || {}));
       if(token && token.length <= MAX_CASE_PARAM_LENGTH) url.searchParams.set(TOKEN_PARAM, token);
       return url.href;
@@ -1222,11 +970,9 @@
     try{
       captureReviewState(Object.assign({ stage:'checkout-local-handoff' }, meta || {}));
       var url = new URL(href, window.location.href);
-      applyAttributionParams(url);
       url.searchParams.set('upa_checkout', '1');
       var successBase = window.location.origin + '/UPA-Final/05_upa-success.html';
       var successUrl = new URL(successBase);
-      applyAttributionParams(successUrl);
       var hasHandoff = false;
       var recoveryToken = checkoutRecoveryToken();
 
@@ -1277,8 +1023,7 @@
         try{ window.name = 'UPA_RECOVERY:' + recoveryToken; }catch(ne){}
       }
       var bridge = new URL('/checkout', window.location.origin);
-      applyAttributionParams(bridge);
-      bridge.searchParams.set('to', attributedUrl(gumroadUrl || ''));
+      bridge.searchParams.set('to', gumroadUrl || '');
       if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) bridge.searchParams.set('r', recoveryToken);
       return bridge.href;
     }catch(e){
@@ -1288,12 +1033,10 @@
 
   function markCheckout(meta){
     var session = captureReviewState(Object.assign({ stage:'checkout-started' }, meta || {}));
-    session = stampSessionAttribution(session, meta || {});
     session.checkoutStartedAt = now();
     session.gumroadUrl = meta && meta.gumroadUrl ? meta.gumroadUrl : session.gumroadUrl;
     session.returnUrl = '/success';
     session.paid = false;
-    track('checkout_start', { stage:session.stage || 'checkout-started', intent:meta && meta.intent || '', gumroadUrl:session.gumroadUrl || '' });
     writeJSON(CHECKOUT_KEY, session);
     writeJSON(REVIEW_KEY, session);
     writeJSON(ACTIVE_KEY, Object.assign({}, activeEnvelope(), { caseId:session.activeCaseId || caseIdFromIntake(session.intake || {}), updatedAt:session.updatedAt || session.checkoutStartedAt, intake:clone(session.intake || {}), session:clone(session) }));
@@ -1313,14 +1056,11 @@
     var session = restoreSession({ stage:'success-restore' }).session || currentSession();
     var intake = getIntake();
     if(hasIntake(intake)) session.intake = intake;
-    session = stampSessionAttribution(session, meta || {});
     session.version = 3;
     session.activeCaseId = caseIdFromIntake(session.intake || intake) || session.activeCaseId || session.sessionId;
     session.paid = true;
     session.stage = 'paid-success';
-    var shouldTrackSale = !session.saleTrackedAt;
     session.paidAt = session.paidAt || now();
-    session.saleTrackedAt = session.saleTrackedAt || session.paidAt;
     session.updatedAt = now();
     session.successUrl = window.location.href;
     session.successParams = queryObject();
@@ -1332,98 +1072,7 @@
     if(hasIntake(session.intake)) writeJSON(INTAKE_KEY, session.intake);
     writeJSON(ACTIVE_KEY, Object.assign({}, activeEnvelope(), { caseId:session.activeCaseId, updatedAt:session.updatedAt, intake:clone(session.intake || {}), session:clone(session), paid:true }));
     try{ sessionStorage.setItem('upa.paid', '1'); localStorage.setItem('upa.paid', '1'); }catch(e){}
-    if(shouldTrackSale){
-      track('paid_state_marked', { stage:(meta && meta.stage) || 'paid-success', licenseKeyPresent:!!(meta && meta.licenseKey), revenueVerified:false });
-    }
     return session;
-  }
-
-  function installDashboardRuntimeGuards(){
-    if(window.__upaDashboardRuntimeGuardsInstalled) return;
-    window.__upaDashboardRuntimeGuardsInstalled = true;
-    var isDashboard = /\/(dashboard|UPA-Final\/04_upa-dashboard\.html|upa-premium-v10\.5\.html)/.test(window.location.pathname || '');
-    if(!isDashboard) return;
-
-    function tabNameFromButton(btn){
-      if(!btn) return '';
-      var direct = btn.getAttribute('data-tab') || '';
-      if(direct) return direct;
-      var raw = btn.getAttribute('onclick') || '';
-      var match = raw.match(/showTab\(['"]([^'"]+)['"]\)/);
-      return match && match[1] ? match[1] : '';
-    }
-
-    function syncMobileTab(name){
-      try{
-        var labels = window.MTN_LABELS || {
-          overview:'Overview',
-          financials:'Money',
-          findings:'Findings',
-          documents:'Documents',
-          actionplan:'Action Plan',
-          timeline:'Timeline'
-        };
-        var label = document.getElementById('mtn-current-label');
-        if(label && labels[name]) label.textContent = labels[name];
-        document.querySelectorAll('.mtn-item').forEach(function(el){
-          var tab = el.getAttribute('data-tab') || tabNameFromButton(el);
-          el.classList.toggle('on', tab === name);
-        });
-      }catch(e){}
-    }
-
-    function exposeAndWrapShowTab(){
-      try{
-        if(typeof window.showTab !== 'function' && typeof showTab === 'function') window.showTab = showTab;
-        if(typeof window.showTab !== 'function' || window.showTab.__upaGuarded) return;
-        var originalShowTab = window.showTab;
-        var guarded = function(name){
-          var result = originalShowTab.apply(this, arguments);
-          syncMobileTab(name);
-          return result;
-        };
-        guarded.__upaGuarded = true;
-        window.showTab = guarded;
-      }catch(e){}
-    }
-
-    exposeAndWrapShowTab();
-    setTimeout(exposeAndWrapShowTab, 0);
-    setTimeout(exposeAndWrapShowTab, 500);
-
-    document.addEventListener('click', function(evt){
-      try{
-        var target = evt.target;
-        var btn = target && target.closest ? target.closest('.tab-btn') : null;
-        if(!btn || !btn.closest('.tab-bar')) return;
-        var name = tabNameFromButton(btn);
-        if(!name || typeof window.showTab !== 'function') return;
-        evt.preventDefault();
-        evt.stopPropagation();
-        exposeAndWrapShowTab();
-        window.showTab(name);
-      }catch(e){}
-    }, true);
-
-    window.addEventListener('load', function(){
-      try{
-        var forceTour = /[?&]tour=1/.test(window.location.search || '');
-        var active = activeEnvelope();
-        var caseId = active && (active.caseId || caseIdFromIntake(active.intake || {})) || '';
-        var hasCase = !!(active && active.intake && hasIntake(active.intake));
-        var paidVisit = hasPaidAccessToken(window.location.search || '') ||
-          localStorage.getItem('upa.paid') === '1' ||
-          !!(active && (active.paid || (active.session && active.session.paid)));
-        var tourKey = 'upa_tour_paid_case_' + (caseId || 'unknown');
-        var shown = localStorage.getItem(tourKey) === '1';
-        if(forceTour || (paidVisit && hasCase && !shown)){
-          localStorage.setItem(tourKey, '1');
-          setTimeout(function(){
-            if(typeof window.tourStart === 'function') window.tourStart();
-          }, window.innerWidth <= 900 ? 2000 : 1400);
-        }
-      }catch(e){}
-    });
   }
 
   window.UPAState = {
@@ -1457,22 +1106,8 @@
     checkoutBridgeUrl:checkoutBridgeUrl,
     markCheckout:markCheckout,
     markPaid:markPaid,
-    hasPaidAccessToken:hasPaidAccessToken,
-    attribution:captureAttribution,
-    attributedUrl:attributedUrl,
-    track:track
+    hasPaidAccessToken:hasPaidAccessToken
   };
 
-  captureAttribution({ stage:'script-load' });
-  track('page_view', { stage:'script-load' });
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){
-      decorateRevenueLinks();
-      installDashboardRuntimeGuards();
-    });
-  } else {
-    decorateRevenueLinks();
-    installDashboardRuntimeGuards();
-  }
   restoreSession({ stage:'script-load' });
 })();

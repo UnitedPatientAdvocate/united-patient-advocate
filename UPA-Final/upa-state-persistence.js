@@ -110,7 +110,7 @@
   function normalizeScanIntake(scan){
     if(!scan || typeof scan !== 'object') return {};
     if(!(scan.provider || scan.totalBilled != null || scan.patientBalance != null || scan.claimNumber || scan.serviceDate || scan.insuranceName)) return {};
-    var scanAmt = scan.patientBalance != null ? scan.patientBalance : (scan.totalBilled != null ? scan.totalBilled : null);
+    var scanAmt = scan.totalBilled != null ? scan.totalBilled : null;
     var fmtAmt = scanAmt != null ? ('$' + Number(scanAmt).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})) : '';
     var ts = scan._upa_active_at || scan._scanTimestamp || now();
     var intake = {
@@ -123,6 +123,9 @@
       extracted_provider_confidence:scan.provider ? 0.75 : 0,
       bill_amount:fmtAmt,
       bill_amount_other:fmtAmt,
+      totalBilled:scan.totalBilled,
+      amountOwed:scan.patientBalance,
+      dossierFlags:scan.totalBilled != null ? {billTotal:scan.totalBilled} : {},
       extracted_bill_amount:scanAmt != null ? String(scanAmt) : '',
       extracted_bill_amount_confidence:scanAmt != null ? 0.9 : 0,
       date_of_service:scan.serviceDateRaw || scan.serviceDate || '',

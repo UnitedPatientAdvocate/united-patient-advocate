@@ -688,7 +688,7 @@ const UPA_SCAN_CONFIG = {
 let selectedFile    = null;
 let extractedData   = null;
 let scanFindings    = [];
-var _aiHeadlines    = [];
+var _aiMergedFindings = [];
 let animHoldReached = false;
 let animResumeFn    = null;
 let animTimers      = [];
@@ -1066,7 +1066,7 @@ function resumeAnimation(data) {
 
 /* ─── ROUTING AFTER SCAN ─── */
 function routeAfterScan(data) {
-  _aiHeadlines = [];
+  _aiMergedFindings = [];
   if (data.confidence === 'low' || data.confidence === 'failed') {
     showState('state-fallback');
     return;
@@ -1094,7 +1094,7 @@ function callFreePreviewAI(data) {
     var intake = {
       providerName:      data.provider || '',
       totalBilled:       data.totalBilled   != null ? String(data.totalBilled)   : '',
-      amountOwed:        data.patientBalance != null ? String(data.patientBalance) : (data.totalBilled != null ? String(data.totalBilled) : ''),
+      amountOwed:        data.patientBalance != null ? String(data.patientBalance) : '',
       hasInsurance:      !!(data.insuranceName),
       insuranceType:     data.insuranceName  || '',
       visitReason:       data.billType       || '',
@@ -1119,42 +1119,114 @@ function callFreePreviewAI(data) {
       body: JSON.stringify({ generationMode: 'free_preview', intake: intake })
     })
     .then(function(resp) {
+      if (!resp.ok) throw new Error('Preview analysis failed');
+      return resp.json();
+    })
+    .then(function(resp) {
       try {
+        var aiData = resp && resp.normalizedPayload;
         var text = Array.isArray(resp.content) ? resp.content.map(function(p){ return p.text||''; }).join('') : '';
-        if (!text) return;
-        var aiData = JSON.parse(text);
+        if (!aiData && text) aiData = JSON.parse(text);
         if (!aiData) return;
-        var rawAiFindings = Array.isArray(aiData.findings) && aiData.findings.length
-          ? aiData.findings
-          : aiData.summary && Array.isArray(aiData.summary.errorsFound) && aiData.summary.errorsFound.length
-            ? aiData.summary.errorsFound
-            : aiData.preview && aiData.preview.teaserFinding
-              ? [aiData.preview.teaserFinding]
-              : [];
-        var aiFindings = rawAiFindings.map(function(item) {
+        var structuredFindings = Array.isArray(aiData.findings) ? aiData.findings : [];
+        var summaryFindings = aiData.summary && Array.isArray(aiData.summary.errorsFound) && aiData.summary.errorsFound.length
+          ? aiData.summary.errorsFound
+          : aiData.preview && aiData.preview.teaserFinding
+            ? [aiData.preview.teaserFinding]
+            : [];
+        function normalizeAiFinding(item) {
           if (typeof item === 'string') {
-            return {
-              title: item
-            };
+            return { headline: '', detail: item, lineItem: '' };
           }
           if (!item || typeof item !== 'object') return null;
-          return item;
-        }).filter(function(item) {
-          return item && (item.title || item.headline);
-        });
-        _aiHeadlines = aiFindings.map(function(item) {
-          return item.headline || item.title;
-        });
-        if (aiFindings.length && window._upaScanData && Array.isArray(window._upaScanFindings)) {
-          window._upaScanFindings.forEach(function(f, i) {
-            if (f && aiFindings[i]) {
-              var aiHeadline = aiFindings[i].headline || aiFindings[i].title;
-              var aiTeaser = aiFindings[i].teaser || aiFindings[i].oneLineExplanation || aiFindings[i].body || '';
-              if (aiHeadline) f.headline = aiHeadline;
-              if (aiTeaser) f.aiTeaser = aiTeaser;
-            }
+          return {
+            headline: item.headline || item.title || '',
+            detail: item.detail || item.oneLineExplanation || item.body || item.teaser || '',
+            lineItem: item.lineItem || item.lineItemReference || item.code || '',
+            severity: item.severity || ''
+          };
+        }
+        function findingCodes(item) {
+          var text = [item.headline, item.detail, item.lineItem].filter(Boolean).join(' ');
+          return (text.match(/\b(?:[A-Z]?\d{5}[A-Z]?|\d{4}[A-Z])\b/gi) || []).map(function(code) {
+            return code.toUpperCase();
           });
-          renderFindings(window._upaScanData, window._upaScanFindings);
+        }
+        function normalizedLineItem(item) {
+          return String(item.lineItem || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+        }
+        function sameAiFinding(left, right) {
+          var leftLine = normalizedLineItem(left);
+          var rightLine = normalizedLineItem(right);
+          if (leftLine && rightLine && (leftLine === rightLine || leftLine.indexOf(rightLine) !== -1 || rightLine.indexOf(leftLine) !== -1)) return true;
+          var leftCodes = findingCodes(left);
+          var rightCodes = findingCodes(right);
+          if (leftCodes.some(function(code) { return rightCodes.indexOf(code) !== -1; })) return true;
+          if (leftLine || rightLine || leftCodes.length || rightCodes.length) return false;
+          var leftHeadline = String(left.headline || '').toLowerCase().trim();
+          var rightHeadline = String(right.headline || '').toLowerCase().trim();
+          if (leftHeadline && rightHeadline && leftHeadline === rightHeadline) return true;
+          return !!left.detail && !!right.detail && left.detail.toLowerCase().trim() === right.detail.toLowerCase().trim();
+        }
+        function severityForFinding(item) {
+          if (item.severity) return String(item.severity).toUpperCase();
+          var text = (item.headline + ' ' + item.detail).toLowerCase();
+          if (/denial|balance billing|out.of.network/.test(text)) return 'CRITICAL';
+          if (/duplicate|mismatch|does not match|does not reconcile|above medicare benchmark/.test(text)) return 'HIGH';
+          return 'MEDIUM';
+        }
+        function teaserForFinding(detail) {
+          if (!detail || detail.length <= 90) return detail;
+          var teaser = detail.slice(0, 90);
+          return teaser.slice(0, teaser.lastIndexOf(' ') > 45 ? teaser.lastIndexOf(' ') : 90);
+        }
+        function findingCard(item, index, source) {
+          return {
+            id: 'ai-' + source + '-' + index,
+            priority: index,
+            severity: severityForFinding(item),
+            gated: true,
+            title: item.headline || 'Billing Detail Needs Review',
+            teaser: teaserForFinding(item.detail),
+            body: item.detail,
+            lineItem: item.lineItem,
+            letterIncluded: true,
+            letterType: 'itemized-request',
+            _aiSource: source,
+            _aiIdentity: item
+          };
+        }
+        var normalizedStructured = structuredFindings.map(normalizeAiFinding).filter(function(item) {
+          return item && (item.headline || item.detail);
+        });
+        var normalizedSummary = summaryFindings.map(normalizeAiFinding).filter(function(item) {
+          return item && item.detail;
+        });
+        var mergedCards = normalizedStructured.map(function(item, index) {
+          return findingCard(item, index, 'findings');
+        });
+        if (!mergedCards.length && Array.isArray(window._upaScanFindings)) {
+          mergedCards = window._upaScanFindings.slice();
+        }
+        var mergedIdentities = normalizedStructured.length
+          ? normalizedStructured.slice()
+          : mergedCards.map(normalizeAiFinding).filter(Boolean);
+        normalizedSummary.forEach(function(item, index) {
+          var duplicate = mergedIdentities.some(function(existing) {
+            return sameAiFinding(existing, item);
+          });
+          if (!duplicate) {
+            mergedCards.push(findingCard(item, mergedCards.length + index, 'summary'));
+            mergedIdentities.push(item);
+          }
+        });
+        if (mergedCards.length && window._upaScanData) {
+          mergedCards.forEach(function(card, index) {
+            card.gated = index !== 0;
+          });
+          _aiMergedFindings = mergedCards;
+          window._upaScanFindings = mergedCards;
+          renderFindings(window._upaScanData, mergedCards);
         }
         try {
           var stored2 = JSON.parse(localStorage.getItem('upa.intake.v1') || '{}');
@@ -1162,6 +1234,17 @@ function callFreePreviewAI(data) {
           stored2._aiRiskLevel = aiData.summary && aiData.summary.riskLevel;
           localStorage.setItem('upa.intake.v1', JSON.stringify(stored2));
         } catch(e) {}
+        try {
+          var existingDossier = JSON.parse(localStorage.getItem('upa.ai.dossier.v1') || '{}');
+          var nextDossier = Object.assign({}, existingDossier, aiData, {
+            providerName: data.provider || aiData.providerName || '',
+            codeAnalysis: Array.isArray(aiData.codeAnalysis) ? aiData.codeAnalysis : codeAnalysis,
+            lineItems: Array.isArray(aiData.lineItems) ? aiData.lineItems : codeAnalysis
+          });
+          localStorage.setItem('upa.ai.dossier.v1', JSON.stringify(nextDossier));
+          sessionStorage.setItem('upa.ai.dossier.v1', JSON.stringify(nextDossier));
+          window.location.href = '/dashboard';
+        } catch(e) { console.warn('[UPA] dashboard dossier write failed', e); }
       } catch(e) { console.warn('[UPA] preview parse error', e); }
     })
     .catch(function(e) {
@@ -1185,6 +1268,7 @@ function severityBadgeClass(sev) {
 }
 
 function renderFindings(data, findings) {
+  if (_aiMergedFindings.length) findings = _aiMergedFindings;
   // Header
   const provider = data.provider || null;
   const date     = data.serviceDate || null;
@@ -1221,11 +1305,6 @@ function renderFindings(data, findings) {
   scroll.innerHTML = '';
 
   // Finding cards
-  if (_aiHeadlines.length) {
-    findings.forEach(function(f, i) {
-      if (f && _aiHeadlines[i]) f.headline = _aiHeadlines[i];
-    });
-  }
   findings.forEach(function(f) {
     const card = document.createElement('div');
     card.className = 'finding-card' + (f.gated ? ' fc-gated' : '');
@@ -1405,7 +1484,7 @@ function resetToUpload() {
   clearTimers();
   extractedData = null;
   scanFindings  = [];
-  _aiHeadlines  = [];
+  _aiMergedFindings = [];
   animHoldReached = false;
   animResumeFn    = null;
   // Reset canvas

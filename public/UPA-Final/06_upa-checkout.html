@@ -71,10 +71,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
 .foot a{color:rgba(234,246,240,.65);text-decoration:underline}
 .error{margin-top:10px;padding:10px 12px;background:rgba(224,59,59,.14);border:1px solid rgba(224,59,59,.35);border-radius:8px;font-size:12px;color:#FFC9C9;line-height:1.45;display:none}
 .error.show{display:block}
-.case-ctx{display:none;margin-bottom:16px;padding:10px 13px;border-radius:8px;background:rgba(32,184,117,.08);border:1px solid rgba(32,184,117,.22)}
-.case-ctx-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(32,184,117,.7);margin-bottom:3px}
-.case-ctx-name{font-size:13px;font-weight:700;color:#EAF6F0;line-height:1.3}
-.case-ctx-detail{font-size:11px;color:rgba(234,246,240,.52);margin-top:2px}
 .checkout-trust-strip{margin-top:24px;background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);padding:16px 24px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
 .checkout-trust-badge{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,.70);font-size:13px;font-weight:500;white-space:nowrap}
 .checkout-trust-badge svg{width:20px;height:20px;stroke:#1D9E75;stroke-width:1.5;fill:none;flex-shrink:0}
@@ -98,43 +94,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
   <div class="card">
     <div class="h">Two taps to your full review</div>
     <div class="sub">Your case data is loaded on this page. Keep this tab open while you pay — that's how we hand you off to your dashboard with everything intact.</div>
-    <div style="margin:18px 0 16px;border-radius:14px;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.20);border:1px solid rgba(255,255,255,.10)">
-      <svg viewBox="0 0 1000 1120" role="img" aria-label="Complete Case Packet — your 12-page patient dispute packet, ready today" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">
-        <defs><linearGradient id="ckpaper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FBFCFE"/></linearGradient></defs>
-        <rect width="1000" height="1120" fill="url(#ckpaper)"/>
-        <rect width="1000" height="12" fill="#C9A84C"/>
-        <rect x="36" y="40" width="928" height="1044" rx="20" fill="none" stroke="#E1E7F0"/>
-        <rect x="70" y="76" width="64" height="64" rx="14" fill="#1C2B48"/>
-        <text x="102" y="117" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="25" font-weight="700" fill="#C9A84C">UPA</text>
-        <text x="152" y="104" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="21" font-weight="800" fill="#1C2B48" letter-spacing="1">UNITED PATIENT ADVOCATE</text>
-        <text x="152" y="130" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" fill="#4A6480">Consumer Billing Review &amp; Advocacy Platform</text>
-        <line x1="70" y1="174" x2="930" y2="174" stroke="#EAEFF5" stroke-width="2"/>
-        <text x="70" y="226" font-family="ui-monospace, Menlo, monospace" font-size="15" font-weight="700" fill="#1E6B5A" letter-spacing="3">YOUR PATIENT DISPUTE PACKET</text>
-        <text x="70" y="298" font-family="Georgia, 'Times New Roman', serif" font-size="50" font-weight="700" fill="#1C2B48">Your Complete Billing</text>
-        <text x="70" y="356" font-family="Georgia, 'Times New Roman', serif" font-size="50" font-weight="700" fill="#1C2B48">Review Is <tspan fill="#1E6B5A">Ready.</tspan></text>
-        <text x="70" y="404" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="18" fill="#4A6480">Everything we prepared for your case, assembled into</text>
-        <text x="70" y="430" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="18" fill="#4A6480">one document you can print, email, or fax.</text>
-        <text x="70" y="486" font-family="ui-monospace, Menlo, monospace" font-size="14" font-weight="700" fill="#1C2B48" letter-spacing="2.5">WHAT'S INSIDE</text>
-        <rect x="812" y="466" width="118" height="30" rx="15" fill="#C9A84C" fill-opacity=".14" stroke="#C9A84C" stroke-opacity=".4"/>
-        <text x="871" y="486" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="700" fill="#9A7B25">12 PAGES</text>
-        <g font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
-          <rect x="70" y="512" width="860" height="70" rx="16" fill="#F7F9FC" stroke="#E6ECF3"/><circle cx="104" cy="547" r="7" fill="#1C2B48"/><text x="146" y="556" font-size="22" font-weight="700" fill="#1C2B48">Calm first-step guidance</text><rect x="816" y="533" width="100" height="28" rx="14" fill="#1C2B48" fill-opacity=".05" stroke="#E0E6EF"/><text x="866" y="552" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="12.5" font-weight="700" fill="#5A6E88">Pg 2</text>
-          <rect x="70" y="600" width="860" height="70" rx="16" fill="#F7F9FC" stroke="#E6ECF3"/><circle cx="104" cy="635" r="7" fill="#1E6B5A"/><text x="146" y="644" font-size="22" font-weight="700" fill="#1C2B48">Your bill at a glance — charts</text><rect x="816" y="621" width="100" height="28" rx="14" fill="#1C2B48" fill-opacity=".05" stroke="#E0E6EF"/><text x="866" y="640" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="12.5" font-weight="700" fill="#5A6E88">Pg 3</text>
-          <rect x="70" y="688" width="860" height="70" rx="16" fill="#F7F9FC" stroke="#E6ECF3"/><circle cx="104" cy="723" r="7" fill="#1EB87A"/><text x="146" y="732" font-size="22" font-weight="700" fill="#1C2B48">What to expect, step by step</text><rect x="816" y="709" width="100" height="28" rx="14" fill="#1C2B48" fill-opacity=".05" stroke="#E0E6EF"/><text x="866" y="728" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="12.5" font-weight="700" fill="#5A6E88">Pg 6</text>
-          <rect x="70" y="776" width="860" height="70" rx="16" fill="#F7F9FC" stroke="#E6ECF3"/><circle cx="104" cy="811" r="7" fill="#C9A84C"/><text x="146" y="820" font-size="22" font-weight="700" fill="#1C2B48">Your patient rights, plain English</text><rect x="816" y="797" width="100" height="28" rx="14" fill="#1C2B48" fill-opacity=".05" stroke="#E0E6EF"/><text x="866" y="816" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="12.5" font-weight="700" fill="#5A6E88">Pg 8</text>
-          <rect x="70" y="864" width="860" height="70" rx="16" fill="#F7F9FC" stroke="#E6ECF3"/><circle cx="104" cy="899" r="7" fill="#C9A84C"/><text x="146" y="908" font-size="22" font-weight="700" fill="#1C2B48">3 ready-to-send dispute letters</text><rect x="812" y="885" width="104" height="28" rx="14" fill="#1C2B48" fill-opacity=".05" stroke="#E0E6EF"/><text x="864" y="924" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="12.5" font-weight="700" fill="#5A6E88">Pg 9–11</text>
-        </g>
-        <rect x="70" y="980" width="860" height="72" rx="16" fill="#1E6B5A"/>
-        <text x="500" y="1024" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="21" font-weight="700" fill="#FFFFFF">Ready to review · Ready to print · Ready to send</text>
-      </svg>
-    </div>
-
-    <!-- Case context bar — shown when case data is available in storage -->
-    <div class="case-ctx" id="case-ctx">
-      <div class="case-ctx-lbl">Your case is saved</div>
-      <div class="case-ctx-name" id="case-ctx-name"></div>
-      <div class="case-ctx-detail" id="case-ctx-detail"></div>
-    </div>
 
     <div class="steps">
       <div class="step active" id="step-1">
@@ -147,8 +106,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
       <div class="step" id="step-2">
         <div class="step-num">2</div>
         <div class="step-body">
-          <div class="step-title">Return here and open your dashboard</div>
-          <div class="step-detail">After payment, switch back to this tab and tap "Open my dashboard". Your full case loads instantly.</div>
+          <div class="step-title">Get your license key by email</div>
+          <div class="step-detail">After payment, Gumroad emails you a license key. Open your dashboard and paste that key to unlock your full case — it's the only way in, so it stays yours alone.</div>
         </div>
       </div>
     </div>
@@ -156,10 +115,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
     <a id="checkout-btn" href="#" class="btn btn-primary">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       Open secure checkout
-    </a>
-    <a id="dashboard-btn" href="#" class="btn btn-secondary">
-      <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      I've paid — open my dashboard
     </a>
     <div class="error" id="error"></div>
   </div>
@@ -193,14 +148,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
   var params = new URLSearchParams(window.location.search || '');
   var to = params.get('to') || 'https://upadvocate.gumroad.com/l/busfn?wanted=true';
   var r  = params.get('r')  || '';
-  var intent = params.get('intent') || params.get('source') || '';
-  if(window.UPAState && window.UPAState.attributedUrl){
-    to = window.UPAState.attributedUrl(to);
-  }
-  if(intent){
-    try{ localStorage.setItem('upa.entry.intent', intent); }catch(e){}
-    try{ sessionStorage.setItem('upa.entry.intent', intent); }catch(e){}
-  }
 
   // Persist recovery to our domain's storage so the dashboard's fallback
   // chain also has it. (URL `?r=` is still primary.)
@@ -214,112 +161,29 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
       }
     }
     if(window.UPAState && window.UPAState.markCheckout){
-      window.UPAState.markCheckout({ stage:'checkout-bridge', source:'checkout-bridge', intent:intent, gumroadUrl:to });
+      window.UPAState.markCheckout({ stage:'checkout-bridge', source:'checkout-bridge', gumroadUrl:to });
     }
   }catch(e){}
 
-  // Show case context bar if stored case data is available.
-  // Storage shapes (canonical, written by upa-scan-engine.js writeScanStateToStorage):
-  //   upa.active.case.v1 = { version, caseId, intake:<compat>, scan:<ext>, ... }
-  //   upa.intake.v1      = <compat>  (same shape as active.intake)
-  // The scan pipeline never captures a patient NAME, so the strongest real case
-  // identifier is the PROVIDER (intake.provider). The amount is pre-formatted on
-  // intake.bill_amount; raw scan numbers are formatted as a fallback. We mirror
-  // the dashboard's proven field paths (04_upa-dashboard.html buildAIDossierIntake)
-  // and never fabricate a phantom name or issue count.
-  try{
-    var ctxIntake = null, ctxScan = null;
-    var activeRaw = sessionStorage.getItem('upa.active.case.v1') || localStorage.getItem('upa.active.case.v1');
-    if(activeRaw){
-      var activeCase = JSON.parse(activeRaw);
-      ctxIntake = (activeCase && activeCase.intake) || null;
-      ctxScan   = (activeCase && activeCase.scan)   || null;
-    }
-    if(!ctxIntake){
-      var intakeRaw = sessionStorage.getItem('upa.intake.v1') || localStorage.getItem('upa.intake.v1');
-      if(intakeRaw){ ctxIntake = JSON.parse(intakeRaw); }
-    }
-    ctxIntake = ctxIntake || {};
-    ctxScan   = ctxScan   || {};
-
-    var ctxProvider = ctxIntake.provider || ctxIntake.extracted_provider || ctxScan.provider || '';
-    var ctxAmount   = ctxIntake.bill_amount || ctxIntake.bill_amount_other || '';
-    if(!ctxAmount){
-      var rawAmt = (ctxScan.patientBalance != null) ? ctxScan.patientBalance
-                 : (ctxScan.totalBilled    != null) ? ctxScan.totalBilled : null;
-      if(rawAmt != null){
-        ctxAmount = (window.UPAScanEngine && UPAScanEngine.formatCurrency)
-          ? UPAScanEngine.formatCurrency(rawAmt)
-          : '$' + Number(rawAmt).toFixed(2);
-      }
-    }
-    var ctxDate = ctxIntake.date_of_service || ctxIntake.extracted_date_of_service ||
-                  ctxScan.serviceDateRaw || ctxScan.serviceDate || '';
-
-    if(ctxProvider || ctxAmount){
-      var ctxEl = document.getElementById('case-ctx');
-      var ctxNameEl = document.getElementById('case-ctx-name');
-      var ctxDetailEl = document.getElementById('case-ctx-detail');
-      if(ctxEl && ctxNameEl){
-        var leadWithProvider = !!ctxProvider;
-        ctxNameEl.textContent = leadWithProvider
-          ? ctxProvider
-          : (ctxAmount + ' balance under review');
-        if(ctxDetailEl){
-          var ctxDetail = '';
-          if(leadWithProvider && ctxAmount) ctxDetail = ctxAmount + ' balance under review';
-          else if(ctxDate) ctxDetail = 'Service date ' + ctxDate;
-          ctxDetailEl.textContent = ctxDetail;
-        }
-        ctxEl.style.display = 'block';
-      }
-    }
-  }catch(e){}
-
-  // Build the dashboard URL with the recovery token baked in. This is what
-  // the "I've paid" button navigates to — same-tab, same-origin, `?r=` intact.
-  var dashboardHref = '/dashboard?access=upa_8f3kd92nd_paid';
-  if(r) dashboardHref += '&r=' + encodeURIComponent(r);
-  if(window.UPAState && window.UPAState.attributedUrl){
-    dashboardHref = window.UPAState.attributedUrl(dashboardHref);
-  }
+  // Paid access is granted ONLY by a server-verified Gumroad license key entered
+  // on the dashboard (see /api/verify-license). There is no client-side unlock
+  // token here anymore — the static `?access=` bypass has been removed.
 
   // Wire the checkout button: opens Gumroad in a new tab on user tap.
   var checkoutBtn = document.getElementById('checkout-btn');
-  var dashboardBtn = document.getElementById('dashboard-btn');
   var step1 = document.getElementById('step-1');
   var step2 = document.getElementById('step-2');
-  var errorEl = document.getElementById('error');
 
   checkoutBtn.href = to; // fallback for browsers that don't honor window.open
   checkoutBtn.setAttribute('target', '_blank');
   checkoutBtn.setAttribute('rel', 'noopener');
 
   checkoutBtn.addEventListener('click', function(e){
-    if(window.UPAState && window.UPAState.track){
-      window.UPAState.track('external_checkout_opened', { stage:'checkout-bridge-button', intent:intent, gumroadUrl:to });
-    }
     // Let the browser handle target="_blank" naturally — this preserves the
-    // user-gesture context that popup blockers require.
-    // Arm the dashboard button now that the user has tapped through to pay.
+    // user-gesture context that popup blockers require. Advance the step UI so
+    // the buyer knows to watch for their license-key email.
     if(step1){ step1.classList.remove('active'); step1.classList.add('done'); }
     if(step2){ step2.classList.add('active'); }
-    if(dashboardBtn){
-      dashboardBtn.classList.add('armed');
-      dashboardBtn.setAttribute('aria-disabled','false');
-    }
-  });
-
-  // Wire the dashboard button.
-  // P0: navigation always proceeds. Buyers arriving via funnels that don't
-  // build a `?r=` token (e.g. /denied-claim-help) must NOT be dead-ended
-  // here after paying. The dashboard's session-expired overlay handles the
-  // empty-state case (recovery-link paste form already deployed).
-  dashboardBtn.href = dashboardHref;
-  dashboardBtn.addEventListener('click', function(){
-    if(window.UPAState && window.UPAState.track){
-      window.UPAState.track('sale_dashboard_click', { stage:'checkout-dashboard-button', intent:intent });
-    }
   });
 })();
 </script>

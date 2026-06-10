@@ -106,8 +106,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
       <div class="step" id="step-2">
         <div class="step-num">2</div>
         <div class="step-body">
-          <div class="step-title">Return here and open your dashboard</div>
-          <div class="step-detail">After payment, switch back to this tab and tap "Open my dashboard". Your full case loads instantly.</div>
+          <div class="step-title">Get your license key by email</div>
+          <div class="step-detail">After payment, Gumroad emails you a license key. Open your dashboard and paste that key to unlock your full case — it's the only way in, so it stays yours alone.</div>
         </div>
       </div>
     </div>
@@ -115,10 +115,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
     <a id="checkout-btn" href="#" class="btn btn-primary">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       Open secure checkout
-    </a>
-    <a id="dashboard-btn" href="#" class="btn btn-secondary">
-      <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      I've paid — open my dashboard
     </a>
     <div class="error" id="error"></div>
   </div>
@@ -169,17 +165,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
     }
   }catch(e){}
 
-  // Build the dashboard URL with the recovery token baked in. This is what
-  // the "I've paid" button navigates to — same-tab, same-origin, `?r=` intact.
-  var dashboardHref = '/dashboard?access=upa_8f3kd92nd_paid';
-  if(r) dashboardHref += '&r=' + encodeURIComponent(r);
+  // Paid access is granted ONLY by a server-verified Gumroad license key entered
+  // on the dashboard (see /api/verify-license). There is no client-side unlock
+  // token here anymore — the static `?access=` bypass has been removed.
 
   // Wire the checkout button: opens Gumroad in a new tab on user tap.
   var checkoutBtn = document.getElementById('checkout-btn');
-  var dashboardBtn = document.getElementById('dashboard-btn');
   var step1 = document.getElementById('step-1');
   var step2 = document.getElementById('step-2');
-  var errorEl = document.getElementById('error');
 
   checkoutBtn.href = to; // fallback for browsers that don't honor window.open
   checkoutBtn.setAttribute('target', '_blank');
@@ -187,31 +180,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
 
   checkoutBtn.addEventListener('click', function(e){
     // Let the browser handle target="_blank" naturally — this preserves the
-    // user-gesture context that popup blockers require.
-    // Arm the dashboard button now that the user has tapped through to pay.
+    // user-gesture context that popup blockers require. Advance the step UI so
+    // the buyer knows to watch for their license-key email.
     if(step1){ step1.classList.remove('active'); step1.classList.add('done'); }
     if(step2){ step2.classList.add('active'); }
-    if(dashboardBtn){
-      dashboardBtn.classList.add('armed');
-      dashboardBtn.setAttribute('aria-disabled','false');
-    }
-  });
-
-  // Wire the dashboard button.
-  dashboardBtn.href = dashboardHref;
-  dashboardBtn.addEventListener('click', function(e){
-    // Belt-and-suspenders: even if the user taps "I've paid" without
-    // first tapping the checkout button, allow the navigation — they may
-    // have paid via the email link in another session.
-    if(!r){
-      e.preventDefault();
-      if(errorEl){
-        errorEl.textContent = "We couldn't find your case data on this device. Open the recovery link from your purchase receipt, or start a new review.";
-        errorEl.classList.add('show');
-      }
-      return;
-    }
-    // Default navigation proceeds — same-tab, same-origin to /dashboard?r=...
   });
 })();
 </script>

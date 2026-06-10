@@ -177,7 +177,6 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
 (function(){
   'use strict';
   var DOSSIER_KEY = 'upa.ai.dossier.v1';
-  var PAID_ACCESS_TOKEN = 'upa_8f3kd92nd_paid';
   var dossier = readDossier();
   var steps = [];
   var paid = isPaid();
@@ -203,16 +202,11 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
   }
 
   function isPaid(){
+    // Paid access is granted ONLY by a server-verified Gumroad license key
+    // (see verifyLicense + /api/verify-license). The verified state lives in the
+    // dossier so it survives reloads. There is no URL-token or client-only path.
     try{
-      var params = new URLSearchParams(window.location.search || '');
-      if(params.get('access') === PAID_ACCESS_TOKEN){
-        localStorage.setItem('upa.paid','1');
-        sessionStorage.setItem('upa.paid','1');
-        return true;
-      }
-      if(localStorage.getItem('upa.paid') === '1' || sessionStorage.getItem('upa.paid') === '1') return true;
-      var active = JSON.parse(localStorage.getItem('upa.active.case.v1') || sessionStorage.getItem('upa.active.case.v1') || 'null');
-      return !!(active && (active.paid || active.session && active.session.paid));
+      return !!(dossier && dossier.licenseVerified === true);
     }catch(e){ return false; }
   }
 
@@ -327,9 +321,54 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
     return '<div class="locked-panel">'+
       '<div class="lock-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>'+
       '<h3>This step is prepared and locked</h3>'+
-      '<p>Unlock your complete action plan, prepared scripts, and dispute documentation.</p>'+
-      '<a class="btn btn-primary" href="/checkout">Unlock all steps &mdash; $97</a>'+
+      '<p>Enter the license key from your purchase receipt to unlock your complete action plan, prepared scripts, and dispute documentation.</p>'+
+      '<div class="license-unlock" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px">'+
+        '<input type="text" id="license-input" placeholder="Paste your license key" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1;min-width:220px;padding:12px 14px;border-radius:10px;border:1px solid rgba(0,0,0,.18);font:inherit" />'+
+        '<button class="btn btn-primary" type="button" id="license-submit">Unlock my plan</button>'+
+      '</div>'+
+      '<p class="license-status" id="license-status" role="status" aria-live="polite" style="margin-top:10px;font-size:.85rem;min-height:1.2em"></p>'+
+      '<p class="license-help" style="margin-top:6px;font-size:.82rem;opacity:.8">No license key yet? <a href="/checkout">Complete your purchase</a> to receive one by email.</p>'+
     '</div>';
+  }
+
+  function verifyLicense(){
+    var input = document.getElementById('license-input');
+    var button = document.getElementById('license-submit');
+    var status = document.getElementById('license-status');
+    if(!input) return;
+    var key = (input.value || '').trim();
+    function setStatus(message,isError){
+      if(!status) return;
+      status.textContent = message;
+      status.style.color = isError ? '#b00020' : '';
+    }
+    if(!key){ setStatus('Enter your license key to continue.',true); return; }
+    if(button){ button.disabled = true; button.textContent = 'Verifying…'; }
+    setStatus('Checking your license…',false);
+    fetch('/api/verify-license',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ licenseKey:key })
+    })
+    .then(function(response){ return response.json().catch(function(){ return {}; }); })
+    .then(function(result){
+      if(result && result.valid === true){
+        paid = true;
+        dossier.licenseVerified = true;
+        dossier.licenseVerifiedAt = new Date().toISOString();
+        writeDossier(dossier);
+        setStatus('License verified. Unlocking your plan…',false);
+        maybeHydratePaidPlan();
+        safeRender();
+      }else{
+        if(button){ button.disabled = false; button.textContent = 'Unlock my plan'; }
+        setStatus((result && result.error) || 'That license key could not be verified. Check the key from your receipt and try again.',true);
+      }
+    })
+    .catch(function(){
+      if(button){ button.disabled = false; button.textContent = 'Unlock my plan'; }
+      setStatus('We could not verify your license right now. Please try again in a moment.',true);
+    });
   }
 
   function renderTool(step){
@@ -366,7 +405,12 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
       '<p class="step-note">'+(locked?'Your next prepared action is ready when you unlock the complete plan.':'Use the prepared content below, then mark this step done when you are ready to continue.')+'</p>'+
       (locked ? renderLocked(step) : renderTool(step))+
       '</div></article>';
-    if(!locked){
+    if(locked){
+      var licenseSubmit = document.getElementById('license-submit');
+      var licenseInput = document.getElementById('license-input');
+      if(licenseSubmit) licenseSubmit.addEventListener('click',verifyLicense);
+      if(licenseInput) licenseInput.addEventListener('keydown',function(e){ if(e.key === 'Enter'){ e.preventDefault(); verifyLicense(); } });
+    }else{
       var content = toolContent(step);
       var copyButton = document.getElementById('copy-action');
       var completeButton = document.getElementById('complete-action');

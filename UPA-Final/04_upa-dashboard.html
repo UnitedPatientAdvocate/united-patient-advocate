@@ -408,24 +408,45 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
     window.setTimeout(function(){toast.classList.remove('show');},2200);
   }
 
+  function hasPaidCaseContent(){
+    try{
+      var phase3 = dossier.phase3CaseGeneration || dossier.paidDossier && dossier.paidDossier.phase3CaseGeneration;
+      return !!(disputeText() && phase3);
+    }catch(e){ return false; }
+  }
+
+  function setPill(text){
+    try{ document.getElementById('case-pill').textContent=text; }catch(e){}
+  }
+
   function maybeHydratePaidPlan(){
-    if(!paid || dossier.generationMode === 'paid_dossier' || dossier.paidDossier || sessionStorage.getItem('upa.dashboard.paid.hydrating') === '1') return;
-    var intake = readStored('upa.intake.v1');
-    var scan = readStored('upa.scan.v1');
-    var baseIntake = intake._aiIntake && typeof intake._aiIntake === 'object' ? intake._aiIntake : intake;
-    var lineItems = Array.isArray(dossier.lineItems) ? dossier.lineItems
-      : Array.isArray(dossier.codeAnalysis) ? dossier.codeAnalysis
-      : Array.isArray(scan.codeAnalysis) ? scan.codeAnalysis : [];
-    var requestIntake = Object.assign({},baseIntake,{
-      providerName:providerName(),
-      totalBilled:baseIntake.totalBilled || dossier.totalBilled || scan.totalBilled || '',
-      billText:baseIntake.billText || dossier.billText || scan.rawText || '',
-      codeAnalysis:lineItems,
-      lineItems:lineItems,
-      dossierFlags:dossier.dossierFlags || baseIntake.dossierFlags || {}
-    });
-    try{sessionStorage.setItem('upa.dashboard.paid.hydrating','1');}catch(e){}
-    document.getElementById('case-pill').textContent='Preparing complete plan';
+    if(!paid || hasPaidCaseContent() || sessionStorage.getItem('upa.dashboard.paid.hydrating') === '1') return;
+    var requestIntake;
+    try{
+      var intake = readStored('upa.intake.v1');
+      var scan = readStored('upa.scan.v1');
+      var baseIntake = intake._aiIntake && typeof intake._aiIntake === 'object' ? intake._aiIntake : intake;
+      var lineItems = Array.isArray(dossier.lineItems) ? dossier.lineItems
+        : Array.isArray(dossier.codeAnalysis) ? dossier.codeAnalysis
+        : Array.isArray(baseIntake.lineItems) ? baseIntake.lineItems
+        : Array.isArray(baseIntake.codeAnalysis) ? baseIntake.codeAnalysis
+        : Array.isArray(scan.codeAnalysis) ? scan.codeAnalysis : [];
+      requestIntake = Object.assign({},baseIntake,{
+        providerName:providerName(),
+        totalBilled:dossier.totalBilled || baseIntake.totalBilled || scan.totalBilled || '',
+        amountOwed:dossier.amountOwed || baseIntake.amountOwed || '',
+        billText:dossier.billText || baseIntake.billText || scan.rawText || '',
+        codeAnalysis:lineItems,
+        lineItems:lineItems,
+        dossierFlags:dossier.dossierFlags || baseIntake.dossierFlags || {}
+      });
+      sessionStorage.setItem('upa.dashboard.paid.hydrating','1');
+    }catch(e){
+      // Hydration setup failed: keep the locally loaded plan intact.
+      safeRender();
+      return;
+    }
+    setPill('Preparing complete plan');
     fetch('/api/analyze',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -442,34 +463,50 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
         if(text) normalized=JSON.parse(text);
       }
       if(!normalized) throw new Error('Paid plan response was incomplete');
+      var preservedProvider = dossier.providerName || dossier.provider || dossier.hospitalName;
       dossier=Object.assign({},dossier,normalized);
+      if(normalized.disputeLetter) dossier.disputeLetter=normalized.disputeLetter;
+      if(normalized.phase3CaseGeneration) dossier.phase3CaseGeneration=normalized.phase3CaseGeneration;
+      if(preservedProvider && !(normalized.providerName && String(normalized.providerName).trim())){
+        dossier.providerName=preservedProvider;
+      }
       writeDossier(dossier);
-      render();
+      safeRender();
     })
     .catch(function(){
-      document.getElementById('case-pill').textContent='Complete plan unlocked';
+      // POST failed or response unusable: fall back to the locally loaded plan.
+      setPill(paid?'Complete plan unlocked':'Free action ready');
+      safeRender();
     })
     .finally(function(){
       try{sessionStorage.removeItem('upa.dashboard.paid.hydrating');}catch(e){}
     });
   }
 
+  function safeRender(){
+    try{ render(); }catch(e){}
+  }
+
   function render(){
+    document.getElementById('provider-name').textContent=providerName();
     if(!window.UPADashboardSteps){
       document.getElementById('active-step').innerHTML='<div class="empty-card"><h2>Your action plan could not load.</h2><p>Please refresh this page.</p></div>';
       return;
     }
-    steps=window.UPADashboardSteps.buildDashboardSteps(dossier);
+    try{
+      steps=window.UPADashboardSteps.buildDashboardSteps(dossier);
+    }catch(e){
+      steps=Array.isArray(steps)?steps:[];
+    }
     persistSteps();
     var activeIndex=currentIndex();
-    document.getElementById('provider-name').textContent=providerName();
-    document.getElementById('case-pill').textContent=paid?'Complete plan unlocked':'Free action ready';
+    setPill(paid?'Complete plan unlocked':'Free action ready');
     renderProgress(activeIndex);
     renderCompleted(activeIndex);
     renderActive(activeIndex);
   }
 
-  render();
+  safeRender();
   maybeHydratePaidPlan();
 })();
 </script>

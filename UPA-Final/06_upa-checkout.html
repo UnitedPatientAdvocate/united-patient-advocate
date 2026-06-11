@@ -143,7 +143,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
   // New behavior: open Gumroad in a NEW TAB on user tap (so popup blockers
   // allow it). This tab stays alive with the `?r=` token in our URL and full
   // localStorage. When the buyer returns to this tab and taps "I've paid",
-  // we navigate same-tab to `/dashboard?r=<token>`, hydrating immediately.
+  // we navigate same-tab to `/UPA-Final/04_upa-dashboard.html?r=<token>`, hydrating immediately.
   // ─────────────────────────────────────────────────────────────────────────
   var params = new URLSearchParams(window.location.search || '');
   var to = params.get('to') || 'https://upadvocate.gumroad.com/l/busfn?wanted=true';

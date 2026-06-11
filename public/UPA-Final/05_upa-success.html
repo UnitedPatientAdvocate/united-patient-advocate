@@ -115,7 +115,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--navy-deep);color:
       <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
     </div>
 
-    <a href="/dashboard" class="btn-open" id="open-btn">
+    <a href="/UPA-Final/04_upa-dashboard.html" class="btn-open" id="open-btn">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
       Open My Review
     </a>
@@ -256,7 +256,7 @@ var recoveryParam = '';
 // cross-context email-link recovery impossible. Single helper used by both
 // the auto-redirect setTimeout AND the explicit "Open My Review" button.
 function dashboardUrl() {
-  var base = '/dashboard';
+  var base = '/UPA-Final/04_upa-dashboard.html';
   if (hasPaidAccessToken) base += '?access=' + encodeURIComponent(PAID_ACCESS_TOKEN);
   if (recoveryParam) base += (base.indexOf('?') >= 0 ? '&' : '?') + 'r=' + encodeURIComponent(recoveryParam);
   return base;

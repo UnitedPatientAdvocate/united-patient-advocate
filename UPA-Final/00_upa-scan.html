@@ -476,7 +476,7 @@ body{background:var(--navy)}
      STATE 1: UPLOAD
 ═══════════════════════════════════ -->
 <section id="state-upload" class="scan-state active">
-  <a href="/" class="upload-brand">
+  <a href="/UPA-Final/01_upa-landing.html" class="upload-brand">
     <img src="Transparent.png" alt="UPA" class="upload-brand-logo">
     <div>
       <div class="upload-brand-name">United Patient Advocate</div>
@@ -525,7 +525,7 @@ body{background:var(--navy)}
   </div>
 
   <div class="upload-manual">
-    <a href="/">No PDF available? Use the guided intake instead &rarr;</a>
+    <a href="/UPA-Final/01_upa-landing.html">No PDF available? Use the guided intake instead &rarr;</a>
   </div>
 </section>
 
@@ -594,7 +594,7 @@ body{background:var(--navy)}
 ═══════════════════════════════════ -->
 <section id="state-findings" class="scan-state">
   <nav class="findings-nav">
-    <a href="/" class="findings-nav-brand">
+    <a href="/UPA-Final/01_upa-landing.html" class="findings-nav-brand">
       <img src="Transparent.png" alt="UPA" class="findings-nav-logo">
       <div class="findings-nav-name">United Patient Advocate</div>
     </a>
@@ -1243,7 +1243,7 @@ function callFreePreviewAI(data) {
           });
           localStorage.setItem('upa.ai.dossier.v1', JSON.stringify(nextDossier));
           sessionStorage.setItem('upa.ai.dossier.v1', JSON.stringify(nextDossier));
-          window.location.href = '/dashboard';
+          window.location.href = '/UPA-Final/04_upa-dashboard.html';
         } catch(e) { console.warn('[UPA] dashboard dossier write failed', e); }
       } catch(e) { console.warn('[UPA] preview parse error', e); }
     })

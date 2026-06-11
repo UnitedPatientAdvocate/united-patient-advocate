@@ -634,143 +634,137 @@ html,body{max-width:100%;overflow-x:hidden}
     <div class="hero-stat"><div class="hs-val">&lt;30s</div><div class="hs-label">to scan your bill and identify findings</div><div class="hs-source">United Patient Advocate</div></div>
     <div class="hero-stat"><div class="hs-val">$668 → $97</div><div class="hs-label">Launch Price</div><div class="hs-source">Limited-time offer</div></div>
   </div>
-  <!-- WHAT'S INSIDE: premium deliverables grid (replaces hero toolkit graphic) -->
+  <!-- ULTIMATE ADVOCACY SYSTEM — inline HTML recreation of product infographic -->
   <style>
-    .wi-wrap{max-width:1120px;margin:38px auto 0;text-align:left}
-    .wi-head{text-align:center;margin-bottom:24px}
-    .wi-eyebrow{font-size:.4375rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
-    .wi-title{font-family:var(--serif);font-size:1.55rem;font-weight:700;color:var(--navy);letter-spacing:-.02em;line-height:1.2}
-    .wi-title em{font-style:italic;color:var(--teal)}
-    .wi-sub{font-size:.8125rem;color:var(--ink-3);line-height:1.6;max-width:500px;margin:8px auto 0}
-    .wi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(206px,1fr));gap:14px}
-    .wi-card{position:relative;background:linear-gradient(180deg,#FFFFFF 0%,#FCFDFE 100%);border:1px solid var(--bdr);border-radius:16px;padding:22px 18px 18px;overflow:hidden;box-shadow:0 2px 10px rgba(28,43,72,.06);transition:transform .2s var(--ease),box-shadow .2s var(--ease),border-color .2s var(--ease)}
-    .wi-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
-    .wi-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(28,43,72,.13);border-color:color-mix(in srgb,var(--accent) 36%,transparent)}
-    .wi-chip{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--accent) 11%,transparent);border:1px solid color-mix(in srgb,var(--accent) 26%,transparent);margin-bottom:14px}
-    .wi-chip svg{width:18px;height:18px;stroke:var(--accent);stroke-width:2;fill:none}
-    .wi-name{font-family:var(--serif);font-size:1.0625rem;font-weight:700;color:var(--navy);line-height:1.25;margin-bottom:5px}
-    .wi-desc{font-size:.6875rem;color:var(--ink-3);line-height:1.5;margin-bottom:14px}
-    .wi-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
-    .wi-item{display:flex;align-items:flex-start;gap:9px;font-size:.8125rem;font-weight:600;color:var(--ink-2);line-height:1.35}
-    .wi-tick{flex:none;width:16px;height:16px;margin-top:1px;border-radius:50%;background:color-mix(in srgb,var(--accent) 14%,transparent);display:flex;align-items:center;justify-content:center}
-    .wi-tick svg{width:9px;height:9px;stroke:var(--accent);stroke-width:3;fill:none}
-    @media(max-width:760px){.wi-grid{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:480px){.wi-wrap{margin-top:30px}.wi-grid{grid-template-columns:1fr;gap:12px}.wi-title{font-size:1.35rem}.wi-card{padding:18px 16px 16px}}
+    .uas-wrap{padding:0 24px 0;background:transparent}
+    .uas-card{
+      max-width:1120px;margin:32px auto 0;border-radius:22px;overflow:hidden;
+      background:linear-gradient(135deg,#0A1628 0%,#0D2035 40%,#0A1E30 100%);
+      box-shadow:0 24px 60px rgba(0,0,0,0.50);
+      display:grid;grid-template-columns:1fr auto;
+    }
+    .uas-left{padding:40px 40px 36px;min-width:0}
+    .uas-title{
+      font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.6rem);font-weight:800;
+      line-height:1.1;letter-spacing:-0.02em;margin-bottom:28px;
+    }
+    .uas-title-top{color:rgba(235,240,255,0.90)}
+    .uas-title-bot{color:#2ECFB0}
+    .uas-core-box{
+      background:rgba(255,255,255,0.055);border:1px solid rgba(255,255,255,0.10);
+      border-radius:14px;padding:20px 20px 18px;
+    }
+    .uas-box-ttl{
+      font-size:0.5625rem;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;
+      color:rgba(235,240,255,0.55);margin-bottom:14px;
+    }
+    .uas-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .uas-tool{
+      display:flex;align-items:center;gap:8px;
+      background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);
+      border-radius:8px;padding:9px 12px;
+    }
+    .uas-tool-icon{
+      width:26px;height:26px;border-radius:7px;flex-shrink:0;
+      background:rgba(46,207,176,0.15);border:1px solid rgba(46,207,176,0.25);
+      display:flex;align-items:center;justify-content:center;
+    }
+    .uas-tool-icon svg{width:13px;height:13px;stroke:#2ECFB0;stroke-width:2;fill:none}
+    .uas-tool-name{font-size:0.75rem;font-weight:600;color:rgba(235,240,255,0.85);line-height:1.25}
+    .uas-right{
+      display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+      padding:32px 36px 32px 20px;gap:20px;min-width:240px;
+    }
+    .uas-shield{
+      width:160px;height:160px;flex-shrink:0;
+      background:linear-gradient(135deg,rgba(30,107,90,0.30) 0%,rgba(46,207,176,0.15) 100%);
+      border:1.5px solid rgba(46,207,176,0.30);border-radius:20px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+    .uas-shield svg{width:64px;height:64px}
+    .uas-brand-name{
+      font-family:var(--serif);font-size:0.7rem;font-weight:700;
+      color:rgba(235,240,255,0.70);text-align:center;line-height:1.3;
+    }
+    .uas-bonus-box{
+      background:rgba(240,165,0,0.08);border:1px solid rgba(240,165,0,0.28);
+      border-radius:12px;padding:16px 18px;width:100%;
+    }
+    .uas-bonus-ttl{
+      font-size:0.5rem;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;
+      color:var(--gold);margin-bottom:12px;
+    }
+    .uas-bonus-ttl span{color:rgba(235,240,255,0.55)}
+    .uas-bonus-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .uas-bonus-item{
+      display:flex;align-items:flex-start;gap:7px;
+      font-size:0.6875rem;font-weight:600;color:rgba(235,240,255,0.75);line-height:1.25;
+    }
+    .uas-bonus-icon{
+      width:22px;height:22px;border-radius:6px;flex-shrink:0;margin-top:1px;
+      background:rgba(240,165,0,0.13);border:1px solid rgba(240,165,0,0.22);
+      display:flex;align-items:center;justify-content:center;
+    }
+    .uas-bonus-icon svg{width:11px;height:11px;stroke:var(--gold);stroke-width:2;fill:none}
+    @media(max-width:860px){
+      .uas-card{grid-template-columns:1fr}
+      .uas-right{flex-direction:row;flex-wrap:wrap;padding:0 28px 28px;justify-content:center}
+      .uas-shield{width:120px;height:120px}
+    }
+    @media(max-width:560px){
+      .uas-left{padding:28px 20px 20px}
+      .uas-tools-grid{grid-template-columns:1fr}
+      .uas-right{padding:0 20px 24px}
+      .uas-bonus-grid{grid-template-columns:1fr}
+      .uas-shield{display:none}
+    }
   </style>
-  <div class="wi-wrap">
-    <div class="wi-head">
-      <div class="wi-eyebrow">What's Inside</div>
-      <div class="wi-title">Your complete case toolkit, <em>prepared for you</em></div>
-      <p class="wi-sub">Five steps, organized into one calm system and personalized to your bill.</p>
-    </div>
-    <div class="wi-grid">
-      <div class="wi-card" style="--accent:var(--teal)">
-        <div class="wi-chip"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <div class="wi-name">See What's Wrong</div>
-        <div class="wi-desc">Understand exactly what is wrong on your bill.</div>
-        <ul class="wi-list">
-          <li class="wi-item"><span class="wi-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>Personalized Findings Report</li>
-          <li class="wi-item"><span class="wi-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>Patient Rights &amp; Billing Guide</li>
-        </ul>
+  <div class="uas-wrap">
+    <div class="uas-card">
+      <!-- LEFT: title + core tools grid -->
+      <div class="uas-left">
+        <div class="uas-title">
+          <div class="uas-title-top">The Ultimate</div>
+          <div class="uas-title-bot">Patient Advocacy System</div>
+        </div>
+        <div class="uas-core-box">
+          <div class="uas-box-ttl">Core Tools &nbsp;(10)</div>
+          <div class="uas-tools-grid">
+            <div class="uas-tool"><div class="uas-tool-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="uas-tool-name">Findings Report</div></div>
+            <div class="uas-tool"><div class="uas-tool-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="uas-tool-name">Legal Trigger Detection</div></div>
+            <div class="uas-tool"><div class="uas-tool-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></div><div class="uas-tool-name">Dispute Letters</div></div>
+            <div class="uas-tool"><div class="uas-tool-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div class="uas-tool-name">Appeal Letters</div></div>
+            <div class="uas-tool"><div class="uas-tool-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.72a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16l.19.92z"/></svg></div><div class="uas-tool-name">Call Scripts</div></div>
+            <div class="uas-tool"><div class="uas-tool-icon"><svg viewBox="0 0 24 24"><polyline points="8 6 2 12 8 18"/><polyline points="16 6 22 12 16 18"/></svg></div><div class="uas-tool-name">Escalation Playbook</div></div>
+            <div class="uas-tool"><div class="uas-tool-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="8 15 11 18 16 12"/></svg></div><div class="uas-tool-name">Evidence Checklist</div></div>
+            <div class="uas-tool"><div class="uas-tool-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div><div class="uas-tool-name">One-Action Dashboard</div></div>
+            <div class="uas-tool"><div class="uas-tool-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="uas-tool-name">Deadline Tracker</div></div>
+            <div class="uas-tool"><div class="uas-tool-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="uas-tool-name">Complete Case Packet</div></div>
+          </div>
+        </div>
       </div>
-      <div class="wi-card" style="--accent:var(--gold)">
-        <div class="wi-chip"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
-        <div class="wi-name">Take Action</div>
-        <div class="wi-desc">Send the right next move with confidence.</div>
-        <ul class="wi-list">
-          <li class="wi-item"><span class="wi-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>Ready-to-Send Appeal Letters</li>
-          <li class="wi-item"><span class="wi-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>Insurer &amp; Provider Call Scripts</li>
-          <li class="wi-item"><span class="wi-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>Escalation Playbook</li>
-        </ul>
-      </div>
-      <div class="wi-card" style="--accent:var(--green)">
-        <div class="wi-chip"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="8 15 11 18 16 12"/></svg></div>
-        <div class="wi-name">Stay On Track</div>
-        <div class="wi-desc">Stay organized and ahead of every deadline.</div>
-        <ul class="wi-list">
-          <li class="wi-item"><span class="wi-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>Appeal Deadline Tracker</li>
-          <li class="wi-item"><span class="wi-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>Evidence Checklist</li>
-        </ul>
-      </div>
-      <div class="wi-card" style="--accent:var(--navy)">
-        <div class="wi-chip"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div>
-        <div class="wi-name">Fast Start</div>
-        <div class="wi-desc">Begin calmly, the moment you are ready.</div>
-        <ul class="wi-list">
-          <li class="wi-item"><span class="wi-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>Quick Start Guide</li>
-        </ul>
-      </div>
-      <div class="wi-card" style="--accent:var(--navy-mid)">
-        <div class="wi-chip"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
-        <div class="wi-name">Workspace</div>
-        <div class="wi-desc">Keep every document in one place.</div>
-        <ul class="wi-list">
-          <li class="wi-item"><span class="wi-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>Patient Command Center</li>
-          <li class="wi-item"><span class="wi-tick"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>Complete Case Packet (PDF)</li>
-        </ul>
+      <!-- RIGHT: UPA shield + bonus tools -->
+      <div class="uas-right">
+        <div class="uas-shield">
+          <svg viewBox="0 0 80 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M40 4L6 17v26c0 21 15.5 39.5 34 43 18.5-3.5 34-22 34-43V17L40 4z" fill="rgba(46,207,176,0.18)" stroke="#2ECFB0" stroke-width="1.5"/>
+            <path d="M40 18c-7.2 0-13 5.8-13 13 0 4.5 2.3 8.5 5.7 10.9L28 52h24l-4.7-10.1C50.7 39.5 53 35.5 53 31c0-7.2-5.8-13-13-13z" fill="none" stroke="rgba(235,240,255,0.80)" stroke-width="1.8"/>
+            <path d="M34 52l3 8 3-8" stroke="#2ECFB0" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <div class="uas-brand-name">United Patient<br>Advocate</div>
+        </div>
+        <div class="uas-bonus-box">
+          <div class="uas-bonus-ttl"><span>FREE </span>Bonus Tools &nbsp;(4)</div>
+          <div class="uas-bonus-grid">
+            <div class="uas-bonus-item"><div class="uas-bonus-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>Charity Care Finder</div>
+            <div class="uas-bonus-item"><div class="uas-bonus-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>Patient Rights &amp; Billing Guide</div>
+            <div class="uas-bonus-item"><div class="uas-bonus-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>State Law Layer</div>
+            <div class="uas-bonus-item"><div class="uas-bonus-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>Quick Start Guide</div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- WHAT YOU GET — accurate 5-pillar system, the real 10 deliverables (inline SVG) -->
-<div style="padding:42px 40px 28px;background:linear-gradient(180deg,#F7F9FC 0%,#EEF2F7 100%);border-top:1px solid rgba(28,43,72,.08);border-bottom:1px solid rgba(28,43,72,.08)">
-  <div style="max-width:1120px;margin:0 auto;border-radius:18px;overflow:hidden;background:#fff;border:1px solid rgba(28,43,72,.08);box-shadow:0 10px 30px rgba(28,43,72,.08)">
-    <svg viewBox="0 0 1400 980" role="img" aria-label="What you get today: ten tools across five pillars — See What's Wrong, Take Action, Stay On Track, Fast Start, and Workspace" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">
-      <defs><filter id="gsh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0E1828" flood-opacity=".10"/></filter></defs>
-      <rect width="1400" height="980" fill="#FFFFFF"/>
-      <text x="70" y="74" font-family="Georgia, 'Times New Roman', serif" font-size="36" font-weight="700" fill="#1C2B48">What You Get Today</text>
-      <text x="70" y="112" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="17" fill="#4A6480">Ten tools, organized into one calm system — every one personalized to your case.</text>
-      <rect x="1060" y="46" width="270" height="40" rx="20" fill="#C9A84C" fill-opacity=".14" stroke="#C9A84C" stroke-opacity=".42"/>
-      <text x="1195" y="72" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="14" font-weight="700" fill="#9A7B25">$668 VALUE · $97 TODAY</text>
-      <g font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
-        <!-- Card 1: See What's Wrong -->
-        <g filter="url(#gsh)"><rect x="70" y="160" width="400" height="380" rx="20" fill="#FFFFFF" stroke="#D8E0EC"/></g>
-        <rect x="70" y="160" width="400" height="58" rx="20" fill="#1E6B5A"/>
-        <text x="98" y="197" font-size="22" font-weight="800" fill="#FFFFFF">See What's Wrong</text>
-        <text x="442" y="197" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="700" fill="#FFFFFF" fill-opacity=".82">2 ITEMS</text>
-        <text x="98" y="266" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#2E4060">Understand the problem clearly</text>
-        <line x1="98" y1="286" x2="442" y2="286" stroke="#EEF2F7" stroke-width="2"/>
-        <circle cx="106" cy="323" r="5" fill="#1E6B5A"/><text x="124" y="328" font-size="15.5" fill="#314866">Personalized Findings Report</text>
-        <circle cx="106" cy="365" r="5" fill="#1E6B5A"/><text x="124" y="370" font-size="15.5" fill="#314866">Patient Rights &amp; Billing Guide</text>
-        <!-- Card 2: Take Action -->
-        <g filter="url(#gsh)"><rect x="500" y="160" width="400" height="380" rx="20" fill="#FFFFFF" stroke="#D8E0EC"/></g>
-        <rect x="500" y="160" width="400" height="58" rx="20" fill="#C9A84C"/>
-        <text x="528" y="197" font-size="22" font-weight="800" fill="#1C2B48">Take Action</text>
-        <text x="872" y="197" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="700" fill="#1C2B48" fill-opacity=".7">3 ITEMS</text>
-        <text x="528" y="266" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#2E4060">Send the right next move</text>
-        <line x1="528" y1="286" x2="872" y2="286" stroke="#EEF2F7" stroke-width="2"/>
-        <circle cx="536" cy="323" r="5" fill="#C9A84C"/><text x="554" y="328" font-size="15.5" fill="#314866">Ready-to-Send Appeal Letters</text>
-        <circle cx="536" cy="365" r="5" fill="#C9A84C"/><text x="554" y="370" font-size="15.5" fill="#314866">Insurer &amp; Provider Call Scripts</text>
-        <circle cx="536" cy="407" r="5" fill="#C9A84C"/><text x="554" y="412" font-size="15.5" fill="#314866">Escalation Playbook</text>
-        <!-- Card 3: Stay On Track -->
-        <g filter="url(#gsh)"><rect x="930" y="160" width="400" height="380" rx="20" fill="#FFFFFF" stroke="#D8E0EC"/></g>
-        <rect x="930" y="160" width="400" height="58" rx="20" fill="#1EB87A"/>
-        <text x="958" y="197" font-size="22" font-weight="800" fill="#0E1828">Stay On Track</text>
-        <text x="1302" y="197" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="700" fill="#0E1828" fill-opacity=".72">2 ITEMS</text>
-        <text x="958" y="266" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#2E4060">Stay organized and on deadline</text>
-        <line x1="958" y1="286" x2="1302" y2="286" stroke="#EEF2F7" stroke-width="2"/>
-        <circle cx="966" cy="323" r="5" fill="#1EB87A"/><text x="984" y="328" font-size="15.5" fill="#314866">Appeal Deadline Tracker</text>
-        <circle cx="966" cy="365" r="5" fill="#1EB87A"/><text x="984" y="370" font-size="15.5" fill="#314866">Evidence Checklist</text>
-        <!-- Card 4: Fast Start -->
-        <g filter="url(#gsh)"><rect x="285" y="576" width="400" height="380" rx="20" fill="#FFFFFF" stroke="#D8E0EC"/></g>
-        <rect x="285" y="576" width="400" height="58" rx="20" fill="#1C2B48"/>
-        <text x="313" y="613" font-size="22" font-weight="800" fill="#FFFFFF">Fast Start</text>
-        <text x="657" y="613" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="700" fill="#FFFFFF" fill-opacity=".82">1 ITEM</text>
-        <text x="313" y="682" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#2E4060">Start calmly and immediately</text>
-        <line x1="313" y1="702" x2="657" y2="702" stroke="#EEF2F7" stroke-width="2"/>
-        <circle cx="321" cy="739" r="5" fill="#1C2B48"/><text x="339" y="744" font-size="15.5" fill="#314866">Quick Start Guide</text>
-        <!-- Card 5: Workspace -->
-        <g filter="url(#gsh)"><rect x="715" y="576" width="400" height="380" rx="20" fill="#FFFFFF" stroke="#D8E0EC"/></g>
-        <rect x="715" y="576" width="400" height="58" rx="20" fill="#243058"/>
-        <text x="743" y="613" font-size="22" font-weight="800" fill="#FFFFFF">Workspace</text>
-        <text x="1087" y="613" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="700" fill="#FFFFFF" fill-opacity=".82">2 ITEMS</text>
-        <text x="743" y="682" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#2E4060">Keep everything in one place</text>
-        <line x1="743" y1="702" x2="1087" y2="702" stroke="#EEF2F7" stroke-width="2"/>
-        <circle cx="751" cy="739" r="5" fill="#243058"/><text x="769" y="744" font-size="15.5" fill="#314866">Your Patient Command Center</text>
-        <circle cx="751" cy="781" r="5" fill="#243058"/><text x="769" y="786" font-size="15.5" fill="#314866">Complete Case Packet (PDF)</text>
-      </g>
-    </svg>
   </div>
 </div>
 

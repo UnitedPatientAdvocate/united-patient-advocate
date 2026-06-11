@@ -3,1789 +3,471 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>United Patient Advocate — Medical Billing Review</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>United Patient Advocate · Medical Billing Review</title>
+<meta name="description" content="Independent medical billing review. We read your bill line by line and build your complete dispute package for one flat fee. We never take a percentage of what you save.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#1C2B48;--navy-deep:#0E1828;--navy-mid:#243058;
-  --teal:#1E6B5A;--teal-lt:#2A8B74;
-  --green:#1EB87A;--green-dk:#158A5C;
-  --gold:#C9A84C;--gold-dk:#A8881A;
-  --crimson:#E03B3B;--cobalt:#3B6EE0;--amber:#D07000;
-  --bg-lt:#EEF2F7;--bg-white:#FFFFFF;--bg-warm:#F7F9FC;
-  --ink:#1C2B48;--ink-2:#2E4060;--ink-3:#4A6480;--ink-4:#7A98B0;
-  --bdr:rgba(28,43,72,.09);
-  --on-dark:rgba(235,244,255,.94);--on-dark-2:rgba(235,244,255,.60);
-  --on-dark-3:rgba(235,244,255,.30);--on-dark-4:rgba(235,244,255,.13);
+  --bg:#EEF1F6;
+  --surface:#FFFFFF;
+  --surface-warm:#F6F8FB;
+  --navy:#162033;
+  --navy-soft:#22304B;
+  --teal:#1D9E75;
+  --teal-dk:#178561;
+  --gold:#C9A84C;
+  --gold-dk:#A8881A;
+  --ink:#162033;
+  --ink-2:#3A4762;
+  --ink-3:#5E6C84;
+  --ink-4:#8A97AC;
+  --line:rgba(22,32,51,.10);
+  --line-soft:rgba(22,32,51,.06);
+  --on-dark:rgba(236,242,252,.94);
+  --on-dark-2:rgba(236,242,252,.62);
+  --on-dark-3:rgba(236,242,252,.34);
   --serif:"Playfair Display",Georgia,serif;
-  --sans:"Plus Jakarta Sans",system-ui,sans-serif;
-  --mono:"DM Mono",monospace;
-  --pop:cubic-bezier(.16,1,.3,1);
+  --sans:"DM Sans",system-ui,-apple-system,sans-serif;
   --ease:cubic-bezier(.22,1,.36,1);
+  --shadow-sm:0 2px 8px rgba(22,32,51,.06);
+  --shadow-md:0 14px 40px rgba(22,32,51,.10);
+  --shadow-lg:0 30px 80px rgba(22,32,51,.16);
 }
 html{scroll-behavior:smooth}
-body{font-family:var(--sans);-webkit-font-smoothing:antialiased;background:var(--bg-lt);color:var(--ink)}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.6}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
 
-/* ═══════════════════════════════════
-   NAV
-═══════════════════════════════════ */
-.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--bdr);padding:0 40px;height:64px;display:flex;align-items:center;gap:0}
-.nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none}
-.nav-shield{width:36px;height:36px}
-.nav-shield svg{width:100%;height:100%}
-.nav-name{font-family:var(--serif);font-size:1rem;font-weight:700;color:var(--navy);letter-spacing:-.01em;line-height:1.15}
-.nav-name-sub{font-size:.3125rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);display:block;margin-top:1px}
+/* ── Shared atoms ── */
+.wrap{max-width:1160px;margin:0 auto;padding:0 28px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--teal)}
+.eyebrow::before{content:"";width:22px;height:1px;background:var(--teal);opacity:.55}
+.serif{font-family:var(--serif)}
+.h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.9rem,3.4vw,2.85rem);line-height:1.12;letter-spacing:-.015em;color:var(--navy)}
+.h2 em{font-style:italic;color:var(--teal)}
+.lead{font-size:1.06rem;color:var(--ink-3);line-height:1.7;max-width:56ch}
+.section{padding:clamp(64px,8vw,108px) 0}
+
+/* Shield-check motif */
+.shield{display:inline-flex;align-items:center;justify-content:center;flex:none}
+.shield svg{display:block}
+.shield-badge{width:46px;height:46px;border-radius:13px;background:linear-gradient(160deg,var(--navy),var(--navy-soft));box-shadow:var(--shadow-sm)}
+.shield-badge svg{width:24px;height:24px}
+.shield-badge .s-body{fill:none;stroke:var(--gold);stroke-width:1.6}
+.shield-badge .s-check{fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:var(--sans);font-weight:700;font-size:1rem;letter-spacing:.005em;border-radius:100px;border:none;cursor:pointer;transition:transform .2s var(--ease),box-shadow .2s var(--ease),background .2s var(--ease)}
+.btn svg{width:18px;height:18px;stroke:currentColor;stroke-width:2.1;fill:none}
+.btn-primary{color:#fff;background:linear-gradient(160deg,var(--teal),var(--teal-dk));padding:16px 30px;box-shadow:0 12px 30px rgba(29,158,117,.32)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(29,158,117,.42)}
+.btn-sm{padding:11px 22px;font-size:.9rem}
+.btn-ghost{color:var(--navy);background:#fff;border:1px solid var(--line);padding:15px 28px;box-shadow:var(--shadow-sm)}
+.btn-ghost:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.btn-light{color:var(--navy);background:#fff;padding:16px 30px;box-shadow:0 14px 34px rgba(0,0,0,.28)}
+.btn-light:hover{transform:translateY(-2px)}
+
+/* ── Sticky top region ── */
+.topwrap{position:sticky;top:0;z-index:60}
+
+/* ── Launch banner ── */
+.topbar{background:linear-gradient(90deg,var(--navy),var(--navy-soft));color:var(--on-dark);text-align:center;font-size:.78rem;font-weight:600;letter-spacing:.02em;padding:8px 16px;border-bottom:1px solid rgba(201,168,76,.30)}
+.topbar strong{color:#fff;font-weight:700}
+.topbar-tag{display:inline-flex;align-items:center;font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--navy);background:linear-gradient(160deg,var(--gold),var(--gold-dk));border-radius:100px;padding:3px 10px;margin-right:9px;vertical-align:1px}
+
+/* ── Nav ── */
+.nav{background:rgba(238,241,246,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line-soft)}
+.nav-inner{max-width:1160px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-logo{width:38px;height:38px;display:flex;align-items:center;justify-content:center}
+.brand-logo img{width:100%;height:100%;object-fit:contain}
+.brand-name{font-family:var(--serif);font-weight:700;font-size:1.04rem;color:var(--navy);line-height:1}
+.brand-sub{font-size:.58rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-4);margin-top:3px}
 .nav-spacer{flex:1}
-.btn-primary{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-size:.875rem;font-weight:700;color:white;background:var(--teal);padding:10px 22px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .2s var(--ease);box-shadow:0 3px 12px rgba(30,107,90,.25);margin-left:10px}
-.btn-primary:hover{background:var(--teal-lt);transform:translateY(-1px);box-shadow:0 5px 18px rgba(30,107,90,.35)}
-.btn-primary svg{width:14px;height:14px;stroke:white;stroke-width:2.2;fill:none}
 
-/* ═══════════════════════════════════
-   ANNOUNCEMENT BANNER
-═══════════════════════════════════ */
-.banner{background:linear-gradient(90deg,#7B3A1A,#9B4A20,#7B3A1A);padding:10px 20px;text-align:center;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.90);letter-spacing:.02em}
-.banner strong{color:white;font-weight:800}
+/* ── Hero ── */
+.hero{position:relative;overflow:hidden}
+.hero-inner{max-width:1160px;margin:0 auto;padding:clamp(40px,6vw,76px) 28px clamp(48px,6vw,84px);display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(32px,5vw,68px);align-items:center}
+.hero-copy{max-width:600px}
+.hero h1{font-family:var(--serif);font-weight:800;font-size:clamp(2.5rem,5.2vw,4rem);line-height:1.04;letter-spacing:-.02em;color:var(--navy);margin:20px 0 0}
+.hero h1 em{font-style:italic;color:var(--teal)}
+.hero-sub{font-size:1.18rem;color:var(--ink-2);line-height:1.62;margin:22px 0 32px;max-width:48ch}
+.hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+.hero-reassure{margin-top:22px;font-size:.95rem;color:var(--ink-2);line-height:1.6;max-width:46ch;padding-left:14px;border-left:2px solid var(--teal)}
+.hero-note{margin-top:18px;display:flex;flex-wrap:wrap;gap:18px}
+.hero-note span{display:inline-flex;align-items:center;gap:8px;font-size:.86rem;font-weight:600;color:var(--ink-3)}
+.hero-note svg{width:17px;height:17px;flex:none}
+.hero-note .s-body{fill:none;stroke:var(--teal);stroke-width:1.6}
+.hero-note .s-check{fill:none;stroke:var(--teal);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-/* ═══════════════════════════════════
-   SHARED SECTION ATOMS
-═══════════════════════════════════ */
-.section{padding:80px 40px}
-.section-inner{max-width:860px;margin:0 auto}
-.section-inner.wide{max-width:1080px}
-.eyebrow{font-size:.4375rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--teal);margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px}
-.eyebrow::before,.eyebrow::after{content:"";width:20px;height:1px;background:var(--teal);opacity:.5}
-.section-hl{font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.20;margin-bottom:10px;text-align:center}
-.section-hl em{color:var(--teal);font-style:italic}
-.section-sub{font-size:.9375rem;color:var(--ink-3);line-height:1.72;text-align:center;max-width:560px;margin:0 auto 36px}
-.divider{height:1px;background:linear-gradient(90deg,transparent,var(--bdr),transparent);margin:0}
+.hero-visual{position:relative}
+.hero-frame{position:relative;aspect-ratio:4/3;border-radius:26px;overflow:hidden;background:radial-gradient(120% 120% at 30% 30%,#1c2740,#0f1727);box-shadow:var(--shadow-lg);border:1px solid rgba(255,255,255,.06)}
+.hero-frame img{width:100%;height:100%;object-fit:cover;object-position:28% center;transform:scale(1.18);display:block}
+.hero-glow{position:absolute;inset:-30% -20% auto auto;width:60%;height:80%;background:radial-gradient(circle,rgba(201,168,76,.22),transparent 65%);pointer-events:none}
+.hero-chip{position:absolute;left:-18px;bottom:26px;display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:13px 18px 13px 13px;box-shadow:var(--shadow-md);border:1px solid var(--line-soft)}
+.hero-chip .shield-badge{width:40px;height:40px;border-radius:11px}
+.hero-chip .shield-badge svg{width:21px;height:21px}
+.hero-chip-t{font-size:.82rem;font-weight:700;color:var(--navy);line-height:1.2}
+.hero-chip-s{font-size:.72rem;color:var(--ink-3);margin-top:2px}
 
-/* ═══════════════════════════════════
-   HERO
-═══════════════════════════════════ */
-.hero{background:linear-gradient(180deg,#EEF2F7 0%,#F7F9FC 100%);padding:88px 40px 72px;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 600px 300px at 50% 0%,rgba(30,107,90,.06) 0%,transparent 60%);pointer-events:none}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--teal);background:rgba(30,107,90,.07);border:1px solid rgba(30,107,90,.18);border-radius:100px;padding:5px 14px;margin-bottom:22px}
-.hero-eyebrow::before{content:"•";color:var(--teal)}
-.hero-hl{font-family:var(--serif);font-size:3.05rem;font-weight:700;color:var(--navy);letter-spacing:-.035em;line-height:1.08;margin-bottom:14px;position:relative;z-index:1;max-width:11ch}
-.hero-hl em{font-style:italic;color:var(--teal)}
-.hero-sub{font-size:1rem;color:var(--ink-3);line-height:1.75;max-width:520px;margin:0 auto 32px;position:relative;z-index:1}
-.hero-cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-size:.9375rem;font-weight:700;color:white;background:var(--teal);padding:15px 32px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .22s var(--ease);box-shadow:0 4px 20px rgba(30,107,90,.35),0 8px 40px rgba(30,107,90,.15);position:relative;z-index:1}
-.hero-cta:hover{background:var(--teal-lt);transform:translateY(-2px);box-shadow:0 6px 28px rgba(30,107,90,.45)}
-.hero-cta svg{width:16px;height:16px;stroke:white;stroke-width:2.2;fill:none}
-.hero-cta-secondary{display:block;font-size:.6875rem;color:var(--ink-3);margin-top:11px;text-decoration:none;position:relative;z-index:1}
-.hero-cta-secondary:hover{color:var(--teal);text-decoration:underline}
-.hero-microcopy{font-size:.5625rem;color:var(--ink-4);margin-top:10px;display:flex;align-items:center;justify-content:center;gap:14px;position:relative;z-index:1}
-.hero-microcopy span{display:flex;align-items:center;gap:5px}
-.hero-microcopy svg{width:11px;height:11px;stroke:var(--ink-4);stroke-width:1.8;fill:none}
-/* Stats row */
-.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);max-width:600px;margin:40px auto 0;border:1px solid var(--bdr);border-radius:12px;overflow:hidden;background:white;box-shadow:0 2px 12px rgba(28,43,72,.07)}
-.hero-stat{padding:18px 20px;text-align:center;border-right:1px solid var(--bdr)}
-.hero-stat:last-child{border-right:none}
-.hs-val{font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--teal);letter-spacing:-.03em;line-height:1;margin-bottom:4px}
-.hs-label{font-size:.5625rem;color:var(--ink-3);line-height:1.5;margin-bottom:2px}
-.hs-source{font-family:var(--mono);font-size:.375rem;color:var(--ink-4);letter-spacing:.04em}
+/* ── Proof strip ── */
+.proof{background:var(--navy);color:var(--on-dark)}
+.proof-inner{max-width:1160px;margin:0 auto;padding:34px 28px;display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.proof-item{display:flex;gap:14px;align-items:flex-start}
+.proof-item .shield-badge{width:42px;height:42px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+.proof-item .shield-badge .s-body{stroke:var(--gold)}
+.proof-t{font-size:.96rem;font-weight:600;line-height:1.5;color:var(--on-dark)}
+.proof-cite{display:block;margin-top:5px;font-size:.74rem;letter-spacing:.04em;color:var(--on-dark-3)}
 
-/* ISSUE SELECTOR */
-.issue-selector{background:white;border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);padding:30px 20px 34px}
-.issue-selector-inner{max-width:860px;margin:0 auto}
-.issue-selector-label{font-size:.4375rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);text-align:center;margin-bottom:10px}
-.issue-selector-title{font-family:var(--serif);font-size:1.55rem;font-weight:700;color:var(--navy);line-height:1.2;text-align:center;margin-bottom:8px}
-.issue-selector-sub{font-size:.8125rem;color:var(--ink-3);line-height:1.65;text-align:center;max-width:560px;margin:0 auto 18px}
-.issue-selector-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.issue-card{display:flex;flex-direction:column;min-height:172px;background:var(--bg-warm);border:1px solid var(--bdr);border-radius:10px;padding:18px;text-decoration:none;color:inherit;box-shadow:0 1px 5px rgba(28,43,72,.05);transition:all .2s var(--ease)}
-.issue-card:hover{transform:translateY(-2px);border-color:rgba(30,107,90,.28);box-shadow:0 6px 18px rgba(28,43,72,.10)}
-.issue-card.featured{background:linear-gradient(180deg,#FFFFFF 0%,#F7F9FC 100%);border-color:rgba(30,107,90,.24)}
-.issue-icon{width:34px;height:34px;border-radius:9px;background:rgba(30,107,90,.09);border:1px solid rgba(30,107,90,.15);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
-.issue-icon svg{width:16px;height:16px;stroke:var(--teal);stroke-width:2;fill:none}
-.issue-card-title{font-size:.9rem;font-weight:800;color:var(--navy);line-height:1.3;margin-bottom:6px}
-.issue-card-desc{font-size:.625rem;color:var(--ink-3);line-height:1.6;margin-bottom:14px;flex:1}
-.issue-card-action{display:flex;align-items:center;gap:6px;font-size:.625rem;font-weight:800;color:var(--teal)}
-.issue-card-action svg{width:12px;height:12px;stroke:currentColor;stroke-width:2.2;fill:none}
+/* ── Section heads ── */
+.shead{text-align:center;max-width:680px;margin:0 auto clamp(40px,5vw,60px)}
+.shead .eyebrow{margin-bottom:16px}
+.shead .lead{margin:16px auto 0;text-align:center}
 
-/* ═══════════════════════════════════
-   INSURANCE LOGOS
-═══════════════════════════════════ */
-.logos-strip{padding:28px 40px;background:var(--bg-warm);border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)}
-.logos-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);text-align:center;margin-bottom:16px}
-.logos-row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
-.logo-chip{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 16px;background:white;border:1px solid var(--bdr);border-radius:8px;min-width:80px;box-shadow:0 1px 4px rgba(28,43,72,.05)}
-.logo-abbr{font-family:var(--mono);font-size:.625rem;font-weight:700;color:var(--ink-3);letter-spacing:.06em}
-.logo-name{font-size:.3125rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)}
-.logos-disclaimer{font-size:.4375rem;color:var(--ink-4);text-align:center;max-width:640px;margin:12px auto 0;line-height:1.60}
+/* ── What you get ── */
+.pillars{display:grid;grid-template-columns:repeat(12,1fr);gap:22px}
+.card{background:var(--surface);border:1px solid var(--line-soft);border-radius:20px;padding:30px;box-shadow:var(--shadow-sm);transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+.card-head{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.card-kicker{font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
+.card h3{font-family:var(--serif);font-weight:700;font-size:1.3rem;color:var(--navy);letter-spacing:-.01em;line-height:1.2}
+.card p{font-size:.94rem;color:var(--ink-3);margin-top:8px;line-height:1.62}
+.card ul{list-style:none;margin-top:16px;display:flex;flex-direction:column;gap:11px}
+.card li{display:flex;gap:11px;align-items:flex-start;font-size:.95rem;color:var(--ink-2);font-weight:500}
+.card li svg{width:18px;height:18px;flex:none;margin-top:1px}
+.card li .s-body{fill:none;stroke:var(--teal);stroke-width:1.6}
+.card li .s-check{fill:none;stroke:var(--teal);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.col-7{grid-column:span 7}
+.col-5{grid-column:span 5}
+.col-4{grid-column:span 4}
+.col-6{grid-column:span 6}
 
-/* ═══════════════════════════════════
-   WHAT THE DATA SHOWS
-═══════════════════════════════════ */
-.data-section{background:var(--navy);padding:72px 40px}
-.data-section .eyebrow{color:rgba(201,168,76,.80)}
-.data-section .eyebrow::before,.data-section .eyebrow::after{background:rgba(201,168,76,.50)}
-.data-section .section-hl{color:var(--on-dark)}
-.data-section .section-sub{color:var(--on-dark-2)}
-.research-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-.research-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:18px}
-.rc-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.rc-badge{width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.10);display:flex;align-items:center;justify-content:center;font-size:.5625rem;font-weight:800;color:rgba(235,244,255,.60);letter-spacing:.04em;flex-shrink:0}
-.rc-source{font-size:.5625rem;font-weight:700;color:var(--on-dark-2);line-height:1.35;margin-bottom:2px}
-.rc-citation{font-size:.4375rem;color:var(--on-dark-3);line-height:1.45}
-.rc-stat{font-family:var(--serif);font-size:1.625rem;font-weight:900;color:var(--green);letter-spacing:-.04em;line-height:1;margin-bottom:4px}
-.rc-stat.gold{color:var(--gold)}
-.rc-stat.amber{color:rgba(240,165,0,.90)}
-.rc-desc{font-size:.6875rem;color:var(--on-dark-2);line-height:1.65}
-.rc-pair{display:flex;gap:12px;margin-bottom:6px}
-.rc-pair-val{font-family:var(--serif);font-size:1.25rem;font-weight:900;letter-spacing:-.03em;line-height:1}
-.rc-pair-val.g{color:var(--green)}.rc-pair-val.amber{color:rgba(240,165,0,.90)}
-.rc-pair-sub{font-size:.5rem;color:var(--on-dark-3);margin-top:2px}
-.research-disclaimer{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px 16px;display:flex;align-items:flex-start;gap:8px;max-width:860px;margin:0 auto}
-.rd-icon svg{width:13px;height:13px;stroke:var(--on-dark-3);stroke-width:1.8;fill:none;flex-shrink:0;margin-top:1px}
-.rd-txt{font-size:.4375rem;color:var(--on-dark-3);line-height:1.65}
-.rd-txt strong{color:var(--on-dark-2)}
+/* ── Value / offer ── */
+.offer{background:linear-gradient(180deg,#fff 0%,var(--surface-warm) 100%);border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+.offer-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(34px,5vw,64px);align-items:center}
+.offer-copy .h2{margin-bottom:20px}
+.offer-copy p{font-size:1.06rem;color:var(--ink-2);line-height:1.72;margin-bottom:18px;max-width:54ch}
+.compare{margin-top:28px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;box-shadow:var(--shadow-sm)}
+.compare-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 22px}
+.compare-row+.compare-row{border-top:1px solid var(--line-soft)}
+.compare-row.them{background:#fff}
+.compare-row.us{background:rgba(29,158,117,.07)}
+.compare-label{font-weight:600;color:var(--ink-2);font-size:.96rem}
+.compare-label.us{color:var(--navy);font-weight:700}
+.compare-val{font-family:var(--serif);font-weight:700;font-size:1.04rem;color:var(--ink-3);white-space:nowrap}
+.compare-val.us{color:var(--teal)}
 
-/* ═══════════════════════════════════
-   QUICK QUESTION / BILL RANGE
-═══════════════════════════════════ */
-.quick-q{padding:72px 40px;background:var(--bg-warm)}
-.quick-q-inner{max-width:640px;margin:0 auto;text-align:center}
-.quick-q-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
-.quick-q-label::before,.quick-q-label::after{content:"";width:16px;height:1px;background:var(--ink-4);opacity:.4}
-.quick-q-hl{font-family:var(--serif);font-size:1.75rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.22;margin-bottom:6px}
-.quick-q-sub{font-size:.875rem;color:var(--ink-3);line-height:1.65;margin-bottom:24px}
-.range-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
-.range-opt{display:flex;align-items:center;gap:12px;padding:14px 18px;background:white;border:1.5px solid var(--bdr);border-radius:10px;cursor:pointer;transition:all .2s var(--ease);text-align:left}
-.range-opt:hover{border-color:var(--teal);box-shadow:0 2px 10px rgba(30,107,90,.10)}
-.range-opt.sel{border-color:var(--teal);background:rgba(30,107,90,.04);box-shadow:0 0 0 3px rgba(30,107,90,.08)}
-.ro-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--bdr);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s ease}
-.range-opt.sel .ro-radio{border-color:var(--teal);background:var(--teal)}
-.ro-dot{width:7px;height:7px;border-radius:50%;background:white;opacity:0;transition:opacity .2s ease}
-.range-opt.sel .ro-dot{opacity:1}
-.range-reveal{display:none;max-width:580px;margin:0 auto 8px;text-align:left;animation:fadeSlideUp .32s ease}
-.range-reveal.show{display:block}
-@keyframes fadeSlideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.ro-text{flex:1}
-.ro-name{font-size:.9375rem;font-weight:700;color:var(--navy);margin-bottom:1px}
-.ro-desc{font-size:.5625rem;color:var(--ink-3)}
+.price-card{background:var(--navy);color:#fff;border-radius:24px;padding:38px 34px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.price-card .glow{position:absolute;inset:auto -20% -30% auto;width:70%;height:70%;background:radial-gradient(circle,rgba(201,168,76,.20),transparent 65%);pointer-events:none}
+.price-tag{display:flex;align-items:flex-end;gap:10px;margin:6px 0 4px}
+.price-amt{font-family:var(--serif);font-weight:800;font-size:3.6rem;line-height:1;letter-spacing:-.02em}
+.price-flat{font-size:.82rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);padding-bottom:10px}
+.price-sub{color:var(--on-dark-2);font-size:.95rem;line-height:1.6;margin-bottom:22px}
+.price-list{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:26px}
+.price-list li{display:flex;gap:11px;align-items:flex-start;font-size:.96rem;color:var(--on-dark);font-weight:500}
+.price-list li svg{width:18px;height:18px;flex:none;margin-top:1px}
+.price-list li .s-body{fill:none;stroke:var(--gold);stroke-width:1.6}
+.price-list li .s-check{fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.price-card .btn{width:100%}
+.price-fine{margin-top:14px;text-align:center;font-size:.82rem;color:var(--on-dark-2);line-height:1.55}
+.price-guarantee{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.10);font-size:.74rem;color:var(--on-dark-3);line-height:1.6}
 
-/* Sample report */
-.sample-report{max-width:640px;margin:0 auto 32px}
-.sr-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);text-align:center;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px}
-.sr-label::before,.sr-label::after{content:"";flex:1;max-width:60px;height:1px;background:var(--bdr)}
-.sr-hl{font-family:var(--serif);font-size:1.75rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.20;margin-bottom:6px;text-align:center}
-.sr-hl em{color:var(--teal);font-style:italic}
-.sr-sub{font-size:.875rem;color:var(--ink-3);line-height:1.65;margin-bottom:20px;text-align:center}
-.report-table{background:white;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;box-shadow:0 2px 16px rgba(28,43,72,.08);font-size:.5625rem}
-.rt-header{background:var(--navy);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
-.rt-title{font-size:.625rem;font-weight:700;color:white;letter-spacing:.02em}
-.rt-badges{display:flex;gap:6px}
-.rt-badge{font-size:.375rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;padding:3px 8px;border-radius:100px}
-.rtb-review{background:rgba(255,255,255,.15);color:rgba(235,244,255,.75)}
-.rtb-flags{background:rgba(224,59,59,.25);color:#FF9090;border:1px solid rgba(224,59,59,.30)}
-.rt-row{display:flex;align-items:flex-start;gap:0;border-bottom:1px solid var(--bdr)}
-.rt-row:last-child{border-bottom:none}
-.rt-col-label{font-family:var(--mono);font-size:.4375rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);padding:10px 12px;width:140px;flex-shrink:0;border-right:1px solid var(--bdr);line-height:1.4}
-.rt-col-content{padding:10px 12px;flex:1;font-size:.5625rem;color:var(--ink-2);line-height:1.5}
-.rt-col-status{padding:10px 12px;width:80px;flex-shrink:0;text-align:right}
-.rt-chip{font-size:.375rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;padding:3px 7px;border-radius:100px}
-.rtc-reviewing{background:rgba(28,43,72,.06);color:var(--ink-3)}
-.rtc-flagged{background:rgba(224,59,59,.10);color:var(--crimson);border:1px solid rgba(224,59,59,.20)}
-.rt-cpt-tags{display:flex;gap:4px;flex-wrap:wrap}
-.rt-cpt{font-family:var(--mono);font-size:.5rem;font-weight:600;color:var(--cobalt);background:rgba(59,110,224,.08);padding:2px 6px;border-radius:4px}
-.rt-flag-txt{font-size:.5rem;color:var(--crimson);font-weight:600}
-.rt-blurred{filter:blur(3.5px);user-select:none;pointer-events:none}
-.rt-footer{padding:10px 14px;background:rgba(30,184,122,.06);border-top:1px solid rgba(30,184,122,.15);text-align:center}
-.rt-footer-badge{display:inline-flex;align-items:center;gap:5px;font-size:.5rem;font-weight:700;color:var(--green);letter-spacing:.04em}
-.rt-footer-badge svg{width:11px;height:11px;stroke:var(--green);stroke-width:2;fill:none}
-.rt-footer-sub{font-size:.4375rem;color:var(--ink-3);margin-top:4px}
-.see-btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:.875rem;font-weight:700;color:white;background:var(--navy);padding:13px 28px;border-radius:100px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:all .2s var(--ease);box-shadow:0 3px 12px rgba(28,43,72,.20);margin-top:16px}
-.see-btn:hover{background:var(--navy-mid);transform:translateY(-1px)}
-.see-btn svg{width:14px;height:14px;stroke:white;stroke-width:2.2;fill:none}
+/* ── How it works ── */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.step{position:relative;background:#fff;border:1px solid var(--line-soft);border-radius:20px;padding:32px 28px;box-shadow:var(--shadow-sm)}
+.step-num{font-family:var(--serif);font-weight:700;font-size:1.05rem;color:#fff;width:40px;height:40px;border-radius:12px;background:linear-gradient(160deg,var(--teal),var(--teal-dk));display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.step h3{font-family:var(--serif);font-weight:700;font-size:1.28rem;color:var(--navy);margin-bottom:8px;letter-spacing:-.01em}
+.step p{font-size:.96rem;color:var(--ink-3);line-height:1.64}
 
-/* ═══════════════════════════════════
-   WHAT WE EXAMINE
-═══════════════════════════════════ */
-.examine-section{padding:72px 40px;background:var(--bg-lt)}
-.examine-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:700px;margin:0 auto}
-.examine-card{background:white;border:1px solid var(--bdr);border-radius:10px;padding:18px;display:flex;align-items:flex-start;gap:13px;box-shadow:0 1px 4px rgba(28,43,72,.05);transition:box-shadow .2s ease,transform .2s ease}
-.examine-card:hover{box-shadow:0 4px 16px rgba(28,43,72,.10);transform:translateY(-1px)}
-.ec-icon{width:32px;height:32px;border-radius:7px;background:rgba(30,107,90,.08);border:1px solid rgba(30,107,90,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ec-icon svg{width:14px;height:14px;stroke:var(--teal);stroke-width:2;fill:none}
-.ec-icon.crimson{background:rgba(224,59,59,.08);border-color:rgba(224,59,59,.15)}
-.ec-icon.crimson svg{stroke:var(--crimson)}
-.ec-icon.cobalt{background:rgba(59,110,224,.08);border-color:rgba(59,110,224,.15)}
-.ec-icon.cobalt svg{stroke:var(--cobalt)}
-.ec-icon.amber{background:rgba(208,112,0,.08);border-color:rgba(208,112,0,.15)}
-.ec-icon.amber svg{stroke:var(--amber)}
-.ec-title{font-size:.8125rem;font-weight:700;color:var(--navy);margin-bottom:4px}
-.ec-desc{font-size:.625rem;color:var(--ink-3);line-height:1.60}
+/* ── Final CTA ── */
+.final{background:linear-gradient(150deg,var(--navy) 0%,#0e1626 100%);color:#fff;position:relative;overflow:hidden}
+.final::after{content:"";position:absolute;inset:auto auto -40% 50%;transform:translateX(-50%);width:80%;height:80%;background:radial-gradient(circle,rgba(29,158,117,.22),transparent 62%);pointer-events:none}
+.final-inner{max-width:820px;margin:0 auto;padding:clamp(64px,8vw,104px) 28px;text-align:center;position:relative;z-index:1}
+.final .shield-badge{width:60px;height:60px;border-radius:17px;margin:0 auto 24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14)}
+.final .shield-badge svg{width:31px;height:31px}
+.final h2{font-family:var(--serif);font-weight:700;font-size:clamp(2rem,4vw,3rem);line-height:1.1;letter-spacing:-.015em;margin-bottom:18px}
+.final p{font-size:1.12rem;color:var(--on-dark-2);max-width:50ch;margin:0 auto 32px;line-height:1.62}
 
-/* ═══════════════════════════════════
-   HOW IT WORKS — THREE STEPS
-═══════════════════════════════════ */
-.steps-section{background:var(--navy);padding:72px 40px;position:relative;overflow:hidden}
-.steps-section::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 600px 300px at 30% 50%,rgba(30,107,90,.10) 0%,transparent 60%);pointer-events:none}
-.steps-section .section-hl,.steps-section .eyebrow-light{position:relative;z-index:1}
-.steps-section .section-hl{color:var(--on-dark)}
-.steps-section .section-hl em{color:var(--green);font-style:italic}
-.steps-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--on-dark-3);text-align:center;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px}
-.steps-label::before,.steps-label::after{content:"";width:16px;height:1px;background:rgba(235,244,255,.20)}
-.steps-sub{font-size:.875rem;color:var(--on-dark-2);text-align:center;margin-bottom:40px;font-style:italic}
-.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:780px;margin:0 auto;position:relative;z-index:1}
-.step-card{text-align:center}
-.sc-num{width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-family:var(--serif);font-size:1.125rem;font-weight:700;color:rgba(235,244,255,.80);position:relative}
-.sc-num::after{content:"";position:absolute;left:calc(50% + 22px);top:50%;transform:translateY(-50%);height:1px;width:calc((780px / 3) - 44px - 24px);background:rgba(255,255,255,.10)}
-.step-card:last-child .sc-num::after{display:none}
-.sc-title{font-family:var(--sans);font-size:.9375rem;font-weight:700;color:var(--on-dark);margin-bottom:6px}
-.sc-desc{font-size:.6875rem;color:var(--on-dark-2);line-height:1.65;margin-bottom:8px}
-.sc-tag{display:inline-flex;align-items:center;padding:3px 9px;background:rgba(30,184,122,.16);border:1px solid rgba(30,184,122,.28);border-radius:100px;font-size:.4375rem;font-weight:700;color:var(--green);letter-spacing:.08em;text-transform:uppercase}
-.sc-tag.cobalt{background:rgba(59,110,224,.16);border-color:rgba(59,110,224,.28);color:#90B4FF}
-.sc-tag.gold{background:rgba(201,168,76,.16);border-color:rgba(201,168,76,.28);color:var(--gold)}
+/* ── Footer ── */
+.footer{background:var(--navy);color:var(--on-dark-2);padding:56px 28px 44px}
+.footer-inner{max-width:1000px;margin:0 auto;text-align:center}
+.footer-brand{display:inline-flex;align-items:center;gap:12px;margin-bottom:22px}
+.footer-brand .brand-logo{width:34px;height:34px}
+.footer-brand .brand-name{color:#fff}
+.footer-disc{font-size:.82rem;line-height:1.78;color:var(--on-dark-3);max-width:780px;margin:0 auto 22px}
+.footer-copy{font-size:.78rem;letter-spacing:.05em;color:var(--on-dark-3)}
+.footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 18px;margin-bottom:20px;font-size:.82rem}
+.footer-links a{color:var(--on-dark-2);font-weight:500}
+.footer-links a:hover{color:#fff}
 
-/* ═══════════════════════════════════
-   COMPARISON TABLE
-═══════════════════════════════════ */
-.comparison-section{padding:72px 40px;background:var(--bg-lt)}
-.comp-label{text-align:center;font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);margin-bottom:10px}
-.comp-table{max-width:680px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid var(--bdr);box-shadow:0 2px 16px rgba(28,43,72,.08)}
-.ct-head{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;background:white;border-bottom:2px solid var(--bdr)}
-.ct-head-cell{padding:12px 14px;font-size:.5rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-3);border-right:1px solid var(--bdr)}
-.ct-head-cell:last-child{background:var(--teal);color:rgba(255,255,255,.90);border-right:none;display:flex;flex-direction:column;justify-content:center}
-.ct-head-cell.upa-col{display:flex;align-items:center;justify-content:space-between}
-.ct-rec{display:inline-flex;align-items:center;gap:4px;font-size:.3125rem;font-weight:700;background:rgba(255,255,255,.18);padding:2px 7px;border-radius:100px}
-.ct-rec svg{width:8px;height:8px;stroke:white;stroke-width:2;fill:none}
-.ct-row{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;border-bottom:1px solid var(--bdr);background:white}
-.ct-row:last-of-type{border-bottom:none}
-.ct-cell{padding:12px 14px;border-right:1px solid var(--bdr);font-size:.5625rem;color:var(--ink-3);line-height:1.55}
-.ct-cell:first-child .ct-cell-title{font-size:.75rem;font-weight:700;color:var(--navy);margin-bottom:3px}
-.ct-cell:last-child{border-right:none;background:rgba(30,107,90,.03)}
-.ct-x{display:flex;align-items:flex-start;gap:5px;color:var(--ink-3)}
-.ct-x-icon{width:14px;height:14px;border-radius:50%;background:rgba(224,59,59,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.ct-x-icon svg{width:8px;height:8px;stroke:var(--crimson);stroke-width:2.5;fill:none}
-.ct-check{display:flex;align-items:flex-start;gap:5px;color:var(--ink-2)}
-.ct-check-icon{width:14px;height:14px;border-radius:50%;background:rgba(30,107,90,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.ct-check-icon svg{width:8px;height:8px;stroke:var(--teal);stroke-width:2.5;fill:none}
-.ct-outcome{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;background:var(--navy)}
-.cto-label{padding:10px 14px;font-size:.4375rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(235,244,255,.40)}
-.cto-bad{padding:10px 14px;font-size:.625rem;font-weight:700;color:rgba(235,244,255,.45);border-right:1px solid rgba(255,255,255,.08)}
-.cto-good{padding:10px 14px;font-size:.8125rem;font-weight:700;color:white;background:rgba(30,107,90,.40)}
-.comp-cta-box{max-width:680px;margin:0 auto;background:var(--navy);border-radius:10px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-.ccb-text{}
-.ccb-title{font-size:.9375rem;font-weight:700;color:white;margin-bottom:4px;line-height:1.35}
-.ccb-sub{font-size:.625rem;color:rgba(235,244,255,.45);line-height:1.55}
-.ccb-btn{display:flex;align-items:center;gap:7px;background:var(--teal);color:white;font-size:.8125rem;font-weight:700;padding:11px 22px;border-radius:100px;border:none;cursor:pointer;white-space:nowrap;text-decoration:none;transition:all .2s var(--ease);flex-shrink:0;box-shadow:0 3px 12px rgba(30,107,90,.30)}
-.ccb-btn:hover{background:var(--teal-lt);transform:translateY(-1px)}
-.ccb-btn svg{width:13px;height:13px;stroke:white;stroke-width:2.2;fill:none}
-
-/* ═══════════════════════════════════
-   EXAMPLE FINDINGS
-═══════════════════════════════════ */
-.findings-section{padding:72px 40px;background:var(--bg-warm)}
-.finding-card{background:white;border:1px solid var(--bdr);border-radius:10px;padding:20px 22px;margin-bottom:10px;max-width:680px;margin-left:auto;margin-right:auto;box-shadow:0 1px 4px rgba(28,43,72,.05)}
-.fc-tag-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.fc-tag{font-size:.375rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:100px;border:1px solid}
-.fct-duplicate{color:var(--crimson);border-color:rgba(224,59,59,.25);background:rgba(224,59,59,.06)}
-.fct-benchmark{color:var(--cobalt);border-color:rgba(59,110,224,.25);background:rgba(59,110,224,.06)}
-.fct-coding{color:var(--amber);border-color:rgba(208,112,0,.25);background:rgba(208,112,0,.06)}
-.fc-illus{font-size:.4375rem;color:var(--ink-4);font-style:italic}
-.fc-title{font-size:.9375rem;font-weight:700;color:var(--navy);line-height:1.35;margin-bottom:6px}
-.fc-desc{font-size:.6875rem;color:var(--ink-3);line-height:1.68}
-.findings-disclaimer{max-width:680px;margin:16px auto 0;background:rgba(28,43,72,.04);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;font-size:.4375rem;color:var(--ink-4);text-align:center;line-height:1.65}
-
-/* ═══════════════════════════════════
-   PATIENT SCENARIOS
-═══════════════════════════════════ */
-.scenarios-section{padding:72px 40px;background:var(--bg-lt)}
-.scenarios-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:740px;margin:0 auto 14px}
-.scenario-card{background:white;border:1px solid var(--bdr);border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(28,43,72,.05)}
-.sc-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.sc-avatar{width:28px;height:28px;border-radius:50%;background:rgba(28,43,72,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sc-avatar svg{width:14px;height:14px;stroke:var(--ink-3);stroke-width:1.8;fill:none}
-.sc-avatar.building{background:rgba(30,107,90,.10)}
-.sc-avatar.building svg{stroke:var(--teal)}
-.sc-name{font-size:.75rem;font-weight:700;color:var(--navy)}
-.sc-type{font-size:.4375rem;color:var(--ink-4)}
-.sc-story{font-size:.625rem;color:var(--ink-3);line-height:1.65;margin-bottom:10px}
-.sc-prepared{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:6px;padding:8px 10px}
-.sc-prepared-label{font-size:.375rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:3px}
-.sc-prepared-txt{font-size:.5rem;color:var(--ink-2);line-height:1.55;font-style:italic}
-.sc-prepared-txt.green{color:var(--teal)}
-.scenarios-disclaimer{max-width:740px;margin:0 auto;background:rgba(28,43,72,.03);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;font-size:.4375rem;color:var(--ink-4);text-align:center;line-height:1.65}
-
-/* ═══════════════════════════════════
-   WHAT YOU CAN EXPECT
-═══════════════════════════════════ */
-.expect-section{padding:72px 40px;background:var(--bg-warm)}
-.expect-list{max-width:640px;margin:0 auto;background:white;border:1px solid var(--bdr);border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(28,43,72,.07)}
-.expect-item{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;border-bottom:1px solid var(--bdr)}
-.expect-item:last-child{border-bottom:none}
-.ei-icon{width:30px;height:30px;border-radius:7px;background:rgba(30,107,90,.08);border:1px solid rgba(30,107,90,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.ei-icon svg{width:13px;height:13px;stroke:var(--teal);stroke-width:2;fill:none}
-.ei-content{flex:1}
-.ei-title{font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:3px}
-.ei-desc{font-size:.5625rem;color:var(--ink-3);line-height:1.60}
-.ei-badge{font-size:.375rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;background:rgba(30,107,90,.08);color:var(--teal);border:1px solid rgba(30,107,90,.18);border-radius:100px;white-space:nowrap;flex-shrink:0;margin-top:3px}
-.ei-badge.us{background:rgba(59,110,224,.08);color:var(--cobalt);border-color:rgba(59,110,224,.18)}
-.ei-badge.pkg{background:rgba(201,168,76,.10);color:var(--gold-dk);border-color:rgba(201,168,76,.22)}
-.ei-badge.ins{background:rgba(208,112,0,.08);color:var(--amber);border-color:rgba(208,112,0,.18)}
-
-/* ═══════════════════════════════════
-   EDITORIAL — NOT YOUR FAULT
-═══════════════════════════════════ */
-.editorial-section{padding:72px 40px;background:var(--bg-lt)}
-.editorial-inner{max-width:600px;margin:0 auto}
-.ed-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-4);text-align:center;margin-bottom:12px}
-.ed-hl{font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.18;margin-bottom:6px;text-align:center}
-.ed-hl em{color:var(--teal);font-style:italic}
-.ed-body{background:white;border:1px solid var(--bdr);border-radius:12px;padding:24px 26px;box-shadow:0 2px 12px rgba(28,43,72,.07);margin-bottom:14px}
-.ed-p{font-size:.9375rem;color:var(--ink-2);line-height:1.78;margin-bottom:14px}
-.ed-p:last-child{margin-bottom:0}
-.ed-p strong{color:var(--navy);font-weight:700}
-.ed-chips{display:flex;gap:8px;flex-wrap:wrap}
-.ed-chip{padding:8px 14px;background:white;border:1px solid var(--bdr);border-radius:8px;box-shadow:0 1px 4px rgba(28,43,72,.05)}
-.ed-chip-title{font-size:.5625rem;font-weight:700;color:var(--navy);margin-bottom:2px}
-.ed-chip-desc{font-size:.4375rem;color:var(--ink-4)}
-
-/* ═══════════════════════════════════
-   INTAKE SECTION — dark, premium, embedded
-═══════════════════════════════════ */
-.intake-section{background:var(--navy-deep);padding:72px 40px;position:relative;overflow:hidden}
-/* Blueprint grid */
-.intake-section::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.020;z-index:0;
-  background-image:linear-gradient(rgba(235,244,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(235,244,255,1) 1px,transparent 1px);
-  background-size:48px 48px}
-/* Vignette */
-.is-vignette{position:absolute;inset:0;pointer-events:none;z-index:1;
-  background:radial-gradient(ellipse 90% 90% at 50% 40%,transparent 45%,rgba(8,14,24,.68) 100%)}
-/* Orbs */
-.is-orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(80px);z-index:0}
-.is-orb1{width:500px;height:300px;background:rgba(30,107,90,.12);top:5%;left:-8%;animation:o1 18s ease-in-out infinite alternate}
-.is-orb2{width:450px;height:340px;background:rgba(59,110,224,.09);bottom:10%;right:-6%;animation:o2 22s ease-in-out infinite alternate}
-.is-orb3{width:320px;height:200px;background:rgba(201,168,76,.07);top:50%;left:52%;animation:o3 16s ease-in-out infinite alternate}
-@keyframes o1{from{transform:translate(0,0) scale(1)}to{transform:translate(36px,-24px) scale(1.12)}}
-@keyframes o2{from{transform:translate(0,0) scale(1)}to{transform:translate(-40px,18px) scale(1.09)}}
-@keyframes o3{from{transform:translate(0,0) scale(1)}to{transform:translate(-24px,-32px) scale(1.07)}}
-.intake-section-inner{position:relative;z-index:10;max-width:600px;margin:0 auto}
-.is-header{text-align:center;margin-bottom:28px;animation:is-rise .9s var(--pop) both}
-@keyframes is-rise{from{opacity:0;transform:translateY(20px);filter:blur(3px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
-.is-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(235,244,255,.30);margin-bottom:8px;display:block}
-.is-hl{font-family:var(--serif);font-size:1.875rem;font-weight:700;color:var(--on-dark);letter-spacing:-.025em;line-height:1.20;margin-bottom:8px}
-.is-hl span{color:var(--green);text-shadow:0 0 24px rgba(30,184,122,.35)}
-.is-sub{font-size:.875rem;color:var(--on-dark-2);line-height:1.68}
-
-/* Step indicator */
-.step-indicator{margin-bottom:18px;text-align:center}
-.si-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(235,244,255,.26);margin-bottom:10px;display:block}
-.si-dots{display:flex;justify-content:center;align-items:center;gap:6px;margin-bottom:10px}
-.si-dot{width:28px;height:4px;border-radius:2px;background:rgba(255,255,255,.09);transition:all .5s var(--pop)}
-.si-dot.done{background:rgba(30,184,122,.50)}
-.si-dot.active{background:var(--gold);width:40px;box-shadow:0 0 10px rgba(201,168,76,.50)}
-.si-bar-wrap{position:relative;height:2px;background:rgba(255,255,255,.06);border-radius:1px;overflow:visible;box-shadow:inset 0 1px 2px rgba(0,0,0,.20)}
-.si-bar-fill{height:100%;border-radius:1px;background:linear-gradient(90deg,var(--gold-dk),var(--gold) 60%,rgba(255,230,130,.90));transition:width .8s var(--pop);box-shadow:0 0 8px rgba(201,168,76,.55);position:relative;overflow:hidden}
-.si-bar-fill::before{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:shimmer 2.8s ease-in-out infinite}
-@keyframes shimmer{0%{left:-100%}100%{left:200%}}
-.si-bar-fill::after{content:"";position:absolute;right:-3px;top:-3.5px;width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px 4px rgba(201,168,76,.65)}
-
-/* Card */
-.card{background:linear-gradient(160deg,rgba(255,255,255,.044),rgba(255,255,255,.020));border:1px solid rgba(255,255,255,.10);border-radius:16px;backdrop-filter:blur(28px) saturate(1.4);box-shadow:0 0 0 1px rgba(255,255,255,.05),0 4px 12px rgba(0,0,0,.25),0 20px 60px rgba(0,0,0,.36),0 50px 120px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(0,0,0,.12);overflow:hidden;position:relative;animation:is-rise .9s var(--pop) .15s both}
-.card::before{content:"";position:absolute;top:0;left:0;right:0;height:2.5px;z-index:2;background:linear-gradient(90deg,var(--gold-dk) 0%,var(--gold) 40%,rgba(201,168,76,.10) 100%)}
-.card::after{content:"";position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.36),transparent);filter:blur(2px)}
-
-/* Steps */
-.step{display:none;padding:28px 30px 22px;animation:step-in .42s var(--pop) both}
-.step.active{display:block}
-.step.exit{animation:step-out .26s ease both}
-@keyframes step-in{from{opacity:0;transform:translateX(14px);filter:blur(2px)}to{opacity:1;transform:translateX(0);filter:blur(0)}}
-@keyframes step-out{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-14px)}}
-.step-icon{font-size:1.875rem;margin-bottom:9px;display:block;line-height:1;animation:icon-settle .6s var(--pop) both}
-@keyframes icon-settle{from{opacity:0;transform:scale(.70)}to{opacity:1;transform:scale(1)}}
-.step-label{font-size:.4375rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.step-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(201,168,76,.30),transparent)}
-.step-title{font-family:var(--serif);font-size:1.375rem;font-weight:700;color:var(--on-dark);letter-spacing:-.025em;line-height:1.20;margin-bottom:5px}
-.step-sub{font-size:.8125rem;color:var(--on-dark-2);line-height:1.68;margin-bottom:20px}
-
-/* Options */
-.opt-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
-.opt-list{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
-.opt-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:20px}
-.opt{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.09);border-radius:11px;padding:12px 13px;cursor:pointer;text-align:left;transition:all .22s var(--pop);display:flex;align-items:center;gap:10px;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(8px)}
-.opt::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);pointer-events:none}
-.opt:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.20)}
-.opt.selected{background:rgba(30,107,90,.13);border-color:rgba(30,184,122,.42);box-shadow:0 0 0 1px rgba(30,184,122,.22),0 4px 20px rgba(30,184,122,.12),inset 0 1px 0 rgba(30,184,122,.08)}
-.opt.center{flex-direction:column;align-items:center;text-align:center;padding:14px 8px;gap:4px}
-.opt.list-item{padding:12px 14px}
-.opt-emoji{font-size:1.375rem;flex-shrink:0;line-height:1}
-.opt-center-emoji{font-size:1.125rem;line-height:1}
-.opt-name{font-size:.9375rem;font-weight:700;color:var(--on-dark-2);line-height:1.2;display:block;transition:color .2s ease}
-.opt.selected .opt-name{color:var(--on-dark)}
-.opt.center .opt-name{font-size:.75rem}
-.opt-desc{font-size:.5625rem;color:var(--on-dark-3);margin-top:2px;line-height:1.45;display:block;transition:color .2s ease}
-.opt.selected .opt-desc{color:rgba(235,244,255,.45)}
-.opt-check{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.5);transition:all .28s var(--pop);box-shadow:0 2px 8px rgba(30,184,122,.40)}
-.opt.selected .opt-check{opacity:1;transform:scale(1)}
-.opt-check svg{width:10px;height:10px;stroke:white;stroke-width:2.5;fill:none}
-
-/* Chips */
-.concern-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:20px}
-.chip{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.09);border-radius:10px;padding:11px 12px;cursor:pointer;transition:all .20s var(--pop);display:flex;align-items:flex-start;gap:9px;-webkit-tap-highlight-color:transparent;position:relative;overflow:hidden}
-.chip::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);pointer-events:none}
-.chip:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.17)}
-.chip.selected{background:rgba(30,107,90,.11);border-color:rgba(30,184,122,.38)}
-.chip-box{width:17px;height:17px;border-radius:4px;border:1.5px solid rgba(255,255,255,.18);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .22s var(--pop);background:rgba(255,255,255,.03)}
-.chip.selected .chip-box{background:var(--green);border-color:var(--green);box-shadow:0 2px 8px rgba(30,184,122,.35)}
-.chip-box svg{width:9px;height:9px;stroke:white;stroke-width:2.5;fill:none;opacity:0;transform:scale(.4);transition:all .22s var(--pop)}
-.chip.selected .chip-box svg{opacity:1;transform:scale(1)}
-.chip-name{font-size:.75rem;font-weight:600;color:var(--on-dark-2);line-height:1.35;transition:color .2s ease}
-.chip.selected .chip-name{color:var(--on-dark)}
-/* Recommended chip highlight */
-.chip.chip-rec{border-color:rgba(30,184,122,.22);background:rgba(30,107,90,.07)}
-.chip.chip-rec:hover{border-color:rgba(30,184,122,.40);background:rgba(30,107,90,.13)}
-/* Concern section headers (Recommended / Other) */
-.concern-sec-hdr{grid-column:1/-1;font-size:.4375rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:4px 2px 2px;display:flex;align-items:center;gap:6px;line-height:1}
-.csh-rec{color:var(--green);margin-top:4px}
-.csh-other{color:rgba(235,244,255,.28);margin-top:8px;border-top:1px solid rgba(255,255,255,.07);padding-top:10px}
-.csh-dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 6px rgba(30,184,122,.6)}
-.csh-ctx{font-weight:500;letter-spacing:.04em;text-transform:none;color:rgba(30,184,122,.70);font-size:.4rem}
-
-/* Form fields */
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:12px}
-.field-row.full{grid-template-columns:1fr}
-.field-label{font-size:.4375rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:6px;display:block}
-.field input,.field select{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.11);border-radius:10px;padding:13px 15px;font-family:var(--sans);font-size:.9375rem;font-weight:500;color:var(--on-dark);outline:none;transition:all .22s ease;-webkit-appearance:none;appearance:none;backdrop-filter:blur(8px)}
-.field input::placeholder{color:rgba(235,244,255,.20)}
-.field input:focus,.field select:focus{border-color:rgba(201,168,76,.55);background:rgba(255,255,255,.07);box-shadow:0 0 0 3px rgba(201,168,76,.12),0 2px 8px rgba(0,0,0,.14)}
-.field select option{background:#1C2B48;color:white}
-.field textarea{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.11);border-radius:10px;padding:13px 15px;font-family:var(--sans);font-size:.9375rem;color:var(--on-dark);outline:none;transition:all .22s ease;resize:vertical;min-height:84px;line-height:1.65;backdrop-filter:blur(8px)}
-.field textarea::placeholder{color:rgba(235,244,255,.20)}
-.field textarea:focus{border-color:rgba(201,168,76,.55);background:rgba(255,255,255,.07);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
-.email-hint{font-size:.5rem;font-weight:600;color:rgba(224,59,59,.75);margin-top:4px;display:none}
-.email-hint.show{display:block}
-.optional-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;background:rgba(255,255,255,.06);font-size:.375rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--on-dark-3);margin-left:6px;vertical-align:middle}
-.other-entry{display:none;margin-top:-8px;margin-bottom:18px}
-.other-entry.show{display:grid}
-
-/* Upload */
-.upload-zone{border:2px dashed rgba(255,255,255,.13);border-radius:12px;padding:26px 18px;text-align:center;cursor:pointer;transition:all .28s var(--ease);margin-bottom:11px;position:relative;background:rgba(255,255,255,.02);backdrop-filter:blur(8px)}
-.upload-zone:hover,.upload-zone.drag{border-color:rgba(201,168,76,.45);background:rgba(201,168,76,.05);box-shadow:0 0 0 3px rgba(201,168,76,.08)}
-.upload-zone.has-file{border-color:rgba(30,184,122,.45);background:rgba(30,184,122,.06);border-style:solid;box-shadow:0 0 0 3px rgba(30,184,122,.08)}
-.uz-icon{font-size:1.75rem;margin-bottom:7px;display:block;line-height:1}
-.uz-title{font-size:.875rem;font-weight:700;color:var(--on-dark-2);margin-bottom:3px}
-.uz-sub{font-size:.5625rem;color:var(--on-dark-3);line-height:1.55}
-.uz-badge{display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:3px 10px;background:rgba(30,184,122,.12);border:1px solid rgba(30,184,122,.25);border-radius:100px;font-size:.4375rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--green)}
-.uz-badge svg{width:8px;height:8px;stroke:var(--green);stroke-width:2;fill:none}
-.uz-input{position:absolute;inset:0;opacity:0;cursor:pointer}
-.uz-filename{font-family:var(--mono);font-size:.5rem;color:var(--green);margin-top:5px}
-.scan-result{display:none;margin-top:10px;border:1px solid rgba(30,184,122,.24);background:rgba(30,184,122,.07);border-radius:10px;padding:11px 13px;text-align:left}
-.scan-result.show{display:block}
-.scan-kicker{font-size:.43rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--green);margin-bottom:6px}
-.scan-title{font-size:.78rem;font-weight:800;color:var(--on-dark);line-height:1.35;margin-bottom:7px}
-.scan-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:7px}
-.scan-field{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:7px 8px}
-.scan-field span{display:block;font-size:.38rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-3);margin-bottom:2px}
-.scan-field strong{display:block;font-size:.68rem;color:var(--on-dark-2);line-height:1.35;overflow-wrap:anywhere}
-.scan-result.warn{border-color:rgba(240,165,0,.28);background:rgba(240,165,0,.08)}
-.scan-result.warn .scan-kicker{color:var(--gold)}
-
-/* Calm banner */
-.calm-banner{background:rgba(30,107,90,.08);border:1px solid rgba(30,184,122,.18);border-radius:10px;padding:13px 14px;display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;position:relative;overflow:hidden}
-.calm-banner::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 200px 80px at 0% 50%,rgba(30,184,122,.06) 0%,transparent 60%);pointer-events:none}
-.calm-icon{font-size:1.0625rem;flex-shrink:0;margin-top:1px;position:relative;z-index:1}
-.calm-text{font-size:.75rem;color:var(--on-dark-2);line-height:1.65;position:relative;z-index:1}
-.calm-text strong{color:var(--on-dark);font-weight:700}
-
-/* Summary */
-.summary{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:14px 16px;margin-bottom:16px;backdrop-filter:blur(12px)}
-.sum-row{display:flex;align-items:baseline;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
-.sum-row:last-child{border-bottom:none}
-.sum-label{font-size:.4375rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-3)}
-.sum-val{font-size:.75rem;font-weight:700;color:var(--on-dark-2);text-align:right;max-width:60%}
-.sum-val.green{color:var(--green)}
-
-/* Nav buttons */
-.nav-btns{display:flex;align-items:center;justify-content:space-between;padding:16px 30px 24px;border-top:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.08)}
-.btn-back{display:flex;align-items:center;gap:7px;font-family:var(--sans);font-size:.875rem;font-weight:600;color:var(--on-dark-3);background:none;border:none;cursor:pointer;padding:12px 0;transition:all .20s ease;-webkit-tap-highlight-color:transparent}
-.btn-back svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;transition:transform .2s ease}
-.btn-back:hover{color:var(--on-dark-2)}
-.btn-back:hover svg{transform:translateX(-3px)}
-.btn-next{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-size:.9375rem;font-weight:700;color:white;background:linear-gradient(135deg,var(--green-dk),var(--green));border:none;border-radius:100px;padding:12px 26px;cursor:pointer;letter-spacing:.01em;transition:all .22s var(--pop);box-shadow:0 4px 20px rgba(30,184,122,.40),0 0 0 1px rgba(30,184,122,.25);-webkit-tap-highlight-color:transparent}
-.btn-next:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 6px 28px rgba(30,184,122,.55)}
-.btn-next:disabled{background:rgba(255,255,255,.09);box-shadow:none;color:rgba(235,244,255,.28);cursor:not-allowed;transform:none}
-.btn-next svg{width:15px;height:15px;stroke:white;stroke-width:2.5;fill:none}
-.btn-submit{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font-family:var(--sans);font-size:1rem;font-weight:800;color:white;background:linear-gradient(135deg,var(--green-dk),var(--green) 60%);border:none;border-radius:100px;padding:15px 30px;cursor:pointer;letter-spacing:.01em;transition:all .22s var(--pop);box-shadow:0 4px 24px rgba(30,184,122,.45),0 8px 48px rgba(30,184,122,.22),0 0 0 1px rgba(30,184,122,.28);-webkit-tap-highlight-color:transparent;animation:sbglow 3s ease-in-out infinite;margin-top:4px}
-@keyframes sbglow{0%,100%{box-shadow:0 4px 24px rgba(30,184,122,.45),0 8px 48px rgba(30,184,122,.22),0 0 0 1px rgba(30,184,122,.28)}50%{box-shadow:0 6px 32px rgba(30,184,122,.65),0 12px 60px rgba(30,184,122,.32),0 0 0 1px rgba(30,184,122,.50)}}
-.btn-submit:hover{transform:translateY(-2px)}
-.btn-submit svg{width:17px;height:17px;stroke:white;stroke-width:2.5;fill:none}
-
-/* Tagline under intake */
-.is-tagline{margin-top:20px;text-align:center}
-.tg-txt{font-family:var(--serif);font-size:.8125rem;font-style:italic;color:rgba(235,244,255,.22);margin-bottom:7px;display:block}
-.tg-calm{font-size:.625rem;color:rgba(235,244,255,.26);line-height:1.70;max-width:420px;margin:0 auto 8px}
-
-/* ═══════════════════════════════════
-   FOOTER
-═══════════════════════════════════ */
-.footer{background:white;border-top:1px solid var(--bdr);padding:28px 40px;text-align:center}
-.footer-inner{max-width:800px;margin:0 auto}
-.footer-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
-.footer-logo-shield{width:28px;height:28px}
-.footer-logo-shield svg{width:100%;height:100%}
-.footer-logo-name{font-family:var(--serif);font-size:.9375rem;font-weight:700;color:var(--navy)}
-.footer-logo-name sub{font-size:.4rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-4);display:block;margin-top:1px}
-.footer-disc{font-size:.4375rem;color:var(--ink-4);line-height:1.68;margin-bottom:8px}
-.footer-copy{font-size:.4375rem;color:var(--ink-4)}
-@keyframes spin{to{transform:rotate(360deg)}}
-@media (max-width:600px){
-html,body{max-width:100%;overflow-x:hidden}
-.nav{height:auto;min-height:60px;padding:0 16px;gap:10px;flex-wrap:wrap}
-.btn-primary{margin-left:0;padding:9px 14px;font-size:.75rem}
-.banner{padding:9px 14px;font-size:.6875rem}
-.hero,.section,.data-section,.quick-q,.examine-section,.steps-section,.comparison-section,.findings-section,.scenarios-section,.expect-section,.editorial-section,.intake-section{padding-left:20px;padding-right:20px}
-.hero{padding-top:64px}
-.hero-hl{font-size:2.12rem;max-width:12ch}
-.hero-microcopy,.hero-stats{max-width:100%}
-.hero-stats{grid-template-columns:1fr}
-.hero-stat{border-right:none;border-bottom:1px solid var(--bdr)}
-.hero-stat:last-child{border-bottom:none}
-.issue-selector{padding:28px 20px 32px}
-.issue-selector-title{font-size:1.35rem}
-.issue-selector-grid{grid-template-columns:1fr}
-.issue-card{min-height:0}
-.research-grid{grid-template-columns:1fr;gap:10px}
-.research-card,.rc-header>div{min-width:0}
-.rc-source,.rc-citation,.rc-desc,.rd-txt{overflow-wrap:anywhere}
-.rc-pair{flex-wrap:wrap}
-.examine-grid,.steps-grid,.scenarios-grid,.concern-grid,.field-row,.opt-grid-2,.opt-grid-3{grid-template-columns:1fr}
-.sc-num::after{display:none}
-/* ── Comparison: mobile two-column redesign ─────────────────────────────
-   On ≤600px the three-column grid collapses to a scannable two-column
-   layout: situation title spans full width, then On Your Own | With UPA
-   sit side-by-side in a 1:1.2 split so the UPA column has visual weight.
-   ─────────────────────────────────────────────────────────────────────── */
-.comparison-section{padding:40px 16px 36px}
-.comp-table{max-width:100%;border-radius:14px}
-/* Header — hide "The Situation" label; show only column labels */
-.ct-head{display:grid;grid-template-columns:1fr 1.2fr}
-.ct-head-cell:first-child{display:none}
-.ct-head-cell:nth-child(2){border-right:1px solid var(--bdr);padding:11px 13px;font-size:.425rem;letter-spacing:.09em}
-.ct-head-cell:last-child{background:var(--teal);color:rgba(255,255,255,.92);border-right:none;padding:11px 13px;font-size:.425rem;letter-spacing:.09em;display:block}
-.ct-rec{display:inline-flex;flex-wrap:wrap;margin-top:5px;font-size:.3rem}
-/* Feature rows: situation title full-width, compare cells two-column */
-.ct-row{display:grid;grid-template-columns:1fr 1.2fr;grid-template-rows:auto auto;background:white}
-.ct-row:last-of-type{border-bottom:none}
-.ct-cell{padding:10px 12px;font-size:.5rem;border-bottom:none}
-.ct-cell:first-child{grid-column:1/-1;grid-row:1;border-right:none;border-bottom:1px solid rgba(28,43,72,.07);background:#F7F9FC;padding:10px 14px}
-.ct-cell:first-child .ct-cell-title{font-size:.8rem}
-.ct-cell:first-child>div:nth-child(2){display:none}
-.ct-cell:nth-child(2){grid-column:1;grid-row:2;border-right:1px solid var(--bdr);background:rgba(224,59,59,.025)}
-.ct-cell:last-child{grid-column:2;grid-row:2;border-right:none;background:rgba(30,107,90,.04)}
-.ct-x-icon,.ct-check-icon{width:16px;height:16px;flex-shrink:0}
-.ct-x-icon svg,.ct-check-icon svg{width:9px;height:9px}
-/* Outcome row */
-.ct-outcome{display:grid;grid-template-columns:1fr 1.2fr;grid-template-rows:auto auto}
-.cto-label{grid-column:1/-1;grid-row:1;padding:8px 14px 3px;font-size:.4375rem}
-.cto-bad{grid-column:1;grid-row:2;border-right:1px solid rgba(255,255,255,.09);padding:10px 13px;font-size:.5625rem}
-.cto-good{grid-column:2;grid-row:2;padding:10px 13px;font-size:.75rem}
-/* CTA box */
-.comp-cta-box{flex-direction:column;align-items:flex-start;gap:14px;padding:20px 18px}
-.ccb-title{font-size:.875rem}
-.ccb-btn{width:100%;justify-content:center;padding:13px 20px}
-.expect-item{flex-wrap:wrap}
-.ei-badge{margin-left:46px}
-.is-orb{display:none}
-.step{padding:24px 20px 20px}
-.nav-btns{padding:14px 20px 22px}
+/* ── Responsive ── */
+@media(max-width:920px){
+  .hero-inner{grid-template-columns:1fr;gap:38px}
+  .hero-visual{order:-1}
+  .offer-grid{grid-template-columns:1fr}
+  .proof-inner{grid-template-columns:1fr;gap:18px}
+  .steps{grid-template-columns:1fr}
+  .col-7,.col-5,.col-4,.col-6{grid-column:span 12}
+}
+@media(max-width:560px){
+  .wrap{padding:0 20px}
+  .nav-inner{padding:12px 20px}
+  .hero h1{font-size:2.35rem}
+  .hero-sub{font-size:1.05rem}
+  .price-amt{font-size:3rem}
 }
 </style>
 </head>
 <body>
 
-<!-- ANNOUNCEMENT BANNER -->
-<div class="banner">🔥 <strong></strong> Dispute letter + appeal template + call script + CPT guide + action plan. Launch price only.</div>
+<!-- STICKY TOP REGION -->
+<div class="topwrap">
+<!-- LAUNCH BANNER -->
+<div class="topbar"><span class="topbar-tag">Launch pricing</span> $97 flat to review your bill. <strong>Free scan first, pay only if you proceed.</strong></div>
 
 <!-- NAV -->
-<div class="nav">
-  <a href="javascript:void(0)" class="nav-brand">
-    <div class="nav-shield">
-      <img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate">
-    </div>
-    <div>
-      <div class="nav-name">United Patient<span style="display:block;font-size:.9rem">Advocate</span></div>
-    </div>
-  </a>
-  <div class="nav-spacer"></div>
-  <a href="/UPA-Final/00_upa-scan.html" class="btn-primary"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;stroke-width:2.2;fill:none;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Scan My Bill Free</a>
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="javascript:void(0)" aria-label="United Patient Advocate">
+      <span class="brand-logo"><img src="Transparent.png" alt="United Patient Advocate"></span>
+      <span>
+        <span class="brand-name">United Patient Advocate</span>
+        <span class="brand-sub">Billing Review</span>
+      </span>
+    </a>
+    <span class="nav-spacer"></span>
+    <a class="btn btn-primary btn-sm" href="00_upa-scan.html">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Scan my bill free
+    </a>
+  </div>
+</nav>
 </div>
 
-<!-- ═══ HERO ═══ -->
-<div class="hero">
-  <div class="hero-eyebrow">Free Medical Bill Scan · Independent Dispute Documentation</div>
-  <div class="hero-hl phase4-hero-hl">Medical Bills Are Negotiable.<br><em>Most People Never Know.</em></div>
-  <p class="hero-sub phase4-hero-sub">We review your bill line by line and generate your complete dispute package — one flat fee, no percentage taken.</p>
-  <a href="/UPA-Final/00_upa-scan.html" class="hero-cta">
-    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    Scan My Bill Free — See What We Find
-  </a>
-  <a href="#begin-review" class="hero-cta-secondary">No bill yet? Start with the review form →</a>
-  <div class="hero-microcopy">
-    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/></svg> No account required</span>
-    <span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 100% confidential</span>
-  </div>
-  <div class="hero-stats">
-    <div class="hero-stat"><div class="hs-val">$88B</div><div class="hs-label">in billing errors on U.S. credit reports</div><div class="hs-source">CFPB · 2025</div></div>
-    <div class="hero-stat"><div class="hs-val">45%</div><div class="hs-label">of insured patients reported unexpected bills</div><div class="hs-source">Commonwealth Fund · 2024</div></div>
-    <div class="hero-stat"><div class="hs-val">&lt;30s</div><div class="hs-label">to scan your bill and identify findings</div><div class="hs-source">United Patient Advocate</div></div>
-    <div class="hero-stat"><div class="hs-val"></div><div class="hs-label"></div><div class="hs-source"></div></div>
-  </div>
-  <div style="max-width:1120px;margin:34px auto 0;padding:0 6px;border-radius:22px;overflow:hidden;box-shadow:0 14px 46px rgba(28,43,72,.14);border:1px solid rgba(28,43,72,.08)">
-    <svg viewBox="0 0 1600 700" role="img" aria-label="Complete Bill Defense Toolkit — a five-step system: See what's wrong, Take action, Stay on track, Fast start, Workspace" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="lhbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EEF2F7"/><stop offset="1" stop-color="#F7F9FC"/></linearGradient>
-        <filter id="lhsh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#0E1828" flood-opacity=".16"/></filter>
-      </defs>
-      <rect width="1600" height="700" fill="url(#lhbg)"/>
-      <g filter="url(#lhsh)"><rect x="400" y="60" width="800" height="316" rx="30" fill="#1C2B48"/></g>
-      <rect x="440" y="100" width="720" height="236" rx="24" fill="none" stroke="#C9A84C" stroke-opacity=".38"/>
-      <text x="800" y="174" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="18" font-weight="700" fill="#C9A84C" letter-spacing="4">PLAIN ENGLISH · READY TODAY</text>
-      <text x="800" y="244" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="50" font-weight="700" fill="#FFFFFF">Complete Bill</text>
-      <text x="800" y="302" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="50" font-weight="700" fill="#FFFFFF">Defense Toolkit</text>
-      <text x="800" y="348" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="19" fill="#9FB3CC">See what's wrong · Take action · Stay on track</text>
-      <line x1="160" y1="510" x2="1440" y2="510" stroke="#C9D4E0" stroke-width="3"/>
-      <g font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
-        <circle cx="160" cy="510" r="34" fill="#1E6B5A"/><text x="160" y="520" text-anchor="middle" font-size="26" font-weight="800" fill="#FFFFFF">1</text><text x="160" y="592" text-anchor="middle" font-size="21" font-weight="700" fill="#1C2B48">See What's Wrong</text><text x="160" y="620" text-anchor="middle" font-size="14" fill="#5A6E88">Understand it</text>
-        <circle cx="480" cy="510" r="34" fill="#C9A84C"/><text x="480" y="520" text-anchor="middle" font-size="26" font-weight="800" fill="#1C2B48">2</text><text x="480" y="592" text-anchor="middle" font-size="21" font-weight="700" fill="#1C2B48">Take Action</text><text x="480" y="620" text-anchor="middle" font-size="14" fill="#5A6E88">Send the move</text>
-        <circle cx="800" cy="510" r="34" fill="#1EB87A"/><text x="800" y="520" text-anchor="middle" font-size="26" font-weight="800" fill="#FFFFFF">3</text><text x="800" y="592" text-anchor="middle" font-size="21" font-weight="700" fill="#1C2B48">Stay On Track</text><text x="800" y="620" text-anchor="middle" font-size="14" fill="#5A6E88">Hit deadlines</text>
-        <circle cx="1120" cy="510" r="34" fill="#1C2B48"/><text x="1120" y="520" text-anchor="middle" font-size="26" font-weight="800" fill="#FFFFFF">4</text><text x="1120" y="592" text-anchor="middle" font-size="21" font-weight="700" fill="#1C2B48">Fast Start</text><text x="1120" y="620" text-anchor="middle" font-size="14" fill="#5A6E88">Begin calmly</text>
-        <circle cx="1440" cy="510" r="34" fill="#243058"/><text x="1440" y="520" text-anchor="middle" font-size="26" font-weight="800" fill="#FFFFFF">5</text><text x="1440" y="592" text-anchor="middle" font-size="21" font-weight="700" fill="#1C2B48">Workspace</text><text x="1440" y="620" text-anchor="middle" font-size="14" fill="#5A6E88">One place</text>
-      </g>
-    </svg>
-  </div>
-</div>
-
-<!-- WHAT YOU GET — accurate 5-pillar system, the real 10 deliverables (inline SVG) -->
-<div style="padding:42px 40px 28px;background:linear-gradient(180deg,#F7F9FC 0%,#EEF2F7 100%);border-top:1px solid rgba(28,43,72,.08);border-bottom:1px solid rgba(28,43,72,.08)">
-  <div style="max-width:1120px;margin:0 auto;border-radius:18px;overflow:hidden;background:#fff;border:1px solid rgba(28,43,72,.08);box-shadow:0 10px 30px rgba(28,43,72,.08)">
-    <svg viewBox="0 0 1400 980" role="img" aria-label="What you get today: ten tools across five pillars — See What's Wrong, Take Action, Stay On Track, Fast Start, and Workspace" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">
-      <defs><filter id="gsh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0E1828" flood-opacity=".10"/></filter></defs>
-      <rect width="1400" height="980" fill="#FFFFFF"/>
-      <text x="70" y="74" font-family="Georgia, 'Times New Roman', serif" font-size="36" font-weight="700" fill="#1C2B48">What You Get Today</text>
-      <text x="70" y="112" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="17" fill="#4A6480">Ten tools, organized into one calm system — every one personalized to your case.</text>
-      <rect x="1060" y="46" width="270" height="40" rx="20" fill="#C9A84C" fill-opacity=".14" stroke="#C9A84C" stroke-opacity=".42"/>
-      <text x="1195" y="72" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="14" font-weight="700" fill="#9A7B25"></text>
-      <g font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
-        <!-- Card 1: See What's Wrong -->
-        <g filter="url(#gsh)"><rect x="70" y="160" width="400" height="380" rx="20" fill="#FFFFFF" stroke="#D8E0EC"/></g>
-        <rect x="70" y="160" width="400" height="58" rx="20" fill="#1E6B5A"/>
-        <text x="98" y="197" font-size="22" font-weight="800" fill="#FFFFFF">See What's Wrong</text>
-        <text x="442" y="197" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="700" fill="#FFFFFF" fill-opacity=".82">2 ITEMS</text>
-        <text x="98" y="266" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#2E4060">Understand the problem clearly</text>
-        <line x1="98" y1="286" x2="442" y2="286" stroke="#EEF2F7" stroke-width="2"/>
-        <circle cx="106" cy="323" r="5" fill="#1E6B5A"/><text x="124" y="328" font-size="15.5" fill="#314866">Personalized Findings Report</text>
-        <circle cx="106" cy="365" r="5" fill="#1E6B5A"/><text x="124" y="370" font-size="15.5" fill="#314866">Patient Rights &amp; Billing Guide</text>
-        <!-- Card 2: Take Action -->
-        <g filter="url(#gsh)"><rect x="500" y="160" width="400" height="380" rx="20" fill="#FFFFFF" stroke="#D8E0EC"/></g>
-        <rect x="500" y="160" width="400" height="58" rx="20" fill="#C9A84C"/>
-        <text x="528" y="197" font-size="22" font-weight="800" fill="#1C2B48">Take Action</text>
-        <text x="872" y="197" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="700" fill="#1C2B48" fill-opacity=".7">3 ITEMS</text>
-        <text x="528" y="266" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#2E4060">Send the right next move</text>
-        <line x1="528" y1="286" x2="872" y2="286" stroke="#EEF2F7" stroke-width="2"/>
-        <circle cx="536" cy="323" r="5" fill="#C9A84C"/><text x="554" y="328" font-size="15.5" fill="#314866">Ready-to-Send Appeal Letters</text>
-        <circle cx="536" cy="365" r="5" fill="#C9A84C"/><text x="554" y="370" font-size="15.5" fill="#314866">Insurer &amp; Provider Call Scripts</text>
-        <circle cx="536" cy="407" r="5" fill="#C9A84C"/><text x="554" y="412" font-size="15.5" fill="#314866">Escalation Playbook</text>
-        <!-- Card 3: Stay On Track -->
-        <g filter="url(#gsh)"><rect x="930" y="160" width="400" height="380" rx="20" fill="#FFFFFF" stroke="#D8E0EC"/></g>
-        <rect x="930" y="160" width="400" height="58" rx="20" fill="#1EB87A"/>
-        <text x="958" y="197" font-size="22" font-weight="800" fill="#0E1828">Stay On Track</text>
-        <text x="1302" y="197" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="700" fill="#0E1828" fill-opacity=".72">2 ITEMS</text>
-        <text x="958" y="266" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#2E4060">Stay organized and on deadline</text>
-        <line x1="958" y1="286" x2="1302" y2="286" stroke="#EEF2F7" stroke-width="2"/>
-        <circle cx="966" cy="323" r="5" fill="#1EB87A"/><text x="984" y="328" font-size="15.5" fill="#314866">Appeal Deadline Tracker</text>
-        <circle cx="966" cy="365" r="5" fill="#1EB87A"/><text x="984" y="370" font-size="15.5" fill="#314866">Evidence Checklist</text>
-        <!-- Card 4: Fast Start -->
-        <g filter="url(#gsh)"><rect x="285" y="576" width="400" height="380" rx="20" fill="#FFFFFF" stroke="#D8E0EC"/></g>
-        <rect x="285" y="576" width="400" height="58" rx="20" fill="#1C2B48"/>
-        <text x="313" y="613" font-size="22" font-weight="800" fill="#FFFFFF">Fast Start</text>
-        <text x="657" y="613" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="700" fill="#FFFFFF" fill-opacity=".82">1 ITEM</text>
-        <text x="313" y="682" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#2E4060">Start calmly and immediately</text>
-        <line x1="313" y1="702" x2="657" y2="702" stroke="#EEF2F7" stroke-width="2"/>
-        <circle cx="321" cy="739" r="5" fill="#1C2B48"/><text x="339" y="744" font-size="15.5" fill="#314866">Quick Start Guide</text>
-        <!-- Card 5: Workspace -->
-        <g filter="url(#gsh)"><rect x="715" y="576" width="400" height="380" rx="20" fill="#FFFFFF" stroke="#D8E0EC"/></g>
-        <rect x="715" y="576" width="400" height="58" rx="20" fill="#243058"/>
-        <text x="743" y="613" font-size="22" font-weight="800" fill="#FFFFFF">Workspace</text>
-        <text x="1087" y="613" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="700" fill="#FFFFFF" fill-opacity=".82">2 ITEMS</text>
-        <text x="743" y="682" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#2E4060">Keep everything in one place</text>
-        <line x1="743" y1="702" x2="1087" y2="702" stroke="#EEF2F7" stroke-width="2"/>
-        <circle cx="751" cy="739" r="5" fill="#243058"/><text x="769" y="744" font-size="15.5" fill="#314866">Your Patient Command Center</text>
-        <circle cx="751" cy="781" r="5" fill="#243058"/><text x="769" y="786" font-size="15.5" fill="#314866">Complete Case Packet (PDF)</text>
-      </g>
-    </svg>
-  </div>
-</div>
-
-<!-- TRUST STRIP -->
-<div style="padding:20px 40px;background:#fff;border-top:1px solid rgba(28,43,72,.08);border-bottom:1px solid rgba(28,43,72,.08)">
-  <div style="max-width:1120px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center">
-    <div style="font-size:.6875rem;font-weight:800;letter-spacing:.20em;text-transform:uppercase;color:#7A98B0">Independent advocacy · not affiliated with any insurer or hospital</div>
-    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">
-      <span style="padding:7px 11px;border-radius:999px;background:#F7F9FC;border:1px solid rgba(28,43,72,.10);font-size:.75rem;line-height:1.2;color:#2E4060;font-weight:600">✓ Independent billing review documentation</span>
-      <span style="padding:7px 11px;border-radius:999px;background:#F7F9FC;border:1px solid rgba(28,43,72,.10);font-size:.75rem;line-height:1.2;color:#2E4060;font-weight:600">✓ Based on public CMS / Medicare / EOB references</span>
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <span class="eyebrow">Independent Billing Review</span>
+      <h1>See what is really on your <em>medical bill.</em></h1>
+      <p class="hero-sub">We read your bill line by line and build your complete dispute package. One flat fee. You keep everything you save.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="00_upa-scan.html">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Scan my bill free
+        </a>
+        <a class="btn btn-ghost" href="#offer">See what is included</a>
+      </div>
+      <p class="hero-reassure">See your real findings free before you pay. You only buy the full package if the scan surfaces something worth acting on.</p>
+      <div class="hero-note">
+        <span><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Your bill is encrypted and never shared. No account needed.</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-frame">
+        <span class="hero-glow"></span>
+        <img src="assets/visuals/06-premium-glassmorphism-system.jpg" alt="A layered set of secured billing documents marked with shield and check seals">
+      </div>
+      <div class="hero-chip">
+        <span class="shield shield-badge"><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg></span>
+        <span>
+          <span class="hero-chip-t">Your complete dispute package</span>
+          <span class="hero-chip-s">Personalized to your bill</span>
+        </span>
+      </div>
     </div>
   </div>
-</div>
+</header>
+
+<!-- PROOF STRIP -->
+<section class="proof">
+  <div class="proof-inner">
+    <div class="proof-item">
+      <span class="shield shield-badge"><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg></span>
+      <span class="proof-t">Every line item reviewed against publicly available pricing references.<span class="proof-cite">Public CMS references</span></span>
+    </div>
+    <div class="proof-item">
+      <span class="shield shield-badge"><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg></span>
+      <span class="proof-t">Billing errors on consumer records are a known, documented problem.<span class="proof-cite">CFPB reporting</span></span>
+    </div>
+    <div class="proof-item">
+      <span class="shield shield-badge"><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg></span>
+      <span class="proof-t">Independent service. Not affiliated with any insurer or hospital.<span class="proof-cite">United Patient Advocate</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT YOU GET -->
+<section class="section" id="included">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow">What you get</span>
+      <h2 class="h2">One calm system, <em>built around your bill.</em></h2>
+      <p class="lead">Every tool is prepared from your own charges, organized so you always know the next step.</p>
+    </div>
+    <div class="pillars">
+      <article class="card col-7">
+        <div class="card-head">
+          <span class="shield shield-badge"><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg></span>
+          <div><div class="card-kicker">See what is wrong</div><h3>Understand your bill clearly</h3></div>
+        </div>
+        <p>We walk every charge and surface the items worth questioning, in plain language you can act on.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Personalized findings report</li>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Patient rights and billing guide</li>
+        </ul>
+      </article>
+      <article class="card col-5">
+        <div class="card-head">
+          <span class="shield shield-badge"><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg></span>
+          <div><div class="card-kicker">Take action</div><h3>Send the right next move</h3></div>
+        </div>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Ready to send dispute and appeal letters</li>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Insurer and provider call scripts</li>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Escalation playbook</li>
+        </ul>
+      </article>
+      <article class="card col-4">
+        <div class="card-head">
+          <span class="shield shield-badge"><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg></span>
+          <div><div class="card-kicker">Stay on track</div><h3>Stay organized</h3></div>
+        </div>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Appeal deadline tracker</li>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Evidence checklist</li>
+        </ul>
+      </article>
+      <article class="card col-4">
+        <div class="card-head">
+          <span class="shield shield-badge"><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg></span>
+          <div><div class="card-kicker">Fast start</div><h3>Begin calmly</h3></div>
+        </div>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Quick start guide</li>
+        </ul>
+      </article>
+      <article class="card col-4">
+        <div class="card-head">
+          <span class="shield shield-badge"><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg></span>
+          <div><div class="card-kicker">Workspace</div><h3>Everything in one place</h3></div>
+        </div>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Your patient command center</li>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Complete case packet, ready to print</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- VALUE / OFFER -->
+<section class="offer section" id="offer">
+  <div class="wrap">
+    <div class="offer-grid">
+      <div class="offer-copy">
+        <span class="eyebrow">The offer</span>
+        <h2 class="h2" style="margin-top:16px">One flat fee. <em>You keep what you save.</em></h2>
+        <p>Many billing advocates take a cut of any reduction they help you reach, often between 20 and 35 percent. That means the more your bill comes down, the more they keep.</p>
+        <p>United Patient Advocate works the other way. You pay one flat fee for your complete package. If your bill comes down, all of it stays with you. We never take a percentage.</p>
+        <div class="compare">
+          <div class="compare-row them">
+            <span class="compare-label">Percentage based advocates</span>
+            <span class="compare-val">20 to 35 percent of any reduction</span>
+          </div>
+          <div class="compare-row us">
+            <span class="compare-label us">United Patient Advocate</span>
+            <span class="compare-val us">$97 flat, you keep 100 percent</span>
+          </div>
+        </div>
+      </div>
+      <aside class="price-card">
+        <span class="glow"></span>
+        <span class="eyebrow" style="color:var(--gold)">Complete package</span>
+        <div class="price-tag">
+          <span class="price-amt">$97</span>
+          <span class="price-flat">Flat fee</span>
+        </div>
+        <p class="price-sub">Everything we prepare from your bill, in one place. No percentage. No surprise add ons.</p>
+        <ul class="price-list">
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Personalized findings report</li>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Dispute and appeal letters</li>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Call scripts and escalation playbook</li>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Deadline tracker and evidence checklist</li>
+          <li><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z"/><path class="s-check" d="m9 11.5 2 2 4-4.2"/></svg> Complete case packet, ready to print</li>
+        </ul>
+        <a class="btn btn-light" href="00_upa-scan.html">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Scan my bill free
+        </a>
+        <p class="price-fine">See your real findings free before you pay. You only buy the full package if the scan surfaces something worth acting on.</p>
+        <p class="price-guarantee">7-Day Satisfaction Guarantee. If your review does not surface anything useful on your bill, email us within 7 days and we will make it right or refund you. Because the package is delivered instantly and includes downloadable documents, refunds are for reviews that did not deliver as described, not for change of mind after download.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow">How it works</span>
+      <h2 class="h2">Three steps, <em>start to send.</em></h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Scan your bill</h3>
+        <p>Upload your bill or enter your charges. There is no account to create and no information to share publicly.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Get your review</h3>
+        <p>We read every line and prepare your findings, your letters, and your full package, all personalized to your bill.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Send with confidence</h3>
+        <p>Use your letters, scripts, and action plan to make your case. You stay in control of what you send.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <div class="final-inner">
+    <span class="shield shield-badge"><svg viewBox="0 0 24 24"><path class="s-body" d="M12 3 5 5.6v5.2c0 4.3 3 7.3 7 8.6 4-1.3 7-4.3 7-8.6V5.6L12 3Z" style="stroke:var(--gold)"/><path class="s-check" d="m9 11.5 2 2 4-4.2" style="stroke:#fff"/></svg></span>
+    <h2>Ready to see what is on your bill?</h2>
+    <p>Start with a free scan. Review your findings, then choose your complete package for one flat fee.</p>
+    <a class="btn btn-light" href="00_upa-scan.html">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Scan my bill free
+    </a>
+  </div>
+</section>
 
 <!-- FOOTER -->
-<div class="footer">
+<footer class="footer">
   <div class="footer-inner">
-    <div class="footer-logo">
-      <div class="footer-logo-shield"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div>
-      <div class="footer-logo-name">United Patient Advocate<sub>ADVOCATE</sub></div>
+    <div class="footer-brand">
+      <span class="brand-logo"><img src="Transparent.png" alt="United Patient Advocate"></span>
+      <span class="brand-name">United Patient Advocate</span>
     </div>
-    <div class="footer-disc">United Patient Advocate is an independent medical billing review and dispute preparation service. We provide educational billing analysis, Medicare benchmark comparisons, coding review references, and consumer dispute documentation tools. Results vary based on provider policies, insurer determinations, and individual circumstances. Nothing on this site constitutes legal, medical, or financial advice. This service references publicly available data from CMS and the CFPB. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any referenced institution. Due to the personalized nature of the review materials, guidance tools, and document preparation services provided through UPA, refunds are not provided once access has been granted.</div>
-    <div class="footer-copy">2026 United Patient Advocate — unitedpatientadvocate.com</div>
+    <div class="footer-links">
+      <a href="terms.html">Terms</a>
+      <a href="refund-policy.html">Refund Policy</a>
+      <a href="mailto:support@unitedpatientadvocate.com">Contact</a>
+    </div>
+    <p class="footer-disc">United Patient Advocate is an independent medical billing review and dispute preparation service. We provide educational billing analysis, public benchmark comparisons, coding review references, and consumer dispute documentation tools. Results vary based on provider policies, insurer determinations, and individual circumstances. Nothing on this site is legal, medical, or financial advice. This service references publicly available information from CMS and the CFPB. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any referenced institution.</p>
+    <p class="footer-disc">7-Day Satisfaction Guarantee. If your review does not surface anything useful on your bill, email us within 7 days and we will make it right or refund you. Because the package is delivered instantly and includes downloadable documents, refunds are for reviews that did not deliver as described, not for change of mind after download.</p>
+    <p class="footer-copy">2026 United Patient Advocate · unitedpatientadvocate.com</p>
   </div>
-</div>
+</footer>
 
-<script src="/UPA-Final/upa-state-persistence.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="/UPA-Final/upa-bill-scan.js"></script>
-<script>
-var currentStep=1,totalSteps=7;
-
-/* State */
-var state={
-  s1:null,s2:null,s3:null,s4:null,
-  s5:[],
-  other:{s1:'',s2:'',s3:'',s4:'',s5:''},
-  first:'',last:'',email:'',provider:'',dos:'',file:null,scan:null
-};
-
-function todayISO(){
-  var now=new Date();
-  now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
-  return now.toISOString().slice(0,10);
-}
-function enforceServiceDateLimit(){
-  var dos=document.getElementById('f-dos');
-  if(!dos)return true;
-  var today=todayISO();
-  dos.max=today;
-  if(dos.value&&dos.value>today){
-    dos.value='';
-    state.dos='';
-    return false;
-  }
-  return true;
-}
-
-/* Labels for summary */
-var labels={
-  s1:{hospital:'Hospital Bill',er:'Emergency Room',doctor:"Doctor's Office",lab:'Lab / Diagnostic',surgery:'Surgery or Procedure',ambulance:'Ambulance',mental:'Mental Health',pharmacy:'Pharmacy'},
-  s2:{medicare:'Medicare (Part A & B)','medicare-advantage':'Medicare Advantage (Part C)',medigap:'Medicare + Supplement',medicaid:'Medicaid',dual:'Medicare + Medicaid (Dual)','employer':'Employer / Group Insurance','marketplace':'Marketplace / ACA Plan','tricare':'TRICARE (Military)',va:'VA Benefits','chip':'CHIP','workers-comp':"Workers' Compensation",'uninsured':'No Insurance (Self-Pay)'},
-  s3:{'under500':'Under $500','500-1k':'$500 – $1,000','1k-5k':'$1,000 – $5,000','5k-10k':'$5,000 – $10,000','10k-25k':'$10,000 – $25,000','25k-50k':'$25,000 – $50,000','50k-100k':'$50,000 – $100,000','over100k':'Over $100,000','unknown':'Not Sure'},
-  s4:{unpaid:'Not Paid Yet (Best Position)',partial:'Partial Payment','payment-plan':'On Payment Plan',paid:'Paid in Full',collections:'Sent to Collections','insurance-dispute':'Insurance Denied / Underpaid'}
-};
-
-/* Step dots */
-function buildDots(){
-  var d=document.getElementById('si-dots');d.innerHTML='';
-  for(var i=1;i<=totalSteps;i++){
-    var s=document.createElement('div');s.className='si-dot';
-    if(i<currentStep)s.classList.add('done');
-    if(i===currentStep)s.classList.add('active');
-    d.appendChild(s);
-  }
-  document.getElementById('si-label').textContent='Step '+currentStep+' of '+totalSteps;
-  document.getElementById('si-bar').style.width=Math.round((currentStep/totalSteps)*100)+'%';
-}
-
-function getOtherValue(group){
-  var el=document.getElementById(group+'-other-input');
-  var value=el?el.value.trim():(state.other&&state.other[group]?state.other[group]:'');
-  state.other[group]=value;
-  return value;
-}
-function syncOtherVisibility(group){
-  var wrap=document.getElementById(group+'-other-wrap');
-  var isSelected=group==='s5'?state.s5.indexOf('other')>-1:state[group]==='other';
-  if(wrap)wrap.classList.toggle('show',isSelected);
-}
-function isSingleStepValid(group){
-  if(!state[group])return false;
-  if(state[group]==='other')return getOtherValue(group).length>0;
-  return true;
-}
-function isStep5Valid(){
-  if(state.s5.length===0)return false;
-  if(state.s5.indexOf('other')>-1)return getOtherValue('s5').length>0;
-  return true;
-}
-function updateOther(group){
-  getOtherValue(group);
-  syncOtherVisibility(group);
-  if(group==='s5'){
-    document.getElementById('btn-next').disabled=!isStep5Valid();
-    return;
-  }
-  if(currentStep===Number(group.substring(1))){
-    document.getElementById('btn-next').disabled=!isSingleStepValid(group);
-  }
-}
-
-/* Select single-choice option */
-function selectOpt(btn,group){
-  var parent=btn.closest('.opt-list,.opt-grid-2,.opt-grid-3');
-  parent.querySelectorAll('.opt').forEach(function(b){b.classList.remove('selected')});
-  btn.classList.add('selected');
-  state[group]=btn.dataset.val;
-  syncOtherVisibility(group);
-  document.getElementById('btn-next').disabled=!isSingleStepValid(group);
-  /* Selection confirmed — user clicks Continue to proceed */
-}
-
-/* Toggle multi-select chip */
-function toggleChip(chip){
-  chip.classList.toggle('selected');
-  var val=chip.dataset.val;
-  var idx=state.s5.indexOf(val);
-  if(idx>-1)state.s5.splice(idx,1);else state.s5.push(val);
-  syncOtherVisibility('s5');
-  document.getElementById('btn-next').disabled=!isStep5Valid();
-}
-
-/* ── INTELLIGENT CONCERNS ──────────────────────────────────────────────────
-   Fires every time the user arrives at step 5. Scores each concern chip
-   based on what they selected in steps 1–4, then reorders the grid so the
-   most case-relevant concerns appear first under a "Recommended" header.
-   Already-selected chips are preserved. All chips remain selectable.
-   ────────────────────────────────────────────────────────────────────────*/
-function smartConcerns(){
-  var grid=document.getElementById('concern-grid');
-  if(!grid)return;
-
-  var s1=state.s1, s2=state.s2, s3=state.s3, s4=state.s4;
-
-  // Score table — each key matches a chip data-val
-  var score={
-    'too-high':0,'billing issue':0,'not-received':0,'out-of-network':0,
-    'lab-charges':0,'coding':0,'denied':0,'confusing':0,
-    'surprise-bill':0,'no-itemized':0,'other':0
-  };
-
-  // Bill type
-  var billScores={
-    hospital:{'too-high':3,'billing issue':2,'no-itemized':2,'coding':1},
-    er:{'surprise-bill':4,'out-of-network':3,'too-high':2,'billing issue':1},
-    doctor:{'billing issue':3,'coding':3,'too-high':1},
-    lab:{'lab-charges':4,'not-received':3,'billing issue':2,'coding':1},
-    surgery:{'too-high':3,'billing issue':3,'coding':2,'no-itemized':2},
-    ambulance:{'surprise-bill':4,'out-of-network':4,'too-high':2},
-    mental:{'denied':4,'out-of-network':2,'coding':2},
-    pharmacy:{'too-high':4,'not-received':2,'billing issue':1}
-  };
-  if(s1&&billScores[s1]){
-    Object.keys(billScores[s1]).forEach(function(k){score[k]+=(billScores[s1][k]||0);});
-  }
-
-  // Insurance
-  var insScores={
-    medicare:{'denied':2,'coding':2,'billing issue':1},
-    'medicare-advantage':{'denied':3,'out-of-network':2,'coding':1},
-    medigap:{'billing issue':2,'coding':2},
-    medicaid:{'denied':2,'confusing':2},
-    dual:{'denied':3,'confusing':1},
-    employer:{'out-of-network':2,'surprise-bill':2,'denied':1},
-    marketplace:{'out-of-network':2,'surprise-bill':2,'denied':1},
-    tricare:{'denied':3,'coding':2},
-    va:{'denied':3,'not-received':1},
-    chip:{'denied':2,'confusing':1},
-    'workers-comp':{'denied':2,'not-received':2},
-    uninsured:{'too-high':3,'no-itemized':3,'confusing':2}
-  };
-  if(s2&&insScores[s2]){
-    Object.keys(insScores[s2]).forEach(function(k){score[k]+=(insScores[s2][k]||0);});
-  }
-
-  // Payment status
-  var payScores={
-    'insurance-dispute':{'denied':4,'out-of-network':2},
-    collections:{'too-high':2,'confusing':2,'billing issue':1},
-    paid:{'billing issue':2,'no-itemized':2},
-    partial:{'confusing':1,'too-high':1},
-    'payment-plan':{'confusing':1}
-  };
-  if(s4&&payScores[s4]){
-    Object.keys(payScores[s4]).forEach(function(k){score[k]+=(payScores[s4][k]||0);});
-  }
-
-  // High bill amount
-  var bigAmounts=['10k-25k','25k-50k','50k-100k','over100k'];
-  if(s3&&bigAmounts.indexOf(s3)>-1){
-    score['no-itemized']+=2;score['too-high']+=1;score['billing issue']+=1;
-  }
-
-  // Sort by score; 'other' always last
-  var sorted=Object.keys(score).filter(function(v){return v!=='other';});
-  sorted.sort(function(a,b){return score[b]-score[a];});
-  sorted.push('other');
-
-  // Top 4 with score > 0 are "recommended"
-  var recommended=sorted.filter(function(v){return score[v]>0;}).slice(0,4);
-
-  // Collect existing chip elements (preserves event handlers and selected state)
-  var chips=Array.prototype.slice.call(grid.querySelectorAll('.chip'));
-  var chipMap={};
-  chips.forEach(function(c){chipMap[c.dataset.val]=c;});
-
-  // Remove old section headers
-  Array.prototype.slice.call(grid.querySelectorAll('.concern-sec-hdr')).forEach(function(el){
-    el.parentNode.removeChild(el);
-  });
-  // Detach all chips
-  chips.forEach(function(c){if(c.parentNode)c.parentNode.removeChild(c);});
-
-  function makeHdr(text,cls){
-    var d=document.createElement('div');
-    d.className='concern-sec-hdr '+(cls||'');
-    d.innerHTML=text;
-    return d;
-  }
-
-  if(recommended.length){
-    var contextMsg=buildConcernContext(s1,s2,s4);
-    grid.appendChild(makeHdr(
-      '<span class="csh-dot"></span>Recommended for your case'+(contextMsg?' <span class="csh-ctx">'+contextMsg+'</span>':''),
-      'csh-rec'
-    ));
-    recommended.forEach(function(v){
-      var c=chipMap[v];if(!c)return;
-      c.classList.add('chip-rec');
-      grid.appendChild(c);
-    });
-    var remaining=sorted.filter(function(v){return recommended.indexOf(v)===-1;});
-    if(remaining.length){
-      grid.appendChild(makeHdr('Other concerns','csh-other'));
-      remaining.forEach(function(v){
-        var c=chipMap[v];if(!c)return;
-        c.classList.remove('chip-rec');
-        grid.appendChild(c);
-      });
-    }
-  } else {
-    // No scoring data yet (user skipped earlier steps) — restore original order
-    sorted.forEach(function(v){var c=chipMap[v];if(c)grid.appendChild(c);});
-  }
-}
-
-function buildConcernContext(s1,s2,s4){
-  var parts=[];
-  var billMap={hospital:'hospital bill',er:'ER visit',doctor:"doctor's bill",
-    lab:'lab charges',surgery:'surgery bill',ambulance:'ambulance charge',
-    mental:'mental health bill',pharmacy:'pharmacy bill'};
-  if(s1&&billMap[s1])parts.push(billMap[s1]);
-  var insMap={medicare:'Medicare',uninsured:'self-pay',
-    'insurance-dispute':'insurance dispute','employer':'employer insurance'};
-  if(s2&&insMap[s2])parts.push(insMap[s2]);
-  if(s4==='insurance-dispute')parts.push('denied claim');
-  if(s4==='collections')parts.push('in collections');
-  return parts.length?'('+parts.join(' · ')+')':'';
-}
-
-function scanFieldHTML(label, value){
-  return '<div class="scan-field"><span>'+escapeHTML(label)+'</span><strong>'+escapeHTML(value || 'Needs confirmation')+'</strong></div>';
-}
-function scanValue(scan, key){
-  return scan && scan.fields && scan.fields[key] ? scan.fields[key].value : '';
-}
-function applyScanResult(scan){
-  state.scan=scan||null;
-  var panel=document.getElementById('bill-scan-result');
-  if(!panel)return;
-  var provider=scanValue(scan,'provider');
-  var amount=scanValue(scan,'amount');
-  var serviceDate=scanValue(scan,'serviceDate');
-  var account=scanValue(scan,'account');
-  var insurance=scanValue(scan,'insurance');
-  var strong=!!(provider||amount||serviceDate||account||insurance);
-  panel.className='scan-result show'+(strong?'':' warn');
-  panel.innerHTML='<div class="scan-kicker">'+(strong?'Bill scan extracted':'Confirmation needed')+'</div>'
-    + '<div class="scan-title">'+(strong?'We found specific values from your uploaded bill. Please confirm anything that looks off.':'We received the upload, but could not confidently read key bill values from this file.')+'</div>'
-    + '<div class="scan-fields">'
-    + scanFieldHTML('Provider',provider)
-    + scanFieldHTML('Amount',amount)
-    + scanFieldHTML('Service date',serviceDate)
-    + scanFieldHTML('Account / claim',account)
-    + scanFieldHTML('Insurance',insurance)
-    + '</div>';
-  if(provider&&!getFieldValue('f-provider')){
-    document.getElementById('f-provider').value=provider;
-    state.provider=provider;
-  }
-  if(serviceDate&&!getFieldValue('f-dos')){
-    document.getElementById('f-dos').value=serviceDate;
-    state.dos=serviceDate;
-  }
-  validateStep6();
-}
-
-/* File upload */
-function handleFile(input){
-  if(!input.files||!input.files[0])return;
-  var f=input.files[0];state.file=f;
-  var zone=document.getElementById('upload-zone');
-  zone.classList.add('has-file');
-  zone.querySelector('.uz-title').textContent=/pdf/i.test(f.type||f.name)?'Scanning uploaded bill':'Bill uploaded';
-  zone.querySelector('.uz-sub').textContent=/pdf/i.test(f.type||f.name)?'Reading PDF text for provider, amount, service date, and account clues...':f.name;
-  document.getElementById('uz-filename').textContent=f.name+' ('+Math.round(f.size/1024)+' KB)';
-  if(window.UPABillScan&&window.UPABillScan.extractFromFile){
-    window.__UPA_BILL_SCAN_PROMISE__=window.UPABillScan.extractFromFile(f).then(function(scan){
-      applyScanResult(scan);
-      zone.querySelector('.uz-title').textContent=scan&&scan.status==='extracted'?'Bill scan complete':'Bill uploaded';
-      zone.querySelector('.uz-sub').textContent=f.name;
-      return scan;
-    }).catch(function(){
-      applyScanResult(null);
-      zone.querySelector('.uz-title').textContent='Bill uploaded';
-      zone.querySelector('.uz-sub').textContent=f.name;
-      return null;
-    });
-  }
-}
-/* Drag events */
-document.addEventListener('DOMContentLoaded',function(){
-  var zone=document.getElementById('upload-zone');
-  if(!zone)return;
-  zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('drag')});
-  zone.addEventListener('dragleave',function(){zone.classList.remove('drag')});
-  zone.addEventListener('drop',function(e){
-    e.preventDefault();zone.classList.remove('drag');
-    if(e.dataTransfer.files[0]){document.getElementById('f-file').files=e.dataTransfer.files;handleFile(document.getElementById('f-file'));}
-  });
-  buildDots();
-  enforceServiceDateLimit();
-});
-
-/* Validate step 6 */
-var emailRx=/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-function step6Values(){
-  var first=document.getElementById('f-first').value.trim();
-  var last=document.getElementById('f-last').value.trim();
-  var email=document.getElementById('f-email').value.trim();
-  var provider=document.getElementById('f-provider').value.trim();
-  return {first:first,last:last,email:email,provider:provider,emailOk:emailRx.test(email)};
-}
-function isStep6Valid(){
-  var v=step6Values();
-  return !!(v.first&&v.last&&v.emailOk&&v.provider);
-}
-function validateStep6(){
-  var v=step6Values();
-  var emailField=document.getElementById('f-email');
-  emailField.style.borderColor=v.email.length>0?(v.emailOk?'rgba(30,184,122,.55)':'rgba(224,59,59,.55)'):'';
-  var emailHint=document.getElementById('email-hint');
-  if(emailHint)emailHint.classList.toggle('show',v.email.length>4&&!v.emailOk);
-  document.getElementById('btn-next').disabled=!isStep6Valid();
-}
-document.addEventListener('input',function(e){
-  if(e.target.id==='f-dos')enforceServiceDateLimit();
-  if(['f-first','f-last','f-email','f-provider','f-desc'].includes(e.target.id))validateStep6();
-});
-
-function escapeHTML(value){
-  return String(value||'').replace(/[&<>"']/g,function(ch){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
-  });
-}
-
-/* Build summary */
-function buildSummary(){
-  state.first=document.getElementById('f-first').value.trim();
-  state.last=document.getElementById('f-last').value.trim();
-  state.email=document.getElementById('f-email').value.trim();
-  state.provider=document.getElementById('f-provider').value.trim();
-  enforceServiceDateLimit();
-  state.dos=document.getElementById('f-dos').value;
-  var description=getFieldValue('f-desc');
-  var scan=state.scan||(window.UPABillScan&&window.UPABillScan.readResult?window.UPABillScan.readResult():null);
-  var scanParts=[];
-  if(scan&&scan.fields){
-    if(scan.fields.provider)scanParts.push('Provider: '+scan.fields.provider.value);
-    if(scan.fields.amount)scanParts.push('Amount: '+scan.fields.amount.value);
-    if(scan.fields.serviceDate)scanParts.push('DOS: '+scan.fields.serviceDate.value);
-    if(scan.fields.account)scanParts.push('Account: '+scan.fields.account.value);
-  }
-
-  var rows=[
-    ['Patient Name',state.first+' '+state.last],
-    ['Bill Type',selectedOptionLabel('s1',state.s1)],
-    ['Insurance',selectedOptionLabel('s2',state.s2)],
-    ['Bill Amount',selectedOptionLabel('s3',state.s3)],
-    ['Payment Status',selectedOptionLabel('s4',state.s4)],
-    ['Provider',state.provider],
-    ['Date of Service',state.dos||'Not provided'],
-    ['Concerns',selectedConcernLabels().join(', ')],
-    ['Bill Scan',scanParts.length?scanParts.join(' | '):(state.file?'Uploaded - values need confirmation':'No PDF scan')],
-    ['Bill Uploaded',state.file?state.file.name:'Not uploaded (optional)']
-  ];
-  if(description)rows.splice(rows.length-1,0,['Additional Details',description]);
-  var p=document.getElementById('summary-panel');
-  p.innerHTML=rows.map(function(r){
-    return '<div class="sum-row"><span class="sum-label">'+escapeHTML(r[0])+'</span><span class="sum-val'+(r[0]==='Patient Name'?' green':'')+'">'+escapeHTML(r[1])+'</span></div>';
-  }).join('');
-}
-
-/* Navigation */
-function nextStep(){
-  if(currentStep===6){
-    validateStep6();
-    if(!isStep6Valid()){
-      var target=!getFieldValue('f-first')?'f-first':(!getFieldValue('f-last')?'f-last':(!emailRx.test(getFieldValue('f-email'))?'f-email':'f-provider'));
-      var el=document.getElementById(target);
-      if(el&&el.focus)el.focus();
-      return;
-    }
-    buildSummary();
-  }
-  goTo(currentStep+1);
-}
-function prevStep(){goTo(currentStep-1);}
-function goTo(n){
-  if(n<1||n>totalSteps)return;
-  var cur=document.getElementById('step-'+currentStep);
-  cur.classList.add('exit');
-  setTimeout(function(){
-    cur.classList.remove('active','exit');
-    currentStep=n;
-    var next=document.getElementById('step-'+currentStep);
-    next.classList.add('active');
-    buildDots();
-    updateNav();
-    /* Re-score and reorder concern chips whenever the user reaches step 5 */
-    if(n===5) smartConcerns();
-    /* Scroll card into view, offset by sticky nav height */
-    var card=document.querySelector('#begin-review .card');
-    if(!card)card=document.querySelector('.card');
-    if(card){
-      var navH=64;
-      var nav=document.querySelector('.nav');
-      if(nav)navH=nav.offsetHeight;
-      var top=card.getBoundingClientRect().top+window.pageYOffset-navH-20;
-      window.scrollTo({top:top,behavior:'smooth'});
-    }
-  },260);
-}
-function updateNav(){
-  var back=document.getElementById('btn-back');
-  var next=document.getElementById('btn-next');
-  var navBtns=document.getElementById('nav-btns');
-  back.style.visibility=currentStep>1?'visible':'hidden';
-  /* Step-specific states */
-  if(currentStep===5){
-    next.style.display='flex';
-    next.disabled=!isStep5Valid();
-    next.textContent='Continue';next.innerHTML='Continue <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;stroke-width:2.5;fill:none"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>';
-  } else if(currentStep===6){
-    next.style.display='flex';
-    validateStep6();
-    next.textContent='Continue';next.innerHTML='Continue <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;stroke-width:2.5;fill:none"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>';
-  } else if(currentStep===7){
-    navBtns.querySelector('.btn-next').style.display='none';
-  } else {
-    next.style.display='flex';
-    var stateKey='s'+currentStep;
-    next.disabled=!isSingleStepValid(stateKey);
-  }
-}
-
-/* Background lead capture */
-var FORMSPREE_ENDPOINT='https://formspree.io/f/mredbzgw';
-var FORMSPREE_SUBMIT_TIMEOUT_MS=5000;
-var formspreeLeadSent=false;
-function getFieldValue(id){
-  var el=document.getElementById(id);
-  return el?el.value.trim():'';
-}
-function stripOtherPrefix(value){
-  return String(value||'').replace(/^other:\s*/i,'').trim();
-}
-function formatLooseMoney(value){
-  var text=stripOtherPrefix(value);
-  var match=text.match(/\d[\d,]*(?:\.\d+)?/);
-  if(!match)return text;
-  var n=parseFloat(match[0].replace(/,/g,''));
-  if(!isFinite(n))return text;
-  return '$'+n.toLocaleString('en-US',{maximumFractionDigits:n%1?2:0});
-}
-function selectedOptionLabel(group,value){
-  if(value==='other'){
-    var other=getOtherValue(group);
-    if(group==='s3')return other?formatLooseMoney(other):'Other';
-    return other?'Other: '+other:'Other';
-  }
-  return labels[group]&&labels[group][value]?labels[group][value]:(value||'');
-}
-function selectedConcernLabels(){
-  return state.s5.map(function(val){
-    if(val==='other'){
-      var other=getOtherValue('s5');
-      return other?'Other: '+other:'Other';
-    }
-    var chip=document.querySelector('.chip[data-val="'+val+'"] .chip-name');
-    return chip?chip.textContent.trim():val;
-  });
-}
-function buildLeadPayload(){
-  state.first=getFieldValue('f-first');
-  state.last=getFieldValue('f-last');
-  var patientName=(state.first+' '+state.last).trim();
-  state.email=getFieldValue('f-email');
-  state.provider=getFieldValue('f-provider');
-  enforceServiceDateLimit();
-  state.dos=getFieldValue('f-dos');
-  var phone=getFieldValue('f-phone');
-  var concerns=selectedConcernLabels();
-  var scan=state.scan||(window.UPABillScan&&window.UPABillScan.readResult?window.UPABillScan.readResult():null);
-  var scanPatch=window.UPABillScan&&window.UPABillScan.toIntakePatch?window.UPABillScan.toIntakePatch(scan):{};
-  var provider=state.provider||scanPatch.extracted_provider||'';
-  var dos=state.dos||scanPatch.extracted_date_of_service||'';
-  var billAmount=selectedOptionLabel('s3',state.s3);
-  billAmount=formatLooseMoney(billAmount);
-  if((!billAmount||/not sure|unknown/i.test(billAmount))&&scanPatch.extracted_bill_amount)billAmount=scanPatch.extracted_bill_amount;
-  var insurance=selectedOptionLabel('s2',state.s2);
-  if((!insurance||/other|not listed/i.test(insurance))&&scanPatch.extracted_insurance)insurance=scanPatch.extracted_insurance;
-  return Object.assign({
-    _subject:'New UPA intake lead',
-    source:'UPA-Final standalone intake',
-    submitted_at:new Date().toISOString(),
-    page_url:window.location.href,
-    name:patientName,
-    patient_name:patientName,
-    full_name:patientName,
-    first_name:state.first,
-    last_name:state.last,
-    email:state.email,
-    phone:phone,
-    provider:provider,
-    balance:billAmount,
-    bill_amount:billAmount,
-    date_of_service:dos,
-    bill_type:selectedOptionLabel('s1',state.s1),
-    insurance:insurance,
-    payment_status:selectedOptionLabel('s4',state.s4),
-    concerns:concerns.join(', '),
-    concerns_raw:state.s5.join(', '),
-    concern_other:state.s5.indexOf('other')>-1?getOtherValue('s5'):'',
-    description:getFieldValue('f-desc'),
-    uploaded_bill:state.file?state.file.name:'Not uploaded',
-    bill_type_raw:state.s1||'',
-    insurance_raw:state.s2||'',
-    bill_amount_raw:state.s3||'',
-    payment_status_raw:state.s4||'',
-    bill_type_other:state.s1==='other'?getOtherValue('s1'):'',
-    insurance_other:state.s2==='other'?getOtherValue('s2'):'',
-    bill_amount_other:state.s3==='other'?formatLooseMoney(getOtherValue('s3')):'',
-    payment_status_other:state.s4==='other'?getOtherValue('s4'):''
-  },scanPatch);
-}
-function appendHiddenField(form,name,value){
-  var input=document.createElement('input');
-  input.type='hidden';
-  input.name=name;
-  input.value=value;
-  form.appendChild(input);
-}
-function submitLeadWithHiddenForm(payload){
-  return new Promise(function(resolve){
-    var frameName='upa_formspree_frame_'+Date.now();
-    var iframe=document.createElement('iframe');
-    var form=document.createElement('form');
-    var settled=false;
-    var submitted=false;
-    function settle(){
-      if(settled)return;
-      settled=true;
-      resolve();
-    }
-    iframe.name=frameName;
-    iframe.style.cssText='position:absolute;width:1px;height:1px;left:-9999px;top:-9999px;border:0;opacity:0;pointer-events:none';
-    iframe.setAttribute('aria-hidden','true');
-    iframe.addEventListener('load',function(){if(submitted)settle();});
-    form.method='POST';
-    form.action=FORMSPREE_ENDPOINT;
-    form.target=frameName;
-    form.enctype='application/x-www-form-urlencoded';
-    form.acceptCharset='UTF-8';
-    form.style.display='none';
-    form.setAttribute('aria-hidden','true');
-    Object.keys(payload).forEach(function(key){appendHiddenField(form,key,payload[key]);});
-    document.body.appendChild(iframe);
-    document.body.appendChild(form);
-    setTimeout(function(){
-      try{
-        submitted=true;
-        form.submit();
-      }catch(e){
-        settle();
-      }
-    },40);
-    setTimeout(settle,FORMSPREE_SUBMIT_TIMEOUT_MS);
-  });
-}
-function sendLeadBeacon(payload){
-  if(!navigator.sendBeacon)return false;
-  var body=new URLSearchParams();
-  Object.keys(payload).forEach(function(key){body.append(key,payload[key]);});
-  try{
-    var beaconBody=new Blob([body.toString()],{type:'application/x-www-form-urlencoded;charset=UTF-8'});
-    return navigator.sendBeacon(FORMSPREE_ENDPOINT,beaconBody);
-  }catch(e){
-    return false;
-  }
-}
-function submitLeadToFormspree(){
-  if(formspreeLeadSent)return Promise.resolve();
-  formspreeLeadSent=true;
-  var payload=buildLeadPayload();
-  return submitLeadWithHiddenForm(payload).then(function(){return true;}).catch(function(){
-    sendLeadBeacon(payload);
-    return false;
-  });
-}
-
-function upaFinalPath(file){
-  return window.location.protocol==='file:'?file:'/UPA-Final/'+file;
-}
-function saveIntakeSession(){
-  // FIX 3 (root): make the intake save loud and resilient. Three problems
-  // were converging: (1) silent try/catch swallowing storage failures,
-  // (2) localStorage write only happening when UPAState was absent, so a
-  // partial UPAState load would short-circuit the safety net, (3) no
-  // visibility into which keys actually got written.
-  var payload;
-  try { payload = buildLeadPayload(); }
-  catch(e) {
-    console.error('[UPA INTAKE SAVE] buildLeadPayload threw:', e);
-    return;
-  }
-
-  // Step 1: snapshot what we're about to save (sanitized for console)
-  var snapshot = {
-    provider: payload.provider || payload.providerName || '',
-    bill_amount: payload.bill_amount || payload.totalBilled || '',
-    date_of_service: payload.date_of_service || payload.dos || '',
-    insurance: payload.insurance || '',
-    payment_status: payload.payment_status || '',
-    patient_name: payload.patient_name || payload.full_name || '',
-    has_concerns: !!(payload.concerns || payload.specificConcerns),
-    has_description: !!payload.description,
-    field_count: Object.keys(payload).length
-  };
-  console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', 'Saving intake with fields:', snapshot);
-
-  // Step 2: persist via UPAState (writes to ALL canonical keys + manages timestamps)
-  var persisted = null;
-  try {
-    if (window.UPAState && window.UPAState.persistIntake) {
-      persisted = window.UPAState.persistIntake(payload, {stage:'intake-complete', source:'landing'});
-    }
-  } catch(e) {
-    console.error('[UPA INTAKE SAVE] UPAState.persistIntake threw:', e);
-  }
-  var activePayload = (persisted && persisted.intake) ? persisted.intake : payload;
-
-  // Step 3: keep a raw intake backup. Canonical active/review keys must
-  // remain structured envelopes, so only the fallback below writes them.
-  var keys = ['upa.intake.v1'];
-  var json = '';
-  try { json = JSON.stringify(activePayload); }
-  catch(e) { console.error('[UPA INTAKE SAVE] JSON.stringify failed:', e); return; }
-
-  var writeReport = {};
-  keys.forEach(function(k){
-    var localOk = false, sessionOk = false;
-    try { localStorage.setItem(k, json); localOk = !!localStorage.getItem(k); } catch(e) { console.error('[UPA INTAKE SAVE] localStorage.setItem failed for ' + k + ':', e); }
-    try { sessionStorage.setItem(k, json); sessionOk = !!sessionStorage.getItem(k); } catch(e) { console.error('[UPA INTAKE SAVE] sessionStorage.setItem failed for ' + k + ':', e); }
-    writeReport[k] = { local: localOk, session: sessionOk };
-  });
-  console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700', 'Write verification:', writeReport, '(payload size ' + json.length + ' bytes)');
-
-  if (!persisted) {
-    try {
-      var caseId = activePayload._upa_case_id || activePayload.active_case_id || ('upa-intake-' + Date.now());
-      var activeAt = activePayload._upa_active_at || activePayload.submitted_at || new Date().toISOString();
-      activePayload._upa_case_id = caseId;
-      activePayload.active_case_id = caseId;
-      activePayload._upa_active_at = activeAt;
-      activePayload._upa_source = activePayload._upa_source || 'landing';
-      var fallbackSession = {
-        version:4,
-        sessionId:caseId,
-        activeCaseId:caseId,
-        createdAt:activeAt,
-        updatedAt:new Date().toISOString(),
-        stage:'intake-complete',
-        source:'landing-fallback',
-        paid:false,
-        intake:activePayload
-      };
-      var fallbackActive = {
-        version:1,
-        caseId:caseId,
-        source:'landing-fallback',
-        updatedAt:fallbackSession.updatedAt,
-        intake:activePayload,
-        session:fallbackSession
-      };
-      var sessionJson = JSON.stringify(fallbackSession);
-      var activeJson = JSON.stringify(fallbackActive);
-      sessionStorage.setItem('upa.active.case.v1', activeJson);
-      localStorage.setItem('upa.active.case.v1', activeJson);
-      sessionStorage.setItem('upa.checkout.session.v2', sessionJson);
-      localStorage.setItem('upa.checkout.session.v2', sessionJson);
-      sessionStorage.setItem('upa.review.session.v1', sessionJson);
-      localStorage.setItem('upa.review.session.v1', sessionJson);
-    } catch(e) {
-      console.error('[UPA INTAKE SAVE] fallback session write failed:', e);
-    }
-  }
-
-  // P0 FIX: build a FULL recovery URL for cross-context return. base64url-
-  // encoded case data rides along on the checkout redirect AND can be
-  // copy-pasted by support to reconstitute a case in any browser/device.
-  // Includes EVERY field the dashboard needs to render — not just the seven
-  // core fields. This is the only mechanism that survives iOS Mail opening
-  // the receipt link in a fresh Safari tab.
-  try {
-    var core = {
-      // Short-key mapping (mirror of readIntakeFromUrl's decoder)
-      p:  snapshot.provider,
-      a:  snapshot.bill_amount,
-      d:  snapshot.date_of_service,
-      i:  snapshot.insurance,
-      s:  payload.payment_status || '',
-      n:  snapshot.patient_name,
-      c:  payload.concerns || payload.specificConcerns || '',
-      desc: payload.description || '',
-      // Extended fields needed by the dashboard for full hydration
-      bt: payload.bill_type || payload.billType || '',
-      co: payload.concern_other || '',
-      em: payload.email || '',
-      ph: payload.phone || '',
-      acct: payload.account_number || payload.accountNumber || payload.account || payload.billing_reference || payload.billingReference || payload.extracted_account_number || '',
-      cid: payload._upa_case_id || payload.caseId || (payload.session && payload.session.activeCaseId) || '',
-      ts: new Date().toISOString()
-    };
-    // Drop empty fields to keep the URL short
-    Object.keys(core).forEach(function(k){ if(!core[k]) delete core[k]; });
-    if (Object.keys(core).length) {
-      var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(core)))).replace(/=+$/,'').replace(/\+/g,'-').replace(/\//g,'_');
-      window.__UPA_RECOVERY_PARAMS__ = b64;
-      try { sessionStorage.setItem('upa.recovery.params.v1', b64); } catch(e){}
-      try { localStorage.setItem('upa.recovery.params.v1', b64); } catch(e){}
-      console.log('%c[UPA INTAKE SAVE]', 'background:#1E6B5A;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700',
-        'Recovery URL built: ' + Object.keys(core).length + ' fields, base64 length ' + b64.length + ' chars',
-        '\nFull recovery URL: https://unitedpatientadvocate.com/dashboard?r=' + b64);
-    }
-  } catch(e) { console.warn('[UPA INTAKE SAVE] recovery params build failed:', e); }
-}
-
-function waitForBillScan(){
-  if(window.__UPA_BILL_SCAN_PROMISE__&&typeof window.__UPA_BILL_SCAN_PROMISE__.then==='function'){
-    return Promise.race([
-      window.__UPA_BILL_SCAN_PROMISE__.catch(function(){return null;}),
-      new Promise(function(resolve){setTimeout(function(){resolve(null);},8500);})
-    ]);
-  }
-  return Promise.resolve(state.scan||(window.UPABillScan&&window.UPABillScan.readResult?window.UPABillScan.readResult():null));
-}
-
-/* Start analysis */
-function startAnalysis(){
-  var btn=document.querySelector('.btn-submit');
-  btn.disabled=true;
-  btn.innerHTML='<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:white;stroke-width:2;fill:none;animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Starting Bill Scan...';
-  var startedAt=Date.now();
-  var navigated=false;
-  function continueToAnalysis(){
-    if(navigated)return;
-    navigated=true;
-    saveIntakeSession();
-    window.location.href=upaFinalPath('02_upa-analysis-screen.html');
-  }
-  function continueAfterMinimumDelay(){
-    var remaining=Math.max(0,900-(Date.now()-startedAt));
-    setTimeout(continueToAnalysis,remaining);
-  }
-  waitForBillScan().then(function(){
-    btn.innerHTML='<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:white;stroke-width:2;fill:none;animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Preparing Your Review...';
-    submitLeadToFormspree().then(continueAfterMinimumDelay);
-    setTimeout(continueToAnalysis,FORMSPREE_SUBMIT_TIMEOUT_MS+300);
-  });
-  /* Fade the whole page out before navigating */
-  var overlay=document.createElement('div');
-  overlay.style.cssText='position:fixed;inset:0;background:rgba(8,14,24,0);z-index:9999;pointer-events:none;transition:background .85s ease';
-  document.body.appendChild(overlay);
-  requestAnimationFrame(function(){overlay.style.background='rgba(8,14,24,1)';});
-}
-</script>
-
-<script>
-// Bill range selector
-function selectRange(el, val) {
-  document.querySelectorAll(".range-opt").forEach(function(r) { r.classList.remove("sel"); });
-  if (el) el.classList.add("sel");
-
-  var chk = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1E6B5A" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:2px"><polyline points="20 6 9 17 4 12"/></svg>';
-
-  function stat(num, label, color) {
-    return '<div style="background:#fff;border:1px solid rgba(28,43,72,0.09);border-radius:12px;padding:14px 10px;text-align:center;">'
-      + '<div style="font-family:Georgia,serif;font-size:1.35rem;font-weight:800;color:' + color + ';line-height:1;margin-bottom:5px;">' + num + '</div>'
-      + '<div style="font-size:0.6rem;font-weight:600;color:#7A98B0;line-height:1.35;">' + label + '</div>'
-      + '</div>';
-  }
-
-  function check(text) {
-    return '<div style="display:flex;align-items:flex-start;gap:7px;font-size:0.775rem;color:#2E4060;line-height:1.4;">' + chk + text + '</div>';
-  }
-
-  var data = {
-    low: {
-      stats: [
-        stat('1 in 5', 'outpatient bills have a billable error', '#1C2B48'),
-        stat('#1', 'issue: duplicate charges per visit', '#C0392B'),
-        stat('$180', 'avg. overcharge flagged', '#1E6B5A')
-      ],
-      checks: ['CPT code verification', 'Duplicate charge scan', 'Medicare rate comparison', 'Dispute letter + call script']
-    },
-    mid: {
-      stats: [
-        stat('64%', 'of ER bills have billing errors — AMA', '#C0392B'),
-        stat('#1', 'issue: facility fee above Medicare rate', '#1C2B48'),
-        stat('$480', 'avg. overcharge flagged', '#1E6B5A')
-      ],
-      checks: ['ER facility fee audit', 'Medicare benchmark analysis', 'In-network rate verification', 'Full CPT review + dispute letter']
-    },
-    high: {
-      stats: [
-        stat('80%', 'of hospital bills have billing errors', '#C0392B'),
-        stat('#1', 'issue: upcoding and unbundling', '#1C2B48'),
-      ],
-      checks: ['Upcoding & unbundling detection', 'No Surprises Act applicability', 'Full Medicare benchmark', 'Multi-document dispute package']
-    }
-  };
-
-  var d = data[val];
-  if (!d) return;
-
-  var html = '<div style="display:grid;gap:10px;">'
-    + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;">' + d.stats.join('') + '</div>'
-    + '<div style="background:#fff;border:1px solid rgba(28,43,72,0.08);border-radius:12px;padding:14px 16px;">'
-    + '<div style="font-size:0.55rem;font-weight:800;text-transform:uppercase;letter-spacing:0.13em;color:#1C2B48;margin-bottom:10px;">Your review checks for</div>'
-    + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px 18px;">' + d.checks.map(check).join('') + '</div>'
-    + '</div>'
-    + '</div>';
-
-  var revealEl = document.getElementById("range-reveal");
-  if (revealEl) {
-    revealEl.innerHTML = html;
-    revealEl.classList.add("show");
-  }
-}
-</script>
-
-<!-- ═══════════════════════════════════
-     EXIT-INTENT POPUP
-═══════════════════════════════════ -->
-<div id="upa-exit-popup" style="
-  display:none;position:fixed;inset:0;z-index:9999;
-  background:rgba(8,14,26,0.72);backdrop-filter:blur(4px);
-  align-items:center;justify-content:center;padding:20px;
-" role="dialog" aria-modal="true" aria-label="Free checklist offer">
-  <div style="
-    background:linear-gradient(145deg,#162036 0%,#1C2D45 100%);
-    border:1px solid rgba(0,210,255,0.18);border-radius:20px;
-    box-shadow:0 24px 60px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.04);
-    padding:36px 32px 28px;max-width:440px;width:100%;position:relative;
-  ">
-    <!-- Close button -->
-    <button id="upa-exit-close" style="
-      position:absolute;top:14px;right:14px;
-      background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.10);
-      border-radius:50%;width:30px;height:30px;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;
-      color:rgba(235,244,255,0.55);font-size:1rem;line-height:1;
-      transition:all 150ms;
-    " aria-label="Close">&times;</button>
-
-    <!-- Eyebrow -->
-    <div style="
-      font-size:0.5rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;
-      color:rgba(0,210,255,0.75);margin-bottom:12px;display:flex;align-items:center;gap:8px;
-    ">
-      <span style="display:inline-block;width:18px;height:1px;background:rgba(0,210,255,0.40)"></span>
-      Free Resource
-      <span style="display:inline-block;width:18px;height:1px;background:rgba(0,210,255,0.40)"></span>
-    </div>
-
-    <!-- Headline -->
-    <h2 style="
-      font-family:'Playfair Display',Georgia,serif;font-size:1.5rem;font-weight:700;
-      color:rgba(235,244,255,0.96);letter-spacing:-0.02em;line-height:1.2;margin-bottom:8px;
-    ">Wait — before you go</h2>
-
-    <!-- Subtext -->
-    <p style="
-      font-size:0.875rem;color:rgba(235,244,255,0.65);line-height:1.60;margin-bottom:20px;
-    ">Get a free checklist: <strong style="color:rgba(235,244,255,0.90);">7 Things to Check on Every Medical Bill</strong> — sent straight to your inbox.</p>
-
-    <!-- Form -->
-    <div id="upa-exit-form" style="display:flex;flex-direction:column;gap:10px;">
-      <input
-        type="email"
-        id="upa-exit-email"
-        placeholder="your@email.com"
-        autocomplete="email"
-        style="
-          background:rgba(255,255,255,0.07);border:1px solid rgba(0,210,255,0.25);
-          border-radius:9px;padding:12px 15px;font-size:0.9rem;
-          font-family:'Plus Jakarta Sans',system-ui,sans-serif;
-          color:rgba(235,244,255,0.94);outline:none;width:100%;
-          transition:border-color 180ms;
-        "
-        onfocus="this.style.borderColor='rgba(0,210,255,0.55)'"
-        onblur="this.style.borderColor='rgba(0,210,255,0.25)'"
-      >
-      <button id="upa-exit-submit" style="
-        width:100%;padding:13px;
-        background:linear-gradient(135deg,#00C6FF 0%,#0072B5 100%);
-        border:none;border-radius:9px;cursor:pointer;
-        font-family:'Plus Jakarta Sans',system-ui,sans-serif;
-        font-size:0.9rem;font-weight:700;color:#fff;letter-spacing:0.01em;
-        box-shadow:0 4px 16px rgba(0,114,181,0.40);
-        transition:all 180ms cubic-bezier(0.22,1,0.36,1);
-      ">Send Me the Checklist</button>
-    </div>
-
-    <!-- Confirmation (hidden initially) -->
-    <div id="upa-exit-confirm" style="
-      display:none;text-align:center;padding:14px 0 6px;
-      font-size:0.9375rem;font-weight:600;
-      color:rgba(0,210,255,0.90);
-    ">✓ On its way! Check your inbox.</div>
-
-    <p style="font-size:0.5625rem;color:rgba(235,244,255,0.28);margin-top:12px;line-height:1.5;text-align:center;">
-      We respect your privacy. Unsubscribe anytime. No spam.
-    </p>
-  </div>
-</div>
-
-<script>
-(function() {
-  var POPUP_KEY = 'upa_exit_popup_shown';
-  var LEAD_KEY  = 'upa_lead_email';
-
-  // Only show once per session
-  if (sessionStorage.getItem(POPUP_KEY)) return;
-
-  var popup   = document.getElementById('upa-exit-popup');
-  var closeBtn= document.getElementById('upa-exit-close');
-  var submitBtn=document.getElementById('upa-exit-submit');
-  var emailIn = document.getElementById('upa-exit-email');
-  var form    = document.getElementById('upa-exit-form');
-  var confirm = document.getElementById('upa-exit-confirm');
-
-  if (!popup) return;
-
-  function openPopup() {
-    if (sessionStorage.getItem(POPUP_KEY)) return;
-    popup.style.display = 'flex';
-    sessionStorage.setItem(POPUP_KEY, '1');
-    // Auto-focus email after transition
-    setTimeout(function() { if (emailIn) emailIn.focus(); }, 150);
-  }
-
-  function closePopup() {
-    popup.style.display = 'none';
-  }
-
-  // Exit intent: mouse leaves toward top of viewport
-  var triggered = false;
-  document.addEventListener('mouseleave', function(e) {
-    if (triggered) return;
-    if (e.clientY <= 8) { // heading toward browser chrome
-      triggered = true;
-      // Small delay so it doesn't feel jarring
-      setTimeout(openPopup, 200);
-    }
-  });
-
-  // Mobile fallback: show after 45s of inactivity on mobile
-  if (/Mobi|Android/i.test(navigator.userAgent)) {
-    setTimeout(openPopup, 45000);
-  }
-
-  // Close on backdrop click
-  popup.addEventListener('click', function(e) {
-    if (e.target === popup) closePopup();
-  });
-
-  // Close button
-  if (closeBtn) closeBtn.addEventListener('click', closePopup);
-
-  // Close on Escape
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && popup.style.display !== 'none') closePopup();
-  });
-
-  // Hover effect on close btn
-  if (closeBtn) {
-    closeBtn.addEventListener('mouseenter', function() {
-      this.style.background = 'rgba(255,255,255,0.14)';
-      this.style.color = 'rgba(235,244,255,0.90)';
-    });
-    closeBtn.addEventListener('mouseleave', function() {
-      this.style.background = 'rgba(255,255,255,0.07)';
-      this.style.color = 'rgba(235,244,255,0.55)';
-    });
-  }
-
-  // Submit hover effect
-  if (submitBtn) {
-    submitBtn.addEventListener('mouseenter', function() {
-      this.style.transform = 'translateY(-1px)';
-      this.style.boxShadow = '0 6px 22px rgba(0,114,181,0.55)';
-    });
-    submitBtn.addEventListener('mouseleave', function() {
-      this.style.transform = '';
-      this.style.boxShadow = '0 4px 16px rgba(0,114,181,0.40)';
-    });
-  }
-
-  // Submit
-  if (submitBtn) {
-    submitBtn.addEventListener('click', function() {
-      var val = emailIn ? emailIn.value.trim() : '';
-      if (!val || !val.includes('@')) {
-        if (emailIn) {
-          emailIn.focus();
-          emailIn.style.borderColor = 'rgba(224,59,59,0.70)';
-        }
-        return;
-      }
-      // Store lead
-      try { localStorage.setItem(LEAD_KEY, val); } catch(e) {}
-      // Send to formspree
-      fetch('https://formspree.io/f/xkgnrdnp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ email: val, source: 'exit-intent-popup', page: 'landing', checklist: '7-things' })
-      }).then(function(r){ console.log('[UPA] Exit intent lead →', r.status); })
-        .catch(function(e){ console.warn('[UPA] Exit popup send failed (non-blocking)', e); });
-      // Show confirmation
-      if (form) form.style.display = 'none';
-      if (confirm) confirm.style.display = 'block';
-      // Auto-close after 2.8s
-      setTimeout(closePopup, 2800);
-    });
-  }
-})();
-</script>
-
+<script src="upa-state-persistence.js"></script>
 </body>
 </html>

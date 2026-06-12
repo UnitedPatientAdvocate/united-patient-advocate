@@ -147,39 +147,18 @@ a{color:inherit;text-decoration:none}
 .col-6{grid-column:span 6}
 
 /* ── Value stack (What you get) ── */
-.vcount{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,1.15fr);gap:24px;align-items:center;background:linear-gradient(150deg,var(--navy),#0e1626);color:#fff;border-radius:22px;padding:30px 38px;box-shadow:var(--shadow-lg);max-width:980px;margin:0 auto clamp(40px,5vw,58px);position:relative;overflow:hidden}
-.vcount::after{content:"";position:absolute;inset:auto -10% -40% auto;width:46%;height:90%;background:radial-gradient(circle,rgba(201,168,76,.20),transparent 65%);pointer-events:none}
-.vcount-copy{display:flex;align-items:center;gap:16px;position:relative;z-index:1}
-.vcount-badge{display:flex;align-items:center;gap:16px;position:relative;z-index:1}
-.vcount-badge .shield-badge{width:52px;height:52px;border-radius:15px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14)}
-.vcount-badge .shield-badge svg{width:27px;height:27px}
-.vcount-num{font-family:var(--serif);font-weight:800;font-size:clamp(3.2rem,7vw,4.6rem);line-height:1;letter-spacing:-.03em;color:var(--gold)}
-.vcount-text{position:relative;z-index:1;max-width:42ch}
-.vcount-t{font-family:var(--serif);font-weight:700;font-size:1.3rem;letter-spacing:-.01em}
-.vcount-s{font-size:.95rem;color:var(--on-dark-2);line-height:1.55;margin-top:4px}
-.vcount-media{position:relative;z-index:1}
-.vcount-media img{display:block;width:100%;height:auto;border-radius:18px;border:1px solid rgba(255,255,255,.18);box-shadow:0 16px 40px rgba(0,0,0,.25);background:#1b2436;object-fit:cover}
-
-.vgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
-.vgroup{background:var(--surface);border:1px solid var(--line-soft);border-radius:20px;padding:28px 28px 24px;box-shadow:var(--shadow-sm)}
-.vgroup-head{display:flex;align-items:center;gap:13px;padding-bottom:16px;margin-bottom:8px;border-bottom:1px solid var(--line-soft)}
-.vgroup-head .shield-badge{width:40px;height:40px;border-radius:11px}
-.vgroup-head .shield-badge svg{width:21px;height:21px}
-.vgroup-head h3{font-family:var(--serif);font-weight:700;font-size:1.22rem;color:var(--navy);letter-spacing:-.01em}
-.vlist{list-style:none;display:flex;flex-direction:column}
-.vlist li{display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line-soft)}
-.vlist li:last-child{border-bottom:none;padding-bottom:4px}
-.vnum{flex:none;font-family:var(--serif);font-weight:700;font-size:.92rem;color:var(--teal);min-width:26px;padding-top:1px;letter-spacing:.02em}
-.vname{font-size:.99rem;font-weight:600;color:var(--ink);line-height:1.4}
-.vcond{display:block;margin-top:3px;font-size:.76rem;font-weight:500;color:var(--ink-4);letter-spacing:.01em}
+.vcount{width:100vw;margin:0 calc(50% - 50vw);background:var(--navy);box-shadow:var(--shadow-lg);overflow:hidden}
+.vcount-media{width:100%}
+.vcount-media img{display:block;width:100%;height:auto;background:var(--navy)}
+.vcount-caption{display:block;margin:18px auto 0;text-align:center;font-size:.82rem;font-weight:600;color:var(--ink-4);letter-spacing:.01em}
 
 .vanchor{max-width:660px;margin:clamp(40px,5vw,56px) auto 0;text-align:center;font-size:1.08rem;color:var(--ink-2);line-height:1.66}
 .vanchor strong{font-family:var(--serif);font-weight:700;color:var(--teal)}
 
 @media(max-width:760px){
-  .vgrid{grid-template-columns:1fr}
-  .vcount{flex-direction:column;text-align:center;gap:16px;padding:28px 24px}
-  .vcount-text{max-width:none}
+  .vcount{overflow-x:auto;scrollbar-color:rgba(29,158,117,.65) var(--navy);scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+  .vcount-media{width:720px}
+  .vcount-caption{margin-top:14px;padding:0 12px;font-size:.78rem}
 }
 
 /* ── Value / offer ── */
@@ -364,72 +343,11 @@ a{color:inherit;text-decoration:none}
     </div>
 
     <div class="vcount">
-      <div class="vcount-copy">
-        <div class="vcount-badge">
-          <span class="shield shield-badge"><svg viewBox="0 0 24 24"><path class="ico" d="m12 2.5 9 5-9 5-9-5 9-5Z"/><path class="ico" d="m3 12 9 5 9-5"/><path class="ico" d="m3 16.5 9 5 9-5"/></svg></span>
-          <span class="vcount-num">14</span>
-        </div>
-        <div class="vcount-text">
-          <div class="vcount-t">Fourteen tools</div>
-          <div class="vcount-s">All built from your own bill, organized so you always know the next step.</div>
-        </div>
-      </div>
       <div class="vcount-media">
         <img src="/UPA-Final/43-upa-14-tool-offer-43.jpg" alt="The Ultimate Patient Advocacy System tool offer showing core tools and free bonus tools">
       </div>
     </div>
-
-    <div class="vgrid">
-      <article class="vgroup">
-        <header class="vgroup-head">
-          <span class="shield shield-badge"><svg viewBox="0 0 24 24"><circle class="ico" cx="11" cy="11" r="7"/><path class="ico" d="m20.5 20.5-4-4"/></svg></span>
-          <h3>Understand</h3>
-        </header>
-        <ul class="vlist">
-          <li><span class="vnum">01</span><span class="vname">Personalized findings report</span></li>
-          <li><span class="vnum">02</span><span class="vname">Legal-trigger detection across five federal protection types<span class="vcond">Applies when relevant to your bill</span></span></li>
-          <li><span class="vnum">03</span><span class="vname">State-law layer for your state</span></li>
-          <li><span class="vnum">04</span><span class="vname">Patient rights and billing guide</span></li>
-        </ul>
-      </article>
-
-      <article class="vgroup">
-        <header class="vgroup-head">
-          <span class="shield shield-badge"><svg viewBox="0 0 24 24"><path class="ico" d="M21 3 10.5 13.5"/><path class="ico" d="M21 3 14.5 21l-4-7.5-7.5-4L21 3Z"/></svg></span>
-          <h3>Act</h3>
-        </header>
-        <ul class="vlist">
-          <li><span class="vnum">05</span><span class="vname">Prepared dispute letters</span></li>
-          <li><span class="vnum">06</span><span class="vname">Appeal letters</span></li>
-          <li><span class="vnum">07</span><span class="vname">Personalized call scripts with your hospital name and codes</span></li>
-          <li><span class="vnum">08</span><span class="vname">Escalation playbook</span></li>
-          <li><span class="vnum">09</span><span class="vname">Charity Care Finder<span class="vcond">Applies when relevant to your bill</span></span></li>
-        </ul>
-      </article>
-
-      <article class="vgroup">
-        <header class="vgroup-head">
-          <span class="shield shield-badge"><svg viewBox="0 0 24 24"><rect class="ico" x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path class="ico" d="M3.5 9.5h17M8 2.5v4M16 2.5v4"/><path class="ico" d="m8.5 14.5 2.2 2.2 4.3-4.4"/></svg></span>
-          <h3>Stay on track</h3>
-        </header>
-        <ul class="vlist">
-          <li><span class="vnum">10</span><span class="vname">Appeal deadline tracker</span></li>
-          <li><span class="vnum">11</span><span class="vname">Evidence checklist</span></li>
-          <li><span class="vnum">12</span><span class="vname">Quick start guide</span></li>
-        </ul>
-      </article>
-
-      <article class="vgroup">
-        <header class="vgroup-head">
-          <span class="shield shield-badge"><svg viewBox="0 0 24 24"><rect class="ico" x="3.5" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect class="ico" x="13" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect class="ico" x="3.5" y="13" width="7.5" height="7.5" rx="1.6"/><rect class="ico" x="13" y="13" width="7.5" height="7.5" rx="1.6"/></svg></span>
-          <h3>Workspace</h3>
-        </header>
-        <ul class="vlist">
-          <li><span class="vnum">13</span><span class="vname">One-action dashboard that walks you step by step</span></li>
-          <li><span class="vnum">14</span><span class="vname">Complete case packet, ready to print</span></li>
-        </ul>
-      </article>
-    </div>
+    <span class="vcount-caption">Applies when relevant to your bill.</span>
 
     <p class="vanchor">Many billing advocates take 20 to 35 percent of any reduction they reach. With United Patient Advocate you pay one flat <strong>$97</strong> and keep everything.</p>
   </div>

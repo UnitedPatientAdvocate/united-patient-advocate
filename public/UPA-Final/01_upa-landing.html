@@ -220,13 +220,15 @@ a{color:inherit;text-decoration:none}
 /* ── Responsive ── */
 @media(max-width:920px){
   .hero-inner{grid-template-columns:1fr;gap:38px}
-  .hero-visual{order:-1}
+  .hero-copy{order:1}
+  .hero-visual{order:2}
   .offer-grid{grid-template-columns:1fr}
   .proof-inner{grid-template-columns:1fr;gap:18px}
   .steps{grid-template-columns:1fr}
   .col-7,.col-5,.col-4,.col-6{grid-column:span 12}
 }
 @media(max-width:560px){
+  html{scroll-padding-top:128px}
   .wrap{padding:0 20px}
   .nav-inner{padding:11px 18px;gap:12px}
   .brand{gap:10px}
@@ -237,13 +239,18 @@ a{color:inherit;text-decoration:none}
   .nav .btn-sm svg{width:15px;height:15px}
   .topbar{font-size:.72rem;padding:7px 14px}
   .topbar-tag{font-size:.6rem;padding:3px 8px;margin-right:7px}
+  .hero-inner{padding-top:54px}
   .hero h1{font-size:2.35rem}
   .hero-sub{font-size:1.05rem}
+  .hero-actions,.price-card,.final-inner{scroll-margin-top:128px}
+  .hero-actions{margin-top:30px}
   .compare-row{flex-direction:column;align-items:flex-start;gap:5px}
   .compare-val,.compare-val.us{white-space:normal;font-size:.98rem}
   .price-card{padding:30px 22px}
   .price-list li{font-size:.92rem}
   .price-amt{font-size:3rem}
+  .footer-disc{color:rgba(255,255,255,.72)}
+  .footer-copy{color:rgba(255,255,255,.58)}
 }
 @media(max-width:380px){
   .brand-name{font-size:.84rem}

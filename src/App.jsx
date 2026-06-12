@@ -605,11 +605,6 @@ nav {
   text-transform: uppercase; border: 1.5px solid currentColor; text-align: center; line-height: 1.2;
 }
 .cred-logo-name { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
-.logo-uhc { color: #1A6EBF; }
-.logo-aetna { color: #7B1FA2; }
-.logo-cigna { color: #0057B7; }
-.logo-bcbs { color: #003087; }
-.logo-humana { color: #00833E; }
 .cred-disc { font-size: 0.62rem; color: var(--ink4); margin-top: 16px; line-height: 1.6; }
 
 /* SCROLL TRAP */
@@ -2114,7 +2109,7 @@ button, a, .btn-hero, .btn-cta, .nav-btn, .bill-option {
   background: #EBF0FA !important;
 }
 
-/* CITATIONS ? Image 4: "Commonwealth Fund (2024)" faded */
+/* CITATIONS */
 .hero-stat-n {
   color: #1F3A68 !important;
 }
@@ -2187,12 +2182,7 @@ body.dark-mode { background: #141924 !important; }
 `;
 
 // Section
-const URGENCY_HTML  = `<!-- URGENCY BAR -->
-<div class="urgency">
-  Introductory pricing &mdash; <em>this offer may not last. Lock in your rate today.</em>
-</div>
-
-`;
+const URGENCY_HTML  = ``;
 const HERO_HTML     = `<!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
@@ -2212,60 +2202,25 @@ const HERO_HTML     = `<!-- HERO -->
       <div class="microcopy">
         <div class="microcopy-item">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          No upfront cost
+          Start with the bill you have
         </div>
         <div class="microcopy-dot"></div>
         <div class="microcopy-item">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Takes 60 seconds
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          You review every finding
         </div>
         <div class="microcopy-dot"></div>
         <div class="microcopy-item">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          100% confidential
+          Independent billing review
         </div>
-      </div>
-    </div>
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="hero-stat-n">$88B</div>
-        <div class="hero-stat-l">in billing errors on<br>U.S. credit reports</div>
-        <div class="hero-stat-src">CFPB &middot; 2025</div>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="hero-stat">
-        <div class="hero-stat-n">45%</div>
-        <div class="hero-stat-l">of insured patients reported<br>unexpected bills</div>
-        <div class="hero-stat-src">Commonwealth Fund &middot; 2024</div>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="hero-stat">
-        <div class="hero-stat-n">3 min</div>
-        <div class="hero-stat-l">to complete your<br>review submission</div>
-        <div class="hero-stat-src">United Patient Advocate</div>
       </div>
     </div>
   </div>
 </section>
 
 `;
-const CRED_HTML     = `<!-- CREDIBILITY STRIP -->
-<div class="cred-strip">
-  <div class="cred-inner">
-    <div class="cred-label">Experienced with major U.S. insurance providers &amp; hospital systems</div>
-    <div class="cred-logos">
-      <div class="cred-logo logo-uhc"><div class="cred-logo-mark">UHC</div><div class="cred-logo-name">UnitedHealth</div></div>
-      <div class="cred-logo logo-aetna"><div class="cred-logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="cred-logo-name">Aetna</div></div>
-      <div class="cred-logo logo-cigna"><div class="cred-logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg></div><div class="cred-logo-name">Cigna</div></div>
-      <div class="cred-logo logo-bcbs"><div class="cred-logo-mark">BCBS</div><div class="cred-logo-name">Blue Cross</div></div>
-      <div class="cred-logo logo-humana"><div class="cred-logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><div class="cred-logo-name">Humana</div></div>
-    </div>
-    <div class="cred-disc">All institutions listed are referenced solely for informational and research reference purposes. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any institution listed above. Referenced institutions include UnitedHealthcare, Aetna, Cigna, Blue Cross Blue Shield, and Humana.</div>
-  </div>
-</div>
-
-
-`;
+const CRED_HTML     = ``;
 const RESEARCH_HTML = `<!-- RESEARCH REFERENCES GRID -->
 <section style="background:#1F3A68;padding:72px 24px;">
   <div style="max-width:960px;margin:0 auto;">
@@ -2279,106 +2234,30 @@ const RESEARCH_HTML = `<!-- RESEARCH REFERENCES GRID -->
         What the data shows
       </h2>
       <p style="font-size:0.88rem;color:rgba(255,255,255,0.42);max-width:440px;margin:0 auto;line-height:1.65;">
-        Peer-reviewed publications, federal government reports, and independent research organizations ? cited for informational reference only.
+        Public billing references used to help organize your review.
       </p>
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:28px;">
 
-      <!-- 1. Johns Hopkins + Harvard Risk Mgmt -->
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:20px 20px 18px;">
-        <div style="display:flex;gap:12px;align-items:flex-start;">
-          <div style="width:44px;height:44px;border-radius:11px;background:rgba(123,168,224,0.15);border:1px solid rgba(123,168,224,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif;font-size:0.58rem;font-weight:900;color:#7BA8E0;text-align:center;line-height:1.2;letter-spacing:0.03em;">JHM</div>
-          <div style="flex:1;">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:800;color:#fff;margin-bottom:3px;line-height:1.3;">Johns Hopkins Medicine</div>
-            <div style="font-size:0.65rem;color:rgba(255,255,255,0.38);line-height:1.5;margin-bottom:10px;">Armstrong Institute &amp; Harvard Risk Management Foundation &mdash; BMJ Quality &amp; Safety &middot; July 2023</div>
-            <div style="font-family:'Playfair Display',Georgia,serif;font-size:2rem;font-weight:800;color:#fff;letter-spacing:-0.04em;line-height:1;margin-bottom:8px;">795,000</div>
-            <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:1.6;">Americans experience death or permanent disability from diagnostic and medical errors annually.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. Harvard Medical School / Mayo Clinic Proceedings -->
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:20px 20px 18px;">
-        <div style="display:flex;gap:12px;align-items:flex-start;">
-          <div style="width:44px;height:44px;border-radius:11px;background:rgba(123,168,224,0.15);border:1px solid rgba(123,168,224,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif;font-size:0.58rem;font-weight:900;color:#7BA8E0;text-align:center;line-height:1.2;letter-spacing:0.03em;">HMS</div>
-          <div style="flex:1;">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:800;color:#fff;margin-bottom:3px;line-height:1.3;">Harvard Medical School</div>
-            <div style="font-size:0.65rem;color:rgba(255,255,255,0.38);line-height:1.5;margin-bottom:10px;">Dr. Edward P. Hoffer &mdash; Mayo Clinic Proceedings: Digital Health &middot; May 2023</div>
-            <div style="font-size:0.8rem;color:rgba(255,255,255,0.72);line-height:1.65;">Published research documents how electronic medical record systems may contribute to billing entries that do not reflect the services as actually rendered.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. Commonwealth Fund -->
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:20px 20px 18px;">
-        <div style="display:flex;gap:12px;align-items:flex-start;">
-          <div style="width:44px;height:44px;border-radius:11px;background:rgba(76,175,128,0.15);border:1px solid rgba(76,175,128,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif;font-size:0.58rem;font-weight:900;color:#4CAF80;text-align:center;line-height:1.2;letter-spacing:0.03em;">CF</div>
-          <div style="flex:1;">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:800;color:#fff;margin-bottom:3px;line-height:1.3;">The Commonwealth Fund</div>
-            <div style="font-size:0.65rem;color:rgba(255,255,255,0.38);line-height:1.5;margin-bottom:10px;">Survey of 7,800+ insured U.S. adults &middot; August 2024</div>
-            <div style="display:flex;gap:14px;margin-bottom:8px;">
-              <div><div style="font-family:'Playfair Display',Georgia,serif;font-size:2rem;font-weight:800;color:#fff;letter-spacing:-0.04em;line-height:1;">45%</div><div style="font-size:0.66rem;color:rgba(255,255,255,0.45);margin-top:2px;">unexpected bills</div></div>
-              <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
-              <div><div style="font-family:'Playfair Display',Georgia,serif;font-size:2rem;font-weight:800;color:#86EFAC;letter-spacing:-0.04em;line-height:1;">38%</div><div style="font-size:0.66rem;color:rgba(255,255,255,0.45);margin-top:2px;">who disputed saw corrections</div></div>
-            </div>
-            <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:1.6;">Of 7,800+ insured U.S. adults surveyed.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. U.S. CFPB -->
+      <!-- CFPB -->
       <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:20px 20px 18px;">
         <div style="display:flex;gap:12px;align-items:flex-start;">
           <div style="width:44px;height:44px;border-radius:11px;background:rgba(224,112,112,0.15);border:1px solid rgba(224,112,112,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif;font-size:0.58rem;font-weight:900;color:#E07070;text-align:center;line-height:1.2;letter-spacing:0.03em;">CFPB</div>
           <div style="flex:1;">
             <div style="font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:800;color:#fff;margin-bottom:3px;line-height:1.3;">U.S. Consumer Financial Protection Bureau</div>
-            <div style="font-size:0.65rem;color:rgba(255,255,255,0.38);line-height:1.5;margin-bottom:10px;">Federal Government Report &middot; 2025</div>
-            <div style="font-family:'Playfair Display',Georgia,serif;font-size:2rem;font-weight:800;color:#fff;letter-spacing:-0.04em;line-height:1;margin-bottom:8px;">$88B</div>
-            <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:1.6;">In medical billing-related debt on consumer credit reports. A 2025 federal rule addressed this for an estimated 15 million Americans.</div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:1.6;">Public consumer billing guidance helps explain common billing and debt concerns.</div>
           </div>
         </div>
       </div>
 
-      <!-- 5. CFPB Office for Older Americans -->
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:20px 20px 18px;">
-        <div style="display:flex;gap:12px;align-items:flex-start;">
-          <div style="width:44px;height:44px;border-radius:11px;background:rgba(212,160,64,0.15);border:1px solid rgba(212,160,64,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif;font-size:0.58rem;font-weight:900;color:#D4A040;text-align:center;line-height:1.2;letter-spacing:0.03em;">OAm</div>
-          <div style="flex:1;">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:800;color:#fff;margin-bottom:3px;line-height:1.3;">CFPB Office for Older Americans</div>
-            <div style="font-size:0.65rem;color:rgba(255,255,255,0.38);line-height:1.5;margin-bottom:10px;">Federal Government Research &middot; 2023</div>
-            <div style="font-family:'Playfair Display',Georgia,serif;font-size:2rem;font-weight:800;color:#fff;letter-spacing:-0.04em;line-height:1;margin-bottom:8px;">4 million</div>
-            <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:1.6;">Adults 65+ reporting unpaid medical bills ? despite 98% holding health insurance.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 6. CMS FY 2024 -->
+      <!-- CMS -->
       <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:20px 20px 18px;">
         <div style="display:flex;gap:12px;align-items:flex-start;">
           <div style="width:44px;height:44px;border-radius:11px;background:rgba(123,168,224,0.15);border:1px solid rgba(123,168,224,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif;font-size:0.58rem;font-weight:900;color:#7BA8E0;text-align:center;line-height:1.2;letter-spacing:0.03em;">CMS</div>
           <div style="flex:1;">
             <div style="font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:800;color:#fff;margin-bottom:3px;line-height:1.3;">Centers for Medicare &amp; Medicaid Services</div>
-            <div style="font-size:0.65rem;color:rgba(255,255,255,0.38);line-height:1.5;margin-bottom:10px;">U.S. Federal Government Annual Report &middot; FY 2024</div>
-            <div style="display:flex;gap:14px;margin-bottom:8px;">
-              <div><div style="font-family:'Playfair Display',Georgia,serif;font-size:2rem;font-weight:800;color:#fff;letter-spacing:-0.04em;line-height:1;">$31.7B</div><div style="font-size:0.66rem;color:rgba(255,255,255,0.45);margin-top:2px;">improper payments</div></div>
-              <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
-              <div><div style="font-family:'Playfair Display',Georgia,serif;font-size:2rem;font-weight:800;color:#FCD34D;letter-spacing:-0.04em;line-height:1;">7.66%</div><div style="font-size:0.66rem;color:rgba(255,255,255,0.45);margin-top:2px;">error rate</div></div>
-            </div>
-            <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:1.6;">Medicare program, FY 2024 annual report.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 7. AARP -->
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:20px 20px 18px;">
-        <div style="display:flex;gap:12px;align-items:flex-start;">
-          <div style="width:44px;height:44px;border-radius:11px;background:rgba(212,160,64,0.15);border:1px solid rgba(212,160,64,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif;font-size:0.58rem;font-weight:900;color:#D4A040;text-align:center;line-height:1.2;letter-spacing:0.03em;">AARP</div>
-          <div style="flex:1;">
-            <div style="font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:800;color:#fff;margin-bottom:3px;line-height:1.3;">AARP Public Policy Institute</div>
-            <div style="font-size:0.65rem;color:rgba(255,255,255,0.38);line-height:1.5;margin-bottom:10px;">National Policy Research &middot; 2025</div>
-            <div style="font-family:'Playfair Display',Georgia,serif;font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-0.03em;line-height:1.1;margin-bottom:8px;">#1 financial concern</div>
-            <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:1.6;">Medical debt identified as the leading financial concern for Americans over 50.</div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:1.6;">Published Medicare laboratory rates provide a reference when a matching lab code is present.</div>
           </div>
         </div>
       </div>
@@ -2389,7 +2268,7 @@ const RESEARCH_HTML = `<!-- RESEARCH REFERENCES GRID -->
     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px 20px;display:flex;gap:12px;align-items:flex-start;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.8" stroke-linecap="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <p style="font-size:0.68rem;color:rgba(255,255,255,0.3);line-height:1.75;margin:0;">
-        <strong style="color:rgba(255,255,255,0.45);font-weight:700;">Research Reference Disclosure:</strong> Institutions and studies cited above are referenced solely for informational and research reference purposes. Statistics reflect the findings of the original publishing organizations and are not claims made by United Patient Advocate. United Patient Advocate is not affiliated with, endorsed by, or sponsored by Johns Hopkins Medicine, Harvard Medical School, The Commonwealth Fund, the Consumer Financial Protection Bureau, the Centers for Medicare &amp; Medicaid Services, AARP, or any other institution referenced. Individual billing outcomes vary and are not implied by any statistic cited above.
+        <strong style="color:rgba(255,255,255,0.45);font-weight:700;">Public Reference Disclosure:</strong> CMS and CFPB references are used for educational context only. United Patient Advocate is an independent service and is not affiliated with either agency.
       </p>
     </div>
 
@@ -2400,7 +2279,7 @@ const RESEARCH_HTML = `<!-- RESEARCH REFERENCES GRID -->
 const TRAP_HTML     = `<!-- SCROLL TRAP -->
 <div class="scroll-trap" id="scroll-trap">
   <div class="scroll-trap-inner">
-    <div class="trap-step">Quick question &mdash; 5 seconds</div>
+    <div class="trap-step">A quick question</div>
     <h2 class="trap-q">How much is your medical bill?</h2>
     <p class="trap-sub">Select the range that fits. We will explain what a review typically covers for your bill size.</p>
     <div class="bill-options">
@@ -2441,7 +2320,7 @@ const ANALYSIS_HTML = `<!-- ANALYSIS PREVIEW -->
 
     <div class="analysis-card">
       <div class="analysis-card-header">
-        <div class="analysis-card-title">United Patient Advocate &mdash; Billing Analysis Report</div>
+        <div class="analysis-card-title">United Patient Advocate: Billing Analysis Report</div>
         <div class="analysis-card-meta">
           <span class="analysis-chip chip-teal">In Review</span>
           <span class="analysis-chip chip-amber">3 Flags</span>
@@ -2608,7 +2487,7 @@ const REVIEW_HTML   = `<!-- WHAT WE REVIEW -->
         <div class="step-num"><div class="step-num-inner">1</div></div>
         <div class="step-title">Upload or enter your bill</div>
         <div class="step-desc">Photo, PDF, or screenshot. Or type the key amounts manually. Either way works.</div>
-        <div class="step-time">Under 60 seconds</div>
+        <div class="step-time">Use the document you have</div>
       </div>
       <div class="step-item">
         <div class="step-num"><div class="step-num-inner">2</div></div>
@@ -2620,7 +2499,7 @@ const REVIEW_HTML   = `<!-- WHAT WE REVIEW -->
         <div class="step-num"><div class="step-num-inner">3</div></div>
         <div class="step-title">You receive your report</div>
         <div class="step-desc">Dispute reference letter, structured phone script, action plan, and consumer billing rights overview ? sent to your inbox.</div>
-        <div class="step-time">Delivered in minutes</div>
+        <div class="step-time">Review at your own pace</div>
       </div>
     </div>
   </div>
@@ -2918,10 +2797,10 @@ const TRUST_HTML    = `<!-- TRUST STACK -->
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#92400E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="1"/><polyline points="17 22 17 7 7 7 7 22"/><line x1="2" y1="11" x2="22" y2="11"/><line x1="10" y1="11" x2="10" y2="22"/><line x1="14" y1="11" x2="14" y2="22"/><path d="M10 7V4a2 2 0 0 1 4 0v3"/></svg>
         </div>
         <div class="trust-item" style="flex:1;background:transparent;border:none;padding:0;gap:0;flex-direction:column;align-items:flex-start">
-          <div class="trust-title">Experienced with all major U.S. insurers</div>
-          <div class="trust-desc">Our billing review process covers all major insurance providers and hospital billing systems across the United States.</div>
+          <div class="trust-title">Built around your case details</div>
+          <div class="trust-desc">Your review uses the information available in your bill and the details you confirm.</div>
         </div>
-        <div class="trust-badge">All major insurers</div>
+        <div class="trust-badge">Case specific</div>
       </div>
     </div>
   </div>
@@ -2941,7 +2820,7 @@ const BRIDGE_HTML   = `<!-- EMOTIONAL BRIDGE -->
         Many patients avoid reviewing their medical bills not because they do not care, but because billing statements are written in a language most people were never taught to read. CPT procedure codes, ICD-10 diagnosis references, explanation of benefits documents, and provider charge breakdowns can feel unfamiliar and overwhelming ? even to educated, attentive adults.
       </p>
       <p style="font-family:'DM Sans',sans-serif;font-size:0.92rem;color:var(--ink2);line-height:1.82;margin-bottom:14px;">
-        According to published research from <strong style="color:var(--ink);">The Commonwealth Fund (2024)</strong>, 45% of insured Americans received unexpected bills for services they believed were covered ? and most did not know where to begin when reviewing them.
+        A careful review can help you understand what is documented, what may need clarification, and what questions to ask next.
       </p>
       <p style="font-family:'DM Sans',sans-serif;font-size:0.92rem;color:var(--ink2);line-height:1.82;margin-bottom:0;">
         Reviewing a medical bill is a normal, reasonable, and often important step in managing your healthcare. You do not need a medical background or legal training. You need organized documentation, clear references, and a structured process. That is what we prepare for you.
@@ -2995,7 +2874,7 @@ const CLOSE_HTML    = `<!-- CLOSE / UPLOAD -->
         </div>
         <div style="flex:1">
           <div class="uploaded-name" id="uploaded-name">bill.pdf</div>
-          <div class="uploaded-sub">Ready &mdash; tap Start My Review below</div>
+          <div class="uploaded-sub">Ready. Tap Start My Review below.</div>
         </div>
         <button class="uploaded-remove" data-cta="true">&#215;</button>
       </div>
@@ -3085,7 +2964,7 @@ const CLOSE_HTML    = `<!-- CLOSE / UPLOAD -->
 `;
 const FOOTER_HTML   = `<!-- FOOTER -->
 <footer>
-  <p>United Patient Advocate is an independent medical billing review and dispute preparation service. We provide educational billing analysis, Medicare benchmark comparisons, coding review references, and consumer dispute documentation tools. Results vary based on provider policies, insurer determinations, and individual circumstances. Nothing on this site constitutes legal, medical, or financial advice. Institutions referenced &mdash; including Harvard Medical School, Johns Hopkins Medicine, CMS, CFPB, AARP, Commonwealth Fund, UnitedHealthcare, Aetna, Cigna, Blue Cross Blue Shield, and Humana &mdash; are cited solely for informational and research reference purposes. United Patient Advocate is not affiliated with, endorsed by, or sponsored by any referenced institution. Due to the instant digital delivery of personalized content, all sales are final. &copy; 2026 United Patient Advocate &mdash; unitedpatientadvocate.com</p>
+  <p>United Patient Advocate is an independent medical billing review and dispute preparation service. We provide educational billing analysis, Medicare laboratory benchmark comparisons, coding review references, and consumer dispute documentation tools. Results vary based on provider policies, insurer determinations, and individual circumstances. Nothing on this site constitutes legal, medical, or financial advice. Public references are limited to CMS and CFPB and are used solely for educational context. United Patient Advocate is not affiliated with either agency. Due to the instant digital delivery of personalized content, all sales are final. &copy; 2026 United Patient Advocate. unitedpatientadvocate.com</p>
 </footer>
 
 <script>
@@ -3566,7 +3445,7 @@ function Form({ step, setStep, form, update, onSubmit, onBack, mode, toggleMode 
                 <option value="partially_paid">Partially paid</option>
               </select>
               <label style={{...lS,color:ink}}>Any specific concerns? <span style={{ color:ink3,fontWeight:400 }}>(optional)</span></label>
-              <textarea style={{...inputStyle,minHeight:88,resize:"vertical"}} placeholder="e.g. Doctor saw me 30 seconds, billed for full consultation..." value={form.specificConcerns} onChange={e=>update("specificConcerns",e.target.value)} />
+              <textarea style={{...inputStyle,minHeight:88,resize:"vertical"}} placeholder="e.g. Brief visit, billed for full consultation..." value={form.specificConcerns} onChange={e=>update("specificConcerns",e.target.value)} />
             </div>
           )}
 

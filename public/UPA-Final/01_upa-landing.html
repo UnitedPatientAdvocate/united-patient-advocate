@@ -108,11 +108,11 @@ a{color:inherit;text-decoration:none}
 .hero-frame{position:relative;aspect-ratio:4/3;border-radius:26px;overflow:hidden;background:radial-gradient(120% 120% at 30% 30%,#1c2740,#0f1727);box-shadow:var(--shadow-lg);border:1px solid rgba(255,255,255,.06)}
 .hero-frame img{width:100%;height:100%;object-fit:cover;object-position:28% center;transform:scale(1.18);display:block}
 .hero-glow{position:absolute;inset:-30% -20% auto auto;width:60%;height:80%;background:radial-gradient(circle,rgba(201,168,76,.22),transparent 65%);pointer-events:none}
-.hero-chip{position:absolute;left:-18px;bottom:26px;display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:13px 18px 13px 13px;box-shadow:var(--shadow-md);border:1px solid var(--line-soft)}
+.hero-chip{display:flex;align-items:center;gap:12px;width:fit-content;max-width:100%;box-sizing:border-box;margin:18px auto 0;background:#fff;border-radius:16px;padding:13px 18px 13px 13px;box-shadow:var(--shadow-md);border:1px solid var(--line-soft)}
 .hero-chip .shield-badge{width:40px;height:40px;border-radius:11px}
 .hero-chip .shield-badge svg{width:21px;height:21px}
-.hero-chip-t{font-size:.82rem;font-weight:700;color:var(--navy);line-height:1.2}
-.hero-chip-s{font-size:.72rem;color:var(--ink-3);margin-top:2px}
+.hero-chip-t{display:block;font-size:.82rem;font-weight:700;color:var(--navy);line-height:1.2}
+.hero-chip-s{display:block;font-size:.72rem;color:var(--ink-3);margin-top:2px}
 
 /* ── Proof strip ── */
 .proof{background:var(--navy);color:var(--on-dark)}

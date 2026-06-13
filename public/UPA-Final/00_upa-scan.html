@@ -1484,6 +1484,8 @@ function renderFindings(data, findings) {
   }
   if (sublineEl && date) {
     sublineEl.textContent = 'Scanned from your ' + (date ? date + ' ' : '') + 'document. These are preliminary review areas based on extracted bill text, not a final determination.';
+  } else if (sublineEl && data._manualIntake) {
+    sublineEl.textContent = 'Prepared from the details you entered. These are preliminary review areas to help you decide what to ask about next.';
   }
 
   // Severity summary pills
@@ -1552,9 +1554,9 @@ function renderFindings(data, findings) {
   if (estimate.display) {
     caseValBlock.innerHTML =
       '<div class="cvb-left">' +
-        '<div class="cvb-label">Extracted bill total</div>' +
+        '<div class="cvb-label">' + (data._manualIntake ? 'Bill total provided' : 'Extracted bill total') + '</div>' +
         '<div class="cvb-amount">' + esc(estimate.display) + '</div>' +
-        '<div class="cvb-desc">This is the total read from your uploaded document. Confirm it against your statement.</div>' +
+        '<div class="cvb-desc">' + (data._manualIntake ? 'This is the total entered in your guided intake. Confirm it against your statement.' : 'This is the total read from your uploaded document. Confirm it against your statement.') + '</div>' +
       '</div>';
   } else {
     caseValBlock.innerHTML =
@@ -1590,7 +1592,7 @@ function renderFindings(data, findings) {
 
   upgradeBlock.innerHTML =
     '<div class="ub-title">Unlock your prepared review</div>' +
-    '<div class="ub-sub">Your scan prepared ' + findings.length + ' review items from the PDF. Unlock the full packet to see the complete explanations, written requests, and next steps prepared for you to review and send.</div>' +
+    '<div class="ub-sub">Your ' + (data._manualIntake ? 'guided intake' : 'scan') + ' prepared ' + findings.length + ' review items. Unlock the full packet to see the complete explanations, written requests, and next steps prepared for you to review and send.</div>' +
     '<div class="ub-includes">' +
       includeItems.map(function(item) {
         return '<div class="ub-include-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' + esc(item) + '</div>';
@@ -1752,7 +1754,75 @@ function hydrateCurrentScanCase() {
   showState('state-findings');
 }
 
-hydrateCurrentScanCase();
+function manualPreviewFinding(entry, index) {
+  if (typeof entry === 'string') {
+    return {
+      severity: index === 0 ? 'HIGH' : 'MEDIUM',
+      title: 'Billing Detail Needs Review',
+      headline: 'Billing Detail Needs Review',
+      body: entry,
+      teaser: entry,
+      aiTeaser: entry,
+      gated: index !== 0
+    };
+  }
+  entry = entry && typeof entry === 'object' ? entry : {};
+  var headline = entry.headline || entry.title || entry.label || 'Billing Detail Needs Review';
+  var detail = entry.detail || entry.oneLineExplanation || entry.plainRight || entry.body || headline;
+  var severity = String(entry.severity || (index === 0 ? 'HIGH' : 'MEDIUM')).toUpperCase();
+  if (severity !== 'CRITICAL' && severity !== 'HIGH' && severity !== 'MEDIUM') severity = 'MEDIUM';
+  return {
+    severity: severity,
+    title: headline,
+    headline: headline,
+    body: detail,
+    teaser: detail,
+    aiTeaser: detail,
+    gated: index !== 0
+  };
+}
+
+function manualPreviewFindings(dossier) {
+  var structured = Array.isArray(dossier.findings) ? dossier.findings : [];
+  var summary = dossier.summary && Array.isArray(dossier.summary.errorsFound) ? dossier.summary.errorsFound : [];
+  var triggers = Array.isArray(dossier.triggers) ? dossier.triggers : [];
+  var source = structured.length ? structured : (summary.length ? summary : triggers);
+  return source.map(manualPreviewFinding).filter(function(f){ return f.body; }).slice(0, 8);
+}
+
+function hydratePreparedManualPreview() {
+  var dossier = readStoredJSON('upa.ai.dossier.v1') || {};
+  var intake = dossier.intake || readStoredJSON('upa.intake.v1') || {};
+  var findings = manualPreviewFindings(dossier);
+  if (!findings.length) {
+    findings = [manualPreviewFinding({
+      headline: 'Itemized Bill Details Needed',
+      detail: 'Requesting a complete itemized bill can help confirm the services, codes, dates, units, adjustments, and amounts connected to this case.'
+    }, 0)];
+  }
+  var flags = dossier.dossierFlags || intake.dossierFlags || {};
+  var data = {
+    provider: dossier.providerName || dossier.provider || intake.providerName || intake.provider || '',
+    totalBilled: intake.totalBilled || flags.billTotal || dossier.totalBilled || '',
+    serviceDate: intake.dateOfService || dossier.dateOfService || '',
+    billType: intake.visitReason || '',
+    confidence: 'medium',
+    _manualIntake: true
+  };
+  extractedData = data;
+  scanFindings = findings;
+  _aiMergedFindings = findings;
+  window._upaScanData = data;
+  window._upaScanFindings = findings;
+  _completedScanCaseForStore = dossier;
+  renderFindings(data, findings);
+  showState('state-findings');
+}
+
+var previewMode = '';
+try { previewMode = new URLSearchParams(window.location.search || '').get('preview') || ''; } catch(e) {}
+if (previewMode === 'manual') hydratePreparedManualPreview();
+else hydrateCurrentScanCase();
 </script>
 <footer aria-label="Legal links" style="position:fixed;left:0;right:0;bottom:0;z-index:1000;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:7px 12px;background:rgba(14,24,40,.92);border-top:1px solid rgba(255,255,255,.07);color:rgba(235,244,255,.48);font-family:'DM Sans',system-ui,sans-serif;font-size:.62rem;backdrop-filter:blur(10px)"><span>United Patient Advocate&trade;</span><span>&middot;</span><a href="terms.html" style="color:inherit;text-decoration:none">Terms</a><span>&middot;</span><a href="refund-policy.html" style="color:inherit;text-decoration:none">Refund Policy</a><span>&middot;</span><a href="mailto:support@unitedpatientadvocate.com" style="color:inherit;text-decoration:none">Contact</a></footer>
 </body>

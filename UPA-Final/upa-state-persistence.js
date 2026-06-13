@@ -11,7 +11,8 @@
   var ACTIVE_KEY = 'upa.active.case.v1';
   var SCAN_KEY = 'upa.scan.v1';
   var SERVER_CASE_ID_KEY = 'upa.server.case-id.v1';
-  var SERVER_CASE_PARAM = 'caseId';
+  var SERVER_CASE_PARAM = 'access';
+  var LEGACY_SERVER_CASE_PARAM = 'caseId';
   var TOKEN_PARAM = 'case';
   var MAX_TOKEN_LENGTH = 6000;
   var MAX_CASE_PARAM_LENGTH = 1200;
@@ -43,9 +44,16 @@
   function getServerCaseId(){
     var value = '';
     try{
-      value = new URLSearchParams(window.location.search || '').get(SERVER_CASE_PARAM) || '';
+      var params = new URLSearchParams(window.location.search || '');
+      var accessValue = params.get(SERVER_CASE_PARAM) || '';
+      value = /^[A-Za-z0-9_-]{32}$/.test(accessValue)
+        ? accessValue
+        : params.get(LEGACY_SERVER_CASE_PARAM) || '';
     }catch(e){}
-    if(value) return setServerCaseId(value);
+    if(value){
+      var storedValue = setServerCaseId(value);
+      if(storedValue) return storedValue;
+    }
     try{ value = sessionStorage.getItem(SERVER_CASE_ID_KEY) || ''; }catch(e){}
     if(!value){ try{ value = localStorage.getItem(SERVER_CASE_ID_KEY) || ''; }catch(e){} }
     return /^[A-Za-z0-9_-]{32}$/.test(value) ? value : '';
@@ -1006,7 +1014,7 @@
         hasHandoff = true;
       }
 
-      if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH){
+      if(!serverCaseId && recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH){
         successUrl.searchParams.set('r', recoveryToken);
         url.searchParams.set('r', recoveryToken);
         hasHandoff = true;
@@ -1030,11 +1038,11 @@
       if(hasHandoff) url.searchParams.set('redirect', successUrl.href);
 
       var finalHref = url.href;
-      if(finalHref.length > MAX_CHECKOUT_URL_LENGTH && recoveryToken){
+      if(finalHref.length > MAX_CHECKOUT_URL_LENGTH && !serverCaseId && recoveryToken){
         url.searchParams.delete('r');
         finalHref = url.href;
       }
-      if(finalHref.length > MAX_CHECKOUT_URL_LENGTH && recoveryToken){
+      if(finalHref.length > MAX_CHECKOUT_URL_LENGTH && !serverCaseId && recoveryToken){
         url.searchParams.delete('redirect');
         url.searchParams.set('r', recoveryToken);
         finalHref = url.href;
@@ -1050,12 +1058,12 @@
       captureReviewState(Object.assign({ stage:'checkout-bridge-prepare' }, meta || {}));
       var recoveryToken = checkoutRecoveryToken();
       var serverCaseId = getServerCaseId();
-      if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) {
+      if(!serverCaseId && recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) {
         try{ window.name = 'UPA_RECOVERY:' + recoveryToken; }catch(ne){}
       }
       var bridge = new URL('/checkout', window.location.origin);
       bridge.searchParams.set('to', checkoutUrlWithToken(gumroadUrl, Object.assign({ stage:'checkout-bridge-target' }, meta || {})));
-      if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) bridge.searchParams.set('r', recoveryToken);
+      if(!serverCaseId && recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) bridge.searchParams.set('r', recoveryToken);
       if(serverCaseId) bridge.searchParams.set(SERVER_CASE_PARAM, serverCaseId);
       return bridge.href;
     }catch(e){

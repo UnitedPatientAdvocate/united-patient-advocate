@@ -148,11 +148,45 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
   var params = new URLSearchParams(window.location.search || '');
   var to = params.get('to') || 'https://upadvocate.gumroad.com/l/busfn?wanted=true';
   var r  = params.get('r')  || '';
+  var serverCaseId = '';
+  try {
+    var accessParam = params.get('access') || '';
+    var targetParams = new URL(to, window.location.href).searchParams;
+    var caseCandidates = [
+      accessParam,
+      params.get('caseId') || '',
+      targetParams.get('access') || '',
+      targetParams.get('caseId') || '',
+      window.UPAState && window.UPAState.getServerCaseId ? window.UPAState.getServerCaseId() : ''
+    ];
+    serverCaseId = caseCandidates.find(function(value) {
+      return /^[A-Za-z0-9_-]{32}$/.test(value || '');
+    }) || '';
+    if (serverCaseId) {
+      r = '';
+      if (window.UPAState && window.UPAState.setServerCaseId) {
+        window.UPAState.setServerCaseId(serverCaseId);
+      }
+      var targetUrl = new URL(to, window.location.href);
+      targetUrl.searchParams.delete('r');
+      targetUrl.searchParams.delete('caseId');
+      targetUrl.searchParams.set('access', serverCaseId);
+      var redirectValue = targetUrl.searchParams.get('redirect');
+      if (redirectValue) {
+        var redirectUrl = new URL(redirectValue, window.location.href);
+        redirectUrl.searchParams.delete('r');
+        redirectUrl.searchParams.delete('caseId');
+        redirectUrl.searchParams.set('access', serverCaseId);
+        targetUrl.searchParams.set('redirect', redirectUrl.href);
+      }
+      to = targetUrl.href;
+    }
+  } catch(e) {}
 
   // Persist recovery to our domain's storage so the dashboard's fallback
   // chain also has it. (URL `?r=` is still primary.)
   try{
-    if(r){
+    if(r && !serverCaseId){
       try{ sessionStorage.setItem('upa.recovery.params.v1', r); }catch(e){}
       try{ localStorage.setItem('upa.recovery.params.v1', r); }catch(e){}
       try{ window.name = 'UPA_RECOVERY:' + r; }catch(e){}

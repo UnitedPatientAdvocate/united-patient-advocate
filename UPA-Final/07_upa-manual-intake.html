@@ -453,9 +453,9 @@ if(!window.UPAIsCaseRecoveryEntry()) window.UPAStartFreshCase();
       setProgress('Your preview is almost ready', 'Securing your case for checkout and receipt access.');
       return storePreparedCase(nextDossier, controller ? controller.signal : undefined);
     })
-    .then(function(){
+    .then(function(caseId){
       setProgress('Your preview is ready', 'Opening the preview and payment options now.');
-      window.setTimeout(function(){ window.location.href = '/UPA-Final/00_upa-scan.html?resume=1&preview=manual'; }, 650);
+      window.setTimeout(function(){ window.location.href = '/UPA-Final/00_upa-scan.html?resume=1&preview=manual&caseId=' + encodeURIComponent(caseId || ''); }, 650);
     })
     .catch(function(error){
       showRecovery(error && error.name === 'AbortError'

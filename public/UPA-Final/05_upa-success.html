@@ -161,8 +161,11 @@ var recoveryParam = '';
 (function() {
   try {
     var params = new URLSearchParams(window.location.search);
-    hasPaidAccessToken = params.get('access') === PAID_ACCESS_TOKEN;
-    serverCaseId = params.get('caseId') || '';
+    var accessParam = params.get('access') || '';
+    hasPaidAccessToken = accessParam === PAID_ACCESS_TOKEN;
+    serverCaseId = /^[A-Za-z0-9_-]{32}$/.test(accessParam)
+      ? accessParam
+      : params.get('caseId') || '';
     if (serverCaseId && window.UPAState && window.UPAState.setServerCaseId) {
       serverCaseId = window.UPAState.setServerCaseId(serverCaseId);
     } else if (window.UPAState && window.UPAState.getServerCaseId) {
@@ -188,7 +191,7 @@ var recoveryParam = '';
     // P0 FIX: grab the ?r= recovery param (base64-encoded case data) so we
     // can append it to the dashboard redirect URL below. This is the
     // backbone of cross-context email-link recovery.
-    recoveryParam = params.get('r') || '';
+    recoveryParam = serverCaseId ? '' : params.get('r') || '';
     if (recoveryParam) {
       try { sessionStorage.setItem('upa.recovery.params.v1', recoveryParam); } catch(e){}
       try { localStorage.setItem('upa.recovery.params.v1', recoveryParam); } catch(e){}
@@ -203,7 +206,7 @@ var recoveryParam = '';
     // STEP 1: URL token restore — 48-hour freshness guard baked into restoreFromUrl().
     // This is the only path that works cross-context (Incognito purchase → regular
     // Chrome email link) because the token travels in the Gumroad redirect URL.
-    if ((hasPaidAccessToken || hasExistingPaidState) && window.UPAState && window.UPAState.restoreFromUrl) {
+    if (!serverCaseId && (hasPaidAccessToken || hasExistingPaidState) && window.UPAState && window.UPAState.restoreFromUrl) {
       tokenRestored = !!window.UPAState.restoreFromUrl({ stage: 'success-token-restore', source: 'success-url' });
     }
 
@@ -264,9 +267,8 @@ var recoveryParam = '';
 // the auto-redirect setTimeout AND the explicit "Open My Review" button.
 function dashboardUrl() {
   var base = '/UPA-Final/04_upa-dashboard.html';
+  if (serverCaseId) return base + '?access=' + encodeURIComponent(serverCaseId);
   if (hasPaidAccessToken) base += '?access=' + encodeURIComponent(PAID_ACCESS_TOKEN);
-  if (recoveryParam) base += (base.indexOf('?') >= 0 ? '&' : '?') + 'r=' + encodeURIComponent(recoveryParam);
-  if (serverCaseId) base += (base.indexOf('?') >= 0 ? '&' : '?') + 'caseId=' + encodeURIComponent(serverCaseId);
   return base;
 }
 
@@ -289,7 +291,7 @@ window.addEventListener('load', function() {
   // P0 FIX: If we have a recovery param in the URL, we have case data —
   // the dashboard will hydrate from ?r= even if localStorage is empty.
   // Don't gate redirect on hasCaseData (which only checks localStorage).
-  var canHydrate = hasCaseData || !!recoveryParam || !!serverCaseId;
+  var canHydrate = hasCaseData || !!serverCaseId;
 
   if (!canHydrate) {
     // No localStorage AND no URL recovery param → genuinely empty session.

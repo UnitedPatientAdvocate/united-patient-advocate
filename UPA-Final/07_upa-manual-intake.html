@@ -162,7 +162,7 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
         <div class="status" id="form-status" role="status" aria-live="polite"></div>
         <div class="recovery-actions" id="recovery-actions">
           <button class="secondary-action" id="retry-button" type="button">Try again</button>
-          <a class="secondary-action" href="/dashboard">Open dashboard</a>
+          <a class="secondary-action" href="/UPA-Final/00_upa-scan.html">Back to bill scan</a>
         </div>
         <div class="privacy">Educational review only. Your answers do not determine a legal, medical, insurance, or financial outcome.</div>
       </div>
@@ -170,6 +170,56 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
   </section>
 </main>
 
+<script>
+window.UPAStartFreshCase = function(){
+  var keys = [
+    'upa.intake.v1',
+    'upa.scan.v1',
+    'upa.ai.dossier.v1',
+    'upa.active.case',
+    'upa.active.case.v1',
+    'upa.case.snapshot.v1',
+    'upa.checkout.session.v2',
+    'upa.review.session.v1',
+    'upa.paid.results.v2',
+    'upa.dashboard.state.v1',
+    'upa.case.handoff.token.v1',
+    'upa.recovery.params.v1',
+    'upa.server.case-id.v1',
+    'upa.full-dashboard.hydrated-case.v1',
+    'upa.paid',
+    'patientName',
+    'providerName',
+    'dateOfService',
+    'insuranceName',
+    'totalBilled',
+    'referenceNumber',
+    'billRange',
+    'visitReason'
+  ];
+  keys.forEach(function(key){
+    try{ sessionStorage.removeItem(key); }catch(e){}
+    try{ localStorage.removeItem(key); }catch(e){}
+  });
+  try{
+    if(/^UPA_RECOVERY:/.test(window.name || '')) window.name = '';
+  }catch(e){}
+};
+window.UPAIsCaseRecoveryEntry = function(){
+  try{
+    var params = new URLSearchParams(window.location.search || '');
+    var access = params.get('access') || params.get('caseId') || '';
+    return params.get('resume') === '1'
+      || /^[A-Za-z0-9_-]{32}$/.test(access)
+      || !!params.get('case')
+      || !!params.get('r');
+  }catch(e){
+    return false;
+  }
+};
+if(!window.UPAIsCaseRecoveryEntry()) window.UPAStartFreshCase();
+</script>
+<script src="/UPA-Final/upa-state-persistence.js"></script>
 <script>
 (function(){
   'use strict';
@@ -272,6 +322,30 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
     document.getElementById('progress-detail').textContent = detail;
   }
 
+  function persistServerCaseId(caseId){
+    if(!/^[A-Za-z0-9_-]{32}$/.test(caseId || '')) throw new Error('Saved case ID was invalid');
+    try{ sessionStorage.setItem('upa.server.case-id.v1', caseId); }catch(e){}
+    try{ localStorage.setItem('upa.server.case-id.v1', caseId); }catch(e){}
+    if(window.UPAState && window.UPAState.setServerCaseId) window.UPAState.setServerCaseId(caseId);
+    return caseId;
+  }
+
+  function storePreparedCase(caseData, signal){
+    return fetch('/api/store-case', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(caseData),
+      signal: signal
+    })
+    .then(function(response){
+      if(!response.ok) throw new Error('Saved case could not be prepared');
+      return response.json();
+    })
+    .then(function(result){
+      return persistServerCaseId(result && result.caseId);
+    });
+  }
+
   function showRecovery(message){
     var button = document.getElementById('submit-button');
     var status = document.getElementById('form-status');
@@ -372,16 +446,21 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
       var nextDossier = Object.assign({}, storedDossier, normalized, {
         providerName: providerName,
         state: flags.state,
-        dossierFlags: flags
+        dossierFlags: flags,
+        intake: Object.assign({}, storedIntake, requestIntake)
       });
       writeJSON(DOSSIER_KEY, nextDossier);
-      setProgress('Your next steps are ready', 'Opening your dashboard now.');
-      window.setTimeout(function(){ window.location.href = '/dashboard'; }, 650);
+      setProgress('Your preview is almost ready', 'Securing your case for checkout and receipt access.');
+      return storePreparedCase(nextDossier, controller ? controller.signal : undefined);
+    })
+    .then(function(){
+      setProgress('Your preview is ready', 'Opening the preview and payment options now.');
+      window.setTimeout(function(){ window.location.href = '/UPA-Final/03_upa-preview.html'; }, 650);
     })
     .catch(function(error){
       showRecovery(error && error.name === 'AbortError'
-        ? 'Your answers are saved. Preparing the next steps took too long, so you can retry or open your dashboard.'
-        : 'Your answers are saved. We could not prepare the next steps yet. Retry now or open your dashboard.');
+        ? 'Your answers are saved, but securing your case took too long. Retry before continuing to preview and payment.'
+        : 'Your answers are saved, but we could not secure the case for your receipt link. Retry before continuing to preview and payment.');
     })
     .finally(function(){
       window.clearTimeout(timeout);

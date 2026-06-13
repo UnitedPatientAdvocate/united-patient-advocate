@@ -666,6 +666,53 @@ body{background:var(--navy)}
 // BFCache guard - if browser serves this page from back/forward cache, force a fresh load
 // so scan state is always re-initialized from storage (not a frozen DOM snapshot)
 window.addEventListener('pageshow', function(e){ if(e.persisted){ window.location.reload(); } });
+window.UPAStartFreshCase = function(){
+  var keys = [
+    'upa.intake.v1',
+    'upa.scan.v1',
+    'upa.ai.dossier.v1',
+    'upa.active.case',
+    'upa.active.case.v1',
+    'upa.case.snapshot.v1',
+    'upa.checkout.session.v2',
+    'upa.review.session.v1',
+    'upa.paid.results.v2',
+    'upa.dashboard.state.v1',
+    'upa.case.handoff.token.v1',
+    'upa.recovery.params.v1',
+    'upa.server.case-id.v1',
+    'upa.full-dashboard.hydrated-case.v1',
+    'upa.paid',
+    'patientName',
+    'providerName',
+    'dateOfService',
+    'insuranceName',
+    'totalBilled',
+    'referenceNumber',
+    'billRange',
+    'visitReason'
+  ];
+  keys.forEach(function(key){
+    try{ sessionStorage.removeItem(key); }catch(e){}
+    try{ localStorage.removeItem(key); }catch(e){}
+  });
+  try{
+    if(/^UPA_RECOVERY:/.test(window.name || '')) window.name = '';
+  }catch(e){}
+};
+window.UPAIsCaseRecoveryEntry = function(){
+  try{
+    var params = new URLSearchParams(window.location.search || '');
+    var access = params.get('access') || params.get('caseId') || '';
+    return params.get('resume') === '1'
+      || /^[A-Za-z0-9_-]{32}$/.test(access)
+      || !!params.get('case')
+      || !!params.get('r');
+  }catch(e){
+    return false;
+  }
+};
+if(!window.UPAIsCaseRecoveryEntry()) window.UPAStartFreshCase();
 // Set PDF.js worker before any extraction runs
 if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -1651,6 +1698,7 @@ document.getElementById('btn-fallback-submit').addEventListener('click', functio
 
 /* ─── RESET ─── */
 function resetToUpload() {
+  if (window.UPAStartFreshCase) window.UPAStartFreshCase();
   clearTimers();
   extractedData = null;
   scanFindings  = [];

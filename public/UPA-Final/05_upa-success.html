@@ -149,6 +149,7 @@ var hasCaseData = false;
 var PAID_ACCESS_TOKEN = 'upa_8f3kd92nd_paid';
 var hasPaidAccessToken = false;
 var hasExistingPaidState = false;
+var serverCaseId = '';
 // P0 FIX: capture the compact ?r= recovery param so it can be FORWARDED
 // to /dashboard. Previously the success page consumed the param into
 // localStorage and then redirected to a bare dashboard URL.
@@ -161,6 +162,12 @@ var recoveryParam = '';
   try {
     var params = new URLSearchParams(window.location.search);
     hasPaidAccessToken = params.get('access') === PAID_ACCESS_TOKEN;
+    serverCaseId = params.get('caseId') || '';
+    if (serverCaseId && window.UPAState && window.UPAState.setServerCaseId) {
+      serverCaseId = window.UPAState.setServerCaseId(serverCaseId);
+    } else if (window.UPAState && window.UPAState.getServerCaseId) {
+      serverCaseId = window.UPAState.getServerCaseId();
+    }
     try {
       var activeRaw = localStorage.getItem('upa.active.case.v1') || sessionStorage.getItem('upa.active.case.v1') || '';
       var active = activeRaw ? JSON.parse(activeRaw) : null;
@@ -259,6 +266,7 @@ function dashboardUrl() {
   var base = '/UPA-Final/04_upa-dashboard.html';
   if (hasPaidAccessToken) base += '?access=' + encodeURIComponent(PAID_ACCESS_TOKEN);
   if (recoveryParam) base += (base.indexOf('?') >= 0 ? '&' : '?') + 'r=' + encodeURIComponent(recoveryParam);
+  if (serverCaseId) base += (base.indexOf('?') >= 0 ? '&' : '?') + 'caseId=' + encodeURIComponent(serverCaseId);
   return base;
 }
 
@@ -281,7 +289,7 @@ window.addEventListener('load', function() {
   // P0 FIX: If we have a recovery param in the URL, we have case data —
   // the dashboard will hydrate from ?r= even if localStorage is empty.
   // Don't gate redirect on hasCaseData (which only checks localStorage).
-  var canHydrate = hasCaseData || !!recoveryParam;
+  var canHydrate = hasCaseData || !!recoveryParam || !!serverCaseId;
 
   if (!canHydrate) {
     // No localStorage AND no URL recovery param → genuinely empty session.

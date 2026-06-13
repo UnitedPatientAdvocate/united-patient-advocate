@@ -126,6 +126,12 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
 .empty-card{padding:40px;border:1px solid var(--border);border-radius:22px;background:#fff;text-align:center;box-shadow:var(--shadow)}
 .empty-card h2{margin:0;color:var(--ink);font-family:var(--serif);font-size:1.8rem}
 .empty-card p{margin:10px auto 20px;color:var(--muted);line-height:1.7}
+.case-load-icon{
+  width:58px;height:58px;margin:0 auto 18px;display:grid;place-items:center;border-radius:50%;background:var(--teal-soft);
+  color:var(--teal);font-size:1.5rem;font-weight:700;
+}
+.case-load-icon.loading{animation:caseLoadPulse 1.4s ease-in-out infinite}
+@keyframes caseLoadPulse{0%,100%{opacity:.55;transform:scale(.96)}50%{opacity:1;transform:scale(1)}}
 .footnote{margin-top:22px;color:var(--muted);font-size:.72rem;line-height:1.6;text-align:center}
 .toast{
   position:fixed;right:20px;bottom:20px;z-index:10;padding:12px 16px;border-radius:12px;background:var(--navy);color:#fff;
@@ -179,7 +185,21 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
   var DOSSIER_KEY = 'upa.ai.dossier.v1';
   var dossier = readDossier();
   var steps = [];
+  var serverCaseId = readServerCaseId();
+  var serverCaseStatus = serverCaseId ? 'loading' : 'idle';
+  var serverCaseError = '';
   var paid = isPaid();
+
+  function readServerCaseId(){
+    var value = '';
+    try{ value = new URLSearchParams(window.location.search || '').get('caseId') || ''; }catch(e){}
+    if(!value){ try{ value = sessionStorage.getItem('upa.server.case-id.v1') || ''; }catch(e){} }
+    if(!value){ try{ value = localStorage.getItem('upa.server.case-id.v1') || ''; }catch(e){} }
+    if(!/^[A-Za-z0-9_-]{32}$/.test(value)) return '';
+    try{ sessionStorage.setItem('upa.server.case-id.v1',value); }catch(e){}
+    try{ localStorage.setItem('upa.server.case-id.v1',value); }catch(e){}
+    return value;
+  }
 
   function readDossier(){
     try{
@@ -199,6 +219,57 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
     var text = JSON.stringify(value);
     try{ localStorage.setItem(DOSSIER_KEY,text); }catch(e){}
     try{ sessionStorage.setItem(DOSSIER_KEY,text); }catch(e){}
+  }
+
+  function hydrateServerCase(){
+    if(!serverCaseId) return Promise.resolve(false);
+    serverCaseStatus = 'loading';
+    serverCaseError = '';
+    setPill('Loading your saved case');
+    safeRender();
+    return fetch('/api/get-case?caseId='+encodeURIComponent(serverCaseId),{
+      method:'GET',
+      headers:{'Accept':'application/json'}
+    })
+    .then(function(response){
+      return response.json().catch(function(){ return {}; }).then(function(result){
+        if(!response.ok){
+          var error = new Error(result && result.error || 'Case could not be retrieved');
+          error.status = response.status;
+          throw error;
+        }
+        return result;
+      });
+    })
+    .then(function(result){
+      var storedCase = result && result.case;
+      if(!storedCase || typeof storedCase !== 'object' || Array.isArray(storedCase)){
+        throw new Error('Stored case was invalid');
+      }
+      var verified = dossier && dossier.licenseVerified === true;
+      var verifiedAt = dossier && dossier.licenseVerifiedAt;
+      dossier = Object.assign({},storedCase);
+      if(verified){
+        dossier.licenseVerified = true;
+        if(verifiedAt) dossier.licenseVerifiedAt = verifiedAt;
+      }
+      writeDossier(dossier);
+      paid = isPaid();
+      serverCaseStatus = 'ready';
+      setPill(paid?'Complete plan unlocked':'Your saved case is ready');
+      safeRender();
+      maybeHydratePaidPlan();
+      return true;
+    })
+    .catch(function(error){
+      serverCaseStatus = 'error';
+      serverCaseError = error && error.status === 404
+        ? 'We could not find the saved case linked to this purchase.'
+        : 'We could not retrieve the saved case linked to this purchase.';
+      setPill('Case could not load');
+      safeRender();
+      return false;
+    });
   }
 
   function isPaid(){
@@ -389,6 +460,14 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
 
   function renderActive(activeIndex){
     var mount = document.getElementById('active-step');
+    if(serverCaseStatus === 'loading'){
+      mount.innerHTML = '<div class="empty-card"><div class="case-load-icon loading">&#8635;</div><h2>Loading your saved review.</h2><p>We are retrieving the case connected to this purchase.</p></div>';
+      return;
+    }
+    if(serverCaseStatus === 'error'){
+      mount.innerHTML = '<div class="empty-card"><div class="case-load-icon">!</div><h2>Your saved review could not load.</h2><p>'+escapeHTML(serverCaseError)+' Please contact support so we can help restore your review.</p><a class="btn btn-primary" href="mailto:support@unitedpatientadvocate.com">Contact support</a></div>';
+      return;
+    }
     if(!steps.length){
       mount.innerHTML = '<div class="empty-card"><h2>No action plan is loaded yet.</h2><p>Complete a bill scan or add case details to prepare your next steps.</p><a class="btn btn-primary" href="/UPA-Final/00_upa-scan.html">Scan a bill</a></div>';
       return;
@@ -464,6 +543,7 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
   }
 
   function maybeHydratePaidPlan(){
+    if(serverCaseId && serverCaseStatus !== 'ready') return;
     if(!paid || hasPaidCaseContent() || sessionStorage.getItem('upa.dashboard.paid.hydrating') === '1') return;
     var requestIntake;
     try{
@@ -533,6 +613,12 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
 
   function render(){
     document.getElementById('provider-name').textContent=providerName();
+    if(serverCaseStatus === 'loading' || serverCaseStatus === 'error'){
+      document.getElementById('progress-card').hidden=true;
+      document.getElementById('completed-list').innerHTML='';
+      renderActive(-1);
+      return;
+    }
     if(!window.UPADashboardSteps){
       document.getElementById('active-step').innerHTML='<div class="empty-card"><h2>Your action plan could not load.</h2><p>Please refresh this page.</p></div>';
       return;
@@ -551,7 +637,8 @@ h1{max-width:620px;margin:8px 0 8px;color:var(--ink);font-family:var(--serif);fo
   }
 
   safeRender();
-  maybeHydratePaidPlan();
+  if(serverCaseId) hydrateServerCase();
+  else maybeHydratePaidPlan();
 })();
 </script>
 </body>

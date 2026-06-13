@@ -10,6 +10,8 @@
   var TOKEN_KEY = 'upa.case.handoff.token.v1';
   var ACTIVE_KEY = 'upa.active.case.v1';
   var SCAN_KEY = 'upa.scan.v1';
+  var SERVER_CASE_ID_KEY = 'upa.server.case-id.v1';
+  var SERVER_CASE_PARAM = 'caseId';
   var TOKEN_PARAM = 'case';
   var MAX_TOKEN_LENGTH = 6000;
   var MAX_CASE_PARAM_LENGTH = 1200;
@@ -28,6 +30,25 @@
     }catch(e){
       return false;
     }
+  }
+
+  function setServerCaseId(caseId){
+    var value = clean(caseId);
+    if(!/^[A-Za-z0-9_-]{32}$/.test(value)) return '';
+    try{ sessionStorage.setItem(SERVER_CASE_ID_KEY, value); }catch(e){}
+    try{ localStorage.setItem(SERVER_CASE_ID_KEY, value); }catch(e){}
+    return value;
+  }
+
+  function getServerCaseId(){
+    var value = '';
+    try{
+      value = new URLSearchParams(window.location.search || '').get(SERVER_CASE_PARAM) || '';
+    }catch(e){}
+    if(value) return setServerCaseId(value);
+    try{ value = sessionStorage.getItem(SERVER_CASE_ID_KEY) || ''; }catch(e){}
+    if(!value){ try{ value = localStorage.getItem(SERVER_CASE_ID_KEY) || ''; }catch(e){} }
+    return /^[A-Za-z0-9_-]{32}$/.test(value) ? value : '';
   }
 
   function readJSON(key){
@@ -959,6 +980,8 @@
       var url = new URL('/success', window.location.origin);
       var token = exportCaseToken(Object.assign({ stage:'success-link-token' }, meta || {}));
       if(token && token.length <= MAX_CASE_PARAM_LENGTH) url.searchParams.set(TOKEN_PARAM, token);
+      var serverCaseId = getServerCaseId();
+      if(serverCaseId) url.searchParams.set(SERVER_CASE_PARAM, serverCaseId);
       return url.href;
     }catch(e){
       return fallback;
@@ -975,6 +998,13 @@
       var successUrl = new URL(successBase);
       var hasHandoff = false;
       var recoveryToken = checkoutRecoveryToken();
+      var serverCaseId = getServerCaseId();
+
+      if(serverCaseId){
+        successUrl.searchParams.set(SERVER_CASE_PARAM, serverCaseId);
+        url.searchParams.set(SERVER_CASE_PARAM, serverCaseId);
+        hasHandoff = true;
+      }
 
       if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH){
         successUrl.searchParams.set('r', recoveryToken);
@@ -1019,12 +1049,14 @@
     try{
       captureReviewState(Object.assign({ stage:'checkout-bridge-prepare' }, meta || {}));
       var recoveryToken = checkoutRecoveryToken();
+      var serverCaseId = getServerCaseId();
       if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) {
         try{ window.name = 'UPA_RECOVERY:' + recoveryToken; }catch(ne){}
       }
       var bridge = new URL('/checkout', window.location.origin);
-      bridge.searchParams.set('to', gumroadUrl || '');
+      bridge.searchParams.set('to', checkoutUrlWithToken(gumroadUrl, Object.assign({ stage:'checkout-bridge-target' }, meta || {})));
       if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) bridge.searchParams.set('r', recoveryToken);
+      if(serverCaseId) bridge.searchParams.set(SERVER_CASE_PARAM, serverCaseId);
       return bridge.href;
     }catch(e){
       return gumroadUrl || '';
@@ -1085,7 +1117,8 @@
       dashboard:DASHBOARD_KEY,
       token:TOKEN_KEY,
       active:ACTIVE_KEY,
-      scan:SCAN_KEY
+      scan:SCAN_KEY,
+      serverCaseId:SERVER_CASE_ID_KEY
     },
     readJSON:readJSON,
     writeJSON:writeJSON,
@@ -1104,10 +1137,13 @@
     successUrlWithToken:successUrlWithToken,
     checkoutUrlWithToken:checkoutUrlWithToken,
     checkoutBridgeUrl:checkoutBridgeUrl,
+    setServerCaseId:setServerCaseId,
+    getServerCaseId:getServerCaseId,
     markCheckout:markCheckout,
     markPaid:markPaid,
     hasPaidAccessToken:hasPaidAccessToken
   };
 
+  getServerCaseId();
   restoreSession({ stage:'script-load' });
 })();

@@ -689,6 +689,36 @@ let selectedFile    = null;
 let extractedData   = null;
 let scanFindings    = [];
 var _aiMergedFindings = [];
+var _serverCaseStorePromise = null;
+
+function storeCompletedScanCase(caseData) {
+  if (!caseData || typeof caseData !== 'object') {
+    return Promise.reject(new Error('Completed scan case is required'));
+  }
+  _serverCaseStorePromise = fetch('/api/store-case', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(caseData)
+  })
+  .then(function(resp) {
+    if (!resp.ok) throw new Error('Case storage failed');
+    return resp.json();
+  })
+  .then(function(result) {
+    var caseId = result && result.caseId;
+    if (!/^[A-Za-z0-9_-]{32}$/.test(caseId || '')) {
+      throw new Error('Case storage returned an invalid case ID');
+    }
+    if (window.UPAState && window.UPAState.setServerCaseId) {
+      window.UPAState.setServerCaseId(caseId);
+    } else {
+      try { sessionStorage.setItem('upa.server.case-id.v1', caseId); } catch(e) {}
+      try { localStorage.setItem('upa.server.case-id.v1', caseId); } catch(e) {}
+    }
+    return caseId;
+  });
+  return _serverCaseStorePromise;
+}
 let animHoldReached = false;
 let animResumeFn    = null;
 let animTimers      = [];
@@ -1239,11 +1269,19 @@ function callFreePreviewAI(data) {
           var nextDossier = Object.assign({}, existingDossier, aiData, {
             providerName: data.provider || aiData.providerName || '',
             codeAnalysis: Array.isArray(aiData.codeAnalysis) ? aiData.codeAnalysis : codeAnalysis,
-            lineItems: Array.isArray(aiData.lineItems) ? aiData.lineItems : codeAnalysis
+            lineItems: Array.isArray(aiData.lineItems) ? aiData.lineItems : codeAnalysis,
+            scanData: data,
+            intake: intake
           });
           localStorage.setItem('upa.ai.dossier.v1', JSON.stringify(nextDossier));
           sessionStorage.setItem('upa.ai.dossier.v1', JSON.stringify(nextDossier));
-          window.location.href = '/UPA-Final/04_upa-dashboard.html';
+          storeCompletedScanCase(nextDossier)
+            .catch(function(error) {
+              console.warn('[UPA] completed scan case could not be stored', error);
+            })
+            .then(function() {
+              window.location.href = '/UPA-Final/04_upa-dashboard.html';
+            });
         } catch(e) { console.warn('[UPA] dashboard dossier write failed', e); }
       } catch(e) { console.warn('[UPA] preview parse error', e); }
     })

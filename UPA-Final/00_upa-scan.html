@@ -411,8 +411,12 @@ body{background:var(--navy)}
   text-decoration:none;
 }
 .btn-upgrade:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(17,28,46,0.40)}
+.btn-upgrade.is-preparing{cursor:wait;opacity:0.78;transform:none;box-shadow:0 4px 20px rgba(17,28,46,0.20)}
+.btn-upgrade.is-error{background:linear-gradient(135deg,#7F1D1D 0%,#991B1B 100%);border-color:rgba(185,28,28,0.45)}
 .btn-upgrade svg{width:16px;height:16px;stroke:#FFE7B0;stroke-width:2.2;fill:none}
 .ub-price{font-size:0.875rem;opacity:0.75;margin-left:auto}
+.ub-store-status{min-height:18px;margin-top:9px;font-size:0.6875rem;line-height:1.45;color:var(--ink-4);text-align:center}
+.ub-store-status.is-error{color:#B91C1C;font-weight:700}
 .ub-loss{
   margin-top:12px;padding:10px 12px;
   background:rgba(240,165,0,0.07);border:1px solid rgba(240,165,0,0.16);
@@ -690,12 +694,87 @@ let extractedData   = null;
 let scanFindings    = [];
 var _aiMergedFindings = [];
 var _serverCaseStorePromise = null;
+var _serverCaseStoreState = 'idle';
+var _serverCaseStoreError = null;
+var _completedScanCaseForStore = null;
+
+function isValidServerCaseId(caseId) {
+  return /^[A-Za-z0-9_-]{32}$/.test(caseId || '');
+}
+
+function persistServerCaseId(caseId) {
+  if (!isValidServerCaseId(caseId)) {
+    throw new Error('Case storage returned an invalid case ID');
+  }
+  if (window.UPAState && window.UPAState.setServerCaseId) {
+    window.UPAState.setServerCaseId(caseId);
+  }
+  try {
+    sessionStorage.setItem('upa.server.case-id.v1', caseId);
+    localStorage.setItem('upa.server.case-id.v1', caseId);
+  } catch(e) {
+    throw new Error('Your browser could not save the prepared case ID');
+  }
+  var sessionCaseId = '';
+  var localCaseId = '';
+  try {
+    sessionCaseId = sessionStorage.getItem('upa.server.case-id.v1') || '';
+    localCaseId = localStorage.getItem('upa.server.case-id.v1') || '';
+  } catch(e) {}
+  if (sessionCaseId !== caseId || localCaseId !== caseId) {
+    throw new Error('Your browser could not confirm the prepared case ID');
+  }
+  return caseId;
+}
+
+function updateCheckoutStoreState() {
+  var link = document.querySelector('#upgrade-block .btn-upgrade');
+  var label = link && link.querySelector('.ub-action-label');
+  var status = document.getElementById('ub-store-status');
+  if (!link || !label || !status) return;
+  link.classList.toggle('is-preparing', _serverCaseStoreState === 'pending');
+  link.classList.toggle('is-error', _serverCaseStoreState === 'error');
+  link.setAttribute('aria-disabled', _serverCaseStoreState === 'pending' ? 'true' : 'false');
+  status.classList.toggle('is-error', _serverCaseStoreState === 'error');
+  if (_serverCaseStoreState === 'pending') {
+    label.textContent = 'Preparing your case';
+    status.textContent = 'Saving your prepared review before secure checkout.';
+  } else if (_serverCaseStoreState === 'error') {
+    label.textContent = 'Retry preparing case';
+    status.textContent = 'We could not prepare your saved case. Please retry before checkout.';
+  } else {
+    label.textContent = 'Unlock my full review';
+    status.textContent = '';
+  }
+}
+
+function trackServerCaseStore(promise) {
+  _serverCaseStoreState = 'pending';
+  _serverCaseStoreError = null;
+  _serverCaseStorePromise = Promise.resolve(promise)
+    .then(function(caseId) {
+      var storedCaseId = persistServerCaseId(caseId);
+      _serverCaseStoreState = 'ready';
+      _serverCaseStoreError = null;
+      updateCheckoutStoreState();
+      return storedCaseId;
+    })
+    .catch(function(error) {
+      _serverCaseStoreState = 'error';
+      _serverCaseStoreError = error || new Error('Case storage failed');
+      updateCheckoutStoreState();
+      throw _serverCaseStoreError;
+    });
+  _serverCaseStorePromise.catch(function() {});
+  updateCheckoutStoreState();
+  return _serverCaseStorePromise;
+}
 
 function storeCompletedScanCase(caseData) {
   if (!caseData || typeof caseData !== 'object') {
     return Promise.reject(new Error('Completed scan case is required'));
   }
-  _serverCaseStorePromise = fetch('/api/store-case', {
+  return fetch('/api/store-case', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(caseData)
@@ -706,18 +785,47 @@ function storeCompletedScanCase(caseData) {
   })
   .then(function(result) {
     var caseId = result && result.caseId;
-    if (!/^[A-Za-z0-9_-]{32}$/.test(caseId || '')) {
-      throw new Error('Case storage returned an invalid case ID');
-    }
-    if (window.UPAState && window.UPAState.setServerCaseId) {
-      window.UPAState.setServerCaseId(caseId);
-    } else {
-      try { sessionStorage.setItem('upa.server.case-id.v1', caseId); } catch(e) {}
-      try { localStorage.setItem('upa.server.case-id.v1', caseId); } catch(e) {}
-    }
-    return caseId;
+    return persistServerCaseId(caseId);
   });
-  return _serverCaseStorePromise;
+}
+
+function ensureServerCaseStored() {
+  if ((_serverCaseStoreState === 'pending' || _serverCaseStoreState === 'ready') && _serverCaseStorePromise) {
+    return _serverCaseStorePromise;
+  }
+  if (_completedScanCaseForStore) {
+    return trackServerCaseStore(storeCompletedScanCase(_completedScanCaseForStore));
+  }
+  if (window._upaScanData) {
+    return trackServerCaseStore(callFreePreviewAI(window._upaScanData));
+  }
+  var existingCaseId = '';
+  try {
+    existingCaseId = window.UPAState && window.UPAState.getServerCaseId
+      ? window.UPAState.getServerCaseId()
+      : sessionStorage.getItem('upa.server.case-id.v1') || localStorage.getItem('upa.server.case-id.v1') || '';
+  } catch(e) {}
+  if (isValidServerCaseId(existingCaseId)) {
+    return Promise.resolve(persistServerCaseId(existingCaseId));
+  }
+  return Promise.reject(_serverCaseStoreError || new Error('No completed case is ready to store'));
+}
+
+function checkoutUrlContainsCaseId(href, caseId) {
+  var queue = [href];
+  var checked = 0;
+  while (queue.length && checked < 5) {
+    checked += 1;
+    try {
+      var url = new URL(queue.shift(), window.location.href);
+      if (url.searchParams.get('caseId') === caseId) return true;
+      ['to', 'redirect'].forEach(function(key) {
+        var nested = url.searchParams.get(key);
+        if (nested) queue.push(nested);
+      });
+    } catch(e) {}
+  }
+  return false;
 }
 let animHoldReached = false;
 let animResumeFn    = null;
@@ -1097,6 +1205,10 @@ function resumeAnimation(data) {
 /* ─── ROUTING AFTER SCAN ─── */
 function routeAfterScan(data) {
   _aiMergedFindings = [];
+  _completedScanCaseForStore = null;
+  _serverCaseStorePromise = null;
+  _serverCaseStoreState = 'idle';
+  _serverCaseStoreError = null;
   if (data.confidence === 'low' || data.confidence === 'failed') {
     showState('state-fallback');
     return;
@@ -1111,7 +1223,7 @@ function routeAfterScan(data) {
   renderFindings(data, scanFindings);
   showState('state-findings');
   // Call /api/analyze with real bill text for personalized findings
-  callFreePreviewAI(data);
+  trackServerCaseStore(callFreePreviewAI(data));
 }
 
 /* ─── FREE PREVIEW CALL ─── */
@@ -1143,7 +1255,7 @@ function callFreePreviewAI(data) {
       localStorage.setItem('upa.intake.v1', JSON.stringify(stored));
     } catch(e) {}
 
-    fetch('/api/analyze', {
+    return fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ generationMode: 'free_preview', intake: intake })
@@ -1157,7 +1269,7 @@ function callFreePreviewAI(data) {
         var aiData = resp && resp.normalizedPayload;
         var text = Array.isArray(resp.content) ? resp.content.map(function(p){ return p.text||''; }).join('') : '';
         if (!aiData && text) aiData = JSON.parse(text);
-        if (!aiData) return;
+        if (!aiData) throw new Error('Preview analysis returned no case data');
         var structuredFindings = Array.isArray(aiData.findings) ? aiData.findings : [];
         var summaryFindings = aiData.summary && Array.isArray(aiData.summary.errorsFound) && aiData.summary.errorsFound.length
           ? aiData.summary.errorsFound
@@ -1275,21 +1387,20 @@ function callFreePreviewAI(data) {
           });
           localStorage.setItem('upa.ai.dossier.v1', JSON.stringify(nextDossier));
           sessionStorage.setItem('upa.ai.dossier.v1', JSON.stringify(nextDossier));
-          storeCompletedScanCase(nextDossier)
-            .catch(function(error) {
-              console.warn('[UPA] completed scan case could not be stored', error);
-            })
-            .then(function() {
-              window.location.href = '/UPA-Final/04_upa-dashboard.html';
-            });
-        } catch(e) { console.warn('[UPA] dashboard dossier write failed', e); }
-      } catch(e) { console.warn('[UPA] preview parse error', e); }
+          _completedScanCaseForStore = nextDossier;
+          return storeCompletedScanCase(nextDossier);
+        } catch(e) {
+          throw new Error('The prepared case could not be saved for checkout');
+        }
+      } catch(e) {
+        throw e;
+      }
     })
     .catch(function(e) {
-      console.warn('[UPA] preview call failed (non-blocking)', e);
+      throw e;
     });
   } catch(e) {
-    console.warn('[UPA] callFreePreviewAI error (non-blocking)', e);
+    return Promise.reject(e);
   }
 }
 
@@ -1440,9 +1551,10 @@ function renderFindings(data, findings) {
     '</div>' +
     '<a class="btn-upgrade" href="' + esc(checkoutHref) + '">' +
       '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' +
-      'Unlock my full review' +
+      '<span class="ub-action-label">Unlock my full review</span>' +
       '<span class="ub-price">' + esc(UPA_SCAN_CONFIG.upgradePrice) + '</span>' +
     '</a>' +
+    '<div class="ub-store-status" id="ub-store-status" role="status" aria-live="polite"></div>' +
     '<div class="ub-loss">Timelines vary by provider, payer, and notice type. Written requests help preserve a clear paper trail while you review the bill.</div>' +
     '<div class="ub-trust-row">' +
       '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Instant access</div>' +
@@ -1455,8 +1567,19 @@ function renderFindings(data, findings) {
 
   const upgradeLink = upgradeBlock.querySelector('.btn-upgrade');
   if (upgradeLink) {
-    upgradeLink.addEventListener('click', function() {
+    updateCheckoutStoreState();
+    upgradeLink.addEventListener('click', async function(event) {
+      event.preventDefault();
+      if (upgradeLink.dataset.checkoutBusy === 'true') return;
+      upgradeLink.dataset.checkoutBusy = 'true';
+      var caseStorePromise = ensureServerCaseStored();
+      _serverCaseStoreState = 'pending';
+      updateCheckoutStoreState();
       try {
+        var caseId = await caseStorePromise;
+        persistServerCaseId(caseId);
+        _serverCaseStoreState = 'ready';
+        updateCheckoutStoreState();
         if (window.UPAState && window.UPAState.markCheckout) {
           window.UPAState.markCheckout({ stage: 'checkout-started', source: 'scan', gumroadUrl: UPA_SCAN_CONFIG.gumroadURL });
         }
@@ -1465,7 +1588,16 @@ function renderFindings(data, findings) {
         } else if (window.UPAState && window.UPAState.checkoutUrlWithToken) {
           upgradeLink.href = window.UPAState.checkoutUrlWithToken(UPA_SCAN_CONFIG.gumroadURL, { stage: 'gumroad-handoff', source: 'scan' });
         }
-      } catch(e) {}
+        if (!checkoutUrlContainsCaseId(upgradeLink.href, caseId)) {
+          throw new Error('The secure checkout link is missing the prepared case ID');
+        }
+        window.location.href = upgradeLink.href;
+      } catch(e) {
+        _serverCaseStoreState = 'error';
+        _serverCaseStoreError = e;
+        delete upgradeLink.dataset.checkoutBusy;
+        updateCheckoutStoreState();
+      }
     });
   }
 }

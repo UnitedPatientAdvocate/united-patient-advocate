@@ -55,7 +55,7 @@
     if(/^(test|testing|asdf|qwerty|foo|bar|baz|lorem\s+ipsum|hello|hi|sample|example|placeholder|dummy|fake|garbage|junk|random|xxx|zzz|aaa|bbb|abc|123|999|null|undefined|n\/a|na|none|other)\b/i.test(t)) return fallback || '';
     // Single character repeated 3+ times (e.g. "aaaa", "hhhhh", "zzz zzz")
     if(/^(.)\1{2,}(\s+\1+)*$/.test(t)) return fallback || '';
-    // Basic profanity / hostile text gate — don't let these into formal outputs
+    // Basic profanity / hostile text gate : don't let these into formal outputs
     if(/\b(fuck|shit|ass|bitch|cunt|crap|piss|bastard|damn\s+it|wtf|lmao)\b/i.test(t)) return fallback || '';
     // URL patterns pasted into a name field
     if(/https?:\/\/|www\.[a-z]/i.test(t)) return fallback || '';
@@ -66,10 +66,48 @@
     return t;
   }
 
+  function looksLikeSentence(text){
+    var t = clean(text);
+    if(!t) return false;
+    var words = t.split(/\s+/).filter(Boolean);
+    return /[.!?]/.test(t) ||
+      words.length >= 7 ||
+      /\b(i|me|my|mine|we|they|them|because|called|said|told|denied|covered|received|got|from my|through my)\b/i.test(t);
+  }
+
+  function safeCoverageText(data){
+    var rawOther = clean(data.insurance_other || '');
+    var raw = clean(data.insurance || '');
+    var extracted = clean(data.extracted_insurance || '');
+    if(rawOther && looksLikeSentence(rawOther)) return 'Coverage: see your EOB';
+    var primary = rawOther || raw;
+    var safe = safeProperNoun(primary, '');
+    if(safe) return safe;
+    safe = safeProperNoun(extracted, '');
+    return safe || 'Your coverage';
+  }
+
+  function safePaymentStatusText(data){
+    var rawKey = clean(data.payment_status_raw || '').toLowerCase();
+    var raw = clean(data.payment_status || '');
+    var rawOther = clean(data.payment_status_other || '');
+    var text = (rawKey === 'other' ? rawOther : (rawOther || raw)).toLowerCase();
+    if(rawKey === 'other'){
+      safeUserText(rawOther, 80);
+      return 'Review timing depends on your situation';
+    }
+    if(/collections|collector|collection agency/.test(text)) return 'Act promptly and keep written records';
+    if(/insurance.*denied|denied|underpaid|appeal/.test(text)) return 'Check appeal and EOB deadlines';
+    if(/payment plan|partial/.test(text)) return 'Review before sending more payments';
+    if(/paid in full|already paid|\bpaid\b/.test(text) && !/not paid/.test(text)) return 'Refund review can still be requested';
+    if(/unpaid|not paid|before paying/.test(text)) return 'Review before paying';
+    return 'Review timing depends on your situation';
+  }
+
   // ──────────────────────────────────────────────────────────────────────
   // FIX 1 (gibberish detection): When a user types random characters with
   // no recognizable English/billing intent ("Odjdjt", "Jdjdd", "Aaaaa"),
-  // we must NEVER echo that text anywhere — not in the finding card title,
+  // we must NEVER echo that text anywhere : not in the finding card title,
   // not in the description, not in the letter body, not in the intake
   // summary. Instead, the input is silently normalized to a generic
   // professional concern category.
@@ -114,7 +152,7 @@
   // are never returned.
   //
   // Returns '' when no billing intent can be extracted (vague/garbage
-  // input) — callers should suppress the corresponding UI element entirely
+  // input) : callers should suppress the corresponding UI element entirely
   // when this returns empty, rather than fall back to raw text.
   // ──────────────────────────────────────────────────────────────────────
   function professionalizeUserConcern(text){
@@ -126,7 +164,7 @@
     if(/^[\d\s.,!@#$%^&*()\-_+=]+$/.test(t)) return '';
     if(looksLikeGibberish(t)) return ''; // FIX 1: random letters → suppress
 
-    // Extract recognized billing intent — categorize what the user typed.
+    // Extract recognized billing intent : categorize what the user typed.
     // Never return the user's literal words.
     var phrases = billingConcernPhrases(t);
     if(phrases.length === 0) return ''; // No recognizable intent → suppress entirely
@@ -140,7 +178,7 @@
 
   // Returns a short professional concern LABEL (not a full sentence) suitable
   // for finding card titles. Either a categorized billing phrase or a generic
-  // professional fallback — never the user's raw words.
+  // professional fallback : never the user's raw words.
   function professionalConcernTitle(text){
     var t = clean(text);
     // FIX 1: gibberish input → use the generic fallback, never echo the text
@@ -167,7 +205,7 @@
       if(match.test(t) && phrases.indexOf(phrase) === -1) phrases.push(phrase);
     }
     add(/duplicate|double|twice|again|repeat|same charge|charged.*two/i, 'possible duplicate or repeated charge');
-    add(/insurance|eob|claim|denial|denied|covered|coverage|payer|benefit/i, 'insurance, EOB, or coverage reconciliation concern');
+    add(/insurance|eob|claim|denial|denied|covered|coverage|payer|benefit/i, 'insurance, EOB, or coverage review');
     add(/surprise|network|out.of.network|in.network|no surprises|balance bill/i, 'network status or surprise billing concern');
     add(/expensive|high|overcharg|too much|price|cost|amount|balance|rate|estimate/i, 'charge amount or patient responsibility concern');
     add(/code|coding|cpt|hcpcs|modifier|upcod|level|units|unbundle/i, 'coding, modifier, unit, or service-description concern');
@@ -195,7 +233,7 @@
       'billed out-of-network during in-network visit':'Network status or surprise billing concern',
       'unexpected lab or test charges':'Unexpected lab or test charge concern',
       'i think the wrong billing code was used':'Coding, modifier, or service-description concern',
-      'my insurance claim was denied':'Insurance denial or EOB reconciliation concern',
+      'my insurance claim was denied':'Insurance denial or EOB review',
       "i just don't understand what i'm being charged for":'Missing itemized documentation or unclear line-item detail',
       "i received a surprise bill i wasn't expecting":'Network status or surprise billing concern',
       'i never received an itemized bill':'Missing itemized documentation or unclear line-item detail',
@@ -204,7 +242,7 @@
     };
     var key = t.toLowerCase();
     if(known[key]) return known[key];
-    // Return a SHORT LABEL only — never a full "The patient is requesting..." sentence.
+    // Return a SHORT LABEL only : never a full "The patient is requesting..." sentence.
     // Returning professionalBillingNote() here produces a complete sentence for each
     // concern. When N concerns are selected those N sentences are joined with commas,
     // creating cascading repetition across the intake summary, finding card, and letter.
@@ -213,7 +251,7 @@
       var p = phrases[0];
       return p.charAt(0).toUpperCase() + p.slice(1);
     }
-    return ''; // Unrecognised text — silently filtered by seenConcerns dedup
+    return ''; // Unrecognised text : silently filtered by seenConcerns dedup
   }
 
   function readStorageJSON(key){
@@ -302,11 +340,11 @@
     try{
       var u = new URLSearchParams(window.location.search);
 
-      // Mode A: compact base64url recovery param (?r=<base64>) — PRIMARY
+      // Mode A: compact base64url recovery param (?r=<base64>) : PRIMARY
       // Written by saveIntakeSession() on the landing page. This is THE
       // cross-context recovery path because it survives Gumroad's redirect,
       // email-link reopening in a fresh browser tab, and direct sharing.
-      // Decodes the full case payload — every field the dashboard needs.
+      // Decodes the full case payload : every field the dashboard needs.
       var r = u.get('r');
       if(r){
         try{
@@ -314,7 +352,7 @@
           while(b64.length % 4) b64 += '=';
           var decoded = decodeURIComponent(escape(atob(b64)));
           var parsed = JSON.parse(decoded);
-          // Full field map — must mirror exactly the encoder in
+          // Full field map : must mirror exactly the encoder in
           // saveIntakeSession() on the landing page. Adding a field here
           // without updating the encoder (or vice versa) leaves data
           // unrecoverable, so they're commented to keep them in sync.
@@ -363,17 +401,17 @@
     try{
       // ═══════════════════════════════════════════════════════════════════
       // P0 FIX: URL params come FIRST. Email-link recovery is the dominant
-      // failure mode — iOS Mail/Gmail/etc open every link in a fresh
+      // failure mode : iOS Mail/Gmail/etc open every link in a fresh
       // Safari/Chrome tab where the user's intake localStorage doesn't
       // exist. The recovery `?r=<base64>` param riding in the URL is the
       // ONLY reliable cross-context data channel. It MUST win over the
       // empty localStorage of a fresh browser tab.
       //
       // Priority order:
-      //   1. __UPA_PACKET_INTAKE__   — downloaded HTML packets (offline)
-      //   2. readIntakeFromUrl()     — URL params (cross-context recovery) ← PROMOTED FROM LAST
-      //   3. UPAState.getIntake()    — localStorage (same-browser return)
-      //   4. STORE_KEY direct read   — UPAState script load failure
+      //   1. __UPA_PACKET_INTAKE__   : downloaded HTML packets (offline)
+      //   2. readIntakeFromUrl()     : URL params (cross-context recovery) ← PROMOTED FROM LAST
+      //   3. UPAState.getIntake()    : localStorage (same-browser return)
+      //   4. STORE_KEY direct read   : UPAState script load failure
       // ═══════════════════════════════════════════════════════════════════
       if(window.__UPA_PACKET_INTAKE__) return window.__UPA_PACKET_INTAKE__;
 
@@ -395,7 +433,7 @@
         return urlIntake;
       }
 
-      // PRIORITY 2: UPAState (localStorage) — same-browser return path
+      // PRIORITY 2: UPAState (localStorage) : same-browser return path
       if(window.UPAState){
         if(window.UPAState.restoreSession) window.UPAState.restoreSession({stage:'personalization-load'});
         if(window.UPAState.getIntake){
@@ -406,7 +444,7 @@
         }
       }
 
-      // PRIORITY 3: Direct localStorage read — UPAState script load failure
+      // PRIORITY 3: Direct localStorage read : UPAState script load failure
       var intake = readStorageJSON(STORE_KEY);
       if(intake && Object.keys(intake).length){
         return intake;
@@ -418,7 +456,7 @@
       if(simpleIntake && Object.keys(simpleIntake).length){
         return simpleIntake;
       }
-try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param AND localStorage was empty'); }catch(e){}
+try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AND localStorage was empty'); }catch(e){}
       return {};
     }catch(e){
       return {};
@@ -426,18 +464,65 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
   }
 
   function formatMoney(n){
-    if(!isFinite(n)) return 'Awaiting itemized bill';
+    if(!isFinite(n)) return 'Pending itemized bill';
     return '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
   }
 
   function formatMoneyFull(n){
-    if(!isFinite(n)) return 'Awaiting itemized bill';
+    if(!isFinite(n)) return 'Pending itemized bill';
     return '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   }
 
   function parseNumber(text){
     var match = String(text || '').match(/\d[\d,]*(?:\.\d+)?/);
     return match ? parseFloat(match[0].replace(/,/g,'')) : null;
+  }
+
+  function confidenceValue(value){
+    var n = parseFloat(value);
+    return isFinite(n) ? n : 0;
+  }
+
+  function amountInfo(data){
+    var rawKey = clean(data.bill_amount_raw || '');
+    var rawText = clean(data.bill_amount_other || data.bill_amount || data.balance || '');
+    var extractedAmount = clean(data.extracted_bill_amount);
+    var extractedAmountNumber = parseNumber(extractedAmount);
+    var extractedAmountConfidence = confidenceValue(data.extracted_bill_amount_confidence);
+    if(extractedAmountNumber != null && extractedAmountConfidence >= 0.5){
+      var extractedInfo = {display:formatMoney(extractedAmountNumber), exact:extractedAmountNumber, low:extractedAmountNumber < 1000, extracted:true};
+      extractedInfo.reviewText = extractedInfo.display;
+      extractedInfo.calcValue = extractedAmountNumber;
+      return extractedInfo;
+    }
+    var buckets = {
+      under500:{display:'Under $500', low:true, range:true},
+      '500-1k':{display:'$500 - $1,000', low:true, range:true},
+      '1k-5k':{display:'$1,000 - $5,000', range:true},
+      '5k-10k':{display:'$5,000 - $10,000', range:true},
+      '10k-25k':{display:'$10,000 - $25,000', range:true},
+      '25k-50k':{display:'$25,000 - $50,000', range:true},
+      '50k-100k':{display:'$50,000 - $100,000', range:true},
+      over100k:{display:'Over $100,000', range:true},
+      unknown:{display:'Pending itemized bill', unknown:true}
+    };
+    var info = buckets[rawKey] ? Object.assign({},buckets[rawKey]) : null;
+    if(!info){
+      var exact = parseNumber(rawText);
+      var hasRange = /-|to|under|over|not sure|unknown|approx|around|between/i.test(rawText);
+      if(exact != null && !hasRange){
+        info = {display:formatMoney(exact), exact:exact, low:exact < 1000};
+      }else if(rawText && !/^not uploaded$/i.test(rawText) && /\d/.test(rawText)){
+        // Only use rawText as the display amount if it contains at least one digit;
+        // otherwise prose like "I don't know" or "a lot" falls through to unknown.
+        info = {display:rawText, range:true, low:/under|500|1,000/i.test(rawText)};
+      }else{
+        info = {display:'Pending itemized bill', unknown:true};
+      }
+    }
+    info.reviewText = info.unknown ? 'Pending itemized bill' : info.display;
+    info.calcValue = info.exact || null;
+    return info;
   }
 
   function numberOrNull(value){
@@ -484,7 +569,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
         benchmarkAvailable: available,
         percentAboveBenchmark: available && pct != null ? Math.round(pct * 10) / 10 : null,
         source: available ? clean(row.source || 'CMS CLFS 2026') : '',
-        reason: available ? '' : clean(row.reason || row.benchmarkUnavailableReason || 'benchmark unavailable — not a lab code')
+        reason: available ? '' : clean(row.reason || row.benchmarkUnavailableReason || 'benchmark unavailable : not a lab code')
       };
     }).filter(function(row){ return row.code || row.shortDescription || row.billedAmount != null; });
   }
@@ -840,53 +925,6 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
 
   window.UPARenderPhase3CaseGeneration = renderPhase3CaseGeneration;
 
-  function confidenceValue(value){
-    var n = parseFloat(value);
-    return isFinite(n) ? n : 0;
-  }
-
-  function amountInfo(data){
-    var rawKey = clean(data.bill_amount_raw || '');
-    var rawText = clean(data.bill_amount_other || data.bill_amount || data.balance || '');
-    var extractedAmount = clean(data.extracted_bill_amount);
-    var extractedAmountNumber = parseNumber(extractedAmount);
-    var extractedAmountConfidence = confidenceValue(data.extracted_bill_amount_confidence);
-    if(extractedAmountNumber != null && extractedAmountConfidence >= 0.5){
-      var extractedInfo = {display:formatMoney(extractedAmountNumber), exact:extractedAmountNumber, low:extractedAmountNumber < 1000, extracted:true};
-      extractedInfo.reviewText = extractedInfo.display;
-      extractedInfo.calcValue = extractedAmountNumber;
-      return extractedInfo;
-    }
-    var buckets = {
-      under500:{display:'Under $500', low:true, range:true},
-      '500-1k':{display:'$500 - $1,000', low:true, range:true},
-      '1k-5k':{display:'$1,000 - $5,000', range:true},
-      '5k-10k':{display:'$5,000 - $10,000', range:true},
-      '10k-25k':{display:'$10,000 - $25,000', range:true},
-      '25k-50k':{display:'$25,000 - $50,000', range:true},
-      '50k-100k':{display:'$50,000 - $100,000', range:true},
-      over100k:{display:'Over $100,000', range:true},
-      unknown:{display:'Awaiting itemized bill', unknown:true}
-    };
-    var info = buckets[rawKey] ? Object.assign({},buckets[rawKey]) : null;
-    if(!info){
-      var exact = parseNumber(rawText);
-      var hasRange = /-|to|under|over|not sure|unknown|approx|around|between/i.test(rawText);
-      if(exact != null && !hasRange){
-        info = {display:formatMoney(exact), exact:exact, low:exact < 1000};
-      }else if(rawText && !/^not uploaded$/i.test(rawText) && /\d/.test(rawText)){
-        // Only use rawText as the display amount if it contains at least one digit;
-        // otherwise prose like "I don't know" or "a lot" falls through to unknown.
-        info = {display:rawText, range:true, low:/under|500|1,000/i.test(rawText)};
-      }else{
-        info = {display:'Awaiting itemized bill', unknown:true};
-      }
-    }
-    info.reviewText = info.unknown ? 'Awaiting itemized bill' : info.display;
-    info.calcValue = info.exact || null;
-    return info;
-  }
-
   function formatDate(value, fallback){
     var raw = clean(value);
     if(!raw) return fallback || 'On file';
@@ -1107,7 +1145,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
   function buildIssues(data, amount, uploaded){
     var raw = splitList(data.concerns_raw);
     var labels = splitList(data.concerns);
-    var other = clean(data.concern_other || '');
+    var other = safeUserText(data.concern_other || '', 120);
     var hay = (raw.concat(labels).join(' ') + ' ' + clean(data.description) + ' ' + clean(data.payment_status_raw) + ' ' + clean(data.payment_status) + ' ' + clean(data.bill_type)).toLowerCase();
     var found = [];
     var seen = {};
@@ -1161,7 +1199,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
     return found.slice(0,3).map(function(issue, idx){
       var copy = Object.assign({},issue);
       copy.confidence = uploaded ? 'Use uploaded bill' : 'Needs documentation';
-      copy.amountText = amount.exact ? amount.display : 'Awaiting itemized bill';
+      copy.amountText = amount.exact ? amount.display : 'Pending itemized bill';
       copy.letterName = idx === 0 ? 'Itemized statement request' : (idx === 1 ? 'Billing review request' : 'Insurance and rate review');
       return copy;
     });
@@ -1273,66 +1311,66 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
     var pay  = paymentLabel(c);
     var ref  = c.accountRef;
     var bill = billKindLabel(c);
-    var cust = c.userDetail || professionalBillingNote((c.raw && (c.raw.concern_other || c.raw.description)) || c.description || '', 140) || 'additional billing documentation concern';
+    var cust = c.userDetail || safeUserText((c.raw && (c.raw.concern_other || c.raw.description)) || c.description || '', 140) || 'additional billing documentation concern';
     var map = {
       network:{
-        title:'No Surprises Act & Network Rate Review',type:'Network / Surprise Billing Dispute',
+        title:'Network Rate Review',type:'Network / Surprise Billing Review',
         color:'cobalt',stamp:['NETWORK','REVIEW'],
-        re:'RE: No Surprises Act Review & Network Rate Dispute — Acct: '+ref+' — DOS: '+date,
+        re:'RE: Network Rate Review, Acct: '+ref+', DOS: '+date,
         sal:'Dear Billing Department,',
-        p1:'I am writing to formally dispute the out-of-network rate applied to '+bill+' services at '+prov+' on '+date+'. The current charge of '+amt+' may reflect out-of-network billing during an in-network facility encounter, which is regulated under the federal No Surprises Act (effective January 1, 2022). My coverage is '+cov+'.',
-        hl:'Under the No Surprises Act, patients receiving services from out-of-network providers at in-network facilities are generally protected from out-of-network cost-sharing. Patient cost-sharing must be calculated at the in-network rate, and balance-billing beyond the in-network amount is prohibited by federal law.',
-        p2:'Please provide in writing: (1) network status and contract type for every billing provider, (2) the rate basis and allowable amount under my plan, (3) any patient consent waiving surprise billing protections, (4) the EOB from '+cov+' showing the network determination, (5) whether No Surprises Act dispute resolution applies here, and (6) a corrected patient responsibility if the rate adjustment changes the balance. Pause all collection activity while this review is pending.'
+        p1:'I am requesting a written review of the out-of-network rate applied to '+bill+' services at '+prov+' on '+date+'. The current charge of '+amt+' may reflect out-of-network billing during an in-network facility encounter. Federal surprise-billing protections may apply depending on the facts and documentation. My coverage is '+cov+'.',
+        hl:'Please review whether federal surprise-billing protections may apply and whether the patient responsibility was calculated using the appropriate network rate.',
+        p2:'Please provide in writing: (1) network status and contract type for every billing provider, (2) the rate basis and allowable amount under my plan, (3) any notice or consent documentation related to surprise billing protections, (4) the EOB from '+cov+' showing the network determination, (5) available review options, and (6) a corrected patient responsibility if the rate adjustment changes the balance. Please consider pausing collection activity while this review is pending.'
       },
       insurance:{
-        title:'Formal Appeal — Insurance Denial / Underpayment',type:'Insurance Appeals & Denial Review',
+        title:'Formal Appeal : Insurance Denial / Underpayment',type:'Insurance Appeals & Denial Review',
         color:'cobalt',stamp:['APPEAL','FILED'],
-        re:'RE: Formal Written Appeal — Denial or Underpayment — Acct: '+ref+' — '+cov,
+        re:'RE: Formal Written Appeal : Denial or Underpayment : Acct: '+ref+' : '+cov,
         sal:'Dear '+cov+' Appeals Department,',
         p1:'I am submitting a formal written appeal of the denial or underpayment applied to my claim for '+bill+' services at '+prov+' on '+date+'. The patient balance of '+amt+' reflects a determination I believe should be reconsidered under my plan terms and benefits. Account reference: '+ref+'.',
         hl:'I formally request: (1) the complete Explanation of Benefits with all denial and remark codes, (2) the specific plan provision or clinical criteria cited in the denial, (3) the name and credentials of any medical reviewer, (4) all records considered in the review, (5) the complete internal appeals process including deadlines, and (6) the external independent review procedure.',
-        p2:'Please issue a written determination within the federally required timeframe. If upheld, provide the external review procedure and the state insurance commissioner contact. Do not refer the disputed balance to collections or credit reporting while the appeal is pending. Maintain a written record of this appeal in your system and provide me with an appeal reference number.'
+        p2:'Please issue a written determination within the timeframe provided by my plan or review process. If upheld, provide the available external review procedure and the state insurance department contact. Please consider pausing collection and credit-reporting activity on the reviewed balance while the appeal is pending. Maintain a written record of this appeal in your system and provide me with an appeal reference number.'
       },
       collections:{
-        title:'Debt Validation & Collections Dispute',type:'FDCPA Debt Validation Request',
-        color:'crimson',stamp:['FDCPA','DISPUTE'],
-        re:'RE: Formal Debt Validation Request — FDCPA § 809(b) — Acct: '+ref,
+        title:'Collection Account Validation Request',type:'Collection Account Review Request',
+        color:'crimson',stamp:['ACCOUNT','REVIEW'],
+        re:'RE: Collection Account Validation Request, Acct: '+ref,
         sal:'To Whom It May Concern,',
-        p1:'I am formally disputing and requesting validation of the debt attributed to account '+ref+' at '+prov+' for '+bill+' services on '+date+', listed as '+amt+'. This request is made under the Fair Debt Collection Practices Act (FDCPA), 15 U.S.C. § 1692g(b). I am exercising my right to dispute this debt and require complete written verification before any further collection action.',
-        hl:'I formally request in writing: (1) the name and address of the original creditor, (2) a complete line-by-line itemized statement of all charges, (3) proof of legal authority to collect this debt, (4) the original signed agreement or assignment of benefits, (5) confirmation the claim was submitted to and processed by '+cov+', and (6) evidence the statute of limitations has not expired.',
-        p2:'Please cease all collection communications, actions, and credit reporting on this account until complete written validation is provided. Continued collection without validation may violate the FDCPA and applicable state consumer protection laws. Respond within 30 days with a written reference number confirming that collection activity is paused while this review is pending.'
+        p1:'I am requesting written validation and review of the balance attributed to account '+ref+' at '+prov+' for '+bill+' services on '+date+', listed as '+amt+'. I would like complete written verification before I decide how to respond to the collection notice.',
+        hl:'Please provide in writing: (1) the name and address of the original creditor, (2) a complete line-by-line itemized statement of all charges, (3) documentation showing who currently manages the account, (4) the account and payment history, and (5) confirmation the claim was submitted to and processed by '+cov+'.',
+        p2:'Please consider pausing collection communications, actions, and credit reporting on this account until complete written validation is provided. Please respond in writing with a reference number and the current status of this review.'
       },
       payment:{
         title:'Refund & Overpayment Review Request',type:'Payment Correction & Refund Request',
         color:'green',stamp:['REFUND','REVIEW'],
-        re:'RE: Request for Payment Review & Corrected Statement — Acct: '+ref+' — DOS: '+date,
+        re:'RE: Request for Payment Review & Corrected Statement : Acct: '+ref+' : DOS: '+date,
         sal:'Dear Patient Financial Services,',
-        p1:'I am requesting a formal review of payments made toward account '+ref+' for '+bill+' at '+prov+' on '+date+'. Payment status is "'+pay+'" with remaining balance '+amt+' and coverage '+cov+'. Billing review areas identified in my case may indicate overcharges, coding adjustments, or insurance corrections that would reduce my patient responsibility and entitle me to a full or partial refund.',
-        hl:'Please provide a complete written accounting of: (1) all payments received against account '+ref+' to date, (2) all payer adjustments, contractual write-offs, and insurance payments applied, (3) the current patient responsibility after all adjustments, and (4) whether any overpayment exists and the procedure to issue a refund or credit. If a refund is due, please issue it within 30 days.',
-        p2:'If the review identifies a corrected balance lower than the amount paid, provide a written corrected statement and refund instructions. If no adjustment is warranted, provide the specific records and EOB that support the current balance in writing. I retain the right to appeal any determination and request external review. Do not report any disputed portion to credit agencies while this review is pending.'
+        p1:'I am requesting a formal review of payments made toward account '+ref+' for '+bill+' at '+prov+' on '+date+'. Payment status is "'+pay+'" with remaining balance '+amt+' and coverage '+cov+'. Billing review areas identified in my case may support a review of whether a refund or credit is appropriate.',
+        hl:'Please provide a complete written accounting of: (1) all payments received against account '+ref+' to date, (2) all payer adjustments, contractual write-offs, and insurance payments applied, (3) the current patient responsibility after all adjustments, and (4) whether any overpayment exists and the procedure to request a refund or credit.',
+        p2:'If the review identifies a corrected balance lower than the amount paid, provide a written corrected statement and refund instructions. If no adjustment is warranted, provide the specific records and EOB that support the current balance in writing. Please also provide any available appeal or external review options and consider pausing credit reporting on the reviewed portion while this request is pending.'
       },
       coding:{
         title:'CPT / HCPCS Coding & Documentation Review',type:'Billing Code Audit & Documentation Request',
         color:'cobalt',stamp:['CODING','AUDIT'],
-        re:'RE: Formal CPT/HCPCS Coding & Documentation Review — Acct: '+ref+' — DOS: '+date,
+        re:'RE: Formal CPT/HCPCS Coding & Documentation Review : Acct: '+ref+' : DOS: '+date,
         sal:'Dear Medical Records and Billing Department,',
         p1:'I am requesting a formal written review of the CPT, HCPCS, and revenue codes billed on account '+ref+' for '+bill+' at '+prov+' on '+date+'. Current balance is '+amt+' with coverage '+cov+'. My billing analysis identifies a possible coding or service-level concern. An improperly coded or upcoded bill produces an incorrect patient responsibility and may require a corrected claim to '+cov+'.',
         hl:'For each billing line under review, please provide: (1) the CPT/HCPCS or revenue code and full description, (2) the E/M visit level and documentation basis (history, examination, medical decision-making), (3) any modifiers applied and their clinical justification, (4) the medical record supporting code selection, (5) whether any unbundled codes should be reported as a single combined code, and (6) whether a corrected claim has been or should be submitted.',
         p2:'If documentation does not support the billed code level, service description, or units, please issue a corrected claim to '+cov+' and a revised patient statement. The corrected patient responsibility must reflect the adjustment. Respond in writing within 30 days with supporting documentation or a corrected billing statement and a reference number for this review request.'
       },
       service:{
-        title:'Unrecognized Service Charges — Formal Challenge',type:'Unperformed Service Dispute',
+        title:'Unrecognized Service Charges : Formal Challenge',type:'Unperformed Service Dispute',
         color:'crimson',stamp:['CHALLENGE','FILED'],
-        re:'RE: Formal Challenge of Unrecognized Service Charges — Acct: '+ref+' — DOS: '+date,
+        re:'RE: Formal Challenge of Unrecognized Service Charges : Acct: '+ref+' : DOS: '+date,
         sal:'Dear Billing Department,',
         p1:'I am formally challenging charges on account '+ref+' for '+bill+' at '+prov+' on '+date+'. Balance is '+amt+' with coverage '+cov+' and payment status "'+pay+'". My intake identifies services that do not correspond to services I recall receiving, consenting to, or that were ordered by the requesting party listed in my medical record. Billing for unperformed or unauthorized services requires written correction.',
         hl:'For each challenged charge I request: (1) the clinical order or referral authorizing the service, (2) the name, credentials, and documentation of the party listed as having performed the service, (3) the date, time, and location of service delivery, (4) signed patient consent for each service where applicable, and (5) written confirmation that the service was ordered, performed, and is fully supported in the medical record.',
         p2:'If any charge is not supported by complete clinical documentation of the ordered and performed service, please remove it from the statement and issue a corrected billing statement with the reduced patient responsibility. Do not refer challenged charges to collections while this formal review is pending. Respond within 30 days with supporting documentation or a corrected billing statement.'
       },
       custom:{
-        title:'Custom Concern Addendum — Formal Written Review',type:'Patient-Described Billing Concern',
+        title:'Custom Concern Addendum : Formal Written Review',type:'Patient-Described Billing Concern',
         color:'green',stamp:['CUSTOM','REVIEW'],
-        re:'RE: Custom Billing Concern Addendum — Acct: '+ref+' — DOS: '+date,
+        re:'RE: Custom Billing Concern Addendum : Acct: '+ref+' : DOS: '+date,
         sal:'Dear Billing Department,',
         p1:'This letter is a formal written addendum to the billing review initiated for account '+ref+' at '+prov+' on '+date+'. It addresses additional billing context from my intake: '+h(cust)+' Current balance is '+amt+' with coverage '+cov+'.',
         hl:'I request that you identify the specific billing lines, CPT/HCPCS codes, clinical records, and payer documentation that directly address the concern described above. A general account balance statement or form letter does not constitute a response to this specific concern. I require a documented, specific written answer.',
@@ -1398,7 +1436,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
     });
     // Update footer note with exact letter count
     var footer = one('.doc-footer-note');
-    if(footer) footer.textContent = c.letterCount + ' letters prepared for your case — each uses your patient name, provider, and intake details.';
+    if(footer) footer.textContent = c.letterCount + ' letters prepared for your case : each uses your patient name, provider, and intake details.';
   }
 
   function buildCase(){
@@ -1439,10 +1477,10 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
         name:        !!clean(data.patient_name || data.patientName || data.full_name || data.name)
       };
       if (auditReport._urlHasToken && !auditReport._readIntakeYielded.provider) {
-        console.warn('[UPA HYDRATION AUDIT] URL contains ?case= token but readIntake() found no provider — token may have failed to restore. Check upa-state-persistence.js restoreFromUrl().');
+        console.warn('[UPA HYDRATION AUDIT] URL contains ?case= token but readIntake() found no provider : token may have failed to restore. Check upa-state-persistence.js restoreFromUrl().');
       }
       if (!auditReport['upa.active.case.v1'].inLocal && !auditReport['upa.intake.v1'].inLocal && !auditReport['upa.review.session.v1'].inLocal) {
-        console.warn('[UPA HYDRATION AUDIT] ALL primary storage keys empty in localStorage. This is a cross-context/cross-device load OR storage was cleared. Dashboard will render with graceful fallbacks ("Your provider", "Awaiting itemized bill", etc.) rather than "not provided" placeholders.');
+        console.warn('[UPA HYDRATION AUDIT] ALL primary storage keys empty in localStorage. This is a cross-context/cross-device load OR storage was cleared. Dashboard will render with graceful fallbacks ("Your provider", "Pending itemized bill", etc.) rather than "not provided" placeholders.');
       }
     } catch(e){ /* audit must never break case build */ }
 
@@ -1455,7 +1493,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
     // than getting echoed across every letter, finding card, and dashboard pill.
     var name = safeProperNoun(clean(data.patient_name || data.patientName || data.full_name || data.fullName || data.name || joinedName), '');
     var nameParts = name ? name.split(/\s+/).filter(Boolean) : [];
-    var lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : (nameParts[0] || 'Account Holder');
+    var lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : (nameParts[0] || '');
     var prepDate = formatDate(data.submitted_at || new Date().toISOString(), 'Today');
     var opened = data.submitted_at ? new Date(data.submitted_at) : new Date();
     if(isNaN(opened.getTime())) opened = new Date();
@@ -1463,13 +1501,14 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
     var rawDos = data.date_of_service || data.dos || data.extracted_date_of_service;
     var dos = formatDate(rawDos, 'On file');
     var billType = safeProperNoun(clean(data.bill_type_other || data.bill_type, 'medical bill'), 'medical bill');
-    var coverage = safeProperNoun(clean(data.insurance_other || data.insurance), '') || safeProperNoun(clean(data.extracted_insurance), '') || 'Your coverage';
-    var paymentStatus = safeProperNoun(clean(data.payment_status_other || data.payment_status, 'Account on file'), 'Account on file');
+    var coverage = safeCoverageText(data);
+    var paymentStatus = safePaymentStatusText(data);
     var description = clean(data.description);
     var email = clean(data.email);
     var phone = clean(data.phone);
     var concernLabels = splitList(data.concerns).map(professionalConcernLabel);
-    if(clean(data.concern_other)) concernLabels.push(professionalConcernLabel(data.concern_other));
+    var safeConcernOther = safeUserText(data.concern_other, 120);
+    if(safeConcernOther) concernLabels.push(professionalConcernLabel(safeConcernOther));
     var seenConcerns = {};
     concernLabels = concernLabels.filter(function(item){
       var key = item.toLowerCase();
@@ -1493,7 +1532,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
     //
     // Additional dedup: even when we have a clean professional restatement,
     // suppress it if the underlying billing phrases are already fully covered
-    // by the user's selected concern labels — otherwise we'd say the same
+    // by the user's selected concern labels : otherwise we'd say the same
     // thing twice in the letter.
     var userDetail = '';
     (function(){
@@ -1501,7 +1540,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
       if(!pro) return; // No recognizable billing intent → suppress entirely
 
       var descPhrases = billingConcernPhrases(description);
-      if(descPhrases.length === 0) return; // (paranoia — pro would already be '')
+      if(descPhrases.length === 0) return; // (paranoia : pro would already be '')
 
       var concernText = concernLabels.join(' ').toLowerCase();
 
@@ -1533,7 +1572,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
       notes.push('This review is based on the intake details provided so far. Adding an itemized bill, EOB, procedure codes, and exact charges will make the results more specific.');
     }
     if(amount.low){
-      notes.push('The stated amount is on the lower end for billing disputes. That does not mean it should go unchecked — confirming the charges now is the fastest path to resolution.');
+      notes.push('The stated amount is on the lower end for billing disputes. That does not mean it should go unchecked : confirming the charges now is the fastest path to resolution.');
     }
     var primary = issues[0];
     var status = paymentCopy(paymentStatus);
@@ -1546,8 +1585,19 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
       'CPT/HCPCS/revenue-code review when line items are available'
     ];
     if(issues.some(function(i){return i.key === 'network';})) basis.push('network and surprise-billing screening when the facts support it');
+    var sanitizedRaw = Object.assign({}, data, {
+      bill_amount: amount.display,
+      bill_amount_other: amount.display,
+      insurance: coverage,
+      insurance_other: coverage,
+      payment_status: paymentStatus,
+      payment_status_other: '',
+      concerns: concernSummary,
+      concerns_raw: '',
+      concern_other: safeConcernOther
+    });
     return {
-      raw:data,
+      raw:sanitizedRaw,
       patientName:name,
       lastName:lastName,
       firstName:first || name.split(/\s+/)[0] || 'You',
@@ -1565,7 +1615,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
       billType:billType,
       coverage:coverage,
       paymentStatus:paymentStatus,
-      patientLabel:(lastName && lastName !== 'Account Holder' ? lastName : 'Account Holder') + ' - ' + coverage,
+      patientLabel:lastName ? lastName + ' - ' + coverage : coverage,
       amount:amount,
       issues:issues,
       primary:primary,
@@ -1623,7 +1673,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
   }
 
   function commonReplacements(c){
-    var confirmedText = c.amount.exact ? 'Confirms once your itemized bill is added' : 'Awaiting itemized bill';
+    var confirmedText = c.amount.exact ? 'Confirms once your itemized bill is added' : 'Pending itemized bill';
     return [
       ['Patient: First Name Last Name', c.patientName],
       ['Patient · Account Holder', c.patientLabel],
@@ -1645,11 +1695,11 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
       ['three letters', c.letterCount + ' letters'],
       ['Review Areas', c.issueCount + ' review areas'],
       ['2 Found', c.issueCount + ' found'],
-      ['$17,589.00', 'Awaiting itemized bill'],
-      ['$5,863.00', 'Awaiting itemized bill'],
-      ['$11,726.00', 'Awaiting itemized bill'],
-      ['$651.44', 'Awaiting itemized bill'],
-      ['To confirm8.58', 'Awaiting itemized bill'],
+      ['$17,589.00', 'Pending itemized bill'],
+      ['$5,863.00', 'Pending itemized bill'],
+      ['$11,726.00', 'Pending itemized bill'],
+      ['$651.44', 'Pending itemized bill'],
+      ['To confirm8.58', 'Pending itemized bill'],
       ['Medicare Beneficiary', c.coverage],
       ['Medicare Primary', c.coverage],
       ['Medicare primary', c.coverage.toLowerCase()],
@@ -1769,18 +1819,18 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
     anchor.parentNode.insertBefore(wrap, anchor.nextSibling);
   }
 
-  // Guidance hint: shown when intake is thin — not defensive, trust-building.
+  // Guidance hint: shown when intake is thin : not defensive, trust-building.
   // Explains WHY more detail = better results without implying the product is broken.
   function insertGuidanceHint(c){
     if(!one('.kpi-strip')) return;
     if(one('#upa-guidance-hint')) return; // one per page
     var meetsThreshold = c.detailScore >= 50 || c.uploaded;
-    if(meetsThreshold) return; // enough detail — no hint needed
+    if(meetsThreshold) return; // enough detail : no hint needed
     var hint = document.createElement('div');
     hint.id = 'upa-guidance-hint';
     hint.className = 'upa-case-note';
     hint.style.cssText = 'margin:12px 0 4px;padding:11px 14px;border-radius:8px;border:1px solid rgba(240,165,0,.22);background:rgba(240,165,0,.05);color:#4A5060;font-size:.6875rem;line-height:1.65;display:flex;align-items:flex-start;gap:10px';
-    hint.innerHTML = '<span style="font-size:1rem;flex-shrink:0;margin-top:1px">💡</span><span><strong style="color:#1C2B48">Your review is ready.</strong> The more detail you can add — a bill photo, EOB, exact charges, dates, or provider notes — the more specific your letters and findings become. Right now everything is tailored to what you shared. Adding your itemized bill unlocks the full line-item analysis.</span>';
+    hint.innerHTML = '<span style="font-size:1rem;flex-shrink:0;margin-top:1px">💡</span><span><strong style="color:#1C2B48">Your review is ready.</strong> The more detail you can add : a bill photo, EOB, exact charges, dates, or provider notes : the more specific your letters and findings become. Right now everything is tailored to what you shared. Adding your itemized bill unlocks the full line-item analysis.</span>';
     var kpi = one('.kpi-strip');
     if(kpi && kpi.parentNode) kpi.parentNode.insertBefore(hint, kpi.nextSibling);
   }
@@ -1833,7 +1883,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
       if(hasKnown(c.coverage, 'Your coverage')) parts.push(c.coverage);
     }
     if(c.uploaded) parts.push('your uploaded bill in this case');
-    return parts.join(' · ') || 'Open case — your itemized bill will fill in the details';
+    return parts.join(' · ') || 'Open case : your itemized bill will fill in the details';
   }
 
   function issueDesc(c, issue){
@@ -1990,7 +2040,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
       setText('.ft-strong', issue.title, row);
       setText('.ft-sub', issueCodeLine(c, issue), row);
       var cells = row.children || [];
-      if(cells[2]) cells[2].textContent = c.uploaded ? 'Bill/EOB review' : 'Awaiting itemized bill';
+      if(cells[2]) cells[2].textContent = c.uploaded ? 'Bill/EOB review' : 'Pending itemized bill';
       var amt = row.querySelector('.ft-amount');
       if(amt) amt.textContent = issue.amountText;
       var badge = row.querySelector('.ft-badge');
@@ -2050,7 +2100,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
       setText('.mini-org-sub', c.patientLabel, card);
       setText('.mini-sig-name', c.patientName, card);
       setText('.mini-sig-sub', (c.lastName || c.patientName) + ' / ' + c.coverage, card);
-      // Fix mini-re RE: line — replace placeholder name and account with real values
+      // Fix mini-re RE: line : replace placeholder name and account with real values
       var reEl = card.querySelector('.mini-re');
       if(reEl){
         reEl.innerHTML = reEl.innerHTML
@@ -2179,12 +2229,12 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
     ]);
     setAllText('.bench-name', c.issues.map(function(i){return i.title;}));
     setAllText('.bench-delta', ['Needs itemized detail','Needs EOB/code detail']);
-    setAllText('.bench-bar-val', ['Awaiting itemized bill','Benchmark unlocks once you upload your itemized bill with codes','Awaiting itemized bill','Benchmark unlocks once you upload your itemized bill with codes']);
+    setAllText('.bench-bar-val', ['Pending itemized bill','Benchmark unlocks once you upload your itemized bill with codes','Pending itemized bill','Benchmark unlocks once you upload your itemized bill with codes']);
     setText('.nb-title', c.uploaded ? 'Use your uploaded bill to press for line-item answers' : 'Ask the provider for a fully itemized statement before you pay');
     setText('.nb-desc', c.uploaded ? 'We’ll work from your uploaded bill alongside the drafted letters to push for written explanations, EOB reconciliation, and corrections wherever the records support it.' : 'Your intake didn’t include a complete itemized bill yet. Letter 1 is drafted to ask the provider for the codes, units, charges, adjustments, and records we need to make the rest of the review specific.');
 
     all('#tab-findings .finding-card').slice(0,3).forEach(function(card, idx){ applyIssueCard(card, c.issues[idx], c, idx); });
-    var actionTitles = ['Ask for a fully itemized statement', 'Press on the ' + c.issues[0].short + ' question', 'Clarify coverage, EOB, or rates', 'Follow up — and escalate if no written reply'];
+    var actionTitles = ['Ask for a fully itemized statement', 'Press on the ' + c.issues[0].short + ' question', 'Clarify coverage, EOB, or rates', 'Follow up : and escalate if no written reply'];
     var actionDescs = [
       'Send Letter 1 to ' + providerLabel(c) + ' asking for the full line-by-line statement, codes, units, adjustments, and payer responsibility for the concerns you entered: ' + c.concernSummary + '. About five minutes of your time.',
       'Once your itemized statement arrives, use Letter 2 to ask billing to answer this question directly: ' + c.issues[0].title + '.',
@@ -2210,7 +2260,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
     setText('.rpc-amount', c.amount.reviewText);
     setText('.rpc-sub', c.amount.exact ? 'From the amount you shared at intake' : 'Confirms with your itemized bill');
     setAllText('.rpc-row-val', [c.amount.display, String(c.issueCount), c.letterCount + ' drafted']);
-    var rpsPayment = hasKnown(c.paymentStatus, 'Account on file') ? c.paymentStatus : 'Where your account stands';
+    var rpsPayment = c.paymentStatus || 'Review timing depends on your situation';
     setAllText('.rps-row-val', [c.amount.reviewText, c.primary.short, rpsPayment, c.uploaded ? 'Working from your uploaded bill' : 'Ask for an itemized statement first']);
     setText('#rp-gauge-amount', c.detailScore >= 70 ? 'Strong start' : 'Open case');
     setText('#rp-gauge-pct', c.detailScore + '%');
@@ -2251,37 +2301,40 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
       var addrLines = [];
       if (addrEmail) addrLines.push(h(addrEmail));
       if (addrPhone) addrLines.push(h(addrPhone));
-      setHTML('.lhd-addr', addrLines.length ? addrLines.join('<br>') : '');
+      setHTML('.lhd-addr', addrLines.length ? addrLines.join('<br>') : '<em style="opacity:.4;font-style:italic;font-size:.9em">Add your contact info before sending</em>', header);
       setText('.lhd-date', c.prepDate, header);
       setText('.lhd-acct', 'Account: ' + c.accountRef, header);
     });
     setAllText('.lbs-name', c.patientName);
-    setAllText('.lbs-sub', (c.lastName || c.patientName) + ' / ' + c.coverage + ' - ' + c.accountRef);
+    var sigName = c.lastName || c.patientName || '';
+    setAllText('.lbs-sub', sigName ? sigName + ' / ' + c.coverage + ' - ' + c.accountRef : c.coverage + ' - ' + c.accountRef);
     setAllText('.ltb-title', [
       'Request for fully itemized statement - send this first',
       'Billing review request - ' + c.issues[0].short,
       'Insurance, EOB, and rate clarification request'
     ]);
     if(bodies[0]){
-      setHTML('.lb-to-addr', h(c.provider) + ' - Billing & Accounts<br>Billing address — see statement', bodies[0]);
+      setHTML('.lb-to-addr', h(c.provider) + ' - Billing & Accounts<br>Billing address : see statement', bodies[0]);
       setText('.lb-re-txt', 'Request for Fully Itemized Statement - ' + c.accountRef + ' - Date of Service: ' + c.dateOfService, bodies[0]);
-      setHTML('.lb-para', 'I am writing to request a complete, fully itemized statement for medical services rendered on <strong>' + h(c.dateOfService) + '</strong>, account reference ' + h(c.accountRef) + ', at ' + h(c.provider) + '. My current intake lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, payment status as <strong>' + h(c.paymentStatus) + '</strong>, and concerns including <strong>' + h(c.concernSummary) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' I am reviewing this statement before accepting the patient responsibility.', bodies[0]);
+      setHTML('.lb-para', 'I am writing to request a complete, fully itemized statement for medical services rendered on <strong>' + h(c.dateOfService) + '</strong>, account reference ' + h(c.accountRef) + ', at ' + h(c.provider) + '. My current intake lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, payment timing as <strong>' + h(c.paymentStatus) + '</strong>, and concerns including <strong>' + h(c.concernSummary) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' I am reviewing this statement before accepting the patient responsibility.', bodies[0]);
       setText('.lb-hl', 'Please provide every line item, CPT/HCPCS code, revenue code, units, dates of service, provider adjustments, insurer payments or denials, and the patient-responsibility amount for each individual item.', bodies[0]);
       setText('.lb-sm', 'This request is made so I can reconcile the statement against my EOB, coverage, and records. Please pause collection activity on any disputed portion while this written review is pending and provide a reference number for this request.', bodies[0]);
     }
     if(bodies[1]){
       var issue = c.issues[0];
-      setHTML('.lb-to-addr', h(c.provider) + ' - Billing Review Department<br>Billing address — see statement', bodies[1]);
+      setHTML('.lb-to-addr', h(c.provider) + ' - Billing Review Department<br>Billing address : see statement', bodies[1]);
       setText('.lb-re-txt', 'Billing Review Request - ' + issue.title + ' - DOS: ' + c.dateOfService + ' - Amount Under Review: ' + issue.amountText, bodies[1]);
       setHTML('.lb-para', 'I am requesting a formal written review of my statement, account reference ' + h(c.accountRef) + '. Based on my intake and the documents available to me, my concerns include: <strong>' + h(c.concernSummary) + '</strong>. The primary review point is <strong>' + h(issue.title) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' This review relates to services at ' + h(c.provider) + ' on ' + h(c.dateOfService) + ' with current amount listed as ' + h(c.amount.display) + '.', bodies[1]);
-      setText('.lb-hl', issue.action + ' If the review changes the patient responsibility, please issue a corrected statement and written explanation.', bodies[1]);
+      setText('.lb-hl', 'I am requesting a written explanation and correction if your review confirms a duplicate entry.', bodies[1]);
+      var cite = one('.lb-cite', bodies[1]);
+      if(cite) cite.remove();
       setText('.lb-sm', 'Please respond in writing within 30 days with the records, code details, EOB reconciliation, or corrected billing statement that supports your determination. Please pause collection activity on the reviewed amount while this request is pending.', bodies[1]);
     }
     if(bodies[2]){
       var issue3 = c.issues[2];
       setHTML('.lb-to-addr', 'Billing Department - ' + h(c.provider) + '<br>Insurance / payer review contact if available', bodies[2]);
       setText('.lb-re-txt', 'Insurance / EOB / Rate Clarification - ' + issue3.title + ' - Account: ' + c.accountRef, bodies[2]);
-      setHTML('.lb-para', 'I am writing to request written clarification of the insurance, EOB, network, and rate handling for my <strong>' + h(c.dateOfService) + ' ' + h(c.billType) + '</strong> at ' + h(c.provider) + '. My coverage is listed as <strong>' + h(c.coverage) + '</strong>, payment status is <strong>' + h(c.paymentStatus) + '</strong>, and my intake concerns include <strong>' + h(c.concernSummary) + '</strong>. The patient balance requires confirmation before I accept responsibility.', bodies[2]);
+      setHTML('.lb-para', 'I am writing to request written clarification of the insurance, EOB, network, and rate handling for my <strong>' + h(c.dateOfService) + ' ' + h(c.billType) + '</strong> at ' + h(c.provider) + '. My coverage is listed as <strong>' + h(c.coverage) + '</strong>, payment timing is <strong>' + h(c.paymentStatus) + '</strong>, and my intake concerns include <strong>' + h(c.concernSummary) + '</strong>. The patient balance requires confirmation before I accept responsibility.', bodies[2]);
       setText('.lb-hl', issue3.action + ' Please identify any payer denial codes, allowed amounts, adjustments, network status, consent documentation if relevant, and appeal or corrected-claim options.', bodies[2]);
       setText('.lb-sm', 'Please respond in writing with the EOB basis, payer responsibility, provider adjustment history, and the current patient-responsibility calculation. If the balance changes, please issue a corrected statement and refund or payment-plan adjustment instructions if applicable.', bodies[2]);
     }
@@ -2294,12 +2347,12 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
 
   function applyPacket(c){
     if(!one('.toolbar') || all('.page').length < 4) return;
-    // Set ALL name fields globally first — catches elements outside .lhd wrappers
+    // Set ALL name fields globally first : catches elements outside .lhd wrappers
     // (e.g. the "Prepared For" block on page 1) that applyLetterBodies misses.
-    var displayName = c.patientName || 'Account Holder';
+    var displayName = c.patientName || '';
     setAllText('.lhd-name', displayName);
     setAllText('.lbs-name', displayName);
-    setText('.tb-sub', '- ' + c.accountRef + ' - ' + displayName + ' packet');
+    setText('.tb-sub', '- ' + c.accountRef + (displayName ? ' - ' + displayName : '') + ' packet');
     var firstPageHeader = one('.page .nh');
     if(c.noteText && firstPageHeader && !one('.page .upa-case-note')){
       var note = document.createElement('div');
@@ -2319,6 +2372,27 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
       var firstInfo = all('div', pages[0]).filter(function(el){return /Patient|Provider|Date of Service/.test(el.textContent);});
       firstInfo.slice(0,3);
     }
+
+    // Front-page findings summary box : shows up to 3 identified issues with title + short label
+    var findingsBox = one('.packet-findings-box');
+    if(findingsBox && c.issues && c.issues.length){
+      var pfCount = one('.pf-count', findingsBox);
+      if(pfCount) pfCount.textContent = c.issues.length + (c.issues.length === 1 ? ' issue found' : ' issues found');
+      var pfList = one('.pf-list', findingsBox);
+      if(pfList){
+        pfList.innerHTML = c.issues.slice(0,3).map(function(issue){
+          return '<div style="display:flex;align-items:flex-start;gap:10px">' +
+            '<div style="width:16px;height:16px;border-radius:50%;background:rgba(30,107,90,.1);border:1px solid rgba(30,107,90,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">' +
+            '<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#1E6B5A" stroke-width="3"><path d="M9 11l3 3L22 4"/></svg>' +
+            '</div>' +
+            '<div><div style="font-size:.625rem;font-weight:700;color:var(--navy)">' + h(issue.title) + '</div>' +
+            (issue.short ? '<div style="font-size:.5rem;color:var(--ink3);line-height:1.5;text-transform:capitalize">' + h(issue.short) + '</div>' : '') +
+            '</div></div>';
+        }).join('');
+      }
+      findingsBox.style.display = '';
+    }
+
     all('.nf-r').forEach(function(el){
       if(/Account|Page/.test(el.textContent)) el.textContent = el.textContent.replace(/Account.+$/,'Account ' + c.accountRef);
     });
@@ -2398,7 +2472,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
     var overlay = document.getElementById('session-expired-overlay');
     if(overlay && !hasAnyIntake){
       overlay.classList.remove('show');
-      console.warn('[UPA] No intake data found in storage or URL — keeping dashboard visible.');
+      console.warn('[UPA] No intake data found in storage or URL : keeping dashboard visible.');
     }
 
     var c = buildCase();
@@ -2406,6 +2480,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted — URL had no ?r= param 
     applyPreview(c);
     applyDashboard(c);
     applyPacket(c);
+    renderClfsBenchmarks();
     applyGuideHook(c);
     if(window.__UPA_MOBILE_DEBUG__) window.__UPA_MOBILE_DEBUG__.render('after-personalization');
   }

@@ -455,7 +455,7 @@ if(!window.UPAIsCaseRecoveryEntry()) window.UPAStartFreshCase();
     })
     .then(function(){
       setProgress('Your preview is ready', 'Opening the preview and payment options now.');
-      window.setTimeout(function(){ window.location.href = '/UPA-Final/03_upa-preview.html'; }, 650);
+      window.setTimeout(function(){ window.location.href = '/UPA-Final/00_upa-scan.html?resume=1&preview=manual'; }, 650);
     })
     .catch(function(error){
       showRecovery(error && error.name === 'AbortError'

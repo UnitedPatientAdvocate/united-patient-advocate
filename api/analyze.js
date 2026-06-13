@@ -1389,19 +1389,41 @@ async function handler(req, res) {
   const MODEL = 'claude-sonnet-4-6'; // hardcoded, do not change
   if (req.method !== 'POST') return res.status(405).end();
 
+  let body;
+  try {
+    body = await readBody(req);
+  } catch (error) {
+    return res.status(400).json({ error: 'Invalid JSON request body' });
+  }
+
+  if (body?.generationMode === 'manual_flags') {
+    const intake = normalizeIntake(body.intake || {});
+    const sourceDossier = body.dossier && typeof body.dossier === 'object' && !Array.isArray(body.dossier)
+      ? body.dossier
+      : {};
+    const targetGenerationMode = body.targetGenerationMode === 'paid_dossier' ? 'paid_dossier' : 'free_preview';
+    const normalizedPayload = attachLegalTriggersToPayload({
+      ...sourceDossier,
+      generationMode: sourceDossier.generationMode || targetGenerationMode,
+      providerName: sourceDossier.providerName || intake.providerName,
+      state: sourceDossier.state || intake.state,
+      dossierFlags: {
+        ...(sourceDossier.dossierFlags && typeof sourceDossier.dossierFlags === 'object' ? sourceDossier.dossierFlags : {}),
+        ...(intake.dossierFlags && typeof intake.dossierFlags === 'object' ? intake.dossierFlags : {})
+      }
+    }, intake);
+    return res.status(200).json({
+      generationMode: 'manual_flags',
+      normalizedPayload
+    });
+  }
+
   const apiKey = getAnthropicApiKey();
   if (!apiKey) {
     console.error('[api/analyze] Missing ANTHROPIC_API_KEY runtime environment variable', {
       envKeyDetected: Object.keys(process.env).some(key => key.trim().toUpperCase() === 'ANTHROPIC_API_KEY')
     });
     return res.status(500).json({ error: 'Server API key is not configured' });
-  }
-
-  let body;
-  try {
-    body = await readBody(req);
-  } catch (error) {
-    return res.status(400).json({ error: 'Invalid JSON request body' });
   }
 
   const structuredRequest = buildStructuredRequest(body);

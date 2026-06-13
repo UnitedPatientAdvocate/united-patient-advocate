@@ -18,19 +18,22 @@ button,input,select{font:inherit}
 .brand-name{font-family:var(--serif);font-size:1.05rem;font-weight:700;line-height:1}
 .brand-sub{display:block;color:var(--muted);font-size:.66rem;font-weight:500;margin-top:4px}
 .back-link{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1px solid var(--line);border-radius:12px;color:var(--body);background:#fff;text-decoration:none;font-size:.9rem;font-weight:500}
-.hero{text-align:center;padding:52px 20px 26px}
+.hero{text-align:center;padding:42px 20px 20px}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:var(--teal-soft);color:var(--teal-dark);font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px}
 .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold)}
 h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03;letter-spacing:-.035em;max-width:760px;margin:0 auto 14px}
 .hero-copy{max-width:650px;margin:0 auto;color:var(--body);font-size:1.04rem;line-height:1.7;font-weight:300}
-.shell{width:100%;max-width:920px;margin:0 auto;padding:18px 20px 60px}
-.form-card{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 12px 42px rgba(22,32,51,.08);padding:30px}
-.intro{padding:17px 18px;background:var(--gold-soft);border:1px solid rgba(184,134,46,.18);border-radius:14px;color:var(--body);font-size:.92rem;line-height:1.65;margin-bottom:26px}
-.question{padding:24px 0;border-bottom:1px solid rgba(22,32,51,.08)}
-.question:first-of-type{padding-top:0}
-.question:last-of-type{border-bottom:0}
+.quick-note{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin:20px auto 0;color:var(--muted);font-size:.82rem;font-weight:500}
+.quick-note span{display:inline-flex;align-items:center;gap:7px}
+.quick-note span::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--teal)}
+.shell{width:100%;max-width:980px;margin:0 auto;padding:18px 20px 60px}
+.form-card{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 12px 42px rgba(22,32,51,.08);padding:30px}
+.intro{padding:17px 18px;background:var(--teal-soft);border:1px solid rgba(29,158,117,.16);border-radius:14px;color:var(--body);font-size:.92rem;line-height:1.65;margin-bottom:10px}
+.question-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding-top:14px}
+.question{min-width:0;margin:0;padding:20px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#fff,#FBFCFD)}
+.question:last-of-type{border-bottom:1px solid var(--line)}
 .q-number{font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
-.q-title{font-family:var(--serif);font-size:1.35rem;line-height:1.25;color:var(--navy);margin-bottom:14px}
+.q-title{display:block;width:100%;padding:0;font-family:var(--serif);font-size:1.2rem;line-height:1.28;color:var(--navy);margin-bottom:16px}
 .choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .choices.two{grid-template-columns:repeat(2,minmax(0,1fr))}
 .choice{position:relative}
@@ -42,23 +45,33 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
 .field{width:100%;min-height:56px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:14px 16px;font-size:1rem}
 .field:focus{outline:0;border-color:var(--teal);box-shadow:0 0 0 3px rgba(29,158,117,.12)}
 .field-note{font-size:.82rem;color:var(--muted);line-height:1.5;margin-top:8px}
-.action-row{padding-top:28px;display:grid;gap:12px}
+.action-row{padding-top:24px;display:grid;gap:12px}
 .submit{min-height:56px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;font-size:1rem;font-weight:600;cursor:pointer;box-shadow:0 8px 24px rgba(29,158,117,.25);transition:.18s ease}
 .submit:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(29,158,117,.30)}
 .submit:disabled{opacity:.58;cursor:wait;transform:none}
 .status{min-height:24px;text-align:center;color:var(--body);font-size:.9rem;line-height:1.5}
 .status.error{color:#B42318}
+.progress-panel{display:none;padding:18px;border:1px solid rgba(29,158,117,.18);border-radius:14px;background:var(--teal-soft);color:var(--body)}
+.progress-panel.show{display:grid;grid-template-columns:auto 1fr;gap:13px;align-items:center}
+.spinner{width:28px;height:28px;border:3px solid rgba(29,158,117,.2);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite}
+.progress-title{color:var(--navy);font-weight:600;margin-bottom:3px}
+.progress-detail{color:var(--muted);font-size:.82rem;line-height:1.45}
+.recovery-actions{display:none;grid-template-columns:1fr 1fr;gap:10px}
+.recovery-actions.show{display:grid}
+.secondary-action{min-height:48px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--navy);font-weight:600;text-decoration:none;cursor:pointer}
 .privacy{text-align:center;color:var(--muted);font-size:.78rem;line-height:1.55}
-@media(max-width:650px){.topbar{padding:10px 14px}.back-link{font-size:.8rem;padding:9px 11px}.brand-sub{display:none}.hero{padding:38px 18px 18px}.hero-copy{font-size:.96rem}.shell{padding:12px 12px 44px}.form-card{padding:22px 18px;border-radius:16px}.question{padding:22px 0}.q-title{font-size:1.22rem}.choices,.choices.two{grid-template-columns:1fr}.choice label{min-height:56px;justify-content:flex-start;text-align:left;padding:14px 16px}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:780px){.question-grid{grid-template-columns:1fr}.question{padding:20px}}
+@media(max-width:650px){.topbar{padding:10px 14px}.back-link{font-size:.8rem;padding:9px 11px}.brand-sub{display:none}.hero{padding:32px 18px 16px}.hero h1{font-size:2.15rem}.hero-copy{font-size:.96rem}.quick-note{gap:8px 16px;margin-top:16px}.shell{padding:10px 12px 44px}.form-card{padding:16px;border-radius:18px}.intro{margin-bottom:2px}.question-grid{gap:10px;padding-top:10px}.question{padding:18px 15px}.q-title{font-size:1.17rem}.choices,.choices.two{grid-template-columns:1fr}.choice label{min-height:54px;justify-content:flex-start;text-align:left;padding:13px 15px}.recovery-actions{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header class="topbar">
-  <a class="brand" href="/dashboard" aria-label="United Patient Advocate dashboard">
+  <a class="brand" href="/UPA-Final/01_upa-landing.html" aria-label="United Patient Advocate home">
     <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 28"><path d="M12 2 4 5.5v7.2c0 5.6 3.2 10.3 8 12.3 4.8-2 8-6.7 8-12.3V5.5L12 2Z"/><path d="m8.2 14 2.4 2.5 5.4-6"/></svg></span>
     <span><span class="brand-name">United Patient Advocate</span><span class="brand-sub">Add case details</span></span>
   </a>
-  <a class="back-link" href="/dashboard">Back to dashboard</a>
+  <a class="back-link" href="/UPA-Final/00_upa-scan.html">Back to bill scan</a>
 </header>
 
 <main>
@@ -66,48 +79,50 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
     <div class="eyebrow">Complete your case details</div>
     <h1>A few details your bill may not show.</h1>
     <p class="hero-copy">These answers help personalize the educational tools and review paths in your case. Choose only what you know.</p>
+    <div class="quick-note"><span>Six straightforward questions</span><span>Your answers save immediately</span></div>
   </section>
 
   <section class="shell">
     <form class="form-card" id="manual-intake-form">
       <div class="intro">Your answers are added to the case information stored in this browser and reviewed with the same process used for uploaded bill details.</div>
 
-      <fieldset class="question">
+      <div class="question-grid">
+      <div class="question">
         <div class="q-number">Question 1</div>
-        <legend class="q-title">Is this a nonprofit or community hospital? Most U.S. hospitals are.</legend>
+        <div class="q-title">Is this a nonprofit or community hospital? Most U.S. hospitals are.</div>
         <div class="choices">
           <div class="choice"><input id="nonprofit-yes" type="radio" name="nonprofit" value="yes" required><label for="nonprofit-yes">Yes</label></div>
           <div class="choice"><input id="nonprofit-no" type="radio" name="nonprofit" value="no"><label for="nonprofit-no">No</label></div>
           <div class="choice"><input id="nonprofit-unsure" type="radio" name="nonprofit" value="unsure"><label for="nonprofit-unsure">Not sure</label></div>
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset class="question">
+      <div class="question">
         <div class="q-number">Question 2</div>
-        <legend class="q-title">Are you uninsured or paying out of pocket (self-pay)?</legend>
+        <div class="q-title">Are you uninsured or paying out of pocket (self-pay)?</div>
         <div class="choices two">
           <div class="choice"><input id="self-pay-yes" type="radio" name="selfPay" value="yes" required><label for="self-pay-yes">Yes</label></div>
           <div class="choice"><input id="self-pay-no" type="radio" name="selfPay" value="no"><label for="self-pay-no">No</label></div>
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset class="question">
+      <div class="question">
         <div class="q-number">Question 3</div>
-        <legend class="q-title">Was this care from an emergency room?</legend>
+        <div class="q-title">Was this care from an emergency room?</div>
         <div class="choices two">
           <div class="choice"><input id="er-yes" type="radio" name="emergencyCare" value="yes" required><label for="er-yes">Yes</label></div>
           <div class="choice"><input id="er-no" type="radio" name="emergencyCare" value="no"><label for="er-no">No</label></div>
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset class="question">
+      <div class="question">
         <div class="q-number">Question 4</div>
-        <legend class="q-title">Has this bill been sent to collections?</legend>
+        <div class="q-title">Has this bill been sent to collections?</div>
         <div class="choices two">
           <div class="choice"><input id="collections-yes" type="radio" name="inCollections" value="yes" required><label for="collections-yes">Yes</label></div>
           <div class="choice"><input id="collections-no" type="radio" name="inCollections" value="no"><label for="collections-no">No</label></div>
         </div>
-      </fieldset>
+      </div>
 
       <div class="question">
         <div class="q-number">Question 5</div>
@@ -131,15 +146,24 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
       </div>
 
       <div class="question">
-        <div class="q-number">Question 6 · Optional</div>
+        <div class="q-number">Question 6 - Optional</div>
         <label class="q-title" for="bill-total">Roughly how much is the total bill?</label>
         <input class="field" id="bill-total" name="billTotal" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Enter the total shown on the bill">
         <div class="field-note">Leave this blank if you do not know.</div>
       </div>
+      </div>
 
       <div class="action-row">
-        <button class="submit" id="submit-button" type="submit">Save details and update my review</button>
+        <button class="submit" id="submit-button" type="submit">Save details and show my next steps</button>
+        <div class="progress-panel" id="progress-panel" aria-live="polite">
+          <span class="spinner" aria-hidden="true"></span>
+          <span><span class="progress-title" id="progress-title">Saving your answers</span><span class="progress-detail" id="progress-detail">This should only take a moment.</span></span>
+        </div>
         <div class="status" id="form-status" role="status" aria-live="polite"></div>
+        <div class="recovery-actions" id="recovery-actions">
+          <button class="secondary-action" id="retry-button" type="button">Try again</button>
+          <a class="secondary-action" href="/dashboard">Open dashboard</a>
+        </div>
         <div class="privacy">Educational review only. Your answers do not determine a legal, medical, insurance, or financial outcome.</div>
       </div>
     </form>
@@ -152,6 +176,7 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
   var DOSSIER_KEY = 'upa.ai.dossier.v1';
   var INTAKE_KEY = 'upa.intake.v1';
   var SCAN_KEY = 'upa.scan.v1';
+  var REQUEST_TIMEOUT_MS = 12000;
 
   function readJSON(key){
     try{
@@ -242,6 +267,27 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
     document.getElementById('bill-total').value = flags.billTotal || '';
   }
 
+  function setProgress(title, detail){
+    document.getElementById('progress-title').textContent = title;
+    document.getElementById('progress-detail').textContent = detail;
+  }
+
+  function showRecovery(message){
+    var button = document.getElementById('submit-button');
+    var status = document.getElementById('form-status');
+    document.getElementById('progress-panel').classList.remove('show');
+    document.getElementById('recovery-actions').classList.add('show');
+    button.disabled = false;
+    button.textContent = 'Save details and show my next steps';
+    status.className = 'status error';
+    status.textContent = message;
+  }
+
+  document.getElementById('retry-button').addEventListener('click', function(){
+    document.getElementById('recovery-actions').classList.remove('show');
+    document.getElementById('manual-intake-form').requestSubmit();
+  });
+
   document.getElementById('manual-intake-form').addEventListener('submit', function(event){
     event.preventDefault();
     var form = event.currentTarget;
@@ -291,22 +337,33 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
     };
 
     button.disabled = true;
-    button.textContent = 'Updating your review...';
+    button.textContent = 'Preparing your next steps...';
+    document.getElementById('recovery-actions').classList.remove('show');
+    document.getElementById('progress-panel').classList.add('show');
+    setProgress('Answers saved', 'Preparing the next steps that match your situation.');
     status.className = 'status';
-    status.textContent = 'Saving your answers and updating the case.';
+    status.textContent = '';
 
     var requestBody = {
-      generationMode: paid ? 'paid_dossier' : 'free_preview',
+      generationMode: 'manual_flags',
+      targetGenerationMode: paid ? 'paid_dossier' : 'free_preview',
+      dossier: storedDossier,
       intake: Object.assign({}, requestIntake, { dossierFlags: flags })
     };
+
+    var controller = typeof AbortController === 'function' ? new AbortController() : null;
+    var timeout = window.setTimeout(function(){
+      if(controller) controller.abort();
+    }, REQUEST_TIMEOUT_MS);
 
     fetch('/api/analyze', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify(requestBody),
+      signal: controller ? controller.signal : undefined
     })
     .then(function(response){
-      if(!response.ok) throw new Error('Review update failed');
+      if(!response.ok) throw new Error('Next steps could not be prepared');
       return response.json();
     })
     .then(function(response){
@@ -318,14 +375,16 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
         dossierFlags: flags
       });
       writeJSON(DOSSIER_KEY, nextDossier);
-      status.textContent = 'Your case details were added. Opening your dashboard...';
-      window.setTimeout(function(){ window.location.href = '/dashboard'; }, 500);
+      setProgress('Your next steps are ready', 'Opening your dashboard now.');
+      window.setTimeout(function(){ window.location.href = '/dashboard'; }, 650);
     })
-    .catch(function(){
-      button.disabled = false;
-      button.textContent = 'Save details and update my review';
-      status.className = 'status error';
-      status.textContent = 'Your answers were saved, but the review could not update. Please try again.';
+    .catch(function(error){
+      showRecovery(error && error.name === 'AbortError'
+        ? 'Your answers are saved. Preparing the next steps took too long, so you can retry or open your dashboard.'
+        : 'Your answers are saved. We could not prepare the next steps yet. Retry now or open your dashboard.');
+    })
+    .finally(function(){
+      window.clearTimeout(timeout);
     });
   });
 

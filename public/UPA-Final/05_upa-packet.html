@@ -1056,12 +1056,35 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 <script>
 (function(){
   function hydratePacketPlaceholders(){
-    const s = k => sessionStorage.getItem(k) || localStorage.getItem(k) || '';
-    var patientName = s('patientName') || 'patient';
-    var providerName = s('providerName') || 'provider on statement';
-    var dateOfService = s('dateOfService') || 'date on statement';
-    var totalBilled = s('totalBilled') || 'amount on statement';
-    var referenceNumber = s('referenceNumber') || 'on file';
+    function storedCurrentIntake(){
+      if(window.__UPA_PACKET_INTAKE__ && typeof window.__UPA_PACKET_INTAKE__ === 'object') return window.__UPA_PACKET_INTAKE__;
+      try{
+        if(window.UPAState && window.UPAState.getIntake){
+          var fromState = window.UPAState.getIntake();
+          if(fromState && Object.keys(fromState).length) return fromState;
+        }
+      }catch(e){}
+      try{
+        var raw = sessionStorage.getItem('upa.intake.v1') || localStorage.getItem('upa.intake.v1') || '';
+        return raw ? JSON.parse(raw) : {};
+      }catch(e){ return {}; }
+    }
+    function providerFromCurrent(intake){
+      var candidates = [intake.provider,intake.providerName,intake.extracted_provider];
+      for(var i=0;i<candidates.length;i+=1){
+        var value = String(candidates[i] || '').trim();
+        if(!value) continue;
+        if(/^(?:GRP|GROUP|PLAN|POLICY)[-:\s]/i.test(value) || /\b(?:PPO|HMO|EPO|POS)\b/i.test(value)) continue;
+        return value;
+      }
+      return '';
+    }
+    var current = storedCurrentIntake();
+    var patientName = current.patientName || current.patient_name || current.name || 'patient';
+    var providerName = providerFromCurrent(current) || 'provider on statement';
+    var dateOfService = current.dateOfService || current.date_of_service || current.extracted_date_of_service || 'date on statement';
+    var totalBilled = current.bill_amount_other || current.bill_amount || current.totalBilled || current.extracted_bill_amount || 'amount on statement';
+    var referenceNumber = current.referenceNumber || current.account_number || current.extracted_account_number || 'on file';
     document.querySelectorAll('.lhd-name,.lbs-name').forEach(function(el){
       var text = (el.textContent || '').trim();
       if(text === 'Patient' || text === 'Patient Name Not Provided') el.textContent = patientName;

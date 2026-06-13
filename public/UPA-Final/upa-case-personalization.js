@@ -541,6 +541,46 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     return dossier && Object.keys(dossier).length ? dossier : {};
   }
 
+  function currentDossierIssueCount(){
+    var dossier = readDossierState();
+    var structured = Array.isArray(dossier.findings) ? dossier.findings : [];
+    var summary = dossier.summary && Array.isArray(dossier.summary.errorsFound) ? dossier.summary.errorsFound : [];
+    function normalize(item){
+      if(typeof item === 'string') return {headline:'', detail:item, lineItem:''};
+      item = item && typeof item === 'object' ? item : {};
+      return {
+        headline:item.headline || item.title || '',
+        detail:item.detail || item.oneLineExplanation || item.body || item.teaser || '',
+        lineItem:item.lineItem || item.lineItemReference || item.code || ''
+      };
+    }
+    function codes(item){
+      var text = [item.headline,item.detail,item.lineItem].filter(Boolean).join(' ');
+      return (text.match(/\b(?:[A-Z]?\d{5}[A-Z]?|\d{4}[A-Z])\b/gi) || []).map(function(code){ return code.toUpperCase(); });
+    }
+    function line(item){
+      return String(item.lineItem || '').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+    }
+    function same(left,right){
+      var leftLine = line(left);
+      var rightLine = line(right);
+      if(leftLine && rightLine && (leftLine === rightLine || leftLine.indexOf(rightLine) !== -1 || rightLine.indexOf(leftLine) !== -1)) return true;
+      var leftCodes = codes(left);
+      var rightCodes = codes(right);
+      if(leftCodes.some(function(code){ return rightCodes.indexOf(code) !== -1; })) return true;
+      if(leftLine || rightLine || leftCodes.length || rightCodes.length) return false;
+      var leftHeadline = String(left.headline || '').toLowerCase().trim();
+      var rightHeadline = String(right.headline || '').toLowerCase().trim();
+      if(leftHeadline && rightHeadline && leftHeadline === rightHeadline) return true;
+      return !!left.detail && !!right.detail && left.detail.toLowerCase().trim() === right.detail.toLowerCase().trim();
+    }
+    var merged = structured.map(normalize).filter(function(item){ return item.headline || item.detail; });
+    summary.map(normalize).filter(function(item){ return item.headline || item.detail; }).forEach(function(item){
+      if(!merged.some(function(existing){ return same(existing,item); })) merged.push(item);
+    });
+    return merged.length;
+  }
+
   function firstArray(){
     for(var i=0;i<arguments.length;i++){
       if(Array.isArray(arguments[i]) && arguments[i].length) return arguments[i];
@@ -1630,7 +1670,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       noteText:notes.join(' '),
       statusCopy:status,
       reviewBasis:'Review basis: ' + basis.join('; ') + '.',
-      issueCount:issues.length,
+      issueCount:currentDossierIssueCount() || issues.length,
       letterCount:letterPlan.count,
       letterCountLabel:String(letterPlan.count),
       letterSetLabel:String(letterPlan.count) + ' prepared letters for this case',

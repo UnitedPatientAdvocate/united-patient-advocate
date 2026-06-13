@@ -41,6 +41,15 @@ function createCaseId() {
   return crypto.randomBytes(24).toString('base64url');
 }
 
+function redisErrorDetail(error) {
+  return {
+    name: error?.name || 'Error',
+    message: error?.message || String(error || 'Unknown Redis error'),
+    code: error?.code || null,
+    status: error?.status || error?.statusCode || null
+  };
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
@@ -74,6 +83,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const redis = Redis.fromEnv();
+    const writeResults = [];
 
     for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt += 1) {
       const caseId = createCaseId();
@@ -81,16 +91,37 @@ module.exports = async function handler(req, res) {
         ex: CASE_TTL_SECONDS,
         nx: true
       });
+      writeResults.push({ attempt: attempt + 1, result, resultType: typeof result });
 
       if (result === 'OK') {
         return res.status(201).json({ ok: true, caseId });
       }
     }
 
-    console.error('[api/store-case] Could not reserve a unique case ID');
-    return res.status(503).json({ ok: false, error: 'Case could not be stored' });
+    console.error('[api/store-case] Could not reserve a unique case ID', {
+      payloadBytes,
+      writeResults
+    });
+    return res.status(503).json({
+      ok: false,
+      error: 'Case could not be stored',
+      diagnostic: {
+        reason: 'SET with NX did not return OK',
+        payloadBytes,
+        writeResults
+      }
+    });
   } catch (error) {
-    console.error('[api/store-case] Redis write failed', { message: error?.message });
-    return res.status(503).json({ ok: false, error: 'Case could not be stored' });
+    const detail = redisErrorDetail(error);
+    console.error('[api/store-case] Redis write failed', { payloadBytes, detail });
+    return res.status(503).json({
+      ok: false,
+      error: 'Case could not be stored',
+      diagnostic: {
+        reason: 'Redis SET threw an exception',
+        payloadBytes,
+        detail
+      }
+    });
   }
 };

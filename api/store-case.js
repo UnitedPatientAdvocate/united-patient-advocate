@@ -5,6 +5,7 @@ const CASE_KEY_PREFIX = 'upa:case:v1:';
 const CASE_TTL_SECONDS = 90 * 24 * 60 * 60;
 const MAX_CASE_BYTES = 1_500_000;
 const MAX_WRITE_ATTEMPTS = 3;
+const REDIS_WRITE_TIMEOUT_MS = 8_000;
 
 async function readBody(req) {
   if (req.body && typeof req.body !== 'string') return req.body;
@@ -50,6 +51,18 @@ function redisErrorDetail(error) {
   };
 }
 
+function withTimeout(promise, timeoutMs) {
+  let timer;
+  const timeout = new Promise((resolve, reject) => {
+    timer = setTimeout(() => {
+      const error = new Error(`Redis SET timed out after ${timeoutMs}ms`);
+      error.code = 'REDIS_WRITE_TIMEOUT';
+      reject(error);
+    }, timeoutMs);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
@@ -83,44 +96,41 @@ module.exports = async function handler(req, res) {
 
   try {
     const redis = Redis.fromEnv();
-    const writeResults = [];
-
-    for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt += 1) {
-      const caseId = createCaseId();
-      const result = await redis.set(`${CASE_KEY_PREFIX}${caseId}`, caseData, {
-        ex: CASE_TTL_SECONDS,
-        nx: true
-      });
-      writeResults.push({ attempt: attempt + 1, result, resultType: typeof result });
-
-      if (result === 'OK') {
-        return res.status(201).json({ ok: true, caseId });
+    const stored = await withTimeout((async () => {
+      const writeResults = [];
+      for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt += 1) {
+        const caseId = createCaseId();
+        const result = await redis.set(`${CASE_KEY_PREFIX}${caseId}`, caseData, {
+          ex: CASE_TTL_SECONDS,
+          nx: true
+        });
+        writeResults.push({ attempt: attempt + 1, result, resultType: typeof result });
+        if (result === 'OK') return { caseId, writeResults };
       }
-    }
+      const error = new Error('SET with NX did not return OK');
+      error.code = 'CASE_ID_COLLISION';
+      error.writeResults = writeResults;
+      throw error;
+    })(), REDIS_WRITE_TIMEOUT_MS);
 
-    console.error('[api/store-case] Could not reserve a unique case ID', {
-      payloadBytes,
-      writeResults
-    });
-    return res.status(503).json({
-      ok: false,
-      error: 'Case could not be stored',
-      diagnostic: {
-        reason: 'SET with NX did not return OK',
-        payloadBytes,
-        writeResults
-      }
+    return res.status(201).json({
+      ok: true,
+      status: 'stored',
+      caseId: stored.caseId
     });
   } catch (error) {
     const detail = redisErrorDetail(error);
     console.error('[api/store-case] Redis write failed', { payloadBytes, detail });
-    return res.status(503).json({
+    const status = error?.code === 'REDIS_WRITE_TIMEOUT' ? 504 : 503;
+    return res.status(status).json({
       ok: false,
+      status: error?.code === 'REDIS_WRITE_TIMEOUT' ? 'timeout' : 'failed',
       error: 'Case could not be stored',
       diagnostic: {
-        reason: 'Redis SET threw an exception',
+        reason: detail.message,
         payloadBytes,
-        detail
+        detail,
+        writeResults: error?.writeResults || undefined
       }
     });
   }

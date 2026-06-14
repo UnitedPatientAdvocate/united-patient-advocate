@@ -412,11 +412,13 @@ body{background:var(--navy)}
 }
 .btn-upgrade:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(17,28,46,0.40)}
 .btn-upgrade.is-preparing{cursor:wait;opacity:0.78;transform:none;box-shadow:0 4px 20px rgba(17,28,46,0.20)}
-.btn-upgrade.is-error{background:linear-gradient(135deg,#7F1D1D 0%,#991B1B 100%);border-color:rgba(185,28,28,0.45)}
 .btn-upgrade svg{width:16px;height:16px;stroke:#FFE7B0;stroke-width:2.2;fill:none}
 .ub-price{font-size:0.875rem;opacity:0.75;margin-left:auto}
 .ub-store-status{min-height:18px;margin-top:9px;font-size:0.6875rem;line-height:1.45;color:var(--ink-4);text-align:center}
-.ub-store-status.is-error{color:#B91C1C;font-weight:700}
+.ub-store-progress{display:none;height:5px;margin-top:10px;overflow:hidden;border-radius:999px;background:rgba(29,158,117,0.14)}
+.ub-store-progress.show{display:block}
+.ub-store-progress-bar{height:100%;width:38%;border-radius:999px;background:linear-gradient(90deg,#1D9E75,#6CC5A8,#1D9E75);animation:upaStoreProgress 1.15s ease-in-out infinite}
+@keyframes upaStoreProgress{0%{transform:translateX(-110%)}100%{transform:translateX(310%)}}
 .ub-loss{
   margin-top:12px;padding:10px 12px;
   background:rgba(240,165,0,0.07);border:1px solid rgba(240,165,0,0.16);
@@ -745,7 +747,10 @@ var _serverCaseStoreState = 'idle';
 var _serverCaseStoreError = null;
 var _completedScanCaseForStore = null;
 var _casePreparationPromise = null;
-var CASE_STORE_TIMEOUT_MS = 12000;
+var _serverCaseStoreAttempt = 0;
+var _serverCaseStoreMessage = '';
+var CASE_STORE_TIMEOUT_MS = 25000;
+var CASE_STORE_RETRY_MAX_DELAY_MS = 8000;
 
 function isValidServerCaseId(caseId) {
   return /^[A-Za-z0-9_-]{32}$/.test(caseId || '');
@@ -780,60 +785,43 @@ function updateCheckoutStoreState() {
   var link = document.querySelector('#upgrade-block .btn-upgrade');
   var label = link && link.querySelector('.ub-action-label');
   var status = document.getElementById('ub-store-status');
-  if (!link || !label || !status) return;
+  var progress = document.getElementById('ub-store-progress');
+  if (!link || !label || !status || !progress) return;
   link.classList.toggle('is-preparing', _serverCaseStoreState === 'pending');
-  link.classList.toggle('is-error', _serverCaseStoreState === 'error');
   link.setAttribute('aria-disabled', _serverCaseStoreState === 'pending' ? 'true' : 'false');
-  status.classList.toggle('is-error', _serverCaseStoreState === 'error');
+  link.setAttribute('aria-busy', _serverCaseStoreState === 'pending' ? 'true' : 'false');
+  progress.classList.toggle('show', _serverCaseStoreState === 'pending');
   if (_serverCaseStoreState === 'pending') {
-    label.textContent = 'Preparing your case';
-    status.textContent = 'Saving your prepared review before secure checkout.';
-  } else if (_serverCaseStoreState === 'error') {
-    label.textContent = 'Retry preparing case';
-    status.textContent = (_serverCaseStoreError && _serverCaseStoreError.message)
-      || 'We could not prepare your saved case. Please retry before checkout.';
+    label.textContent = _serverCaseStoreAttempt > 1 ? 'Still preparing secure checkout' : 'Preparing secure checkout';
+    status.textContent = _serverCaseStoreMessage || 'Saving your prepared review. Checkout will open automatically when it is ready.';
   } else {
     label.textContent = 'Unlock my full review';
     status.textContent = '';
   }
 }
 
-function withCaseStoreTimeout(promise) {
-  return new Promise(function(resolve, reject) {
-    var settled = false;
-    var timer = window.setTimeout(function() {
-      if (settled) return;
-      settled = true;
-      reject(new Error('Case storage timed out. Please retry.'));
-    }, CASE_STORE_TIMEOUT_MS);
-    Promise.resolve(promise).then(function(value) {
-      if (settled) return;
-      settled = true;
-      window.clearTimeout(timer);
-      resolve(value);
-    }, function(error) {
-      if (settled) return;
-      settled = true;
-      window.clearTimeout(timer);
-      reject(error);
-    });
+function waitForCaseStoreRetry(delay) {
+  return new Promise(function(resolve) {
+    window.setTimeout(resolve, delay);
   });
 }
 
 function trackServerCaseStore(promise) {
   _serverCaseStoreState = 'pending';
   _serverCaseStoreError = null;
-  _serverCaseStorePromise = withCaseStoreTimeout(promise)
+  _serverCaseStorePromise = Promise.resolve(promise)
     .then(function(caseId) {
       var storedCaseId = persistServerCaseId(caseId);
       _serverCaseStoreState = 'ready';
       _serverCaseStoreError = null;
+      _serverCaseStoreMessage = '';
       updateCheckoutStoreState();
       return storedCaseId;
     })
     .catch(function(error) {
       _serverCaseStoreState = 'error';
       _serverCaseStoreError = error || new Error('Case storage failed');
+      _serverCaseStoreMessage = '';
       _serverCaseStorePromise = null;
       updateCheckoutStoreState();
       throw _serverCaseStoreError;
@@ -873,7 +861,7 @@ function storeCompletedScanCase(caseData) {
   })
   .catch(function(error) {
     if (error && error.name === 'AbortError') {
-      throw new Error('Case storage timed out. Please retry.');
+      throw new Error('Case storage attempt timed out');
     }
     throw error;
   })
@@ -882,18 +870,37 @@ function storeCompletedScanCase(caseData) {
   });
 }
 
+function storeCompletedScanCaseUntilReady(caseData) {
+  _serverCaseStoreAttempt += 1;
+  _serverCaseStoreState = 'pending';
+  _serverCaseStoreMessage = _serverCaseStoreAttempt === 1
+    ? 'Saving your prepared review. Checkout will open automatically when it is ready.'
+    : 'The connection is taking longer than usual. Automatic attempt ' + _serverCaseStoreAttempt + ' is underway. Keep this page open.';
+  updateCheckoutStoreState();
+  return storeCompletedScanCase(caseData).catch(function(error) {
+    _serverCaseStoreError = error || new Error('Case storage attempt failed');
+    _serverCaseStoreMessage = 'The connection is taking longer than usual. Reconnecting automatically. Keep this page open.';
+    updateCheckoutStoreState();
+    var retryDelay = Math.min(1500 + ((_serverCaseStoreAttempt - 1) * 1500), CASE_STORE_RETRY_MAX_DELAY_MS);
+    return waitForCaseStoreRetry(retryDelay).then(function() {
+      return storeCompletedScanCaseUntilReady(caseData);
+    });
+  });
+}
+
 function ensureServerCaseStored() {
   if ((_serverCaseStoreState === 'pending' || _serverCaseStoreState === 'ready') && _serverCaseStorePromise) {
     return _serverCaseStorePromise;
   }
+  _serverCaseStoreAttempt = 0;
   if (_casePreparationPromise) {
     return trackServerCaseStore(Promise.resolve(_casePreparationPromise).then(function(caseData) {
-      if (!caseData || typeof caseData !== 'object') throw new Error('Your prepared review is not ready yet. Please retry.');
-      return storeCompletedScanCase(caseData);
+      if (!caseData || typeof caseData !== 'object') throw new Error('Your prepared review is not ready yet');
+      return storeCompletedScanCaseUntilReady(caseData);
     }));
   }
   if (_completedScanCaseForStore) {
-    return trackServerCaseStore(storeCompletedScanCase(_completedScanCaseForStore));
+    return trackServerCaseStore(storeCompletedScanCaseUntilReady(_completedScanCaseForStore));
   }
   var existingCaseId = '';
   try {
@@ -1306,6 +1313,8 @@ function routeAfterScan(data) {
   _serverCaseStorePromise = null;
   _serverCaseStoreState = 'idle';
   _serverCaseStoreError = null;
+  _serverCaseStoreAttempt = 0;
+  _serverCaseStoreMessage = '';
   if (data.confidence === 'low' || data.confidence === 'failed') {
     showState('state-fallback');
     return;
@@ -1665,6 +1674,7 @@ function renderFindings(data, findings) {
       '<span class="ub-price">' + esc(UPA_SCAN_CONFIG.upgradePrice) + '</span>' +
     '</a>' +
     '<div class="ub-store-status" id="ub-store-status" role="status" aria-live="polite"></div>' +
+    '<div class="ub-store-progress" id="ub-store-progress" aria-hidden="true"><div class="ub-store-progress-bar"></div></div>' +
     '<div class="ub-loss">Timelines vary by provider, payer, and notice type. Written requests help preserve a clear paper trail while you review the bill.</div>' +
     '<div class="ub-trust-row">' +
       '<div class="ub-trust-item"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Instant access</div>' +

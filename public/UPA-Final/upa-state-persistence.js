@@ -203,6 +203,16 @@
     // a provisional that fails hasIntake() falls through to the timestamp list, where
     // old PAID_KEY or CHECKOUT_KEY data wins (they have newer updatedAt from markPaid).
     var active = activeEnvelope();
+    var currentServerCaseId = getServerCaseId();
+    var currentIntake = readJSON(INTAKE_KEY);
+    if(currentServerCaseId){
+      if(currentIntake && currentIntake._upa_server_case_id === currentServerCaseId && hasIntake(currentIntake)){
+        return { intake:currentIntake, source:'server-case-intake', time:timeValue(currentIntake), caseId:caseIdFromIntake(currentIntake) };
+      }
+      if(active && active.intake && active.intake._upa_server_case_id === currentServerCaseId && hasIntake(active.intake)){
+        return { intake:active.intake, source:'server-case-active', time:timeValue(active), caseId:active.caseId || caseIdFromIntake(active.intake) };
+      }
+    }
     if(active && active.intake){
       var activeIsScanned = !!(active.source === 'scan' || active.intake._scan || active.intake._upa_source === 'scan');
       if(activeIsScanned && active.intake._upa_active_at){

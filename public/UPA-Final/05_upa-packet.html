@@ -22,7 +22,7 @@
   --sans:'Plus Jakarta Sans',system-ui,sans-serif;
   --mono:'DM Mono',monospace;
 }
-body{font-family:var(--sans);background:#C8CED8;-webkit-font-smoothing:antialiased;padding:24px 16px 60px}
+body{font-family:var(--sans);background:#FAFAF8;-webkit-font-smoothing:antialiased;padding:24px 16px 60px}
 
 /* ── PAGE SHELL ── */
 .page{
@@ -240,7 +240,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
       <div style="padding-right:14px;margin-right:14px;border-right:1px solid var(--bdr)"><div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px">Prepared For</div><div class="lhd-name" style="font-size:.75rem;font-weight:700;color:var(--navy)">Patient</div></div>
       <div style="padding-right:14px;margin-right:14px;border-right:1px solid var(--bdr)"><div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px">Provider</div><div style="font-size:.75rem;font-weight:700;color:var(--navy)">Your Provider</div></div>
       <div style="padding-right:14px;margin-right:14px;border-right:1px solid var(--bdr)"><div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px">Date of Service</div><div style="font-size:.75rem;font-weight:700;color:var(--navy)">date of service</div></div>
-      <div><div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px">Charges Flagged</div><div style="font-size:.875rem;font-weight:700;color:var(--teal)">Amount to review</div></div>
+      <div><div style="font-size:.375rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px">Charges Flagged</div><div class="packet-flagged-count" style="font-size:.875rem;font-weight:700;color:var(--teal)">Review areas identified</div></div>
     </div>
   </div>
 
@@ -387,15 +387,15 @@ body{padding:12px 10px 40px;overflow-x:hidden}
   <!-- 3 big metrics -->
   <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--bdr)">
     <div style="padding:28px 20px;text-align:center;border-right:1px solid var(--bdr);position:relative"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--teal)"></div><div style="font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--navy);letter-spacing:-.04em;line-height:1;margin-bottom:6px">Bill amount</div><div style="font-size:.75rem;font-weight:700;color:var(--ink3);margin-bottom:5px">Total on Your Bill</div><div style="font-size:.625rem;color:var(--ink4);line-height:1.55">The full amount Your Provider billed for your date of service</div></div>
-    <div style="padding:28px 20px;text-align:center;border-right:1px solid var(--bdr);position:relative"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--crimson)"></div><div style="font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--crimson);letter-spacing:-.04em;line-height:1;margin-bottom:6px">Amount to review</div><div style="font-size:.75rem;font-weight:700;color:var(--ink3);margin-bottom:5px">Flagged for Review</div><div style="font-size:.625rem;color:var(--ink4);line-height:1.55">Charges identified that may qualify for clarification, review, or rate adjustment</div></div>
-    <div style="padding:28px 20px;text-align:center;position:relative"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold-dk)"></div><div style="font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--gold-dk);letter-spacing:-.04em;line-height:1;margin-bottom:6px">Most</div><div style="font-size:.75rem;font-weight:700;color:var(--ink3);margin-bottom:5px">Typically Confirmed</div><div style="font-size:.625rem;color:var(--ink4);line-height:1.55">On a typical bill most charges are standard; a smaller share is worth reviewing. Your exact split depends on your itemized statement.</div></div>
+    <div style="padding:28px 20px;text-align:center;border-right:1px solid var(--bdr);position:relative"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--crimson)"></div><div class="packet-review-metric" style="font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--crimson);letter-spacing:-.04em;line-height:1;margin-bottom:6px">Review areas identified</div><div style="font-size:.75rem;font-weight:700;color:var(--ink3);margin-bottom:5px">Flagged for Review</div><div style="font-size:.625rem;color:var(--ink4);line-height:1.55">Charges identified that may qualify for clarification, review, or rate adjustment</div></div>
+    <div style="padding:28px 20px;text-align:center;position:relative"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold-dk)"></div><div style="font-family:var(--serif);font-size:3rem;font-weight:900;color:var(--gold-dk);letter-spacing:-.04em;line-height:1;margin-bottom:6px">Case specific</div><div style="font-size:.75rem;font-weight:700;color:var(--ink3);margin-bottom:5px">Typically Confirmed</div><div style="font-size:.625rem;color:var(--ink4);line-height:1.55">On a typical bill most charges are standard; a smaller share is worth reviewing. Your exact split depends on your itemized statement.</div></div>
   </div>
 
   <!-- Verified CLFS benchmark section populated from the paid dossier. -->
   <div data-upa-clfs="packet" style="padding:30px 40px">
-    <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(208,112,0,.10);border:1px solid rgba(208,112,0,.30);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin:0 auto 14px;display:block;width:fit-content">Needs Your Input</div>
+    <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(29,158,117,.10);border:1px solid rgba(29,158,117,.25);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:0 auto 14px;display:block;width:fit-content">Lab comparison on standby</div>
     <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);letter-spacing:-.01em;text-align:center;margin-bottom:4px">Verified Medicare Lab Benchmark Review</div>
-    <div data-upa-clfs-coverage style="font-size:.75rem;color:var(--ink4);text-align:center;margin-bottom:24px">Needs Your Input. Upload an itemized bill with lab codes and billed amounts to compare eligible line items against CMS CLFS rates.</div>
+    <div data-upa-clfs-coverage style="font-size:.75rem;color:var(--ink4);text-align:center;margin-bottom:24px">Lab benchmark comparison applies only to itemized lab line items with CMS codes and dollar amounts. Your bill does not show itemized lab lines yet, so this one comparison is on standby. The rest of your review below is complete and ready to use.</div>
 
     <div data-upa-clfs-grid style="display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:center">
       <!-- Donut SVG -->
@@ -414,7 +414,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
           <!-- Center white -->
           <circle cx="130" cy="130" r="60" fill="white"/>
           <!-- Center text -->
-          <text data-upa-clfs-center x="130" y="122" text-anchor="middle" font-family="Playfair Display,Georgia,serif" font-size="22" font-weight="900" fill="#1C2B48">Needs input</text>
+          <text data-upa-clfs-center x="130" y="122" text-anchor="middle" font-family="Playfair Display,Georgia,serif" font-size="22" font-weight="900" fill="#1C2B48">On standby</text>
           <text x="130" y="138" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="9.5" font-weight="700" fill="#4A6480" letter-spacing="1">CMS CLFS</text>
           <text x="130" y="150" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="9" fill="#7A98B0">verified labs only</text>
         </svg>
@@ -424,8 +424,8 @@ body{padding:12px 10px 40px;overflow-x:hidden}
       <div data-upa-clfs-lines style="display:flex;flex-direction:column;gap:12px">
         <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:white;border:1px solid var(--bdr);border-radius:9px;border-left:5px solid #2C3870">
           <div style="width:16px;height:16px;background:#2C3870;border-radius:3px;flex-shrink:0"></div>
-          <div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">Verified CLFS Matches</div><div data-upa-clfs-match-note style="font-size:.625rem;color:var(--ink4)">Needs Your Input</div></div>
-          <div data-upa-clfs-overcharge style="font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--ink3);letter-spacing:-.02em">Needs input</div>
+          <div style="flex:1"><div style="font-size:.875rem;font-weight:700;color:var(--navy);margin-bottom:2px">Verified CLFS Matches</div><div data-upa-clfs-match-note style="font-size:.625rem;color:var(--ink4)">Lab comparison on standby</div></div>
+          <div data-upa-clfs-overcharge style="font-family:var(--serif);font-size:1.5rem;font-weight:900;color:var(--ink3);letter-spacing:-.02em">On standby</div>
         </div>
         <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--crimson-lt);border:1px solid rgba(200,50,50,.20);border-radius:9px;border-left:5px solid var(--crimson)">
           <div style="width:16px;height:16px;background:var(--crimson);border-radius:3px;flex-shrink:0"></div>
@@ -544,32 +544,33 @@ body{padding:12px 10px 40px;overflow-x:hidden}
   <div class="nh nh-sm"><div class="nh-inner"><div class="nh-brand"><div class="nh-logo"><img src="Transparent.png" style="width:100%;height:100%;object-fit:contain;display:block;" alt="United Patient Advocate"></div><div><div class="nh-big">United Patient Advocate</div><span class="nh-spaced">Billed vs. Medicare Rates &amp; Estimated Timeline : Page 5 of 12</span></div></div></div></div>
 
   <!-- Medicare bars section : GENERAL REFERENCE EXAMPLE -->
-  <div style="padding:22px 40px 20px;border-bottom:1px solid var(--bdr)">
-    <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(208,112,0,.10);border:1px solid rgba(208,112,0,.30);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:12px">Needs Your Input</div>
+  <div data-upa-clfs-secondary-section style="padding:22px 40px 20px;border-bottom:1px solid var(--bdr)">
+    <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(29,158,117,.10);border:1px solid rgba(29,158,117,.25);border-radius:100px;font-size:.5rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:12px">Lab comparison on standby</div>
     <div style="font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--navy);margin-bottom:4px">Verified CMS CLFS Benchmark Comparison</div>
-    <div style="font-size:.75rem;color:var(--ink4);line-height:1.6;margin-bottom:18px">This section uses verified CMS CLFS rates only when itemized lab codes and billed amounts are available. Non-lab codes stay marked unavailable and are excluded from benchmark totals.</div>
+    <div style="font-size:.75rem;color:var(--ink4);line-height:1.6;margin-bottom:18px">Lab benchmark comparison applies only to itemized lab line items with CMS codes and dollar amounts. Your bill does not show itemized lab lines yet, so this one comparison is on standby. The rest of your review below is complete and ready to use.</div>
+    <div data-upa-clfs-secondary-standby style="display:none;padding:16px 18px;background:#F5FAF8;border:1px solid rgba(29,158,117,.18);border-left:5px solid var(--teal);border-radius:9px;font-size:.72rem;color:var(--ink4);line-height:1.65"><strong style="color:var(--navy)">Lab comparison on standby.</strong> The rest of your review is complete and ready to use.</div>
 
-    <div style="display:flex;flex-direction:column;gap:14px">
+    <div data-upa-clfs-static-bars style="display:flex;flex-direction:column;gap:14px">
       <!-- billing line item -->
       <div style="background:white;border:1px solid var(--bdr);border-radius:9px;padding:16px 18px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
           <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Emergency Visit : billing line item</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Billed for this procedure on two separate line items</div></div>
-          <div style="font-size:.75rem;font-weight:700;color:var(--crimson)">Needs CLFS line data</div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--teal)">On standby</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">Needs input</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">CMS CLFS</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">Needs input</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">On standby</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">CMS CLFS</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">On standby</span></div>
         </div>
       </div>
       <!-- billing line item -->
       <div style="background:white;border:1px solid var(--bdr);border-radius:9px;padding:16px 18px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
           <div><div style="font-size:.875rem;font-weight:700;color:var(--navy)">Office Visit Level 5 : billing line item</div><div style="font-size:.5625rem;color:var(--ink4);margin-top:1px">Highest complexity code : records may support a lower level</div></div>
-          <div style="font-size:.75rem;font-weight:700;color:var(--crimson)">Needs CLFS line data</div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--teal)">On standby</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">Needs input</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">CMS CLFS</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">Needs input</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">On standby</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">CMS CLFS</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">On standby</span></div>
         </div>
       </div>
       <!-- Lab -->
@@ -579,8 +580,8 @@ body{padding:12px 10px 40px;overflow-x:hidden}
           <div style="font-size:.75rem;font-weight:700;color:var(--cobalt)">In-network rate estimated ~Benchmark</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">Needs input</span></div>
-          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">CMS CLFS</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">Needs input</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--crimson);width:64px;text-align:right;flex-shrink:0">Billed</span><div style="flex:1;height:18px;background:#F5EAEA;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#A02020,var(--crimson));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--crimson);min-width:44px;text-align:right">On standby</span></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-size:.5625rem;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--teal);width:64px;text-align:right;flex-shrink:0">CMS CLFS</span><div style="flex:1;height:18px;background:#EBF6F2;border-radius:9px;overflow:hidden"><div style="width:0%;height:100%;background:linear-gradient(90deg,#1A5C4A,var(--teal));border-radius:9px"></div></div><span style="font-family:var(--mono);font-size:.6875rem;font-weight:600;color:var(--teal);min-width:44px;text-align:right">On standby</span></div>
         </div>
       </div>
     </div>
@@ -870,7 +871,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 <div class="page">
   <div class="gold-rule rule-teal"></div>
   <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Core Letter 01</span><div class="ltb-sep"></div><span class="ltb-title">Request for Fully Itemized Statement : Send This First</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-teal">Review &amp; Send</span></div></div>
-  <div class="lhd"><div><div class="lhd-name">Patient</div><span class="lhd-sub">Account Holder</span><div class="lhd-addr">Address on file<br>Phone &amp; email on file</div></div><div class="lhd-r"><div class="lhd-date">Preparation date</div><span class="lhd-acct">Account: account number · Core letter 1</span></div></div>
+  <div class="lhd"><div><div class="lhd-name">Patient</div><span class="lhd-sub">Account Holder</span><div class="lhd-addr">Mailing address: click to edit<br>Phone &amp; email: click to edit</div></div><div class="lhd-r"><div class="lhd-date">Preparation date</div><span class="lhd-acct">Account: account number · Core letter 1</span></div></div>
   <div class="lbody">
     <div style="margin-bottom:12px"><div class="lb-to-lbl">Addressed To</div><div class="lb-to-name">Patient Financial Services Department</div><div class="lb-to-addr">Your Provider · Billing &amp; Accounts<br>Provider billing address</div></div>
     <div class="lb-re re-teal"><span class="lb-re-lbl">RE:</span><span class="lb-re-txt">Request for Fully Itemized Statement · Account number · Date of Service: date of service</span></div>
@@ -894,7 +895,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 <div class="page">
   <div class="gold-rule rule-crimson"></div>
   <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Core Letter 02</span><div class="ltb-sep"></div><span class="ltb-title">Billing Review Request : billing line item Possible Duplicate · To confirm</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-crimson">Review &amp; Send</span></div></div>
-  <div class="lhd"><div><div class="lhd-name">Patient</div><span class="lhd-sub">Account Holder</span><div class="lhd-addr">Address on file<br>Phone &amp; email on file</div></div><div class="lhd-r"><div class="lhd-date">Preparation date</div><span class="lhd-acct">Account: account number · Core letter 2</span></div></div>
+  <div class="lhd"><div><div class="lhd-name">Patient</div><span class="lhd-sub">Account Holder</span><div class="lhd-addr">Mailing address: click to edit<br>Phone &amp; email: click to edit</div></div><div class="lhd-r"><div class="lhd-date">Preparation date</div><span class="lhd-acct">Account: account number · Core letter 2</span></div></div>
   <div class="lbody">
     <div style="margin-bottom:12px"><div class="lb-to-lbl">Addressed To</div><div class="lb-to-name">Patient Financial Services : Billing Review Department</div><div class="lb-to-addr">Your Provider · Provider billing address</div></div>
     <div class="lb-re re-crimson"><span class="lb-re-lbl">RE:</span><span class="lb-re-txt">Billing Review Request · billing line item : Possible Duplicate Entry · Itemized bill lines · DOS: date of service · Amount Under Review: To confirm</span></div>
@@ -917,7 +918,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 <div class="page">
   <div class="gold-rule rule-cobalt"></div>
   <div class="ltb"><div class="ltb-inner"><span class="ltb-step">Core Letter 03</span><div class="ltb-sep"></div><span class="ltb-title">In-Network Rate Inquiry : Outside Service Provider Lab Fees · To confirm</span><div class="ltb-spacer"></div><span class="ltb-ready rdy-cobalt">Review &amp; Send</span></div></div>
-  <div class="lhd"><div><div class="lhd-name">Patient</div><span class="lhd-sub">Account Holder</span><div class="lhd-addr">Address on file<br>Phone &amp; email on file</div></div><div class="lhd-r"><div class="lhd-date">Preparation date</div><span class="lhd-acct">Account: account number · Core letter 3</span></div></div>
+  <div class="lhd"><div><div class="lhd-name">Patient</div><span class="lhd-sub">Account Holder</span><div class="lhd-addr">Mailing address: click to edit<br>Phone &amp; email: click to edit</div></div><div class="lhd-r"><div class="lhd-date">Preparation date</div><span class="lhd-acct">Account: account number · Core letter 3</span></div></div>
   <div class="lbody">
     <div style="margin-bottom:12px"><div class="lb-to-lbl">Addressed To</div><div class="lb-to-name">Billing Department : Your Provider &amp; Outside Service Provider</div><div class="lb-to-addr">Your Provider · Ancillary Services · Provider billing address<br>Outside Service Provider · Patient Financial Services · Address on the lab or ancillary invoice</div></div>
     <div class="lb-re re-cobalt"><span class="lb-re-lbl">RE:</span><span class="lb-re-txt">In-Network Rate Inquiry · Outside Service Provider Ref: billing reference · Rate Review Charges · To confirm · Account: account number</span></div>
@@ -1044,6 +1045,24 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 
 </div>
 <script>
+window.UPAParseStoredJSON=window.UPAParseStoredJSON||function(raw,fallback){
+  if(raw&&typeof raw==='object')return raw;
+  var text=String(raw||'').trim()
+    .replace(/^```(?:json)?\s*/i,'')
+    .replace(/\s*```\s*$/,'')
+    .trim();
+  if(!text)return fallback===undefined?{}:fallback;
+  try{return JSON.parse(text);}catch(firstError){
+    var start=text.indexOf('{');
+    var end=text.lastIndexOf('}');
+    if(start!==-1&&end>start){
+      try{return JSON.parse(text.slice(start,end+1));}catch(secondError){}
+    }
+  }
+  return fallback===undefined?{}:fallback;
+};
+</script>
+<script>
 // C1 : BFCache guard: packet page had no pageshow listener.
 // On back-navigation from a new case, BFCache would restore the OLD case DOM.
 // Force a full reload so personalization re-runs against current storage.
@@ -1094,7 +1113,6 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       ['Service date on statement', dateOfService],
       ['date of service', dateOfService],
       ['Date of Service', 'Date of Service'],
-      ['Amount to review', totalBilled],
       ['Bill amount', totalBilled],
       ['St Johns', providerName],
       ['St. Johns', providerName],

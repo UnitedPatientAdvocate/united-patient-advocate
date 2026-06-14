@@ -322,30 +322,6 @@ if(!window.UPAIsCaseRecoveryEntry()) window.UPAStartFreshCase();
     document.getElementById('progress-detail').textContent = detail;
   }
 
-  function persistServerCaseId(caseId){
-    if(!/^[A-Za-z0-9_-]{32}$/.test(caseId || '')) throw new Error('Saved case ID was invalid');
-    try{ sessionStorage.setItem('upa.server.case-id.v1', caseId); }catch(e){}
-    try{ localStorage.setItem('upa.server.case-id.v1', caseId); }catch(e){}
-    if(window.UPAState && window.UPAState.setServerCaseId) window.UPAState.setServerCaseId(caseId);
-    return caseId;
-  }
-
-  function storePreparedCase(caseData, signal){
-    return fetch('/api/store-case', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(caseData),
-      signal: signal
-    })
-    .then(function(response){
-      if(!response.ok) throw new Error('Saved case could not be prepared');
-      return response.json();
-    })
-    .then(function(result){
-      return persistServerCaseId(result && result.caseId);
-    });
-  }
-
   function showRecovery(message){
     var button = document.getElementById('submit-button');
     var status = document.getElementById('form-status');
@@ -450,17 +426,13 @@ if(!window.UPAIsCaseRecoveryEntry()) window.UPAStartFreshCase();
         intake: Object.assign({}, storedIntake, requestIntake)
       });
       writeJSON(DOSSIER_KEY, nextDossier);
-      setProgress('Your preview is almost ready', 'Securing your case for checkout and receipt access.');
-      return storePreparedCase(nextDossier, controller ? controller.signal : undefined);
-    })
-    .then(function(caseId){
       setProgress('Your preview is ready', 'Opening the preview and payment options now.');
-      window.setTimeout(function(){ window.location.href = '/UPA-Final/00_upa-scan.html?resume=1&preview=manual&caseId=' + encodeURIComponent(caseId || ''); }, 650);
+      window.setTimeout(function(){ window.location.href = '/UPA-Final/00_upa-scan.html?resume=1&preview=manual'; }, 650);
     })
     .catch(function(error){
       showRecovery(error && error.name === 'AbortError'
-        ? 'Your answers are saved, but securing your case took too long. Retry before continuing to preview and payment.'
-        : 'Your answers are saved, but we could not secure the case for your receipt link. Retry before continuing to preview and payment.');
+        ? 'Your answers are saved, but preparing the preview took too long. Please retry.'
+        : 'Your answers are saved, but the preview could not be prepared. Please retry.');
     })
     .finally(function(){
       window.clearTimeout(timeout);

@@ -87,7 +87,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .btn-nv-green { color: white; background: var(--dark-mid); border-color: transparent; letter-spacing: 0.01em; transition: background 150ms; }
 .btn-nv-green:hover { background: var(--dark); }
 
-/* ═══════════════════════════ SHELL — 3 COLUMNS ═══════════════════════════ */
+/* ═══════════════════════════ SHELL - 3 COLUMNS ═══════════════════════════ */
 .shell { flex: 1; display: flex; overflow: hidden; }
 
 /* ═══════════════════════════ LEFT SIDEBAR ═══════════════════════════ */
@@ -131,6 +131,17 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .sb-item:hover { background: rgba(255,236,180,0.04); }
 .sb-item.on { background: rgba(255,216,119,0.16); }
 .sb-item-l { display: flex; align-items: center; gap: 8px; }
+.sb-section-download {
+  width: 27px; height: 27px; border: 1px solid rgba(29,158,117,.18); border-radius: 7px;
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  background: #fff; color: #1D9E75; cursor: pointer; transition: all 150ms ease;
+}
+.sb-section-download:hover { background: #E6F4EE; border-color: #1D9E75; transform: translateY(-1px); }
+.sb-section-download:focus-visible { outline: 2px solid #1D9E75; outline-offset: 2px; }
+.sb-section-download svg { width: 14px; height: 14px; fill: none; stroke: currentColor!important; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.sb-patient-name[contenteditable="true"] { cursor: text; outline: none; border-radius: 5px; padding: 2px 4px; margin: -2px -4px; }
+.sb-patient-name[contenteditable="true"]:hover,.sb-patient-name[contenteditable="true"]:focus { background: #E6F4EE; box-shadow: 0 0 0 2px rgba(29,158,117,.16); }
+.sb-patient-name[contenteditable="true"]:empty:before { content: attr(data-placeholder); color: #6B7688; font-weight: 500; }
 .sb-num { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.4rem; font-weight: 500; flex-shrink: 0; }
 .sb-num.cur { background: rgba(255,255,255,0.10); color: rgba(235,244,255,0.65); border: 1px solid rgba(255,255,255,0.14); }
 .sb-num.nxt { background: transparent; color: var(--on-dark-3); border: 1px solid rgba(255,255,255,0.07); }
@@ -208,7 +219,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .tab-bar {
   background:
     linear-gradient(180deg,
-      #121E35 0%,           /* matches case-header navy — seamless top */
+      #121E35 0%,           /* matches case-header navy - seamless top */
       #3A2C12 5%,
       #6E5523 11%,
       #B9923E 22%,
@@ -319,7 +330,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .rps-row-val.green   { color: var(--green-dk); }
 .rps-row-val.amber   { color: var(--amber); }
 
-/* Recovery potential gauge — right panel version */
+/* Recovery potential gauge - right panel version */
 .rp-gauge-wrap { padding: 14px 20px; border-bottom: 1px solid var(--bdr); }
 .rp-gauge-label { font-size: 0.5rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 12px; }
 .rp-gauge-svg-wrap { position: relative; width: 160px; height: 95px; margin: 0 auto 8px; }
@@ -582,7 +593,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .fi-amount-lbl { font-size: 0.375rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-5); margin-top: 3px; }
 
 /* ═══════════════════════════════════════════
-   DOCUMENTS TAB — HORIZONTAL PREVIEW CARDS
+   DOCUMENTS TAB - HORIZONTAL PREVIEW CARDS
 ═══════════════════════════════════════════ */
 .doc-tab-wrap { padding: 16px 20px 40px; display: flex; flex-direction: column; gap: 14px; }
 
@@ -637,7 +648,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .dpc-title { font-family: var(--serif); font-size: 0.875rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; line-height: 1.25; margin-bottom: 2px; }
 .dpc-type  { font-size: 0.5625rem; color: var(--ink-4); font-weight: 500; }
 
-/* Paper preview — mini rendered document */
+/* Paper preview - mini rendered document */
 .dpc-paper {
   margin: 10px 10px 0; border-radius: 4px;
   background: #FEFDFB;
@@ -755,7 +766,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .sb-guide-item.sg-active .sb-name { color: #FFD877; font-weight: 700; }
 .sb-guide-item.sg-active .sb-guide-sub { color: rgba(255,200,80,0.65); }
 
-/* ── Guide Drawer — slides in over the main tab content ── */
+/* ── Guide Drawer - slides in over the main tab content ── */
 .guide-drawer {
   display: none;
   position: absolute; top: 0; left: 0; right: 0; bottom: 0;
@@ -886,7 +897,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .gd-faq-item.open .gd-faq-a { display: block; }
 
 /* ════════════════════════════════════
-   CALL SCRIPTS — clean printable cards
+   CALL SCRIPTS - clean printable cards
 ════════════════════════════════════ */
 .script-card {
   background: var(--white); border: 1px solid var(--bdr);
@@ -982,10 +993,10 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .sc-footer-tip strong { color: var(--ink-3); font-weight: 600; }
 /* ══════════════════════════════════════════
    GOLD PROGRESSION SYSTEM
-   Thin, elegant, institutional — no emojis
+   Thin, elegant, institutional - no emojis
 ══════════════════════════════════════════ */
 
-/* ── Sidebar section group labels — refined ── */
+/* ── Sidebar section group labels - refined ── */
 .sb-grp {
   font-size: 0.3625rem; font-weight: 700; letter-spacing: 0.28em;
   text-transform: uppercase; color: var(--on-dark-3);
@@ -997,7 +1008,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   background: rgba(255,255,255,0.05);
 }
 
-/* ── Active nav item — gold left rail ── */
+/* ── Active nav item - gold left rail ── */
 .sb-item.on {
   background: rgba(255,216,119,0.16);
   position: relative;
@@ -1010,7 +1021,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   box-shadow: 0 0 6px rgba(255,216,119,0.65);
 }
 
-/* ── Active guide item — gold left rail ── */
+/* ── Active guide item - gold left rail ── */
 .sb-guide-item.sg-active {
   background: rgba(255,216,119,0.16);
   position: relative;
@@ -1023,7 +1034,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   box-shadow: 0 0 6px rgba(255,216,119,0.65);
 }
 
-/* ── Step number nodes — gold current state ── */
+/* ── Step number nodes - gold current state ── */
 .sb-num.cur {
   background: rgba(240,165,0,0.15);
   color: var(--gold);
@@ -1031,7 +1042,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   position: relative;
 }
 
-/* ── Sidebar KPI — potential recovery reframe ── */
+/* ── Sidebar KPI - potential recovery reframe ── */
 .sb-kpi-val.green {
   color: var(--green);
   text-shadow: 0 0 24px rgba(30,184,122,0.40);
@@ -1043,7 +1054,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   margin: 2px 0;
 }
 
-/* ── KPI strip — gold top accent on highlight kpi ── */
+/* ── KPI strip - gold top accent on highlight kpi ── */
 .kpi.kpi-hl::before {
   background: linear-gradient(90deg, var(--gold) 0%, var(--green) 60%, transparent 100%);
   opacity: 0.5;
@@ -1053,12 +1064,12 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .dsb-node::after {
   transition: background 0.5s ease;
 }
-/* Done step circle — gold checkmark ring */
+/* Done step circle - gold checkmark ring */
 .ds-done .dsb-circle {
   background: var(--green);
   box-shadow: 0 0 0 3px rgba(30,184,122,0.15), 0 2px 8px rgba(30,184,122,0.28);
 }
-/* Active step — gold pulse ring */
+/* Active step - gold pulse ring */
 .ds-active .dsb-circle {
   background: rgba(240,165,0,0.08);
   color: var(--gold-dk);
@@ -1070,7 +1081,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   0%,100% { box-shadow: 0 0 0 3px rgba(240,165,0,0.12); }
   50%      { box-shadow: 0 0 0 5px rgba(240,165,0,0.22); }
 }
-/* Pending — lighter */
+/* Pending - lighter */
 .ds-pending .dsb-circle {
   background: transparent;
   color: var(--ink-5);
@@ -1110,7 +1121,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   color: var(--ink-5);
 }
 
-/* ── Guide drawer header — gold accent rule ── */
+/* ── Guide drawer header - gold accent rule ── */
 .gd-header {
   background: var(--white); border-bottom: 1px solid var(--bdr);
   padding: 12px 20px; display: flex; align-items: center; gap: 10px;
@@ -1123,19 +1134,19 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   background: linear-gradient(90deg, var(--gold) 0%, rgba(240,165,0,0.20) 50%, transparent 100%);
 }
 
-/* ── Guide card step numbers — gold for primary steps ── */
+/* ── Guide card step numbers - gold for primary steps ── */
 .gd-card-num.gold-num {
   background: var(--gold);
   color: var(--dark-deep);
 }
 
-/* ── Progress ring — gold glow when high ── */
+/* ── Progress ring - gold glow when high ── */
 #checklist-ring {
   transition: stroke-dashoffset 0.6s cubic-bezier(0.22,1,0.36,1);
   filter: drop-shadow(0 0 4px rgba(30,184,122,0.30));
 }
 
-/* ── Right panel charges block — gold accent ── */
+/* ── Right panel charges block - gold accent ── */
 .rpc-label {
   font-size: 0.375rem; font-weight: 700; letter-spacing: 0.22em;
   text-transform: uppercase; color: var(--ink-5); margin-bottom: 10px;
@@ -1145,7 +1156,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   content: ''; width: 16px; height: 1px; background: var(--gold); opacity: 0.6;
 }
 
-/* ── Case impact summary — gold rule top ── */
+/* ── Case impact summary - gold rule top ── */
 .rp-section {
   padding: 13px 20px; border-bottom: 1px solid var(--bdr);
 }
@@ -1153,7 +1164,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   border-top: 2px solid rgba(240,165,0,0.18);
 }
 
-/* ── Next step CTA — gold top rule ── */
+/* ── Next step CTA - gold top rule ── */
 .rp-next {
   padding: 14px 20px 18px;
   position: relative;
@@ -1164,7 +1175,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   background: linear-gradient(90deg, transparent, rgba(240,165,0,0.25), transparent);
 }
 
-/* ── Timeline dot — gold for "today" events ── */
+/* ── Timeline dot - gold for "today" events ── */
 .tl-dot.d-gold {
   background: var(--gold);
   box-shadow: 0 0 0 3px rgba(240,165,0,0.18), 0 0 12px rgba(240,165,0,0.20);
@@ -1200,7 +1211,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .toast-title { font-size: 0.75rem; font-weight: 700; color: var(--on-dark); margin-bottom: 1px; }
 .toast-sub   { font-size: 0.5625rem; color: var(--on-dark-3); }
 
-/* ── Financials tab — gold total row glow ── */
+/* ── Financials tab - gold total row glow ── */
 .fin-total-row {
   display: flex; align-items: center; justify-content: space-between;
   padding: 10px 14px; background: var(--dark-deep);
@@ -1211,14 +1222,14 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   background: linear-gradient(90deg, transparent, rgba(240,165,0,0.30), transparent);
 }
 
-/* ── Findings — severity rail with gold shimmer on hover ── */
+/* ── Findings - severity rail with gold shimmer on hover ── */
 .finding-card:hover .fc-rail.r-crimson,
 .finding-card:hover .fc-rail.r-amber,
 .finding-card:hover .fc-rail.r-cobalt {
   filter: brightness(1.15);
 }
 
-/* ── Verdict panel — gold pulsing border ── */
+/* ── Verdict panel - gold pulsing border ── */
 .rpc-amount {
   font-family: var(--serif); font-size: 2.375rem; font-weight: 900;
   color: var(--gold-dk); letter-spacing: -0.04em; line-height: 1;
@@ -1226,11 +1237,11 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   position: relative;
 }
 
-/* ── Recovery likelihood bars — animated on drawer open ── */
+/* ── Recovery likelihood bars - animated on drawer open ── */
 .likelihood-bar { width: 0; transition: width 1s cubic-bezier(0.22,1,0.36,1); }
 
 /* ═══════════════════════════════════════════════════════
-   PREMIUM MOTION POLISH — v10
+   PREMIUM MOTION POLISH - v10
    Smoother transitions · Refined hovers · Polished charts
    Luxury dividers · Shimmer · Spacing · Alive without clutter
 ═══════════════════════════════════════════════════════ */
@@ -1240,7 +1251,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ── Refined shadow tokens — softer, layered ── */
+/* ── Refined shadow tokens - softer, layered ── */
 :root {
   --sh-xs:  0 1px 2px rgba(17,28,46,0.04), 0 1px 4px rgba(17,28,46,0.03);
   --sh-sm:  0 1px 3px rgba(17,28,46,0.05), 0 3px 10px rgba(17,28,46,0.06), 0 1px 2px rgba(17,28,46,0.03);
@@ -1251,28 +1262,28 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   --sh-green: 0 2px 8px rgba(30,184,122,0.18), 0 6px 20px rgba(30,184,122,0.14);
 }
 
-/* ── Topnav — ultra-smooth shadow ── */
+/* ── Topnav - ultra-smooth shadow ── */
 .topnav { box-shadow: 0 1px 0 rgba(17,28,46,0.06), 0 2px 8px rgba(17,28,46,0.04); }
 
 /* ── Sidebar scroll polish ── */
 .sidebar { scrollbar-color: rgba(255,255,255,0.08) transparent; }
 
-/* ── Sidebar items — slower, smoother ── */
+/* ── Sidebar items - slower, smoother ── */
 .sb-item { transition: background 200ms cubic-bezier(0.22,1,0.36,1), padding 150ms ease; }
 .sb-item:hover { background: rgba(255,236,180,0.04); }
 .sb-guide-item { transition: background 200ms cubic-bezier(0.22,1,0.36,1); }
 
-/* Sidebar gold rail — smooth slide-in ── */
+/* Sidebar gold rail - smooth slide-in ── */
 .sb-item.on::before, .sb-guide-item.sg-active::before {
   transition: opacity 250ms ease, height 250ms cubic-bezier(0.22,1,0.36,1);
 }
 
-/* ── Nav buttons — premium hover lift ── */
+/* ── Nav buttons - premium hover lift ── */
 .btn-nv { transition: background 180ms ease, box-shadow 180ms ease, transform 180ms cubic-bezier(0.22,1,0.36,1); }
 .btn-nv:hover { transform: translateY(-1px); }
 .btn-nv-green:hover { background: var(--dark); box-shadow: 0 3px 12px rgba(17,28,46,0.22); transform: translateY(-1px); }
 
-/* ── Tab buttons — refined animation ── */
+/* ── Tab buttons - refined animation ── */
 .tab-btn {
   transition: color 200ms ease, background 200ms ease, border-color 220ms ease;
   position: relative;
@@ -1285,28 +1296,28 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   border-radius: 1px 1px 0 0;
 }
 .tab-btn.active::after { left: 0; right: 0; }
-/* Tab panel — richer entrance */
+/* Tab panel - richer entrance */
 @keyframes tabReveal {
   from { opacity: 0; transform: translateY(6px); filter: blur(1px); }
   to   { opacity: 1; transform: translateY(0);   filter: blur(0); }
 }
 .tab-panel.active { animation: tabReveal 0.32s cubic-bezier(0.22,1,0.36,1) both; }
 
-/* ── Guide drawer — premium slide + fade ── */
+/* ── Guide drawer - premium slide + fade ── */
 @keyframes drawerIn {
   from { opacity: 0; transform: translateX(8px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 .guide-drawer.open { animation: drawerIn 0.28s cubic-bezier(0.22,1,0.36,1) both; }
 
-/* ── Cards — richer hover with depth shift ── */
+/* ── Cards - richer hover with depth shift ── */
 .card { transition: box-shadow 280ms cubic-bezier(0.22,1,0.36,1), transform 280ms cubic-bezier(0.22,1,0.36,1); }
 .card:hover { box-shadow: var(--sh-md); transform: translateY(-1px); }
 
 .gd-card { transition: box-shadow 260ms cubic-bezier(0.22,1,0.36,1), transform 260ms cubic-bezier(0.22,1,0.36,1); }
 .gd-card:hover { box-shadow: var(--sh-md); transform: translateY(-1px); }
 
-/* ── Finding cards — longer travel, spring feel ── */
+/* ── Finding cards - longer travel, spring feel ── */
 .finding-card {
   transition: box-shadow 300ms cubic-bezier(0.22,1,0.36,1),
               transform 300ms cubic-bezier(0.22,1,0.36,1),
@@ -1314,7 +1325,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 }
 .finding-card:hover { transform: translateY(-3px); box-shadow: var(--sh-lg); border-color: rgba(17,28,46,0.14); }
 
-/* ── Document preview cards — paper lift effect ── */
+/* ── Document preview cards - paper lift effect ── */
 .doc-preview-card {
   transition: box-shadow 300ms cubic-bezier(0.22,1,0.36,1),
               transform 300ms cubic-bezier(0.22,1,0.36,1);
@@ -1327,7 +1338,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
     0 20px 48px rgba(17,28,46,0.09),
     0 0 0 1px rgba(17,28,46,0.06);
 }
-/* Mini paper inside card — subtle shadow deepens on card hover */
+/* Mini paper inside card - subtle shadow deepens on card hover */
 .doc-preview-card:hover .dpc-paper {
   box-shadow:
     0 2px 6px rgba(0,0,0,0.09),
@@ -1352,7 +1363,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .rp-flag { transition: box-shadow 220ms ease, transform 220ms cubic-bezier(0.22,1,0.36,1), background 180ms ease; }
 .rp-flag:hover { background: var(--bg); transform: translateX(2px); box-shadow: var(--sh-xs); }
 
-/* ── Buttons — premium spring lift ── */
+/* ── Buttons - premium spring lift ── */
 .btn-nb, .btn-rp-cta, .btn-sb-dl {
   transition: background 200ms ease, transform 220ms cubic-bezier(0.22,1,0.36,1), box-shadow 220ms ease;
 }
@@ -1366,12 +1377,12 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .btn-sc-dl { transition: background 180ms ease, transform 200ms cubic-bezier(0.22,1,0.36,1), filter 180ms ease; }
 .btn-sc-dl:hover { transform: translateY(-1px); filter: brightness(1.06); }
 
-/* FAQ arrow — spring rotation ── */
+/* FAQ arrow - spring rotation ── */
 .gd-faq-q svg { transition: transform 280ms cubic-bezier(0.22,1,0.36,1); }
 .gd-faq-q { transition: background 160ms ease; }
 .gd-faq-item.open .gd-faq-q { background: rgba(17,28,46,0.02); }
 
-/* FAQ answer — slide reveal ── */
+/* FAQ answer - slide reveal ── */
 .gd-faq-a {
   max-height: 0; overflow: hidden;
   transition: max-height 380ms cubic-bezier(0.22,1,0.36,1), padding 280ms ease;
@@ -1379,7 +1390,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 }
 .gd-faq-item.open .gd-faq-a { max-height: 300px; padding: 0 16px 13px; }
 
-/* ── KPI strip values — subtle float-in on load ── */
+/* ── KPI strip values - subtle float-in on load ── */
 @keyframes kpiReveal {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -1389,7 +1400,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .kpi:nth-child(2) .kpi-val { animation-delay: 0.18s; }
 .kpi:nth-child(3) .kpi-val { animation-delay: 0.26s; }
 
-/* ── Sidebar financial values — gentle glow pulse ── */
+/* ── Sidebar financial values - gentle glow pulse ── */
 .sb-kpi-val.green {
   animation: value-breathe 4s ease-in-out infinite;
 }
@@ -1398,7 +1409,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   50%      { text-shadow: 0 0 36px rgba(30,184,122,0.55), 0 0 8px rgba(30,184,122,0.20); }
 }
 
-/* ── Right panel amount — deep gold breathe ── */
+/* ── Right panel amount - deep gold breathe ── */
 .rpc-amount {
   animation: gold-breathe 4s ease-in-out infinite;
 }
@@ -1407,16 +1418,16 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   50%      { text-shadow: 0 2px 12px rgba(192,126,0,0.24), 0 0 40px rgba(240,165,0,0.18); }
 }
 
-/* ── Bench bars — slower, more satisfying ── */
+/* ── Bench bars - slower, more satisfying ── */
 .bench-bar-fill { transition: width 1.1s cubic-bezier(0.22,1,0.36,1) !important; }
 
-/* ── Waterfall bars — staggered timing via inline transition override ── */
+/* ── Waterfall bars - staggered timing via inline transition override ── */
 .fv-fill { transition: width 1.2s cubic-bezier(0.22,1,0.36,1) !important; }
 
-/* ── Gauge arc — premium spring ── */
+/* ── Gauge arc - premium spring ── */
 #rp-arc { transition: stroke-dashoffset 2s cubic-bezier(0.22,1,0.36,1) 0.3s !important; }
 
-/* ── Progress ring — spring ── */
+/* ── Progress ring - spring ── */
 #checklist-ring { transition: stroke-dashoffset 0.7s cubic-bezier(0.22,1,0.36,1) !important; }
 
 /* ── Premium loading shimmer ──
@@ -1443,7 +1454,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   pointer-events: none;
 }
 
-/* ── Luxury divider lines — gradient fade ── */
+/* ── Luxury divider lines - gradient fade ── */
 .sb-div {
   height: 1px;
   background: linear-gradient(90deg,
@@ -1465,7 +1476,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
     transparent 100%);
 }
 
-/* ── Timeline connector line — gradient fade ── */
+/* ── Timeline connector line - gradient fade ── */
 .tl-connector {
   background: linear-gradient(180deg,
     rgba(17,28,46,0.12) 0%,
@@ -1474,31 +1485,31 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   transition: background 0.4s ease;
 }
 
-/* ── Timeline dots — depth ring on hover ── */
+/* ── Timeline dots - depth ring on hover ── */
 .tl-item:hover .tl-dot.d-green   { box-shadow: 0 0 0 5px rgba(30,184,122,0.15),  0 0 16px rgba(30,184,122,0.20); }
 .tl-item:hover .tl-dot.d-gold    { box-shadow: 0 0 0 5px rgba(240,165,0,0.15),   0 0 16px rgba(240,165,0,0.20); }
 .tl-item:hover .tl-dot.d-crimson { box-shadow: 0 0 0 5px rgba(224,59,59,0.15),   0 0 16px rgba(224,59,59,0.18); }
 .tl-item:hover .tl-dot.d-cobalt  { box-shadow: 0 0 0 5px rgba(59,110,224,0.15),  0 0 16px rgba(59,110,224,0.18); }
 
-/* ── Script line boxes — warm hover ── */
+/* ── Script line boxes - warm hover ── */
 .sc-line { transition: background 200ms ease, box-shadow 200ms ease; }
 .sc-line:hover { background: rgba(17,28,46,0.045); box-shadow: inset 0 0 0 1px rgba(17,28,46,0.08); }
 
-/* ── Checklist items — smooth strikethrough ── */
+/* ── Checklist items - smooth strikethrough ── */
 .gd-check-item:has(.gdc-box.checked) .gdc-text {
   transition: color 300ms ease, text-decoration-color 300ms ease;
 }
 
-/* ── Document preview mini paper — refined resting shadow ── */
+/* ── Document preview mini paper - refined resting shadow ── */
 .dpc-paper {
   transition: box-shadow 300ms cubic-bezier(0.22,1,0.36,1);
 }
 
-/* ── Forensic card waterfall rows — hover highlight ── */
+/* ── Forensic card waterfall rows - hover highlight ── */
 .fv-row { transition: background 180ms ease; border-radius: 4px; padding: 2px 0; }
 .fv-row:hover { background: rgba(255,255,255,0.03); }
 
-/* ── Guide calm banner — gentle entrance ── */
+/* ── Guide calm banner - gentle entrance ── */
 .gd-calm-banner {
   animation: calmIn 0.45s cubic-bezier(0.22,1,0.36,1) 0.05s both;
 }
@@ -1507,19 +1518,19 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Guide cards — staggered entrance ── */
+/* ── Guide cards - staggered entrance ── */
 .gd-card:nth-child(2) { animation-delay: 0.08s; }
 .gd-card:nth-child(3) { animation-delay: 0.14s; }
 .gd-card:nth-child(4) { animation-delay: 0.20s; }
 .gd-card:nth-child(5) { animation-delay: 0.26s; }
 
-/* ── Right panel gauge ring — refined glow ── */
+/* ── Right panel gauge ring - refined glow ── */
 #rp-arc { filter: drop-shadow(0 0 5px rgba(30,184,122,0.35)); }
 
-/* ── Sidebar score fill — smooth delay ── */
+/* ── Sidebar score fill - smooth delay ── */
 .sb-score-fill { transition: width 1.4s cubic-bezier(0.22,1,0.36,1) 0.5s !important; }
 
-/* ── Tab pip badges — pop entrance ── */
+/* ── Tab pip badges - pop entrance ── */
 .tab-pip {
   animation: pipPop 0.35s cubic-bezier(0.22,1,0.36,1) 0.5s both;
 }
@@ -1528,22 +1539,22 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   to   { opacity: 1; transform: scale(1); }
 }
 
-/* ── Nav case pill dot — refined pulse ── */
+/* ── Nav case pill dot - refined pulse ── */
 .ncp-dot {
   animation: dpulse 2.2s cubic-bezier(0.45,0,0.55,1) infinite;
   transition: box-shadow 200ms ease;
 }
 
-/* ── KPI highlight column — subtle interior glow ── */
+/* ── KPI highlight column - subtle interior glow ── */
 .kpi.kpi-hl {
   background: linear-gradient(160deg, #FFFFFF 55%, rgba(235,249,240,0.70) 100%);
   transition: background 0.4s ease;
 }
 
-/* ── Section headers in guide — refined spacing ── */
+/* ── Section headers in guide - refined spacing ── */
 .gd-card-head { letter-spacing: 0.01em; }
 
-/* ── Stamp — slow float ── */
+/* ── Stamp - slow float ── */
 .mini-stamp {
   animation: stamp-float 6s ease-in-out infinite;
 }
@@ -1552,11 +1563,11 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
   50%      { transform: rotate(-12deg) translateY(-2px); }
 }
 
-/* ── Recovery panel — rpc rows hover ── */
+/* ── Recovery panel - rpc rows hover ── */
 .rpc-row { transition: background 160ms ease; padding: 5px 4px; border-radius: 4px; margin: 0 -4px; }
 .rpc-row:hover { background: rgba(17,28,46,0.03); }
 
-/* ── Rights items — hover lift ── */
+/* ── Rights items - hover lift ── */
 .ri { transition: background 180ms ease; }
 .ri:hover { background: rgba(17,28,46,0.02); }
 
@@ -1567,7 +1578,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 /* ── Financial table rows ── */
 .fin-table tbody tr { transition: background 140ms ease; }
 
-/* ── Overall page — refined scroll behavior ── */
+/* ── Overall page - refined scroll behavior ── */
 .main { scroll-behavior: smooth; }
 .tab-panel { scroll-behavior: smooth; }
 
@@ -1576,7 +1587,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
    Matches screenshot design precisely
 ══════════════════════════════════════════════ */
 
-/* Floating trigger button — hidden on desktop (sidebar has Quick Calc); shown only on mobile */
+/* Floating trigger button - hidden on desktop (sidebar has Quick Calc); shown only on mobile */
 .qc-fab {
   position: fixed;
   bottom: 28px; right: 28px;
@@ -1610,7 +1621,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 }
 .qc-fab-icon { font-size: 18px; line-height: 1; }
 .qc-fab-label { font-family: var(--sans); font-size: 0.3125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(235,244,255,0.60); }
-/* Dashed arc pointer — decorative, matches screenshot */
+/* Dashed arc pointer - decorative, matches screenshot */
 .qc-fab-hint {
   position: fixed; bottom: 84px; right: 46px;
   font-family: var(--sans); font-size: 0.5rem; font-weight: 700;
@@ -1744,7 +1755,7 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .qc-monthly-per { font-size: 0.75rem; font-weight: 600; color: var(--ink-4); }
 .qc-monthly-original { font-size: 0.6875rem; color: var(--ink-5); margin-top: 4px; }
 
-/* Savings card — green tinted */
+/* Savings card - green tinted */
 .qc-savings-card {
   background: linear-gradient(135deg, #EBF6F2, #F0F9F5);
   border: 1px solid rgba(30,184,122,0.22);
@@ -1838,7 +1849,7 @@ body{display:block;background:var(--bg)}
 .case-header::before{display:none}
 .ch-meta-top,.ch-pills{align-items:flex-start;gap:6px;flex-wrap:wrap}
 .ch-sep,.ch-ref{display:none}
-/* FIX 2: Compress dense intro copy on mobile — headline + one subline, no
+/* FIX 2: Compress dense intro copy on mobile - headline + one subline, no
    deck paragraph. The deck text remains in DOM for desktop and screen
    readers; it just doesn't compete for attention above the fold. */
 .ch-headline{font-size:1.0625rem;line-height:1.2;margin-bottom:3px}
@@ -1853,7 +1864,7 @@ body{display:block;background:var(--bg)}
 /* FIX 3: Replace the horizontal scrolling/wrapping tab bar with a clean
    dropdown menu on mobile. The previous grid approach broke when the
    personalization JS set tab-pip badges to long phrases ("Awaiting
-   itemized bill", etc.) — they overflowed the 33%-width cells and
+   itemized bill", etc.) - they overflowed the 33%-width cells and
    wrapped onto a second row with duplicated labels. The dropdown is
    the only layout that scales to 6+ tabs on 360-wide screens without
    compromise. */
@@ -1879,7 +1890,7 @@ body{display:block;background:var(--bg)}
 .mtn-item-pip{font-family:var(--mono);font-size:.5625rem;color:rgba(235,244,255,.45);font-weight:500;letter-spacing:.04em}
 .mtn-item.on .mtn-item-pip{color:rgba(255,216,119,.85)}
 /* Hide the prominent "Download Your Full Package" sidebar footer button
-   on mobile — it dominated the first impression. Download still reachable
+   on mobile - it dominated the first impression. Download still reachable
    contextually from the Documents tab. */
 .sb-foot{display:none}
 /* Hide the sidebar score widget on mobile to save vertical space (KPIs
@@ -2086,7 +2097,7 @@ body{display:block;background:var(--bg)}
 .tour-card.tour-center .tour-dontshow { justify-content: center; text-align: left; }
 
 @media (max-width: 760px) {
-  /* BUG 4 fix: tour card was overflowing the mobile viewport — when the
+  /* BUG 4 fix: tour card was overflowing the mobile viewport - when the
      body content exceeded ~620px tall on a 667px-tall screen, the
      translate(-50%,-50%) centering pushed the top of the card off the
      top of the screen and the close/skip buttons off the bottom.
@@ -2118,7 +2129,7 @@ body{display:block;background:var(--bg)}
   .tour-pointer { width: 36px; height: 36px; }
   .tour-body { font-size: 13px; margin-bottom: 12px; }
   .tour-dots { margin-bottom: 12px; }
-  /* Sticky actions row — always reachable, no scrolling required to find Next */
+  /* Sticky actions row - always reachable, no scrolling required to find Next */
   .tour-actions {
     gap: 6px;
     position: sticky;
@@ -2132,9 +2143,9 @@ body{display:block;background:var(--bg)}
   .tour-dontshow { font-size: 11px; margin-top: 10px; padding-top: 10px; }
 }
 
-/* Night/Darker mode removed for launch — locked to single light theme. */
+/* Night/Darker mode removed for launch - locked to single light theme. */
 
-/* FIX 3: Mobile dropdown tab nav — hidden on desktop, shown on mobile
+/* FIX 3: Mobile dropdown tab nav - hidden on desktop, shown on mobile
    (the desktop tab-bar handles desktop navigation). Class lives at body
    scope so the active tab label can be styled on hover/open. */
 .mobile-tab-nav{display:none}
@@ -2222,7 +2233,7 @@ body{display:block;background:var(--bg)}
     border:none;border-radius:10px;padding:14px 18px;cursor:pointer;
     box-shadow:0 4px 18px rgba(30,184,122,.35),0 2px 6px rgba(0,0,0,.20);
     transition:transform .18s ease,box-shadow .18s ease;
-    /* Mobile tap target — minimum 44px height per Apple HIG */
+    /* Mobile tap target - minimum 44px height per Apple HIG */
     min-height:48px
   }
   .mdc-btn:active{transform:translateY(1px);box-shadow:0 2px 10px rgba(30,184,122,.25)}
@@ -2253,7 +2264,7 @@ abbr.upa-term::after{
 }
 
 /* FIX 2A: Session-expired overlay. Shown when the dashboard loads with
-   no recoverable intake data — neither localStorage nor sessionStorage
+   no recoverable intake data - neither localStorage nor sessionStorage
    nor URL params produced anything. Replaces the previous behavior of
    rendering the dashboard full of "Your provider" / "Awaiting itemized
    bill" placeholder fallbacks, which felt broken to paying customers.
@@ -2603,7 +2614,25 @@ button,a[class*="btn"],[class*="btn-"]{transition:transform .18s ease,box-shadow
 }
 /* === END UPA PREMIUM LIGHT DASHBOARD RESKIN === */
 </style>
-<script>function upaFinalPath(file){return window.location.protocol==='file:'?file:'/UPA-Final/'+file;}</script>
+<script>
+function upaFinalPath(file){return window.location.protocol==='file:'?file:'/UPA-Final/'+file;}
+window.UPAParseStoredJSON=window.UPAParseStoredJSON||function(raw,fallback){
+  if(raw&&typeof raw==='object')return raw;
+  var text=String(raw||'').trim()
+    .replace(/^```(?:json)?\s*/i,'')
+    .replace(/\s*```\s*$/,'')
+    .trim();
+  if(!text)return fallback===undefined?{}:fallback;
+  try{return JSON.parse(text);}catch(firstError){
+    var start=text.indexOf('{');
+    var end=text.lastIndexOf('}');
+    if(start!==-1&&end>start){
+      try{return JSON.parse(text.slice(start,end+1));}catch(secondError){}
+    }
+  }
+  return fallback===undefined?{}:fallback;
+};
+</script>
 <style>
 html.upa-case-loading body>*{visibility:hidden}
 html.upa-case-loading .upa-case-loading-card{visibility:visible}
@@ -2643,7 +2672,7 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
   if(!/^[A-Za-z0-9_-]{32}$/.test(access)) access='';
   window.UPAFullDashboardCaseId=access;
   try{
-    var gateDossier=JSON.parse(localStorage.getItem(DOSSIER_KEY)||sessionStorage.getItem(DOSSIER_KEY)||'{}');
+    var gateDossier=window.UPAParseStoredJSON(localStorage.getItem(DOSSIER_KEY)||sessionStorage.getItem(DOSSIER_KEY)||'{}',{});
     if(!gateDossier||gateDossier.licenseVerified!==true)document.documentElement.classList.add('upa-license-pending');
   }catch(e){document.documentElement.classList.add('upa-license-pending');}
   if(!access) return;
@@ -2666,7 +2695,7 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
       var verifiedAt='';
       var existingActive={};
       try{
-        var existing=JSON.parse(localStorage.getItem(DOSSIER_KEY)||sessionStorage.getItem(DOSSIER_KEY)||'{}');
+        var existing=window.UPAParseStoredJSON(localStorage.getItem(DOSSIER_KEY)||sessionStorage.getItem(DOSSIER_KEY)||'{}',{});
         verified=existing&&existing.licenseVerified===true;
         verifiedAt=existing&&existing.licenseVerifiedAt||'';
       }catch(e){}
@@ -2865,7 +2894,7 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
     <div class="seo-eyebrow">Let's get your case loaded</div>
     <div class="seo-title" id="seo-title">Your case is in another browser tab</div>
     <div class="seo-body">
-      Email apps open links in a different browser than where you did your intake — so your case data isn't visible here yet. Paste your <strong>recovery link</strong> from your receipt or the original tab, or start a new review.
+      Email apps open links in a different browser than where you did your intake - so your case data isn't visible here yet. Paste your <strong>recovery link</strong> from your receipt or the original tab, or start a new review.
     </div>
     <div class="seo-recovery-form">
       <label for="seo-recovery-input" class="seo-recovery-label">Paste your recovery link or the dashboard URL from your receipt:</label>
@@ -2880,7 +2909,7 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
     <div class="seo-actions">
       <a href="/" class="seo-btn seo-btn-secondary">Start a new review instead</a>
     </div>
-    <div class="seo-note">Your recovery link was logged to the browser console when you finished intake, and rides on the URL Gumroad redirected you to after payment. If you've lost it, contact support with your purchase receipt — we can rebuild your case from the Gumroad transaction.</div>
+    <div class="seo-note">Your recovery link was logged to the browser console when you finished intake, and rides on the URL Gumroad redirected you to after payment. If you've lost it, contact support with your purchase receipt - we can rebuild your case from the Gumroad transaction.</div>
   </div>
 </div>
 <script>
@@ -2919,7 +2948,7 @@ function seoTryRecover(){
     if (errEl) { errEl.textContent = "That recovery link couldn't be decoded. Check that you copied the entire link including the part after ?r="; errEl.hidden = false; }
     return;
   }
-  // Reload dashboard with the token in the URL — readIntake() will pick it up.
+  // Reload dashboard with the token in the URL - readIntake() will pick it up.
   window.location.href = '/UPA-Final/04_upa-dashboard.html?r=' + encodeURIComponent(token);
 }
 </script>
@@ -2966,7 +2995,7 @@ function seoTryRecover(){
           <span class="qc-bal-label-main">Current Balance</span>
           <span class="qc-bal-label-hint">✎ Type any amount</span>
         </div>
-        <input class="qc-bal-input" id="qc-balance" type="text" inputmode="decimal" value="" placeholder="$0.00" oninput="formatBalanceInput(this);calcUpdate()" onblur="calcUpdate()" aria-label="Bill amount — enter or edit"/>
+        <input class="qc-bal-input" id="qc-balance" type="text" inputmode="decimal" value="" placeholder="$0.00" oninput="formatBalanceInput(this);calcUpdate()" onblur="calcUpdate()" aria-label="Bill amount - enter or edit"/>
       </div>
 
       <!-- Reduction presets -->
@@ -3138,13 +3167,13 @@ function seoTryRecover(){
   <div class="sb-kpis">
     <div>
       <div class="sb-kpi-lbl">Total Bill</div>
-      <div class="sb-kpi-val" id="sb-bill-amount">—</div>
+      <div class="sb-kpi-val" id="sb-bill-amount">-</div>
       <div class="sb-kpi-sub" id="sb-coverage">Your coverage on file</div>
     </div>
     <div class="sb-div"></div>
     <div>
       <div class="sb-kpi-lbl">Flagged for Review</div>
-      <div class="sb-kpi-val green" id="sb-review-amount">—</div>
+      <div class="sb-kpi-val green" id="sb-review-amount">-</div>
       <div class="sb-kpi-sub">Across charges worth pressing on</div>
     </div>
   </div>
@@ -3348,10 +3377,10 @@ function seoTryRecover(){
         <div class="ch-pill amber-pill" id="db-pill-status">DOCUMENTATION READY</div>
       </div>
       <div class="ch-metadata">
-        <div class="ch-meta-item"><div class="ch-meta-label">Provider</div><div class="ch-meta-val" id="db-meta-provider">—</div></div>
-        <div class="ch-meta-item"><div class="ch-meta-label">Date of Service</div><div class="ch-meta-val" id="db-meta-dos">—</div></div>
-        <div class="ch-meta-item"><div class="ch-meta-label">Coverage</div><div class="ch-meta-val" id="db-meta-coverage">—</div></div>
-        <div class="ch-meta-item"><div class="ch-meta-label">Bill Amount</div><div class="ch-meta-val" id="db-meta-amount">—</div></div>
+        <div class="ch-meta-item"><div class="ch-meta-label">Provider</div><div class="ch-meta-val" id="db-meta-provider">-</div></div>
+        <div class="ch-meta-item"><div class="ch-meta-label">Date of Service</div><div class="ch-meta-val" id="db-meta-dos">-</div></div>
+        <div class="ch-meta-item"><div class="ch-meta-label">Coverage</div><div class="ch-meta-val" id="db-meta-coverage">-</div></div>
+        <div class="ch-meta-item"><div class="ch-meta-label">Bill Amount</div><div class="ch-meta-val" id="db-meta-amount">-</div></div>
       </div>
     </div>
     <!-- (FIX 1) Mobile dropdown moved OUT of case-header to sit directly
@@ -3383,17 +3412,17 @@ function seoTryRecover(){
   <div class="kpi-strip">
     <div class="kpi kpi-hl">
       <div class="kpi-label">Flagged for Review</div>
-      <div class="kpi-val kv-green" id="kpi-flagged-amount">—</div>
+      <div class="kpi-val kv-green" id="kpi-flagged-amount">Pending your bill</div>
       <div class="kpi-ctx">Across identified review areas, <strong>before you've paid a cent</strong></div>
     </div>
     <div class="kpi">
       <div class="kpi-label">Review Areas Found</div>
-      <div class="kpi-val kv-amber" id="kpi-review-areas">—</div>
-      <div class="kpi-ctx" id="kpi-areas-ctx">Charges and line items worth formally disputing</div>
+      <div class="kpi-val kv-amber" id="kpi-review-areas">Pending your bill</div>
+      <div class="kpi-ctx" id="kpi-areas-ctx">Findings appear after your bill is reviewed</div>
     </div>
     <div class="kpi">
       <div class="kpi-label">Letters Prepared</div>
-      <div class="kpi-val" id="kpi-letters">3+</div>
+      <div class="kpi-val" id="kpi-letters">From your review</div>
       <div class="kpi-ctx">Tailored to your provider, coverage, and identified concerns</div>
     </div>
   </div>
@@ -3413,9 +3442,10 @@ function seoTryRecover(){
             <p class="card-text">Your bill contains <strong>a charge billed twice for the same visit</strong>. Most patients pay this without ever knowing it happened. We also found a <strong>procedure billed at the highest complexity level your records may not support</strong>, and rate review charges hospitals reduce when asked in writing. <strong>You have not paid yet.</strong> That is the best possible position. Every letter is prepared for you to review and send. Every next step is organized.</p>
           </div>
         </div>
-        <div class="card">
+        <div class="card" data-upa-clfs-dashboard-card>
           <div class="card-head"><div class="card-overline">Your Bill: Visual Breakdown</div></div>
-          <div class="card-body">
+          <div class="clfs-standby-note" data-upa-clfs-dashboard-standby><strong>Lab comparison on standby.</strong> Lab benchmark comparison applies only to itemized lab line items with CMS codes and dollar amounts. Your bill does not show itemized lab lines yet, so this one comparison is on standby. The rest of your review below is complete and ready to use.</div>
+          <div class="card-body" data-upa-clfs-dashboard-content>
             <div class="bb-label">Bill amount Total Bill: Where Each Dollar Stands</div>
             <div class="bb-track">
               <div class="bb-seg bbs-confirmed"><span class="bbs-label">Confirmed portion · To confirm</span></div>
@@ -3430,12 +3460,12 @@ function seoTryRecover(){
               <div class="legend-i"><div class="legend-dot ld-neg"></div><span class="legend-text">OON negotiable · To confirm</span></div>
             </div>
             <div class="bench-label">Medicare Benchmark Comparison</div>
-            <div class="bench-item">
+            <div class="bench-item" data-upa-clfs-dashboard-line>
               <div class="bench-head"><span class="bench-name">Billing line item</span><span class="bench-delta over">Needs benchmark review</span></div>
               <div class="bench-bar-row"><span class="bench-bar-lbl">Billed</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-billed" data-w="92%"></div></div><span class="bench-bar-val">To confirm</span></div>
               <div class="bench-bar-row"><span class="bench-bar-lbl">Medicare</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-medicare" data-w="50%"></div></div><span class="bench-bar-val">Benchmark</span></div>
             </div>
-            <div class="bench-item">
+            <div class="bench-item" data-upa-clfs-dashboard-line>
               <div class="bench-head"><span class="bench-name">Billing line item</span><span class="bench-delta over">Needs benchmark review</span></div>
               <div class="bench-bar-row"><span class="bench-bar-lbl">Billed</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-billed" data-w="72%"></div></div><span class="bench-bar-val">To confirm</span></div>
               <div class="bench-bar-row"><span class="bench-bar-lbl">Medicare</span><div class="bench-bar-track"><div class="bench-bar-fill bbf-medicare" data-w="46%"></div></div><span class="bench-bar-val">Benchmark</span></div>
@@ -3474,7 +3504,7 @@ function seoTryRecover(){
             <div class="mod-icon">📄</div>
             <div>
               <div class="mod-title">Take Your Package With You</div>
-              <div class="mod-sub">Letters, findings, checklist &amp; call scripts — all in one PDF</div>
+              <div class="mod-sub">Letters, findings, checklist &amp; call scripts - all in one PDF</div>
             </div>
           </div>
           <button type="button" class="mod-btn" onclick="return upaDownloadPacket(event)">
@@ -3488,21 +3518,22 @@ function seoTryRecover(){
     <!-- ═══ FINANCIALS ═══ -->
     <div class="tab-panel" id="tab-financials">
       <div class="fin-grid">
-        <div class="forensic-card">
+        <div class="forensic-card" data-upa-clfs-financial-card>
           <div class="fc-head">
             <div><div class="fc-overline">Your Case Summary</div><div class="fc-title">Your case summary</div><div class="fc-sub">Your Provider · Bill amount billed · Medicare primary · January 2026</div></div>
             <div class="fc-badge-g">Detailed Review · Ready for Your Sign-Off</div>
           </div>
           <div class="fc-body">
+            <div class="clfs-standby-note" data-upa-clfs-financial-standby><strong>Lab comparison on standby.</strong> Lab benchmark comparison applies only to itemized lab line items with CMS codes and dollar amounts. Your bill does not show itemized lab lines yet, so this one comparison is on standby. The rest of your review below is complete and ready to use.</div>
             <div class="fv-waterfall">
-              <div class="fv-row" data-upa-clfs-waterfall-total><div class="fv-row-label"><div class="fvrl-name">Total Billed</div><div class="fvrl-code">CLFS line items</div></div><div class="fv-track"><div class="fv-fill" style="background:linear-gradient(90deg,#2C3870,#3D5290)"><span class="fv-fill-label">Needs input</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--on-dark)">Needs input</div><div class="fvra-lbl" style="color:var(--on-dark-3)">Total</div></div></div>
-              <div class="fv-row" data-upa-clfs-waterfall-benchmark><div class="fv-row-label"><div class="fvrl-name">CMS CLFS Benchmark</div><div class="fvrl-code">Verified lab rates</div></div><div class="fv-track"><div class="fv-fill" style="background:linear-gradient(90deg,#1A5040,#1EB87A)"><span class="fv-fill-label">Needs input</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--green)">Needs input</div><div class="fvra-lbl" style="color:var(--on-dark-3)">Benchmark</div></div></div>
-              <div class="fv-row" data-upa-clfs-waterfall-overcharge><div class="fv-row-label"><div class="fvrl-name" style="color:rgba(255,120,120,.90)">Verified Difference</div><div class="fvrl-code">Matched CLFS lines only</div></div><div class="fv-track"><div class="fv-fill" style="background:linear-gradient(90deg,var(--crimson-dk),var(--crimson))"><span class="fv-fill-label" style="font-size:.38rem">Needs input</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:#FF8080">Needs input</div><div class="fvra-lbl" style="color:rgba(255,128,128,.55)">Difference</div></div></div>
+              <div class="fv-row" data-upa-clfs-waterfall-total><div class="fv-row-label"><div class="fvrl-name">Total Billed</div><div class="fvrl-code">CLFS line items</div></div><div class="fv-track"><div class="fv-fill" style="background:linear-gradient(90deg,#2C3870,#3D5290)"><span class="fv-fill-label">On standby</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--on-dark)">On standby</div><div class="fvra-lbl" style="color:var(--on-dark-3)">Total</div></div></div>
+              <div class="fv-row" data-upa-clfs-waterfall-benchmark><div class="fv-row-label"><div class="fvrl-name">CMS CLFS Benchmark</div><div class="fvrl-code">Verified lab rates</div></div><div class="fv-track"><div class="fv-fill" style="background:linear-gradient(90deg,#1A5040,#1EB87A)"><span class="fv-fill-label">On standby</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:var(--green)">On standby</div><div class="fvra-lbl" style="color:var(--on-dark-3)">Benchmark</div></div></div>
+              <div class="fv-row" data-upa-clfs-waterfall-overcharge><div class="fv-row-label"><div class="fvrl-name" style="color:rgba(255,120,120,.90)">Verified Difference</div><div class="fvrl-code">Matched CLFS lines only</div></div><div class="fv-track"><div class="fv-fill" style="background:linear-gradient(90deg,var(--crimson-dk),var(--crimson))"><span class="fv-fill-label" style="font-size:.38rem">On standby</span></div></div><div class="fv-row-amount"><div class="fvra-val" style="color:#FF8080">On standby</div><div class="fvra-lbl" style="color:rgba(255,128,128,.55)">Difference</div></div></div>
             </div>
             <div class="fv-summary">
               <div class="fvs-item"><div class="fvs-label">Total Billed</div><div class="fvs-val fvsv-white">Bill amount</div><div class="fvs-sub">Full statement</div></div>
               <div class="fvs-item"><div class="fvs-label">Confirmed Correct</div><div class="fvs-val fvsv-white" style="color:var(--on-dark-2)">To confirm</div><div class="fvs-sub">Verify after itemization</div></div>
-              <div class="fvs-item"><div class="fvs-label">You May Not Owe</div><div class="fvs-val fvsv-green">Amount to review</div><div class="fvs-sub">review areas · review portion</div></div>
+              <div class="fvs-item"><div class="fvs-label">Review Focus</div><div class="fvs-val fvsv-green">Review areas identified</div><div class="fvs-sub">Case-specific questions</div></div>
               <div class="fvs-item"><div class="fvs-label">Dispute Success</div><div class="fvs-val fvsv-gold">38%</div><div class="fvs-sub">of disputes corrected</div></div>
             </div>
           </div>
@@ -3521,7 +3552,7 @@ function seoTryRecover(){
               <tr><td><span class="ft-code">billing line item</span></td><td><div class="ft-strong">Billing line item</div></td><td style="font-family:var(--mono);font-size:.6875rem;color:var(--ink-4)">Benchmark</td><td style="font-size:.75rem;font-weight:600;color:var(--ink)">To confirm</td><td><span class="ft-badge ftb-ok">Confirmed</span></td><td style="text-align:right;font-size:.6875rem;color:var(--green-dk);font-weight:600">No action</td></tr>
             </tbody>
           </table>
-          <div class="fin-total-row"><span class="ftr-label">Amount Needs Review</span><div class="ftr-right"><span class="ftr-ctx">review areas · documents ready</span><span class="ftr-amt">Amount to review</span></div></div>
+          <div class="fin-total-row"><span class="ftr-label">Review Summary</span><div class="ftr-right"><span class="ftr-ctx">Review areas and documents ready</span><span class="ftr-amt">Review areas identified</span></div></div>
         </div>
       </div>
     </div>
@@ -3547,7 +3578,7 @@ function seoTryRecover(){
                 </div>
                 <div class="ev-str"><span class="ev-str-lbl">Review Status</span><div class="ev-str-track"><div class="ev-str-fill high" style="width:88%"></div></div><span class="ev-str-pct">Review</span></div>
               </div>
-              <a class="fi-link lc" href="#doc-letter-2" onclick="return openRequestDocument(event,'doc-letter-2','Dispute letter opened','The dispute letter for this question is drafted — review it before sending.');">Open dispute letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+              <a class="fi-link lc" href="#doc-letter-2" onclick="return openRequestDocument(event,'doc-letter-2','Dispute letter opened','The dispute letter for this question is drafted - review it before sending.');">Open dispute letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
             </div>
             <div class="fi-right"><div class="fi-amount fa-crimson">To confirm</div><div class="fi-amount-lbl">Disputable</div></div>
           </div>
@@ -3593,7 +3624,7 @@ function seoTryRecover(){
                 </div>
                 <div class="ev-str"><span class="ev-str-lbl">Review Status</span><div class="ev-str-track"><div class="ev-str-fill mod" style="width:74%"></div></div><span class="ev-str-pct">Review</span></div>
               </div>
-              <a class="fi-link lb" href="#doc-letter-3" onclick="return openRequestDocument(event,'doc-letter-3','Rate review letter opened','The network/rate review letter is drafted — give it a look before sending.');">Open rate review letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+              <a class="fi-link lb" href="#doc-letter-3" onclick="return openRequestDocument(event,'doc-letter-3','Rate review letter opened','The network/rate review letter is drafted - give it a look before sending.');">Open rate review letter <svg viewBox="0 0 24 24"><polyline points="5 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg></a>
             </div>
             <div class="fi-right"><div class="fi-amount fa-cobalt">To confirm</div><div class="fi-amount-lbl">Negotiable</div></div>
           </div>
@@ -3605,7 +3636,7 @@ function seoTryRecover(){
       <div class="mobile-dl-cta" role="region" aria-label="Download your full package">
         <div class="mdc-eyebrow">Take it with you</div>
         <div class="mdc-title">Download Your Full Package</div>
-        <div class="mdc-body">Letters, findings, action plan, call scripts, and the printable advocacy packet — saved to your device as a PDF you can keep, share with family, or attach to your dispute submission.</div>
+        <div class="mdc-body">Letters, findings, action plan, call scripts, and the printable advocacy packet - saved to your device as a PDF you can keep, share with family, or attach to your dispute submission.</div>
         <button type="button" class="mdc-btn" onclick="return upaDownloadPacket(event)">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Download Your Full Package
@@ -3840,7 +3871,7 @@ function seoTryRecover(){
     </div>
 
     <div class="tab-panel" id="tab-timeline">
-      <!-- BUG 3 FIX: Timeline items are now interactive — click to expand with
+      <!-- BUG 3 FIX: Timeline items are now interactive - click to expand with
            encouraging messages, color animations, and motivational copy. -->
       <style>
         .tl-item {
@@ -3902,14 +3933,14 @@ function seoTryRecover(){
           <div class="tl-line"><div class="tl-dot d-green"></div><div class="tl-connector"></div></div>
           <div class="tl-content">
             <div class="tl-ev-title">Initial Review Complete <span class="tl-chevron">▼</span></div>
-            <div class="tl-ev-desc">We've gone through the intake details and pulled out the charges worth pressing on first. Three letters are drafted — add your name and address to make them mail-ready.</div>
+            <div class="tl-ev-desc">We've gone through the intake details and pulled out the charges worth pressing on first. Three letters are drafted - add your name and address to make them mail-ready.</div>
             <span class="tl-ev-tag" style="background:var(--green-lt);color:var(--green-dk);border:1px solid rgba(30,184,122,.22)">Done</span>
             <div class="tl-expand-panel">
               <div class="tl-encourage tl-enc-green">
                 <span class="tl-encourage-icon">🏆</span>
                 <div class="tl-encourage-text">
                   <div class="tl-encourage-headline">You are crushing it. Seriously.</div>
-                  Getting a professional review done puts you ahead of <strong>90% of patients</strong> who never question a single charge. Most people just pay. You asked — and that alone changes everything. Your three letters are drafted and waiting.
+                  Getting a professional review done puts you ahead of <strong>90% of patients</strong> who never question a single charge. Most people just pay. You asked - and that alone changes everything. Your three letters are drafted and waiting.
                 </div>
               </div>
             </div>
@@ -3920,14 +3951,14 @@ function seoTryRecover(){
           <div class="tl-line"><div class="tl-dot d-gold"></div><div class="tl-connector"></div></div>
           <div class="tl-content">
             <div class="tl-ev-title">Send your itemized statement request <span class="tl-chevron">▼</span></div>
-            <div class="tl-ev-desc">Mail or email Letter 1 to Patient Financial Services at your provider. Keep a copy for your records — certified mail is the strongest option, but the provider's portal is fine if you'd rather move quickly.</div>
+            <div class="tl-ev-desc">Mail or email Letter 1 to Patient Financial Services at your provider. Keep a copy for your records - certified mail is the strongest option, but the provider's portal is fine if you'd rather move quickly.</div>
             <span class="tl-ev-tag" style="background:var(--gold-lt);color:var(--gold-dk);border:1px solid rgba(240,165,0,.22)">When you're ready</span>
             <div class="tl-expand-panel">
               <div class="tl-encourage tl-enc-gold">
                 <span class="tl-encourage-icon">📨</span>
                 <div class="tl-encourage-text">
                   <div class="tl-encourage-headline">This single letter starts the whole clock.</div>
-                  Sending this one letter — even just via email — officially begins your billing review and creates a paper trail. Studies show patients who request itemized bills <strong>reduce their final balance 40–70% of the time</strong>. Takes 5 minutes. Costs nothing.
+                  Sending this one letter - even just via email - officially begins your billing review and creates a paper trail. Studies show patients who request itemized bills <strong>reduce their final balance 40–70% of the time</strong>. Takes 5 minutes. Costs nothing.
                 </div>
               </div>
             </div>
@@ -3945,7 +3976,7 @@ function seoTryRecover(){
                 <span class="tl-encourage-icon">📋</span>
                 <div class="tl-encourage-text">
                   <div class="tl-encourage-headline">Persistence is the whole game here.</div>
-                  Hospital billing departments are slow — 30 days is completely normal. A quick follow-up email saying <em>"I haven't received the itemized statement I requested"</em> is all you need. Your case scripts have the exact wording. <strong>You are still in a winning position.</strong>
+                  Hospital billing departments are slow - 30 days is completely normal. A quick follow-up email saying <em>"I haven't received the itemized statement I requested"</em> is all you need. Your case scripts have the exact wording. <strong>You are still in a winning position.</strong>
                 </div>
               </div>
             </div>
@@ -3974,14 +4005,14 @@ function seoTryRecover(){
           <div class="tl-line"><div class="tl-dot d-gray"></div><div class="tl-connector"></div></div>
           <div class="tl-content">
             <div class="tl-ev-title">A written reply usually arrives by now <span class="tl-chevron">▼</span></div>
-            <div class="tl-ev-desc">Most hospital billing departments respond within 30–45 days. If nothing has arrived by this point, your escalation letter is drafted in the case — that's the next step.</div>
+            <div class="tl-ev-desc">Most hospital billing departments respond within 30–45 days. If nothing has arrived by this point, your escalation letter is drafted in the case - that's the next step.</div>
             <span class="tl-ev-tag" style="background:rgba(17,28,46,.06);color:var(--ink-5);border:1px solid var(--bdr-md)">Watching for reply</span>
             <div class="tl-expand-panel">
               <div class="tl-encourage tl-enc-navy">
                 <span class="tl-encourage-icon">🛡️</span>
                 <div class="tl-encourage-text">
                   <div class="tl-encourage-headline">You have escalation paths ready if needed.</div>
-                  No response at 60 days? That's not a loss — that's a trigger for escalation. The Hospital Patient Advocate, your state's Insurance Commissioner, and CMS are all on your side. Your escalation guide is in the sidebar. <strong>Most disputes never reach this step</strong> — but knowing it exists keeps you in control.
+                  No response at 60 days? That's not a loss - that's a trigger for escalation. The Hospital Patient Advocate, your state's Insurance Commissioner, and CMS are all on your side. Your escalation guide is in the sidebar. <strong>Most disputes never reach this step</strong> - but knowing it exists keeps you in control.
                 </div>
               </div>
             </div>
@@ -4028,12 +4059,12 @@ function seoTryRecover(){
 <!-- ═══════════ RIGHT INTELLIGENCE PANEL ═══════════ -->
 <aside class="right-panel">
 
-  <!-- Amount to review charges identified -->
+  <!-- Case review summary -->
   <div class="rp-charges">
     <div class="rpc-label">Amount Needs Review</div>
     <div class="rpc-main">
       <div>
-        <div class="rpc-amount">Amount to review</div>
+        <div class="rpc-amount">Review areas identified</div>
         <div class="rpc-sub">Identified Before You Paid a Dollar</div>
       </div>
       <!-- Gold "CASE VALUE VERIFIED" seal -->
@@ -4053,9 +4084,9 @@ function seoTryRecover(){
       </div>
     </div>
     <div class="rpc-rows">
-      <div class="rpc-row"><span class="rpc-row-label">Bill reviewed</span><span class="rpc-row-val">Bill amount</span></div>
-      <div class="rpc-row"><span class="rpc-row-label">Questions worth pressing on</span><span class="rpc-row-val">3</span></div>
-      <div class="rpc-row"><span class="rpc-row-label">Case letters</span><span class="rpc-row-val check">3 drafted</span></div>
+      <div class="rpc-row"><span class="rpc-row-label">Bill reviewed</span><span class="rpc-row-val" id="rpc-bill-reviewed">Pending your bill</span></div>
+      <div class="rpc-row"><span class="rpc-row-label">Questions worth pressing on</span><span class="rpc-row-val" id="rpc-question-count">Pending your bill</span></div>
+      <div class="rpc-row"><span class="rpc-row-label">Case letters</span><span class="rpc-row-val check" id="rpc-letter-count">From your review</span></div>
     </div>
   </div>
 
@@ -4068,11 +4099,11 @@ function seoTryRecover(){
     <div class="rps-rows">
       <div class="rps-row">
         <span class="rps-row-lbl"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Charges You May Not Owe</span>
-        <span class="rps-row-val crimson">Amount to review</span>
+        <span class="rps-row-val crimson" id="rps-review-amount">From your review</span>
       </div>
       <div class="rps-row">
         <span class="rps-row-lbl"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Clearest Review Area</span>
-        <span class="rps-row-val">Duplicate Billing</span>
+        <span class="rps-row-val" id="rps-clearest-area">From your review</span>
       </div>
       <div class="rps-row">
         <span class="rps-row-lbl"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Window to Act</span>
@@ -4124,22 +4155,22 @@ function seoTryRecover(){
       <div class="rp-flag">
         <div class="rp-flag-icon f-crimson">🔴</div>
         <div>
-          <div class="rp-flag-title">Line-item billing review detected</div>
-          <div class="rp-flag-sub">billing line item charged twice on same date</div>
+          <div class="rp-flag-title">Findings appear after your bill is reviewed</div>
+          <div class="rp-flag-sub">No specific billing issue is shown until it is supported by this case.</div>
         </div>
       </div>
-      <div class="rp-flag">
+      <div class="rp-flag" style="display:none">
         <div class="rp-flag-icon f-cobalt">🔷</div>
         <div>
-          <div class="rp-flag-title">In-network rate discrepancy</div>
-          <div class="rp-flag-sub">Billed above Medicare allowable</div>
+          <div class="rp-flag-title">From your review</div>
+          <div class="rp-flag-sub">Case-specific finding</div>
         </div>
       </div>
-      <div class="rp-flag">
+      <div class="rp-flag" style="display:none">
         <div class="rp-flag-icon f-gray">⬜</div>
         <div>
-          <div class="rp-flag-title">Missing / incomplete details</div>
-          <div class="rp-flag-sub">Itemization and coding issues</div>
+          <div class="rp-flag-title">From your review</div>
+          <div class="rp-flag-sub">Case-specific finding</div>
         </div>
       </div>
     </div>
@@ -4151,7 +4182,7 @@ function seoTryRecover(){
       <div class="rp-next-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
       <div class="rp-next-title">Send your letters while you still have the strongest position</div>
     </div>
-    <div class="rp-next-desc">You haven't paid this bill yet — that's the best place to be. Once a bill is paid, the conversation gets harder. Your letters are drafted; sending them takes about five minutes and costs nothing.</div>
+    <div class="rp-next-desc">You haven't paid this bill yet - that's the best place to be. Once a bill is paid, the conversation gets harder. Your letters are drafted; sending them takes about five minutes and costs nothing.</div>
     <button class="btn-rp-cta" onclick="return openActionPlanStep(event,'itemized')">Open my letter packet</button>
   </div>
 
@@ -4160,20 +4191,20 @@ function seoTryRecover(){
 </div><!-- end shell -->
 
 <script>
-/* Night mode removed for launch — single locked theme only. */
+/* Night mode removed for launch - single locked theme only. */
 
 /* ════ FIX 2: ACRONYM TOOLTIPS ════
    After personalization renders all dynamic text, walk the visible text
    nodes inside the dashboard and wrap EOB / CPT / HCPCS in <abbr> tags
    so they get the dotted underline + tap-to-define tooltip. This is the
-   minimal-touch approach — we don't have to hand-edit every template
+   minimal-touch approach - we don't have to hand-edit every template
    string in the personalization JS or the static HTML. */
 var UPA_TERMS = {
-  'EOB':   'Explanation of Benefits — the statement your insurance sends after they process a claim, showing what they paid and what you owe.',
-  'CPT':   'Current Procedural Terminology — the 5-digit codes that identify each medical service on your bill.',
-  'HCPCS': 'Healthcare Common Procedure Coding System — the codes used for supplies, drugs, and services beyond standard CPT codes.',
-  'CMS':   'Centers for Medicare & Medicaid Services — the federal agency that sets billing rules for Medicare and Medicaid.',
-  'DOS':   'Date of Service — the date the medical care was provided.'
+  'EOB':   'Explanation of Benefits - the statement your insurance sends after they process a claim, showing what they paid and what you owe.',
+  'CPT':   'Current Procedural Terminology - the 5-digit codes that identify each medical service on your bill.',
+  'HCPCS': 'Healthcare Common Procedure Coding System - the codes used for supplies, drugs, and services beyond standard CPT codes.',
+  'CMS':   'Centers for Medicare & Medicaid Services - the federal agency that sets billing rules for Medicare and Medicaid.',
+  'DOS':   'Date of Service - the date the medical care was provided.'
 };
 function wrapUpaTerms(root){
   if(!root) root = document.body;
@@ -4267,7 +4298,7 @@ document.addEventListener('click', function(e){
 function showTab(name) {
   // FIX 2 (freeze): aggressively clean up every overlay that could be
   // capturing pointer events before the new tab renders. Multiple users
-  // reported the action plan / checklist tab freezing — root cause was a
+  // reported the action plan / checklist tab freezing - root cause was a
   // stuck overlay (tour, session-expired, or open guide drawer) covering
   // the screen with pointer-events:auto. Closing them on every tab switch
   // makes a stuck overlay impossible to reach the action plan with.
@@ -4357,7 +4388,7 @@ function openRequestDocument(evt, docId, title, sub) {
     document.querySelectorAll('.doc-preview-card.request-focus').forEach(el => el.classList.remove('request-focus'));
     doc.classList.add('request-focus');
     doc.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-    showToast(title || 'Letter opened', sub || 'Take a look in the Documents tab — it\'s drafted from your case details.');
+    showToast(title || 'Letter opened', sub || 'Take a look in the Documents tab - it\'s drafted from your case details.');
     setTimeout(() => doc.classList.remove('request-focus'), 2600);
   }, 90);
   return false;
@@ -4413,7 +4444,7 @@ function wireDocumentCardActions() {
     if (buttons[1]) {
       buttons[1].setAttribute('aria-label', 'Preview this letter');
       buttons[1].setAttribute('title', 'Preview this letter');
-      buttons[1].onclick = (event) => window.upaPreviewLetter ? window.upaPreviewLetter(event, docId) : openRequestDocument(event, docId, 'Letter selected', 'This letter is drafted for your case — ready to review, print, or send.');
+      buttons[1].onclick = (event) => window.upaPreviewLetter ? window.upaPreviewLetter(event, docId) : openRequestDocument(event, docId, 'Letter selected', 'This letter is drafted for your case - ready to review, print, or send.');
     }
   });
 }
@@ -4423,10 +4454,10 @@ wireDocumentCardActions();
 const GC = {
   starthere: {
     title:'Start Here', sub:'New? Read this first.',
-    html:`<div class="gd-calm-banner"><span class="gcb-icon">🤝</span><div class="gcb-text"><div class="gcb-title">You're in a strong position. Take a breath.</div><div class="gcb-body">You haven't paid this bill yet, which means you can question it, ask for documentation, and look at the charges carefully before any money changes hands. Your letters, call scripts, and checklist are drafted and waiting for you — you're not doing this alone.</div></div></div>
+    html:`<div class="gd-calm-banner"><span class="gcb-icon">🤝</span><div class="gcb-text"><div class="gcb-title">You're in a strong position. Take a breath.</div><div class="gcb-body">You haven't paid this bill yet, which means you can question it, ask for documentation, and look at the charges carefully before any money changes hands. Your letters, call scripts, and checklist are drafted and waiting for you - you're not doing this alone.</div></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">1</div><div class="gd-card-title">Download your first letter. It costs nothing to send</div></div><div class="gd-card-body"><p class="gd-card-text">Go to the <strong>Documents tab</strong>. Your first letter (Request for Itemized Statement) is ready. Print it, sign it, and mail or email it to the hospital billing department. This helps you request the detailed records needed before deciding what to pay. Designed for self-review.</p></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">2</div><div class="gd-card-title">Don't pay the bill while your request is under review</div></div><div class="gd-card-body"><p class="gd-card-text">Once you've submitted a written dispute or itemization request, ask the provider to keep the reviewed amount on hold while they respond. <strong>Paying early can reduce your leverage.</strong> Consider holding payment on the reviewed portions while you request clarification.</p></div></div>
-    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">3</div><div class="gd-card-title">Use the Call Scripts if you'd rather pick up the phone</div></div><div class="gd-card-body"><p class="gd-card-text">Some people would rather just call. Open <strong>Call Scripts</strong> in this menu. We've written what to say in plain English, the way a calm patient would actually say it — you can read straight from the screen.</p></div></div>
+    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">3</div><div class="gd-card-title">Use the Call Scripts if you'd rather pick up the phone</div></div><div class="gd-card-body"><p class="gd-card-text">Some people would rather just call. Open <strong>Call Scripts</strong> in this menu. We've written what to say in plain English, the way a calm patient would actually say it - you can read straight from the screen.</p></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">4</div><div class="gd-card-title">Be patient. This typically takes 30 to 60 days</div></div><div class="gd-card-body"><p class="gd-card-text">Hospital billing departments are slow. A 30-day wait is normal. If you haven't heard back in 30 days, follow up. Keep copies of everything you send.</p></div></div>`
   },
   nextsteps: {
@@ -4456,7 +4487,7 @@ const GC = {
       <div class="sc-header"><div class="sc-header-left"><div class="sc-when">Call 1: Do This First</div><div class="sc-title">Requesting Your Itemized Statement</div><div class="sc-goal">Goal: Get a complete line-by-line bill before making payment decisions.</div></div><div class="sc-actions"><button class="btn-sc-dl dl-navy" onclick="printScript('sc1')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Print</button></div></div>
       <div class="sc-coaching"><span class="sc-coaching-icon">💡</span><div class="sc-coaching-text"><strong>Before you call:</strong> Have your bill in front of you. Ask for "Patient Financial Services" when the main line picks up. Best times: Tuesday–Thursday, 10am–2pm.</div></div>
       <div class="sc-body" id="sc1">
-        <div class="sc-beat"><div class="sc-beat-label">When they answer</div><div class="sc-line"><div class="sc-line-inner">"Hi, this is [your name]. I'm calling about a bill — my account number is [your account number]. I'd like to ask a few questions about it before I pay, and I'd like to speak with someone in Patient Financial Services, please."</div></div></div>
+        <div class="sc-beat"><div class="sc-beat-label">When they answer</div><div class="sc-line"><div class="sc-line-inner">"Hi, this is [your name]. I'm calling about a bill - my account number is [your account number]. I'd like to ask a few questions about it before I pay, and I'd like to speak with someone in Patient Financial Services, please."</div></div></div>
         <div class="sc-divider"></div>
         <div class="sc-beat"><div class="sc-beat-label">Your request</div><div class="sc-line"><div class="sc-line-inner">"I received a billing statement and before I make any payment, I'd like to request a <span class="sc-hl">fully itemized statement</span>. A line-by-line breakdown with the CPT codes, the date of each service, and the charge for each item. I understand this is something I have a right to request, and I want to fully understand what I'm being charged for before I pay."</div></div></div>
         <div class="sc-pushback"><div><div class="sc-pushback-label">If they say "we already sent you a bill"</div><div class="sc-pushback-text"><strong>Say:</strong> "I appreciate that, but what I received was a summary statement. I'm specifically requesting the fully itemized version with individual procedure codes so I can review each charge and any applicable billing protections."</div></div></div>
@@ -4533,8 +4564,8 @@ const GC = {
     </div></div>`
   },
   recovery: {
-    title:'Recovery \u2014 How to Get Your Money Back', sub:'What your options are and how likely each one is to work',
-    html:`<div class="gd-calm-banner"><span class="gcb-icon">\u{1F4B0}</span><div class="gcb-text"><div class="gcb-title">Potential overcharges or reviewable amounts identified: Amount to review.</div><div class="gcb-body">This is an estimated recovery range, not a guaranteed reduction. Possible savings depend on the provider's documentation, insurance review, plan terms, and how the billing office responds to your written requests.</div></div></div>
+    title:'Recovery - How to Get Your Money Back', sub:'What your options are and how likely each one is to work',
+    html:`<div class="gd-calm-banner"><span class="gcb-icon">\u{1F4B0}</span><div class="gcb-text"><div class="gcb-title">Case-specific review areas are ready.</div><div class="gcb-body">Any possible adjustment depends on the provider's documentation, insurance review, plan terms, and how the billing office responds to your written requests.</div></div></div>
 
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">\u{1F4CA}</div><div class="gd-card-title">Your Bill at a Glance</div></div><div class="gd-card-body" style="padding-bottom:6px">
     <svg viewBox="0 0 340 185" width="100%" style="display:block;margin-bottom:8px" xmlns="http://www.w3.org/2000/svg">
@@ -4545,7 +4576,7 @@ const GC = {
       <rect x="20" y="60" width="16" height="20" rx="3" fill="#E03B3B"/>
       <rect x="38" y="60" width="9" height="20" fill="#F08000"/>
       <rect x="47" y="60" width="16" height="20" rx="0" fill="#3B6EE0"/>
-      <text x="68" y="73" font-family="Plus Jakarta Sans,sans-serif" font-size="8" font-weight="600" fill="#425A72">Amount to review total under review (review portion)</text>
+      <text x="68" y="73" font-family="Plus Jakarta Sans,sans-serif" font-size="8" font-weight="600" fill="#425A72">Case-specific review areas identified</text>
       <rect x="20" y="94" width="8" height="8" rx="2" fill="#E03B3B"/>
       <text x="32" y="102" font-family="Plus Jakarta Sans,sans-serif" font-size="8" fill="#425A72" font-weight="600">To confirm \u00b7 Duplicate charge</text>
       <text x="32" y="112" font-family="Plus Jakarta Sans,sans-serif" font-size="7" fill="#6E8898">\u2192 Potential duplicate. Review priority.</text>
@@ -4560,7 +4591,7 @@ const GC = {
 
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">\u{1F4C8}</div><div class="gd-card-title">How Likely Is Each Issue to Be Corrected?</div></div><div class="gd-card-body">
     <div style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px"><span style="font-size:.75rem;font-weight:700;color:#111C2E">Duplicate charge \u2014 billing line item</span><span style="font-size:.6875rem;font-weight:700;color:#1EB87A">Needs review</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px"><span style="font-size:.75rem;font-weight:700;color:#111C2E">Duplicate charge - billing line item</span><span style="font-size:.6875rem;font-weight:700;color:#1EB87A">Needs review</span></div>
       <div style="height:10px;background:#E8EDF4;border-radius:5px;overflow:hidden;margin-bottom:5px"><div style="width:88%;height:100%;background:linear-gradient(90deg,#158A5C,#1EB87A);border-radius:5px"></div></div>
       <div style="font-size:.6875rem;color:#6E8898;line-height:1.55">The same procedure code appearing twice for the same visit is worth a written review. Providers may correct it if the itemized bill confirms a duplicate entry.</div>
     </div>
@@ -4570,21 +4601,21 @@ const GC = {
       <div style="font-size:.6875rem;color:#6E8898;line-height:1.55">Lab work ordered by an in-network provider during an in-network visit falls under the No Surprises Act. Many hospitals honor the in-network rate without pushback when you ask in writing.</div>
     </div>
     <div>
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px"><span style="font-size:.75rem;font-weight:700;color:#111C2E">Coding mismatch \u2014 billing line item</span><span style="font-size:.6875rem;font-weight:700;color:#F08000">Needs review</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px"><span style="font-size:.75rem;font-weight:700;color:#111C2E">Coding mismatch - billing line item</span><span style="font-size:.6875rem;font-weight:700;color:#F08000">Needs review</span></div>
       <div style="height:10px;background:#E8EDF4;border-radius:5px;overflow:hidden;margin-bottom:5px"><div style="width:62%;height:100%;background:linear-gradient(90deg,#9A4A00,#F08000);border-radius:5px"></div></div>
       <div style="font-size:.6875rem;color:#6E8898;line-height:1.55">Upcoding disputes are harder because the hospital needs to agree their documentation does not support the higher code. You may get a partial reduction or a documentation review rather than a full reversal. Still worth pursuing.</div>
     </div>
     </div></div>
 
-    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">1</div><div class="gd-card-title">Start with the easiest item to document: the line-item concern</div></div><div class="gd-card-body"><p class="gd-card-text">Do not try to dispute all three issues in one letter. Start with the <strong>line-item concern</strong> \u2014 it is usually the easiest item to document and review first. Once that is addressed, move to the lab rate request. The documentation review can be pursued at the same time or after.</p></div></div>
+    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">1</div><div class="gd-card-title">Start with the easiest item to document: the line-item concern</div></div><div class="gd-card-body"><p class="gd-card-text">Do not try to dispute all three issues in one letter. Start with the <strong>line-item concern</strong> - it is usually the easiest item to document and review first. Once that is addressed, move to the lab rate request. The documentation review can be pursued at the same time or after.</p></div></div>
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">2</div><div class="gd-card-title">If they offer a settlement, you can still negotiate</div></div><div class="gd-card-body"><p class="gd-card-text">If the hospital offers a reduced settlement before you have formally disputed, you do not have to accept it. A payment plan offer does not close your right to dispute. <strong>Always get any agreement in writing before making payment.</strong></p></div></div>`
   },
 
   escalation: {
-    title:'Escalation \u2014 When and How to Go Further', sub:'Use this only if the hospital does not respond or refuses',
-    html:`<div class="gd-calm-banner"><span class="gcb-icon">\u{1F4C8}</span><div class="gcb-text"><div class="gcb-title">Escalation is a last resort \u2014 and it works.</div><div class="gcb-body">Most disputes resolve at the hospital billing department. But if they do not respond or decline to review a documented concern, you have several escalation paths. Each one can create a clearer paper trail.</div></div></div>
+    title:'Escalation - When and How to Go Further', sub:'Use this only if the hospital does not respond or refuses',
+    html:`<div class="gd-calm-banner"><span class="gcb-icon">\u{1F4C8}</span><div class="gcb-text"><div class="gcb-title">Escalation is a last resort - and it works.</div><div class="gcb-body">Most disputes resolve at the hospital billing department. But if they do not respond or decline to review a documented concern, you have several escalation paths. Each one can create a clearer paper trail.</div></div></div>
 
-    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">\u{1F4CA}</div><div class="gd-card-title">The Escalation Ladder \u2014 Start at the Bottom</div></div><div class="gd-card-body" style="padding-bottom:4px">
+    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">\u{1F4CA}</div><div class="gd-card-title">The Escalation Ladder - Start at the Bottom</div></div><div class="gd-card-body" style="padding-bottom:4px">
     <svg viewBox="0 0 320 168" width="100%" style="display:block" xmlns="http://www.w3.org/2000/svg">
       <rect width="320" height="168" fill="#F8FAFD" rx="8"/>
       <rect x="10" y="134" width="300" height="26" rx="5" fill="#1EB87A" opacity="0.88"/>
@@ -4599,7 +4630,7 @@ const GC = {
       <rect x="58" y="32" width="204" height="26" rx="5" fill="#E03B3B" opacity="0.88"/>
       <text x="68" y="42" font-family="Plus Jakarta Sans,sans-serif" font-size="7.5" font-weight="700" fill="white">Step 4 · CFPB &amp; CMS Complaint</text>
       <text x="68" y="54" font-family="Plus Jakarta Sans,sans-serif" font-size="6.5" fill="rgba(255,255,255,0.82)">Federal consumer &amp; Medicare protection</text>
-      <text x="5" y="14" font-family="Plus Jakarta Sans,sans-serif" font-size="6.5" fill="#96AFBE">Most</text>
+      <text x="5" y="14" font-family="Plus Jakarta Sans,sans-serif" font-size="6.5" fill="#96AFBE">More</text>
       <text x="2" y="23" font-family="Plus Jakarta Sans,sans-serif" font-size="6.5" fill="#96AFBE">serious</text>
       <text x="0" y="158" font-family="Plus Jakarta Sans,sans-serif" font-size="6.5" fill="#96AFBE">Start</text>
       <text x="1" y="167" font-family="Plus Jakarta Sans,sans-serif" font-size="6.5" fill="#96AFBE">here</text>
@@ -4613,12 +4644,12 @@ const GC = {
 
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num">2</div><div class="gd-card-title">State Insurance Commissioner (Step 3)</div></div><div class="gd-card-body"><p class="gd-card-text">Every U.S. state has an Insurance Commissioner's office that handles consumer billing complaints. Filing is free and takes about 15 minutes online. Insurers or providers may receive formal notice; response requirements vary by complaint type. <strong>Search "Florida Insurance Commissioner complaint" (replace with your state) to find the form.</strong> Attach copies of your letters and any responses.</p></div></div>
 
-    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num crimson-num">3</div><div class="gd-card-title">CFPB &amp; CMS Complaints (Step 4 \u2014 Medicare cases)</div></div><div class="gd-card-body"><p class="gd-card-text">Because Medicare was your primary payer, you can file with the <strong>Centers for Medicare &amp; Medicaid Services (CMS)</strong> at 1-800-MEDICARE. For general billing issues, the <strong>Consumer Financial Protection Bureau (CFPB)</strong> at consumerfinance.gov accepts medical billing complaints. These complaint channels can create a formal paper trail; response requirements depend on the agency, payer, and case type.</p></div></div>`
+    <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num crimson-num">3</div><div class="gd-card-title">CFPB &amp; CMS Complaints (Step 4 - Medicare cases)</div></div><div class="gd-card-body"><p class="gd-card-text">Because Medicare was your primary payer, you can file with the <strong>Centers for Medicare &amp; Medicaid Services (CMS)</strong> at 1-800-MEDICARE. For general billing issues, the <strong>Consumer Financial Protection Bureau (CFPB)</strong> at consumerfinance.gov accepts medical billing complaints. These complaint channels can create a formal paper trail; response requirements depend on the agency, payer, and case type.</p></div></div>`
   },
 
   checklist: {
-    title:'Your Progress Checklist', sub:'Track everything \u2014 check items off as you go',
-    html:`<div class="gd-calm-banner"><span class="gcb-icon">\u2611\uFE0F</span><div class="gcb-text"><div class="gcb-title">You do not have to do everything at once.</div><div class="gcb-body">Check each item off as you complete it. This keeps you organized and gives you a clear record of what you have done \u2014 which matters if the dispute escalates.</div></div></div>
+    title:'Your Progress Checklist', sub:'Track everything - check items off as you go',
+    html:`<div class="gd-calm-banner"><span class="gcb-icon">\u2611\uFE0F</span><div class="gcb-text"><div class="gcb-title">You do not have to do everything at once.</div><div class="gcb-body">Check each item off as you complete it. This keeps you organized and gives you a clear record of what you have done - which matters if the dispute escalates.</div></div></div>
 
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">\u{1F4CA}</div><div class="gd-card-title">Your Dispute Progress</div></div>
     <div class="gd-card-body" style="display:flex;align-items:center;gap:20px">
@@ -4636,7 +4667,7 @@ const GC = {
     </div></div>
 
     <div class="gd-card"><div class="gd-card-head"><div class="gd-card-num green-num">Phase 1</div><div class="gd-card-title">Request Documentation</div></div><div class="gd-card-body">
-    <div class="gd-check-item"><div class="gdc-box checked" onclick="toggleCheck(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Bill review completed.</strong> We identified Amount to review in disputable or negotiable charges across review areas.</div></div>
+    <div class="gd-check-item"><div class="gdc-box checked" onclick="toggleCheck(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Bill review completed.</strong> We organized the case-specific questions into review areas.</div></div>
     <div class="gd-check-item"><div class="gdc-box" onclick="updateChecklist(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Downloaded and sent the Itemized Statement Request letter.</strong> Go to Documents tab, download Letter 1, sign it, and send to Your Provider Patient Financial Services.</div></div>
     <div class="gd-check-item"><div class="gdc-box" onclick="updateChecklist(this)"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><div class="gdc-text"><strong>Recorded the date sent and who received it.</strong> Keep a copy for your records.</div></div>
     </div></div>
@@ -4674,6 +4705,311 @@ const GC = {
     </div>`
   }
 };
+
+/* Standalone left-nav section exports */
+const UPA_LEFT_NAV_SECTION_TITLES = {
+  tour: 'How this page works',
+  overview: 'Overview',
+  findings: 'Findings',
+  quickcalc: 'Quick Calc',
+  recovery: 'Recovery',
+  escalation: 'Escalation',
+  callscripts: 'Scripts',
+  checklist: 'Checklist',
+  starthere: 'Start Here',
+  nextsteps: 'What To Do Next',
+  writtenrequests: 'Written Requests',
+  mistakes: 'Mistakes To Avoid',
+  yourrights: 'Your Rights',
+  faq: 'FAQ'
+};
+
+function upaSectionClean(value) {
+  return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
+}
+
+function upaSectionEscape(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+
+function upaSectionWithoutEmDashes(value) {
+  return String(value == null ? '' : value)
+    .replace(/\u2014/g, ' | ')
+    .replace(/&mdash;|&#8212;|&#x2014;/gi, ' | ')
+    .replace(/\u00e2\u20ac\u201d/g, ' | ');
+}
+
+function upaSectionReadJSON(key) {
+  var raw = '';
+  try { raw = sessionStorage.getItem(key) || ''; } catch(e) {}
+  if (!raw) { try { raw = localStorage.getItem(key) || ''; } catch(e) {} }
+  if (!raw) return {};
+  try { return JSON.parse(raw) || {}; } catch(e) { return {}; }
+}
+
+function upaSectionPatientName() {
+  var values = [];
+  document.querySelectorAll('[data-upa-editable-name="1"]').forEach(function(el) {
+    values.push(upaSectionClean(el.textContent));
+  });
+  values.push(upaSectionClean(window.UPACase && window.UPACase.patientName));
+  try { values.push(upaSectionClean(sessionStorage.getItem('patientName'))); } catch(e) {}
+  try { values.push(upaSectionClean(localStorage.getItem('patientName'))); } catch(e) {}
+  var dossier = upaSectionReadJSON('upa.ai.dossier.v1');
+  var intake = upaSectionReadJSON('upa.intake.v1');
+  values.push(upaSectionClean(dossier.patientName || dossier.patient_name || dossier.name));
+  values.push(upaSectionClean(dossier.intake && (dossier.intake.patientName || dossier.intake.patient_name || dossier.intake.name)));
+  values.push(upaSectionClean(intake.patientName || intake.patient_name || intake.name));
+  return values.find(function(value) {
+    return value && !/^(patient|account holder|your name|click to add your name|name not provided)$/i.test(value);
+  }) || '';
+}
+
+function upaPersistSectionPatientName(name) {
+  var value = upaSectionClean(name);
+  if (/^(patient|account holder|your name|click to add your name|name not provided)$/i.test(value)) value = '';
+  if (window.UPACase) window.UPACase.patientName = value;
+  try { sessionStorage.setItem('patientName', value); } catch(e) {}
+  try { localStorage.setItem('patientName', value); } catch(e) {}
+  ['upa.intake.v1','upa.ai.dossier.v1'].forEach(function(key) {
+    var data = upaSectionReadJSON(key);
+    if (!data || typeof data !== 'object') data = {};
+    data.patientName = value;
+    data.patient_name = value;
+    data.name = value;
+    if (data.intake && typeof data.intake === 'object') {
+      data.intake.patientName = value;
+      data.intake.patient_name = value;
+      data.intake.name = value;
+    }
+    var json = JSON.stringify(data);
+    try { sessionStorage.setItem(key, json); } catch(e) {}
+    try { localStorage.setItem(key, json); } catch(e) {}
+  });
+  document.querySelectorAll('[data-upa-editable-name="1"]').forEach(function(el) {
+    if (el.id !== 'sb-patient-name' && upaSectionClean(el.textContent) !== value) el.textContent = value;
+  });
+  return value;
+}
+
+function wireSectionExportPatientName() {
+  var field = document.getElementById('sb-patient-name');
+  if (!field || field.getAttribute('data-upa-section-name-wired') === '1') return;
+  field.setAttribute('data-upa-section-name-wired', '1');
+  field.setAttribute('data-upa-editable-name', '1');
+  field.setAttribute('contenteditable', 'true');
+  field.setAttribute('role', 'textbox');
+  field.setAttribute('aria-label', 'Patient name');
+  field.setAttribute('aria-multiline', 'false');
+  field.setAttribute('data-placeholder', 'Click to add your name');
+  field.setAttribute('spellcheck', 'false');
+  var current = upaSectionPatientName();
+  field.textContent = current;
+  field.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      field.blur();
+    }
+  });
+  field.addEventListener('input', function() {
+    var value = String(field.textContent || '').replace(/[\r\n]+/g, ' ');
+    document.querySelectorAll('[data-upa-editable-name="1"]').forEach(function(el) {
+      if (el !== field) el.textContent = value;
+    });
+  });
+  field.addEventListener('blur', function() {
+    field.textContent = upaPersistSectionPatientName(field.textContent);
+  });
+}
+
+function upaSectionCaseMeta() {
+  var c = window.UPACase || {};
+  var intake = upaSectionReadJSON('upa.intake.v1');
+  return {
+    provider: upaSectionClean(c.provider || c.providerName || intake.providerName || intake.provider_name || 'Provider from your review'),
+    reference: upaSectionClean(c.accountRef || c.referenceNumber || intake.referenceNumber || intake.accountNumber || 'Reference from your review'),
+    prepared: new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})
+  };
+}
+
+function upaSectionStaticClone(node) {
+  var clone = node.cloneNode(true);
+  clone.classList.add('upa-export-source');
+  clone.querySelectorAll('script,style,.sb-section-download,.gd-request-actions,.sc-actions,.qc-close,.qc-tabs,.qc-fab,.mob-ov-dl,.mobile-dl-cta,.dpc-actions,.btn-dpc-icon,.btn-nb,.btn-nb-skip,.btn-rp-cta').forEach(function(el) {
+    el.remove();
+  });
+  clone.querySelectorAll('input').forEach(function(input) {
+    var value = input.type === 'checkbox' ? (input.checked ? 'Checked' : 'Not checked') : (input.value || input.getAttribute('value') || '');
+    var span = document.createElement('span');
+    span.className = 'upa-export-control-value';
+    span.textContent = value || 'Not entered';
+    input.replaceWith(span);
+  });
+  clone.querySelectorAll('select').forEach(function(select) {
+    var selected = select.options && select.selectedIndex >= 0 ? select.options[select.selectedIndex].textContent : '';
+    var span = document.createElement('span');
+    span.className = 'upa-export-control-value';
+    span.textContent = upaSectionClean(selected) || 'Not selected';
+    select.replaceWith(span);
+  });
+  clone.querySelectorAll('textarea').forEach(function(textarea) {
+    var div = document.createElement('div');
+    div.className = 'upa-export-control-value';
+    div.textContent = textarea.value || 'Not entered';
+    textarea.replaceWith(div);
+  });
+  clone.querySelectorAll('button').forEach(function(button) {
+    var div = document.createElement('div');
+    div.className = 'upa-export-button-label';
+    div.textContent = upaSectionClean(button.textContent);
+    button.replaceWith(div);
+  });
+  clone.querySelectorAll('.gd-faq-a,.tl-expand-panel,.qc-pane,.qc-scenarios-table').forEach(function(el) {
+    el.style.display = 'block';
+    el.classList.add('open', 'active', 'tl-expanded');
+  });
+  clone.querySelectorAll('*').forEach(function(el) {
+    Array.from(el.attributes).forEach(function(attr) {
+      if (/^on/i.test(attr.name)) el.removeAttribute(attr.name);
+    });
+    el.removeAttribute('contenteditable');
+    el.removeAttribute('tabindex');
+  });
+  return clone;
+}
+
+function upaSectionTourSource() {
+  var root = document.createElement('div');
+  root.className = 'upa-export-tour';
+  var steps = typeof TOUR_STEPS !== 'undefined' ? TOUR_STEPS : [];
+  steps.forEach(function(step, index) {
+    var card = document.createElement('section');
+    card.className = 'upa-export-tour-step';
+    card.innerHTML = '<div class="upa-export-eyebrow">Step ' + (index + 1) + '</div><h2>' +
+      upaSectionEscape(upaSectionClean(step.title)) + '</h2><p>' + upaSectionEscape(upaSectionClean(step.body)) + '</p>';
+    root.appendChild(card);
+  });
+  return root;
+}
+
+function upaSectionGuideSource(key) {
+  var root = document.createElement('div');
+  root.className = 'upa-export-guide';
+  if (GC[key] && GC[key].html) root.innerHTML = GC[key].html;
+  return root;
+}
+
+function upaSectionSource(key) {
+  if (key === 'tour') return upaSectionTourSource();
+  if (key === 'overview' || key === 'findings') {
+    var panel = document.getElementById('tab-' + key);
+    return panel ? upaSectionStaticClone(panel) : null;
+  }
+  if (key === 'quickcalc') {
+    try { if (typeof calcUpdate === 'function') calcUpdate(); } catch(e) {}
+    var calc = document.getElementById('qc-panel');
+    return calc ? upaSectionStaticClone(calc) : null;
+  }
+  if (GC[key]) return upaSectionStaticClone(upaSectionGuideSource(key));
+  return null;
+}
+
+function upaSectionFilenamePart(value) {
+  return upaSectionClean(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'section';
+}
+
+function upaBuildLeftNavSectionDownload(key) {
+  var title = UPA_LEFT_NAV_SECTION_TITLES[key] || 'Dashboard Section';
+  var source = upaSectionSource(key);
+  if (!source) throw new Error('Section unavailable');
+  var name = upaSectionPatientName();
+  var meta = upaSectionCaseMeta();
+  var styles = Array.from(document.querySelectorAll('style')).map(function(style) { return style.textContent; }).join('\n');
+  var html = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<title>' + upaSectionEscape(title) + ' | United Patient Advocate</title><style>' + styles +
+    '\nbody{display:block!important;min-height:100vh!important;overflow:auto!important;background:#FAFAF8!important;color:#162033!important;padding:28px!important}' +
+    '.upa-export-toolbar{max-width:920px;margin:0 auto 14px;display:flex;justify-content:flex-end}.upa-export-print{border:0;border-radius:10px;background:#1D9E75;color:#fff;font:700 14px "DM Sans",Arial,sans-serif;padding:12px 18px;cursor:pointer}' +
+    '.upa-export-document{max-width:920px;margin:0 auto;background:#fff;border:1px solid rgba(22,32,51,.10);border-radius:18px;box-shadow:0 10px 34px rgba(22,32,51,.08);overflow:hidden}' +
+    '.upa-export-header{padding:30px 34px 24px;border-top:5px solid #1D9E75;border-bottom:1px solid rgba(22,32,51,.08)}.upa-export-brand{font:700 12px "DM Sans",Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#1D9E75;margin-bottom:10px}.upa-export-title{font:700 32px Playfair Display,Georgia,serif;color:#162033;margin:0 0 18px}.upa-export-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 22px;font:500 12px "DM Sans",Arial,sans-serif;color:#6B7688}.upa-export-meta strong{color:#162033}.upa-export-name{display:inline-block;min-width:140px;border-bottom:1px dashed #1D9E75;outline:none;color:#162033}.upa-export-name:empty:before{content:attr(data-placeholder);color:#6B7688}.upa-export-body{padding:28px 34px}.upa-export-source,.upa-export-guide,.upa-export-tour{display:block!important;position:static!important;width:auto!important;height:auto!important;max-width:none!important;overflow:visible!important;background:transparent!important;padding:0!important;margin:0!important;box-shadow:none!important}.upa-export-source>*{page-break-inside:avoid}.upa-export-control-value{display:inline-block;padding:8px 10px;border:1px solid rgba(22,32,51,.12);border-radius:7px;background:#F6F8FB;color:#162033}.upa-export-button-label{display:block;padding:12px 16px;font:700 14px "DM Sans",Arial,sans-serif;color:#162033;background:#F6F8FB;border-bottom:1px solid rgba(22,32,51,.08)}.upa-export-tour{display:grid!important;gap:14px!important}.upa-export-tour-step{padding:18px 20px;border:1px solid rgba(22,32,51,.09);border-radius:12px;background:#fff}.upa-export-tour-step h2{font:700 20px Playfair Display,Georgia,serif;margin:5px 0 7px}.upa-export-tour-step p{font:400 14px "DM Sans",Arial,sans-serif;line-height:1.65;color:#3A4658}.upa-export-eyebrow{font:700 10px "DM Sans",Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#1D9E75}.tab-panel,.qc-panel,.qc-pane,.gd-faq-a,.tl-expand-panel,.qc-scenarios-table{display:block!important;position:static!important;width:auto!important;height:auto!important;max-height:none!important;overflow:visible!important;opacity:1!important;transform:none!important}.gd-body{padding:0!important}.guide-drawer{display:block!important;position:static!important;width:auto!important;height:auto!important}.card,.finding-card,.script-card,.gd-card,.action-card,.timeline-card{break-inside:avoid;page-break-inside:avoid}.qc-body{max-height:none!important;overflow:visible!important}.qc-pane{margin-bottom:24px!important}.qc-pane:before{display:block;font:700 11px "DM Sans",Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#1D9E75;margin-bottom:8px}.qc-pane#pane-quickmath:before{content:"Quick Math"}.qc-pane#pane-split:before{content:"Split Payment"}.qc-pane#pane-plan:before{content:"Payment Plan"}.gd-faq-a{padding:10px 0 16px!important}.tl-expand-panel{margin-top:8px!important}' +
+    '@media(max-width:700px){body{padding:12px!important}.upa-export-header,.upa-export-body{padding:22px 18px}.upa-export-title{font-size:26px}.upa-export-meta{grid-template-columns:1fr}}' +
+    '@media print{body{padding:0!important;background:#fff!important}.upa-export-toolbar{display:none!important}.upa-export-document{border:0!important;border-radius:0!important;box-shadow:none!important}.upa-export-header{padding-top:18px}.upa-export-source>*{page-break-inside:avoid}}' +
+    '</style></head><body><div class="upa-export-toolbar"><button class="upa-export-print" onclick="window.print()">Print / Save PDF</button></div><main class="upa-export-document"><header class="upa-export-header"><div class="upa-export-brand">United Patient Advocate</div><h1 class="upa-export-title">' +
+    upaSectionEscape(title) + '</h1><div class="upa-export-meta"><div>Prepared for: <strong><span class="upa-export-name" contenteditable="true" role="textbox" data-placeholder="Click to add your name">' +
+    upaSectionEscape(name) + '</span></strong></div><div>Prepared: <strong>' + upaSectionEscape(meta.prepared) + '</strong></div><div>Provider: <strong>' +
+    upaSectionEscape(meta.provider) + '</strong></div><div>Reference: <strong>' + upaSectionEscape(meta.reference) +
+    '</strong></div></div></header><section class="upa-export-body">' + source.outerHTML + '</section></main></body></html>';
+  html = upaSectionWithoutEmDashes(html);
+  return {
+    key: key,
+    title: title,
+    name: name,
+    html: html,
+    filename: 'upa-' + upaSectionFilenamePart(key) + '-' + upaSectionFilenamePart(name || 'your-name') + '.html'
+  };
+}
+
+function upaDownloadLeftNavSection(evt, key) {
+  if (evt && evt.preventDefault) evt.preventDefault();
+  if (evt && evt.stopPropagation) evt.stopPropagation();
+  try {
+    var section = upaBuildLeftNavSectionDownload(key);
+    window.__UPA_LAST_SECTION_EXPORT__ = section;
+    var blob = new Blob([section.html], {type:'text/html;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = section.filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1500);
+    if (typeof showToast === 'function') showToast(section.title + ' downloaded', 'Open the file to print it or save it as a PDF.');
+  } catch(e) {
+    if (typeof showToast === 'function') showToast('Section download unavailable', 'Please refresh the dashboard and try again.');
+    if (window.console && console.error) console.error('[UPA section download]', e);
+  }
+  return false;
+}
+
+function upaLeftNavSectionKey(item) {
+  var idMap = {
+    'sg-tour':'tour', 'sg-quickcalc':'quickcalc', 'sg-recovery':'recovery', 'sg-escalation':'escalation',
+    'sg-scripts-link':'callscripts', 'sg-checklist':'checklist', 'sg-starthere':'starthere',
+    'sg-nextsteps':'nextsteps', 'sg-writtenrequests':'writtenrequests', 'sg-mistakes':'mistakes',
+    'sg-yourrights':'yourrights', 'sg-faq':'faq'
+  };
+  if (idMap[item.id]) return idMap[item.id];
+  var action = item.getAttribute('onclick') || '';
+  var match = action.match(/showTab\('([^']+)'\)/);
+  if (match && UPA_LEFT_NAV_SECTION_TITLES[match[1]]) return match[1];
+  match = action.match(/showGuide\('([^']+)'\)/);
+  if (match && UPA_LEFT_NAV_SECTION_TITLES[match[1]]) return match[1];
+  return '';
+}
+
+function wireLeftNavSectionDownloads() {
+  wireSectionExportPatientName();
+  var icon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><polyline points="7 10 12 15 17 10"></polyline><path d="M5 21h14"></path></svg>';
+  document.querySelectorAll('.sb-nav .sb-item').forEach(function(item) {
+    var key = upaLeftNavSectionKey(item);
+    if (!key || item.querySelector('.sb-section-download')) return;
+    var title = UPA_LEFT_NAV_SECTION_TITLES[key] || upaSectionClean(item.textContent);
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'sb-section-download';
+    button.setAttribute('aria-label', 'Download ' + title);
+    button.setAttribute('title', 'Download ' + title);
+    button.innerHTML = icon;
+    button.addEventListener('click', function(event) { upaDownloadLeftNavSection(event, key); });
+    item.appendChild(button);
+  });
+}
+window.addEventListener('load', function() {
+  setTimeout(wireLeftNavSectionDownloads, 200);
+  setTimeout(wireLeftNavSectionDownloads, 2200);
+});
 
 function showGuide(section) {
   const data = GC[section];
@@ -4856,7 +5192,7 @@ function downloadWrittenRequests() {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Written Requests — ${pName}</title>
+<title>Written Requests - ${pName}</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"Plus Jakarta Sans",system-ui,-apple-system,sans-serif;background:#E9EEF5;padding:28px 20px;color:#1C2B48;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -4904,7 +5240,7 @@ body{font-family:"Plus Jakarta Sans",system-ui,-apple-system,sans-serif;backgrou
 <div class="wr-print"><button class="wr-print-btn" onclick="window.print()">Print / Save PDF</button></div>
 <div class="wr-doc">
   <div class="wr-cover">
-    <div class="wr-eyebrow">United Patient Advocate &mdash; Case Documents</div>
+    <div class="wr-eyebrow">United Patient Advocate - Case Documents</div>
     <div class="wr-doc-title">Written Requests<small>Portal, email &amp; follow-up messages for your case</small></div>
     <div class="wr-meta">
       <div><span class="wr-meta-lbl">Patient</span><span class="wr-meta-val">${pName}</span></div>
@@ -4920,7 +5256,7 @@ body{font-family:"Plus Jakarta Sans",system-ui,-apple-system,sans-serif;backgrou
 ${cardsHTML}
   </div>
   <div class="wr-footer">
-    <span class="wr-footer-l">United Patient Advocate &mdash; ${pName} &mdash; Written Requests</span>
+    <span class="wr-footer-l">United Patient Advocate - ${pName} - Written Requests</span>
     <span class="wr-footer-r">Prepared ${today} &middot; For personal use only &middot; Educational billing support</span>
   </div>
 </div>
@@ -4984,13 +5320,13 @@ function animateBars() {
 
       var rawAmt = intake.bill_amount_other || intake.bill_amount || intake.balance || intake.totalBilled || '';
       var billNum = parseFloat(String(rawAmt).replace(/[^0-9.]/g, ''));
-      if (!billNum || billNum <= 0) return; // no real data — use defaults
+      if (!billNum || billNum <= 0) return; // no real data - use defaults
 
       // Issue percentages of total bill (same as packet personalization)
       var dupPct    = 0.053;  // duplicate charge
       var codingPct = 0.029;  // coding/documentation issue
-      // Bar 1: ED visit duplicate — billed vs Medicare
-      // Bar 2: E&M level 5 — billed vs Medicare
+      // Bar 1: ED visit duplicate - billed vs Medicare
+      // Bar 2: E&M level 5 - billed vs Medicare
       // Bars are relative widths where 100% = the bar track width
       // Billed bar: charge as % of bill anchored to max billed = 92% visual
       var dupAmt    = billNum * dupPct;
@@ -5022,7 +5358,7 @@ function animateBars() {
       var bsConf = document.querySelector('.bbs-confirmed');
       if (bsConf) bsConf.style.flex = '0 0 ' + (confirmedPct * 100).toFixed(1) + '%';
 
-    } catch(e) { /* non-fatal — animation uses defaults */ }
+    } catch(e) { /* non-fatal - animation uses defaults */ }
   })();
 
   document.querySelectorAll('.bench-bar-fill[data-w]').forEach((b, i) => {
@@ -5098,7 +5434,7 @@ function animateDrawerCards() {
 
 
 /* ═══════════════════════════════════════
-   UPA QUICK CALC — Full Calculator Logic
+   UPA QUICK CALC - Full Calculator Logic
 ═══════════════════════════════════════ */
 (function() {
 
@@ -5371,15 +5707,15 @@ const FILM = [
     body: "This dashboard contains everything you need to dispute charges, talk to billing, and get your money back. The next scenes walk through every section so you know exactly where to go.",
     duration: 7000 },
   { title: "The case identity (top of sidebar)",
-    body: "On the left, the top of the sidebar shows your provider, total bill, and the amount worth pressing on — alongside a Case Strength meter showing how solid your position is.",
+    body: "On the left, the top of the sidebar shows your provider, total bill, and the amount worth pressing on - alongside a Case Strength meter showing how solid your position is.",
     duration: 8500 },
   { title: "Six tabs across the top",
     body: "Overview · Financials · Findings · Documents · Action Plan · Timeline. The active tab shows as a dark navy slot stamped into the brass. Click any tab to jump there.",
     duration: 9000 },
-  { title: "Take Action — your working tools",
+  { title: "Take Action - your working tools",
     body: "Under Take Action on the left: Quick Calc estimates your financial impact, Recovery shows how to claim money back, Escalation explains when to go further, Scripts give word-for-word call language, and Checklist tracks your progress.",
     duration: 10500 },
-  { title: "Your Guidance — read these first",
+  { title: "Your Guidance - read these first",
     body: "Below Take Action: Start Here for new users, What To Do Next for the action checklist, Written Requests for portal/email follow-ups, Mistakes To Avoid (read this before paying anything), Your Rights, and FAQ for common questions.",
     duration: 10500 },
   { title: "The recommended order",
@@ -5389,7 +5725,7 @@ const FILM = [
     body: "Most users make their first call within 48 hours of opening the dashboard. Many users follow up around 30 days if they do not receive a written response. A full review cycle often runs 30-60 days from start to result.",
     duration: 9500 },
   { title: "Ready when you are",
-    body: "Open this Guide tab anytime you want to rewatch — it lives in the top tab bar permanently. When you’re ready to start, click Overview at the top, or Start Here in the sidebar.",
+    body: "Open this Guide tab anytime you want to rewatch - it lives in the top tab bar permanently. When you’re ready to start, click Overview at the top, or Start Here in the sidebar.",
     duration: 7000 }
 ];
 
@@ -5509,14 +5845,14 @@ const TOUR_STEPS = [
     title: '🗂️ Six tabs across the top',
     body: 'Overview · Financials · Findings · Documents · Action Plan · Timeline. The active tab shows as a dark navy slot stamped into the brass strip. Click any to jump there.' },
   { groupLabel: 'Take Action', side: 'right',
-    title: '🛠️ Take Action — your toolkit',
+    title: '🛠️ Take Action - your toolkit',
     body: "Quick Calc, Recovery, Escalation, Scripts, Checklist. These are the buttons you'll actually use to dispute charges and talk to billing." },
   { groupLabel: 'Your Guidance', side: 'right',
-    title: '📖 Your Guidance — read first',
-    body: 'New to disputing a bill? Start with Start Here. Then Mistakes To Avoid — read this before paying anything. Then Your Rights for billing protections that apply to you.' },
+    title: '📖 Your Guidance - read first',
+    body: 'New to disputing a bill? Start with Start Here. Then Mistakes To Avoid - read this before paying anything. Then Your Rights for billing protections that apply to you.' },
   { mode: 'outro', icon: '✅',
     title: "You're ready",
-    body: "Click Overview at the top, or Start Here in the sidebar. This walkthrough stays in your sidebar — open it any time you want a refresher." }
+    body: "Click Overview at the top, or Start Here in the sidebar. This walkthrough stays in your sidebar - open it any time you want a refresher." }
 ];
 
 let tourIdx = 0;
@@ -5780,7 +6116,7 @@ function ensureTourEls(){
 
 /* ════ BUG 4 FIX: FIRST-VISIT ONBOARDING MODAL ════
    Shows a clean welcome modal the very first time the user lands on the
-   dashboard. The "Got it — Let's Go" button sets a localStorage flag so
+   dashboard. The "Got it - Let's Go" button sets a localStorage flag so
    the modal never shows again. The detailed spotlight tour still fires
    after the welcome modal if the user hasn't seen it yet. */
 
@@ -5829,7 +6165,7 @@ function showWelcomeModal() {
               <span style="font-size:1.125rem;flex-shrink:0;margin-top:1px">📄</span>
               <div>
                 <div style="font-size:0.75rem;font-weight:700;color:var(--ink);margin-bottom:2px">Documents tab</div>
-                <div style="font-size:0.625rem;color:var(--ink-4);line-height:1.55">Three letters are drafted and ready to send — a statement request, a dispute letter, and a rate-review request. Just sign and send.</div>
+                <div style="font-size:0.625rem;color:var(--ink-4);line-height:1.55">Three letters are drafted and ready to send - a statement request, a dispute letter, and a rate-review request. Just sign and send.</div>
               </div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 12px;background:#F8FAFD;border:1px solid var(--bdr);border-radius:8px;border-left:3px solid var(--cobalt)">
@@ -5843,7 +6179,7 @@ function showWelcomeModal() {
               <span style="font-size:1.125rem;flex-shrink:0;margin-top:1px">🛠️</span>
               <div>
                 <div style="font-size:0.75rem;font-weight:700;color:var(--ink);margin-bottom:2px">Sidebar tools (left panel)</div>
-                <div style="font-size:0.625rem;color:var(--ink-4);line-height:1.55">Call Scripts, Checklist, Recovery guide, Quick Calc, and more — everything you need to dispute this bill from start to finish.</div>
+                <div style="font-size:0.625rem;color:var(--ink-4);line-height:1.55">Call Scripts, Checklist, Recovery guide, Quick Calc, and more - everything you need to dispute this bill from start to finish.</div>
               </div>
             </div>
           </div>
@@ -5858,7 +6194,7 @@ function showWelcomeModal() {
             " onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px rgba(30,184,122,0.45)'"
                onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(30,184,122,0.35)'"
                onclick="dismissWelcomeModal(false)">
-              Got it — Let's Go
+              Got it - Let's Go
             </button>
             <label style="display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer;font-size:0.6875rem;color:var(--ink-4);justify-content:center">
               <input type="checkbox" id="uwm-dontshow" style="accent-color:var(--green);cursor:pointer">
@@ -5927,7 +6263,7 @@ window.addEventListener('load', function(){
     var isMobile = window.innerWidth <= 900;
     setTimeout(showWelcomeModal, isMobile ? 1200 : 800);
   } else {
-    // Welcome seen before — still check if spotlight tour needs to run
+    // Welcome seen before - still check if spotlight tour needs to run
     let shown = false;
     try { shown = localStorage.getItem('upa_tour_shown') === '1'; } catch(e){}
     if (!shown || forceTour){
@@ -5976,7 +6312,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   function readDossier(){
     try{
       var raw=localStorage.getItem(DOSSIER_KEY)||sessionStorage.getItem(DOSSIER_KEY)||'';
-      return raw?JSON.parse(raw):{};
+      return raw?window.UPAParseStoredJSON(raw,{}):{};
     }catch(e){return {};}
   }
 
@@ -6092,7 +6428,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   function isPaidSession(){
     try {
       var raw = localStorage.getItem('upa.ai.dossier.v1') || sessionStorage.getItem('upa.ai.dossier.v1') || '{}';
-      var dossier = JSON.parse(raw);
+      var dossier = window.UPAParseStoredJSON(raw,{});
       return dossier && dossier.licenseVerified === true;
     } catch(e){}
     return false;
@@ -6135,7 +6471,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   function buildAIDossierIntake(intake, scan){
     var storedDossier = {};
     try {
-      storedDossier = JSON.parse(localStorage.getItem('upa.ai.dossier.v1') || sessionStorage.getItem('upa.ai.dossier.v1') || '{}');
+      storedDossier = window.UPAParseStoredJSON(localStorage.getItem('upa.ai.dossier.v1') || sessionStorage.getItem('upa.ai.dossier.v1') || '{}',{});
     } catch(e) {}
     var codeAnalysis = [];
     if(scan && Array.isArray(scan.codeAnalysis)) codeAnalysis = scan.codeAnalysis;
@@ -6169,7 +6505,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     if(!dossier) return;
     dossier = cleanAIDossierText(dossier);
     try {
-      var existingDossier = JSON.parse(localStorage.getItem('upa.ai.dossier.v1') || sessionStorage.getItem('upa.ai.dossier.v1') || '{}');
+      var existingDossier = window.UPAParseStoredJSON(localStorage.getItem('upa.ai.dossier.v1') || sessionStorage.getItem('upa.ai.dossier.v1') || '{}',{});
       if(existingDossier.licenseVerified === true){
         dossier.licenseVerified = true;
         dossier.licenseVerifiedAt = existingDossier.licenseVerifiedAt || new Date().toISOString();
@@ -6249,7 +6585,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     try{
       var existing = localStorage.getItem(['upa', String.fromCharCode(97,105), 'dossier', 'v1'].join('.'));
       if(existing){
-        var d = JSON.parse(existing);
+        var d = window.UPAParseStoredJSON(existing,{});
         if(d && d.generationMode === 'paid_dossier' && dossierCodeAnalysisLength(d)){
           renderAIDossier(d);
           return;
@@ -6274,7 +6610,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
         if(!dossier){
           var text = Array.isArray(resp.content) ? resp.content.map(function(p){ return p.text||''; }).join('') : '';
           if(!text) return;
-          dossier = JSON.parse(text);
+          dossier = window.UPAParseStoredJSON(text,null);
         }
         if(!dossier) return;
         renderAIDossier(dossier);
@@ -6313,12 +6649,10 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   --upa-shadow:0 6px 26px rgba(22,32,51,.06);
 }
 
-html,body{background:#EEF1F6!important;color:var(--upa-ink)!important}
+html,body{background:#FAFAF8!important;color:var(--upa-ink)!important}
 body{font-family:'DM Sans','Plus Jakarta Sans',system-ui,sans-serif!important}
 .shell,.main,.tab-content,.tab-panel{
-  background:
-    radial-gradient(900px 500px at 90% -5%,rgba(29,158,117,.06),transparent 60%),
-    linear-gradient(170deg,#F6F8FB,#EEF1F6)!important;
+  background:#FAFAF8!important;
 }
 .tab-panel{color:var(--upa-body)!important}
 
@@ -6673,6 +7007,22 @@ body{font-family:'DM Sans','Plus Jakarta Sans',system-ui,sans-serif!important}
     flex:1 1 0;min-width:0;max-width:50%;min-height:44px;padding:10px 6px;font-size:.66rem;
   }
   .case-header.is-collapsed{padding:0 0 10px!important}
+}
+</style>
+<style id="upa-clfs-standby-treatment">
+.clfs-standby-note{
+  display:none;margin:18px 22px;padding:16px 18px;
+  border:1px solid rgba(29,158,117,.18);border-left:4px solid #1D9E75;border-radius:12px;
+  background:#F5FAF8;color:#3A4658;font-size:.78rem;line-height:1.65;
+}
+.clfs-standby-note strong{color:#162033}
+[data-upa-clfs-dashboard-card].clfs-standby{order:8}
+[data-upa-clfs-dashboard-card].clfs-standby [data-upa-clfs-dashboard-content],
+[data-upa-clfs-financial-card].clfs-standby .fv-waterfall{display:none!important}
+[data-upa-clfs-dashboard-card].clfs-standby [data-upa-clfs-dashboard-standby],
+[data-upa-clfs-financial-card].clfs-standby [data-upa-clfs-financial-standby]{display:block}
+@media(max-width:820px){
+  .clfs-standby-note{margin:14px 16px;padding:15px;font-size:.74rem}
 }
 </style>
 <script>

@@ -1,5 +1,9 @@
 import { AnnotatedParagraph } from "./TermTooltip.jsx";
 
+const findingText = entry => typeof entry === "string"
+  ? entry
+  : entry?.detail || entry?.headline || "";
+
 export default function PreviewPaywall({
   results,
   form,
@@ -32,10 +36,11 @@ export default function PreviewPaywall({
   const amberL = dark ? "rgba(252,211,77,0.12)" : "#FFF8EC";
   const riskLevel = String(summary.riskLevel || "MEDIUM").toUpperCase();
   const riskScore = riskLevel === "HIGH" ? 82 : riskLevel === "LOW" ? 38 : 61;
-  const teaserFinding = preview.teaserFinding || summary.errorsFound?.[0] || summary.keyFindings || "One billing pattern in your intake deserves a deeper forensic review.";
+  const summaryFindingTexts = (summary.errorsFound || []).map(findingText).filter(Boolean);
+  const teaserFinding = findingText(preview.teaserFinding) || summaryFindingTexts[0] || summary.keyFindings || "One billing pattern in your intake deserves a deeper forensic review.";
   const visibleFindings = [
     teaserFinding,
-    ...(summary.errorsFound || []).filter(item => item && item !== teaserFinding)
+    ...summaryFindingTexts.filter(item => item !== teaserFinding)
   ].slice(0, 3);
   const lockedFindings = preview.lockedModuleReferences?.length ? preview.lockedModuleReferences : [
     "CPT code and charge-level comparison",

@@ -257,7 +257,7 @@
   function readStorageJSON(key){
     try{
       var raw = sessionStorage.getItem(key) || localStorage.getItem(key) || '';
-      return raw ? JSON.parse(raw) : null;
+      return raw ? (window.UPAParseStoredJSON ? window.UPAParseStoredJSON(raw,null) : JSON.parse(raw)) : null;
     }catch(e){
       return null;
     }
@@ -541,19 +541,27 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     return dossier && Object.keys(dossier).length ? dossier : {};
   }
 
-  function currentDossierIssueCount(){
+  function normalizeDossierFinding(item){
+    if(typeof item === 'string') return {headline:'', detail:item, lineItem:''};
+    item = item && typeof item === 'object' ? item : {};
+    return {
+      headline:item.headline || item.title || '',
+      detail:item.detail || item.oneLineExplanation || item.body || item.teaser || '',
+      lineItem:item.lineItem || item.lineItemReference || item.code || ''
+    };
+  }
+
+  function currentDossierFindings(){
     var dossier = readDossierState();
-    var structured = Array.isArray(dossier.findings) ? dossier.findings : [];
-    var summary = dossier.summary && Array.isArray(dossier.summary.errorsFound) ? dossier.summary.errorsFound : [];
-    function normalize(item){
-      if(typeof item === 'string') return {headline:'', detail:item, lineItem:''};
-      item = item && typeof item === 'object' ? item : {};
-      return {
-        headline:item.headline || item.title || '',
-        detail:item.detail || item.oneLineExplanation || item.body || item.teaser || '',
-        lineItem:item.lineItem || item.lineItemReference || item.code || ''
-      };
-    }
+    var paid = dossier.paidDossier && typeof dossier.paidDossier === 'object' ? dossier.paidDossier : {};
+    var phase = dossier.phase3CaseGeneration && typeof dossier.phase3CaseGeneration === 'object'
+      ? dossier.phase3CaseGeneration
+      : (paid.phase3CaseGeneration && typeof paid.phase3CaseGeneration === 'object' ? paid.phase3CaseGeneration : {});
+    var structuredLists = [dossier.findings, paid.findings, phase.structuredFindings].filter(Array.isArray);
+    var summaryLists = [
+      dossier.summary && dossier.summary.errorsFound,
+      paid.summary && paid.summary.errorsFound
+    ].filter(Array.isArray);
     function codes(item){
       var text = [item.headline,item.detail,item.lineItem].filter(Boolean).join(' ');
       return (text.match(/\b(?:[A-Z]?\d{5}[A-Z]?|\d{4}[A-Z])\b/gi) || []).map(function(code){ return code.toUpperCase(); });
@@ -574,11 +582,39 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       if(leftHeadline && rightHeadline && leftHeadline === rightHeadline) return true;
       return !!left.detail && !!right.detail && left.detail.toLowerCase().trim() === right.detail.toLowerCase().trim();
     }
-    var merged = structured.map(normalize).filter(function(item){ return item.headline || item.detail; });
-    summary.map(normalize).filter(function(item){ return item.headline || item.detail; }).forEach(function(item){
-      if(!merged.some(function(existing){ return same(existing,item); })) merged.push(item);
+    var merged = [];
+    structuredLists.concat(summaryLists).forEach(function(list){
+      list.map(normalizeDossierFinding).filter(function(item){ return item.headline || item.detail; }).forEach(function(item){
+        if(!merged.some(function(existing){ return same(existing,item); })) merged.push(item);
+      });
     });
-    return merged.length;
+    return merged;
+  }
+
+  function currentDossierIssueCount(){
+    return currentDossierFindings().length;
+  }
+
+  function currentDossierLetterCount(){
+    var dossier = readDossierState();
+    var paid = dossier.paidDossier && typeof dossier.paidDossier === 'object' ? dossier.paidDossier : {};
+    var phase = dossier.phase3CaseGeneration && typeof dossier.phase3CaseGeneration === 'object'
+      ? dossier.phase3CaseGeneration
+      : (paid.phase3CaseGeneration && typeof paid.phase3CaseGeneration === 'object' ? paid.phase3CaseGeneration : {});
+    var lists = [phase.customLetters, dossier.customLetters, paid.customLetters, dossier.letters, paid.letters];
+    for(var i=0;i<lists.length;i++){
+      if(Array.isArray(lists[i])){
+        var count = lists[i].filter(function(letter){
+          return typeof letter === 'string' ? clean(letter) : letter && clean(letter.body || letter.scriptText || letter.text || letter.content);
+        }).length;
+        if(count) return count;
+      }
+    }
+    var standalone = [
+      dossier.disputeLetter, dossier.appealLetter, dossier.itemizedBillRequestLetter,
+      paid.disputeLetter, paid.appealLetter, paid.itemizedBillRequestLetter
+    ].filter(function(letter){ return clean(letter); });
+    return standalone.length;
   }
 
   function firstArray(){
@@ -666,8 +702,10 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
 
   function renderClfsBenchmarks(){
     var vm = clfsViewModel(readDossierState());
+    var standbyMessage = 'Lab benchmark comparison applies only to itemized lab line items with CMS codes and dollar amounts. Your bill does not show itemized lab lines yet, so this one comparison is on standby. The rest of your review below is complete and ready to use.';
     var packet = one('[data-upa-clfs="packet"]');
     if(packet){
+      packet.classList.toggle('clfs-standby', !vm.totalCount);
       var coverage = one('[data-upa-clfs-coverage]', packet);
       var center = one('[data-upa-clfs-center]', packet);
       var note = one('[data-upa-clfs-match-note]', packet);
@@ -675,11 +713,11 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       var linesWrap = one('[data-upa-clfs-lines]', packet);
       var grid = one('[data-upa-clfs-grid]', packet);
       if(!vm.totalCount){
-        if(coverage) coverage.textContent = 'Needs Your Input. Upload an itemized bill with lab codes and billed amounts to compare eligible line items against CMS CLFS rates.';
-        if(center) center.textContent = 'Needs input';
-        if(note) note.textContent = 'Needs Your Input';
-        if(over) over.textContent = 'Needs input';
-        var emptyPacket = '<div style="grid-column:1/-1;padding:18px;background:white;border:1px solid var(--bdr);border-radius:9px;border-left:5px solid var(--amber)"><div style="font-size:.875rem;font-weight:800;color:var(--navy);margin-bottom:4px">Needs Your Input</div><div style="font-size:.7rem;color:var(--ink4);line-height:1.6">No verified CMS lab benchmark lines are available yet. The packet will not show benchmark totals until real line-item data is present.</div></div>';
+        if(coverage) coverage.textContent = standbyMessage;
+        if(center) center.textContent = 'On standby';
+        if(note) note.textContent = 'Lab comparison on standby';
+        if(over) over.textContent = 'On standby';
+        var emptyPacket = '<div style="grid-column:1/-1;padding:18px;background:white;border:1px solid var(--bdr);border-radius:9px;border-left:5px solid var(--teal)"><div style="font-size:.875rem;font-weight:800;color:var(--navy);margin-bottom:4px">Lab comparison on standby</div><div style="font-size:.7rem;color:var(--ink4);line-height:1.6">' + h(standbyMessage) + '</div></div>';
         if(grid) grid.innerHTML = emptyPacket;
         else if(linesWrap) linesWrap.innerHTML = emptyPacket;
       }else{
@@ -698,11 +736,23 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       }
     }
 
+    var dashboardCard = one('[data-upa-clfs-dashboard-card]');
+    if(dashboardCard) dashboardCard.classList.toggle('clfs-standby', !vm.totalCount);
+    var financialCard = one('[data-upa-clfs-financial-card]');
+    if(financialCard) financialCard.classList.toggle('clfs-standby', !vm.totalCount);
+    var secondarySection = one('[data-upa-clfs-secondary-section]');
+    if(secondarySection){
+      var secondaryBars = one('[data-upa-clfs-static-bars]', secondarySection);
+      var secondaryStandby = one('[data-upa-clfs-secondary-standby]', secondarySection);
+      if(secondaryBars) secondaryBars.style.display = vm.totalCount ? 'flex' : 'none';
+      if(secondaryStandby) secondaryStandby.style.display = vm.totalCount ? 'none' : 'block';
+    }
+
     var dashboardLines = all('[data-upa-clfs-dashboard-line]');
     if(dashboardLines.length){
       var parent = dashboardLines[0].parentNode;
       dashboardLines.forEach(function(node){ node.parentNode.removeChild(node); });
-      var html = vm.totalCount ? vm.lines.map(lineBarHtml).join('') : '<div class="bench-item"><div class="bench-head"><span class="bench-name">Needs Your Input</span><span class="bench-delta over">No verified CLFS lines yet</span></div><div style="font-size:.625rem;color:var(--ink-4);line-height:1.5">Upload an itemized bill with lab codes and billed amounts to render CMS CLFS comparisons.</div></div>';
+      var html = vm.totalCount ? vm.lines.map(lineBarHtml).join('') : '<div class="bench-item"><div class="bench-head"><span class="bench-name">Lab comparison on standby</span><span class="bench-delta">Review complete</span></div><div style="font-size:.625rem;color:var(--ink-4);line-height:1.5">' + h(standbyMessage) + '</div></div>';
       parent.insertAdjacentHTML('beforeend', html);
     }
 
@@ -710,7 +760,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var legend = one('[data-upa-clfs-legend]');
     if(track){
       if(!vm.totalCount){
-        track.innerHTML = '<div class="bb-seg bbs-confirmed" style="flex:1 1 100%"><span class="bbs-label">Needs input</span></div>';
+        track.innerHTML = '<div class="bb-seg bbs-confirmed" style="flex:1 1 100%"><span class="bbs-label">Lab comparison on standby</span></div>';
       }else{
         var matchedBilled = vm.matched.reduce(function(sum,row){ return sum + (row.billedAmount || 0); }, 0);
         var unavailableBilled = vm.lines.filter(function(row){ return !row.benchmarkAvailable; }).reduce(function(sum,row){ return sum + (row.billedAmount || 0); }, 0);
@@ -723,14 +773,14 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     if(legend){
       legend.innerHTML = vm.totalCount
         ? '<div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">' + h(vm.coverageText) + '</span></div><div class="legend-i"><div class="legend-dot ld-dup"></div><span class="legend-text">Verified CLFS difference - ' + h(formatMoneyFull(vm.overchargeTotal)) + '</span></div>'
-        : '<div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">Needs Your Input - no verified CLFS lines yet</span></div>';
+        : '<div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">Lab comparison on standby. The rest of your review is ready.</span></div>';
     }
 
     setBenchmarkFill(one('[data-upa-clfs-waterfall-total]'), 'Matched Billed Total', 'Verified CLFS lines only', 'Matched billed total', formatMoneyFull(vm.billedMatched), vm.billedMatched ? 100 : 0);
     setBenchmarkFill(one('[data-upa-clfs-waterfall-benchmark]'), 'CMS CLFS Benchmark', 'Verified lab rates', 'CMS CLFS benchmark total', formatMoneyFull(vm.benchmarkTotal), vm.billedMatched ? (vm.benchmarkTotal / Math.max(vm.billedMatched, vm.benchmarkTotal, 1)) * 100 : 0);
     setBenchmarkFill(one('[data-upa-clfs-waterfall-overcharge]'), 'Verified Difference', 'Matched CLFS lines only', 'Matched-line difference', formatMoneyFull(vm.overchargeTotal), vm.billedMatched ? (vm.overchargeTotal / Math.max(vm.billedMatched, 1)) * 100 : 0);
-    setText('[data-upa-clfs-match-count]', vm.totalCount ? (vm.matchedCount + ' of ' + vm.totalCount) : 'Needs input');
-    setText('[data-upa-clfs-coverage-short]', vm.totalCount ? vm.coverageText : 'Needs itemized lab codes');
+    setText('[data-upa-clfs-match-count]', vm.totalCount ? (vm.matchedCount + ' of ' + vm.totalCount) : 'On standby');
+    setText('[data-upa-clfs-coverage-short]', vm.totalCount ? vm.coverageText : 'No itemized lab lines yet');
     window.__UPA_CLFS_VIEW_MODEL__ = vm;
   }
 
@@ -1599,6 +1649,8 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var uploadedBill = clean(data.uploaded_bill || data.scan_file_name);
     var uploaded = !!(uploadedBill && !/^not uploaded/i.test(uploadedBill));
     var issues = buildIssues(data, amount, uploaded);
+    var dossierFindings = currentDossierFindings();
+    var generatedLetterCount = currentDossierLetterCount();
     var detailScore = 28;
     if(provider && provider !== 'Your provider') detailScore += 10;
     if(dos !== 'On file') detailScore += 8;
@@ -1670,7 +1722,9 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       noteText:notes.join(' '),
       statusCopy:status,
       reviewBasis:'Review basis: ' + basis.join('; ') + '.',
-      issueCount:currentDossierIssueCount() || issues.length,
+      issueCount:dossierFindings.length,
+      dossierFindings:dossierFindings,
+      generatedLetterCount:generatedLetterCount,
       letterCount:letterPlan.count,
       letterCountLabel:String(letterPlan.count),
       letterSetLabel:String(letterPlan.count) + ' prepared letters for this case',
@@ -1728,7 +1782,6 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       ['account number', c.accountRef],
       ['Bill amount', c.amount.display],
       ['Bill Amount', c.amount.display],
-      ['Amount to review', c.amount.reviewText],
       ['3 Prepared', c.letterCount + ' prepared'],
       ['3 drafted', c.letterCount + ' drafted'],
       ['Three letters', c.letterCount + ' letters'],
@@ -1814,7 +1867,12 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       '.upa-p3-group{margin-top:10px}' +
       '.upa-p3-title{font-size:.58rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#6E8898;margin-bottom:5px}' +
       '.upa-p3-item{font-size:.72rem;line-height:1.55;color:#42546B;padding:6px 0;border-top:1px solid rgba(28,43,72,.06)}' +
-      '.upa-p3-notice{font-size:.62rem;line-height:1.55;color:#7A8AA0;margin-top:10px;border-top:1px solid rgba(28,43,72,.08);padding-top:8px}';
+      '.upa-p3-notice{font-size:.62rem;line-height:1.55;color:#7A8AA0;margin-top:10px;border-top:1px solid rgba(28,43,72,.08);padding-top:8px}' +
+      '.upa-editable-patient-name{display:inline-block;min-width:7em;max-width:100%;border-radius:4px;cursor:text;outline:none;white-space:nowrap}' +
+      '.upa-editable-patient-name:hover{background:rgba(29,158,117,.07);box-shadow:0 0 0 2px rgba(29,158,117,.10)}' +
+      '.upa-editable-patient-name:focus{background:#fff;box-shadow:0 0 0 2px rgba(29,158,117,.30)}' +
+      '.upa-editable-patient-name:empty:before{content:attr(data-placeholder);color:#6B7688;font-family:var(--sans,Arial,sans-serif);font-style:normal;font-weight:500;opacity:.82}' +
+      '@media print{.upa-editable-patient-name{box-shadow:none!important;background:transparent!important}.upa-editable-patient-name:empty:before{content:"Your name";color:#6B7688}}';
     document.head.appendChild(style);
   }
 
@@ -2055,7 +2113,11 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     if(fvs[0]){ setText('.fvs-val', c.amount.display, fvs[0]); setText('.fvs-sub', amountNote, fvs[0]); }
     if(fvs[1]){ setText('.fvs-val', c.uploaded ? 'Uploaded bill' : 'Needs itemized bill', fvs[1]); setText('.fvs-sub', c.uploaded ? c.uploadedBill : 'Request first', fvs[1]); }
     if(fvs[2]){ setText('.fvs-val', c.amount.reviewText, fvs[2]); setText('.fvs-sub', c.issueCount + ' review areas', fvs[2]); }
-    if(fvs[3]){ setText('.fvs-label', 'Packet Status', fvs[3]); setText('.fvs-val', c.letterCount + ' letters', fvs[3]); setText('.fvs-sub', c.letterPlanSummary, fvs[3]); }
+    if(fvs[3]){
+      setText('.fvs-label', 'Packet Status', fvs[3]);
+      setText('.fvs-val', c.generatedLetterCount ? c.generatedLetterCount + ' letters' : 'From your review', fvs[3]);
+      setText('.fvs-sub', c.generatedLetterCount ? 'Generated from this case review' : 'Letters appear when generated from your review', fvs[3]);
+    }
 
     all('.intel-card').slice(0,2).forEach(function(card, idx){
       var issue = issueAt(c, idx);
@@ -2088,7 +2150,9 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       if(cells[5]) cells[5].textContent = issue.short;
     });
     setText('.ftr-label', 'Amount Needs Review');
-    setText('.ftr-ctx', c.issueCount + ' review areas - ' + c.letterCount + ' documents ready');
+    setText('.ftr-ctx', c.issueCount
+      ? c.issueCount + ' review area' + (c.issueCount === 1 ? '' : 's') + (c.generatedLetterCount ? ' - ' + c.generatedLetterCount + ' generated document' + (c.generatedLetterCount === 1 ? '' : 's') : '')
+      : 'Findings and documents appear from your review');
     setText('.ftr-amt', c.amount.reviewText);
   }
 
@@ -2102,14 +2166,14 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     });
     setAllText('.tab-pip', function(el, idx){
       if(idx === 0) return c.amount.reviewText;
-      if(idx === 1) return c.issueCount + ' areas';
-      if(idx === 2) return c.letterCount + ' ready';
+      if(idx === 1) return c.issueCount ? c.issueCount + ' areas' : 'Pending';
+      if(idx === 2) return c.generatedLetterCount ? c.generatedLetterCount + ' ready' : 'From review';
       return el.textContent;
     });
     setAllText('.mtn-item-pip', function(el, idx){
       if(idx === 0) return c.amount.reviewText;
-      if(idx === 1) return c.issueCount + ' areas';
-      if(idx === 2) return c.letterCount + ' letters';
+      if(idx === 1) return c.issueCount ? c.issueCount + ' areas' : 'Pending';
+      if(idx === 2) return c.generatedLetterCount ? c.generatedLetterCount + ' letters' : 'From review';
       return el.textContent;
     });
     var dsb = all('.dsb-node');
@@ -2117,8 +2181,10 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     if(dsb[1]){ setText('.dsb-name', 'Review ' + issueAt(c,0).short, dsb[1]); setText('.dsb-sub', 'Primary review area', dsb[1]); }
     if(dsb[2]){ setText('.dsb-name', 'Clarify EOB / coverage', dsb[2]); setText('.dsb-sub', 'Next supporting request', dsb[2]); }
     setText('.dph-title', 'Your Letter Packet');
-    setText('.dph-sub', c.letterCount + ' letters drafted from ' + providerLabel(c) + ', ' + c.amount.reviewText + ', ' + coverageLabel(c) + ', and the concerns in this intake.');
-    setText('.dph-badge', c.letterCount + ' drafts ready');
+    setText('.dph-sub', c.generatedLetterCount
+      ? c.generatedLetterCount + ' letters generated from ' + providerLabel(c) + ', ' + c.amount.reviewText + ', ' + coverageLabel(c) + ', and this case review.'
+      : 'Case-specific letters appear when they are generated from your review.');
+    setText('.dph-badge', c.generatedLetterCount ? c.generatedLetterCount + ' drafts ready' : 'From your review');
     all('.doc-preview-card').slice(0,3).forEach(function(card, idx){
       var issue = issueAt(c, idx);
       var titles = [
@@ -2194,15 +2260,59 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     setText('#db-meta-coverage', coverageText);
     setText('#db-meta-amount', c.amount.display);
     setText('#kpi-flagged-amount', c.amount.reviewText);
-    setText('#kpi-review-areas', c.issueCount + ' areas');
-    setText('#kpi-letters', c.letterCount + ' prepared');
+    setText('#kpi-review-areas', c.issueCount ? c.issueCount + (c.issueCount === 1 ? ' area' : ' areas') : 'Pending your bill');
+    setText('#kpi-letters', c.generatedLetterCount ? c.generatedLetterCount + ' prepared' : 'From your review');
     setText('#tab-pip-financial', c.amount.reviewText);
-    setText('#tab-pip-findings', c.issueCount + ' areas');
+    setText('#tab-pip-findings', c.issueCount ? c.issueCount + ' areas' : 'Pending');
     setAllText('.mtn-item-pip', function(el, idx){
       if(idx === 0) return c.amount.reviewText;
-      if(idx === 1) return c.issueCount + ' areas';
-      if(idx === 2) return c.letterCount + ' letters';
+      if(idx === 1) return c.issueCount ? c.issueCount + ' areas' : 'Pending';
+      if(idx === 2) return c.generatedLetterCount ? c.generatedLetterCount + ' letters' : 'From review';
       return el.textContent;
+    });
+    syncDashboardCaseSummary(c);
+  }
+
+  function findingSummaryTitle(finding){
+    finding = finding || {};
+    return clean(finding.headline) || titleFromText(finding.detail, 54) || 'From your review';
+  }
+
+  function syncDashboardCaseSummary(c){
+    var findings = Array.isArray(c.dossierFindings) ? c.dossierFindings : currentDossierFindings();
+    var findingCount = findings.length;
+    var letterCount = c.generatedLetterCount || currentDossierLetterCount();
+    var findingCountText = findingCount ? String(findingCount) : 'Pending your bill';
+    var letterCountText = letterCount ? letterCount + ' drafted' : 'From your review';
+    var clearest = findingCount ? findingSummaryTitle(findings[0]) : 'From your review';
+
+    setText('#kpi-review-areas', findingCount ? findingCount + (findingCount === 1 ? ' area' : ' areas') : 'Pending your bill');
+    setText('#kpi-letters', letterCount ? letterCount + ' prepared' : 'From your review');
+    setText('#kpi-areas-ctx', findingCount
+      ? findings.slice(0,3).map(findingSummaryTitle).join(', ')
+      : 'Findings appear after your bill is reviewed');
+    setText('#rpc-bill-reviewed', c.amount && !c.amount.unknown ? c.amount.display : 'Pending your bill');
+    setText('#rpc-question-count', findingCountText);
+    setText('#rpc-letter-count', letterCountText);
+    setText('#rps-review-amount', findingCount ? findingCount + (findingCount === 1 ? ' review area' : ' review areas') : 'From your review');
+    setText('#rps-clearest-area', clearest);
+
+    var flags = all('.rp-flag');
+    if(!findingCount){
+      if(flags[0]){
+        flags[0].style.display = '';
+        setText('.rp-flag-title', 'Findings appear after your bill is reviewed', flags[0]);
+        setText('.rp-flag-sub', 'No specific billing issue is shown until it is supported by this case.', flags[0]);
+      }
+      flags.slice(1).forEach(function(flag){ flag.style.display = 'none'; });
+      return;
+    }
+    flags.forEach(function(flag, idx){
+      var finding = findings[idx];
+      flag.style.display = finding ? '' : 'none';
+      if(!finding) return;
+      setText('.rp-flag-title', findingSummaryTitle(finding), flag);
+      setText('.rp-flag-sub', clean(finding.detail) || clean(finding.lineItem) || 'From your review', flag);
     });
   }
 
@@ -2246,12 +2356,12 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     setText('.ch-pill.amber-pill', c.uploaded ? 'Review ready · Your bill is in this case' : 'Action needed · Request your itemized bill');
     setAllText('.ch-meta-val', [c.provider, c.dateOfService, c.coverage, c.amount.display]);
 
-    setAllText('.kpi-val', [c.amount.reviewText, c.issueCount + ' areas', c.letterCount + ' prepared']);
+    setAllText('.kpi-val', [c.amount.reviewText, c.issueCount ? c.issueCount + (c.issueCount === 1 ? ' area' : ' areas') : 'Pending your bill', c.generatedLetterCount ? c.generatedLetterCount + ' prepared' : 'From your review']);
     setAllText('.kpi-label', ['Amount needing confirmation','Review areas requiring action','Case letters prepared']);
     setAllText('.kpi-ctx', [
       c.amount.exact ? 'Exact amount entered by the user' : 'Based on the amount range or missing amount provided',
       c.issues.map(function(i){return i.short;}).join(', '),
-      c.letterPlanSummary
+      c.generatedLetterCount ? c.generatedLetterCount + ' case-specific letter' + (c.generatedLetterCount === 1 ? '' : 's') + ' generated from this review.' : 'Letters appear when generated from your review.'
     ]);
 
     var cardTexts = all('.card-text');
@@ -2299,9 +2409,9 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
 
     setText('.rpc-amount', c.amount.reviewText);
     setText('.rpc-sub', c.amount.exact ? 'From the amount you shared at intake' : 'Confirms with your itemized bill');
-    setAllText('.rpc-row-val', [c.amount.display, String(c.issueCount), c.letterCount + ' drafted']);
+    setAllText('.rpc-row-val', [c.amount.unknown ? 'Pending your bill' : c.amount.display, c.issueCount ? String(c.issueCount) : 'Pending your bill', c.generatedLetterCount ? c.generatedLetterCount + ' drafted' : 'From your review']);
     var rpsPayment = c.paymentStatus || 'Review timing depends on your situation';
-    setAllText('.rps-row-val', [c.amount.reviewText, c.primary.short, rpsPayment, c.uploaded ? 'Working from your uploaded bill' : 'Ask for an itemized statement first']);
+    setAllText('.rps-row-val', [c.issueCount ? c.issueCount + (c.issueCount === 1 ? ' review area' : ' review areas') : 'From your review', c.dossierFindings.length ? findingSummaryTitle(c.dossierFindings[0]) : 'From your review', rpsPayment, c.uploaded ? 'Working from your uploaded bill' : 'Ask for an itemized statement first']);
     setText('#rp-gauge-amount', c.detailScore >= 70 ? 'Strong start' : 'Open case');
     setText('#rp-gauge-pct', c.detailScore + '%');
     setText('.rp-gauge-sub', c.uploaded ? 'Your itemized bill is in the case' : 'Adding your itemized bill sharpens the review');
@@ -2385,6 +2495,153 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     ]);
   }
 
+  function editablePatientNameKey(c){
+    var scope = [
+      c && c.accountRef || '',
+      c && c.provider || '',
+      c && c.dateOfService || ''
+    ].filter(Boolean).join('|').replace(/[^a-z0-9_-]+/gi,'_').slice(0,180);
+    return 'upa.patient-name.v1.' + (scope || 'current-case');
+  }
+
+  function persistEditablePatientName(name, c){
+    var value = clean(name);
+    var nameKey = editablePatientNameKey(c);
+    if(c){
+      c.patientName = value;
+      c.firstName = value ? value.split(/\s+/)[0] : 'You';
+      c.lastName = value && value.split(/\s+/).length > 1 ? value.split(/\s+/).slice(-1)[0] : '';
+    }
+    if(window.UPACase){
+      window.UPACase.patientName = value;
+      window.UPACase.firstName = value ? value.split(/\s+/)[0] : 'You';
+      window.UPACase.lastName = value && value.split(/\s+/).length > 1 ? value.split(/\s+/).slice(-1)[0] : '';
+    }
+    if(window.__UPA_PACKET_INTAKE__ && typeof window.__UPA_PACKET_INTAKE__ === 'object'){
+      window.__UPA_PACKET_INTAKE__.patientName = value;
+      window.__UPA_PACKET_INTAKE__.patient_name = value;
+      window.__UPA_PACKET_INTAKE__.name = value;
+    }
+    var intake = readIntake() || readStorageJSON('upa.intake.v1') || {};
+    intake.patientName = value;
+    intake.patient_name = value;
+    intake.name = value;
+    if(window.UPAState && window.UPAState.persistIntake){
+      try{
+        window.UPAState.persistIntake(intake,{stage:'patient-name-edit',source:'editable-patient-name'});
+        if(window.UPAState.persistCase && c) window.UPAState.persistCase(c,{stage:'patient-name-edit',source:'editable-patient-name'});
+      }catch(e){}
+    }else{
+      var intakeJson = JSON.stringify(intake);
+      try{ localStorage.setItem('upa.intake.v1',intakeJson); }catch(e){}
+      try{ sessionStorage.setItem('upa.intake.v1',intakeJson); }catch(e){}
+      var active = readStorageJSON('upa.active.case.v1') || {};
+      if(active.intake && typeof active.intake === 'object'){
+        active.intake.patientName = value;
+        active.intake.patient_name = value;
+        active.intake.name = value;
+        if(active.session && active.session.intake){
+          active.session.intake.patientName = value;
+          active.session.intake.patient_name = value;
+          active.session.intake.name = value;
+        }
+      }else{
+        active.patientName = value;
+        active.patient_name = value;
+        active.name = value;
+      }
+      var activeJson = JSON.stringify(active);
+      try{ localStorage.setItem('upa.active.case.v1',activeJson); }catch(e){}
+      try{ sessionStorage.setItem('upa.active.case.v1',activeJson); }catch(e){}
+    }
+    var dossier = readStorageJSON('upa.ai.dossier.v1');
+    if(dossier && typeof dossier === 'object'){
+      dossier.patientName = value;
+      if(dossier.intake && typeof dossier.intake === 'object'){
+        dossier.intake.patientName = value;
+        dossier.intake.patient_name = value;
+        dossier.intake.name = value;
+      }
+      var dossierJson = JSON.stringify(dossier);
+      try{ localStorage.setItem('upa.ai.dossier.v1',dossierJson); }catch(e){}
+      try{ sessionStorage.setItem('upa.ai.dossier.v1',dossierJson); }catch(e){}
+    }
+    try{ localStorage.setItem('patientName',value); }catch(e){}
+    try{ sessionStorage.setItem('patientName',value); }catch(e){}
+    try{ localStorage.setItem(nameKey,value); }catch(e){}
+    try{ sessionStorage.setItem(nameKey,value); }catch(e){}
+  }
+
+  function wireEditablePatientNames(c){
+    var selector = '.lhd-name,.lbs-name,.doc-preview-card .mini-org,.doc-preview-card .mini-sig-name';
+    var syncing = false;
+
+    function currentName(){
+      var stored = null;
+      var nameKey = editablePatientNameKey(c);
+      try{ stored = sessionStorage.getItem(nameKey); }catch(e){}
+      if(stored === null){ try{ stored = localStorage.getItem(nameKey); }catch(e){} }
+      if(stored !== null) return clean(stored);
+      return clean(c && c.patientName || window.UPACase && window.UPACase.patientName || '');
+    }
+
+    function syncFields(value, source){
+      if(syncing) return;
+      syncing = true;
+      all(selector).forEach(function(field){
+        if(field !== source && field.textContent !== value) field.textContent = value;
+      });
+      syncing = false;
+    }
+
+    function wire(field){
+      if(!field || field.getAttribute('data-upa-editable-name') === '1') return;
+      field.setAttribute('data-upa-editable-name','1');
+      field.setAttribute('contenteditable','true');
+      field.setAttribute('role','textbox');
+      field.setAttribute('aria-label','Patient name');
+      field.setAttribute('aria-multiline','false');
+      field.setAttribute('spellcheck','false');
+      field.setAttribute('data-placeholder', field.classList.contains('mini-org') || field.classList.contains('mini-sig-name') ? 'Your name' : 'Click to add your name');
+      field.classList.add('upa-editable-patient-name');
+      if(!clean(field.textContent) && currentName()) field.textContent = currentName();
+      field.addEventListener('keydown',function(event){
+        if(event.key === 'Enter'){
+          event.preventDefault();
+          field.blur();
+        }
+      });
+      field.addEventListener('input',function(){
+        var value = String(field.textContent || '').replace(/[\r\n]+/g,' ');
+        if(c) c.patientName = value;
+        if(window.UPACase) window.UPACase.patientName = value;
+        syncFields(value,field);
+      });
+      field.addEventListener('blur',function(){
+        var value = clean(field.textContent);
+        field.textContent = value;
+        syncFields(value,field);
+        persistEditablePatientName(value,c);
+      });
+    }
+
+    function refresh(){
+      all(selector).forEach(wire);
+      syncFields(currentName(),null);
+    }
+
+    refresh();
+    if(!window.__upaEditablePatientNameObserver && document.body){
+      var queued = false;
+      window.__upaEditablePatientNameObserver = new MutationObserver(function(){
+        if(queued) return;
+        queued = true;
+        window.setTimeout(function(){ queued = false; refresh(); },20);
+      });
+      window.__upaEditablePatientNameObserver.observe(document.body,{childList:true,subtree:true});
+    }
+  }
+
   function applyPacket(c){
     if(!one('.toolbar') || all('.page').length < 4) return;
     // Set ALL name fields globally first : catches elements outside .lhd wrappers
@@ -2412,6 +2669,8 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       var firstInfo = all('div', pages[0]).filter(function(el){return /Patient|Provider|Date of Service/.test(el.textContent);});
       firstInfo.slice(0,3);
     }
+    setText('.packet-flagged-count', c.issueCount + (c.issueCount === 1 ? ' review area' : ' review areas'));
+    setText('.packet-review-metric', c.issueCount + (c.issueCount === 1 ? ' area' : ' areas'));
 
     // Front-page findings summary box : shows up to 3 identified issues with title + short label
     var findingsBox = one('.packet-findings-box');
@@ -2520,6 +2779,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     applyPreview(c);
     applyDashboard(c);
     applyPacket(c);
+    wireEditablePatientNames(c);
     renderClfsBenchmarks();
     applyGuideHook(c);
     if(window.__UPA_MOBILE_DEBUG__) window.__UPA_MOBILE_DEBUG__.render('after-personalization');

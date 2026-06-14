@@ -1,11 +1,25 @@
 import { useMemo, useState } from "react";
 import { AnnotatedParagraph } from "./TermTooltip.jsx";
 
+const normalizeFinding = value => typeof value === "string"
+  ? { headline: "", detail: value }
+  : {
+      headline: value?.headline || "",
+      detail: value?.detail || value?.headline || ""
+    };
+
+const findingText = value => {
+  const finding = normalizeFinding(value);
+  return finding.headline && finding.detail && finding.headline !== finding.detail
+    ? `${finding.headline}\n${finding.detail}`
+    : finding.detail || finding.headline;
+};
+
 function buildReportHtml({ results, session, logoSrc }) {
   const dossier = results?.paidDossier || {};
   const rows = [
     ["Executive Summary", dossier.executiveOverview || results?.summary?.keyFindings || ""],
-    ["Potential Findings", (results?.summary?.errorsFound || []).join("\n")],
+    ["Potential Findings", (results?.summary?.errorsFound || []).map(findingText).filter(Boolean).join("\n\n")],
     ["Billing Pattern Analysis", (dossier.billingPatternAnalysis || []).join("\n")],
     ["Provider-Specific Observations", (dossier.providerSpecificObservations || []).join("\n")],
     ["Negotiation Context", (dossier.negotiationContext || []).join("\n")],
@@ -23,7 +37,9 @@ function buildReportHtml({ results, session, logoSrc }) {
   </style></head><body><main class="page"><header class="header"><img src="${esc(logoSrc)}" alt="UPA"><div><div class="kicker">United Patient Advocate</div><div class="title">Complete Billing Review</div><div>Premium billing review prepared from your submitted information.</div></div></header><section class="meta"><div><div class="label">Provider</div><div class="value">${esc(session?.provider || "Saved session")}</div></div><div><div class="label">Total billed</div><div class="value">${esc(session?.totalAmount ? `$${session.totalAmount}` : "Saved total")}</div></div><div><div class="label">Prepared</div><div class="value">${esc(new Date().toLocaleDateString())}</div></div></section>${rows.map(([title,body])=>`<section class="section"><h2>${esc(title)}</h2><p>${esc(body || "This section will populate as additional review details are available.")}</p></section>`).join("")}<footer class="footer">United Patient Advocate provides educational and informational billing review support. Not legal, medical, insurance, or financial advice. Results vary and are not promised.</footer></main></body></html>`;
 }
 
-const asText = value => typeof value === "string" ? value : value ? JSON.stringify(value) : "";
+const asText = value => value && typeof value === "object" && ("headline" in value || "detail" in value)
+  ? findingText(value)
+  : typeof value === "string" ? value : value ? JSON.stringify(value) : "";
 
 function StatusPill({ children, tone = "green" }) {
   const colors = {
@@ -62,7 +78,10 @@ function FindingCards({ findings, colors }) {
             <span style={{ width:34,height:34,borderRadius:12,background:index===0 ? colors.greenC : colors.navyC,color:"#fff",display:"grid",placeItems:"center",fontSize:13,fontWeight:900 }}>{index+1}</span>
             <StatusPill tone={index===0 ? "green" : "blue"}>{index===0 ? "Primary" : "Review"}</StatusPill>
           </div>
-          <div style={{ color:colors.ink2,fontSize:13,lineHeight:1.7 }}><AnnotatedParagraph text={asText(item)} color={colors.ink2} /></div>
+          <div style={{ color:colors.ink2,fontSize:13,lineHeight:1.7 }}>
+            {normalizeFinding(item).headline && <div style={{ color:colors.ink,fontSize:15,fontWeight:900,marginBottom:8 }}>{normalizeFinding(item).headline}</div>}
+            <AnnotatedParagraph text={normalizeFinding(item).detail} color={colors.ink2} />
+          </div>
         </article>
       ))}
     </div>
@@ -228,7 +247,7 @@ function AdvocateNotes({ rights = [], colors }) {
 export default function PremiumDashboard({ results, session, copied, onCopy, onDownload, logoSrc, colors, mode, toggleMode }) {
   const [active, setActive] = useState("overview");
   const dossier = results?.paidDossier || {};
-  const findings = results?.summary?.errorsFound || [];
+  const findings = (results?.summary?.errorsFound || []).map(normalizeFinding).filter(item => item.headline || item.detail);
   const actionPlan = results?.actionPlan || dossier.thirtyDayActionPlan || [];
   const reportHtml = buildReportHtml({ results, session, logoSrc });
   const darkShell = "#0E1A2F";

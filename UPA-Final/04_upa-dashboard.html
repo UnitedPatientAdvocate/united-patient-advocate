@@ -2664,22 +2664,167 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
     .then(function(caseData){
       var verified=false;
       var verifiedAt='';
+      var existingActive={};
       try{
         var existing=JSON.parse(localStorage.getItem(DOSSIER_KEY)||sessionStorage.getItem(DOSSIER_KEY)||'{}');
         verified=existing&&existing.licenseVerified===true;
         verifiedAt=existing&&existing.licenseVerifiedAt||'';
       }catch(e){}
+      try{
+        existingActive=JSON.parse(localStorage.getItem('upa.active.case.v1')||sessionStorage.getItem('upa.active.case.v1')||'{}')||{};
+      }catch(e){}
       if(verified){
         caseData.licenseVerified=true;
         caseData.licenseVerifiedAt=verifiedAt;
       }
+      var scan=caseData.scanData&&typeof caseData.scanData==='object'?caseData.scanData:{};
+      var currentIntake=caseData.intake&&typeof caseData.intake==='object'
+        ? Object.assign({},caseData.intake)
+        : {};
+      function firstCurrent(){
+        for(var i=0;i<arguments.length;i+=1){
+          if(arguments[i]!==undefined&&arguments[i]!==null&&String(arguments[i]).trim()!=='')return arguments[i];
+        }
+        return '';
+      }
+      function currentProvider(){
+        for(var i=0;i<arguments.length;i+=1){
+          var value=arguments[i]===undefined||arguments[i]===null?'':String(arguments[i]).trim();
+          if(!value)continue;
+          if(/^(?:GRP|GROUP|PLAN|POLICY)[-:\s]/i.test(value)||/\b(?:PPO|HMO|EPO|POS)\b/i.test(value))continue;
+          return value;
+        }
+        return '';
+      }
+      function currentIssueCount(){
+        var structured=Array.isArray(caseData.findings)?caseData.findings:[];
+        var summary=caseData.summary&&Array.isArray(caseData.summary.errorsFound)?caseData.summary.errorsFound:[];
+        function normalize(item){
+          if(typeof item==='string')return {headline:'',detail:item,lineItem:''};
+          item=item&&typeof item==='object'?item:{};
+          return {
+            headline:item.headline||item.title||'',
+            detail:item.detail||item.oneLineExplanation||item.body||item.teaser||'',
+            lineItem:item.lineItem||item.lineItemReference||item.code||''
+          };
+        }
+        function codes(item){
+          var text=[item.headline,item.detail,item.lineItem].filter(Boolean).join(' ');
+          return (text.match(/\b(?:[A-Z]?\d{5}[A-Z]?|\d{4}[A-Z])\b/gi)||[]).map(function(code){return code.toUpperCase();});
+        }
+        function line(item){
+          return String(item.lineItem||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+        }
+        function same(left,right){
+          var leftLine=line(left);
+          var rightLine=line(right);
+          if(leftLine&&rightLine&&(leftLine===rightLine||leftLine.indexOf(rightLine)!==-1||rightLine.indexOf(leftLine)!==-1))return true;
+          var leftCodes=codes(left);
+          var rightCodes=codes(right);
+          if(leftCodes.some(function(code){return rightCodes.indexOf(code)!==-1;}))return true;
+          if(leftLine||rightLine||leftCodes.length||rightCodes.length)return false;
+          var leftHeadline=String(left.headline||'').toLowerCase().trim();
+          var rightHeadline=String(right.headline||'').toLowerCase().trim();
+          if(leftHeadline&&rightHeadline&&leftHeadline===rightHeadline)return true;
+          return !!left.detail&&!!right.detail&&left.detail.toLowerCase().trim()===right.detail.toLowerCase().trim();
+        }
+        var merged=structured.map(normalize).filter(function(item){return item.headline||item.detail;});
+        summary.map(normalize).filter(function(item){return item.headline||item.detail;}).forEach(function(item){
+          if(!merged.some(function(existing){return same(existing,item);}))merged.push(item);
+        });
+        return merged.length;
+      }
+      function formattedTotal(value){
+        var number=Number(String(value==null?'':value).replace(/[^0-9.-]/g,''));
+        return isFinite(number)&&number>0?'$'+number.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):String(value||'');
+      }
+      function writeLooseCurrent(key,value){
+        try{
+          if(value!==undefined&&value!==null&&String(value).trim()!==''){
+            sessionStorage.setItem(key,String(value));
+            localStorage.setItem(key,String(value));
+          }else{
+            sessionStorage.removeItem(key);
+            localStorage.removeItem(key);
+          }
+        }catch(e){}
+      }
+      var provider=currentProvider(caseData.providerName,caseData.provider,caseData.hospitalName,scan.provider,currentIntake.provider,currentIntake.providerName,currentIntake.extracted_provider);
+      var total=firstCurrent(caseData.totalBilled,scan.totalBilled,currentIntake.totalBilled,currentIntake.bill_amount_other,currentIntake.bill_amount,currentIntake.extracted_bill_amount);
+      var serviceDate=firstCurrent(caseData.dateOfService,scan.serviceDateRaw,scan.serviceDate,currentIntake.dateOfService,currentIntake.date_of_service,currentIntake.extracted_date_of_service);
+      var account=firstCurrent(caseData.referenceNumber,scan.claimNumber,currentIntake.referenceNumber,currentIntake.account_number,currentIntake.extracted_account_number);
+      var issueCount=currentIssueCount();
+      var currentLines=Array.isArray(caseData.codeAnalysis)&&caseData.codeAnalysis.length?caseData.codeAnalysis
+        :(Array.isArray(caseData.lineItems)&&caseData.lineItems.length?caseData.lineItems
+        :(Array.isArray(scan.codeAnalysis)?scan.codeAnalysis:[]));
+      if(provider){
+        currentIntake.provider=provider;
+        currentIntake.providerName=provider;
+        currentIntake.extracted_provider=provider;
+      }
+      if(total!==''){
+        currentIntake.totalBilled=total;
+        currentIntake.bill_amount=total;
+        currentIntake.bill_amount_other=total;
+        currentIntake.extracted_bill_amount=total;
+      }
+      if(serviceDate){
+        currentIntake.dateOfService=serviceDate;
+        currentIntake.date_of_service=serviceDate;
+        currentIntake.extracted_date_of_service=serviceDate;
+      }
+      if(account){
+        currentIntake.referenceNumber=account;
+        currentIntake.account_number=account;
+        currentIntake.extracted_account_number=account;
+      }
+      currentIntake.codeAnalysis=currentLines;
+      currentIntake.lineItems=currentLines;
+      currentIntake._code_analysis=currentLines;
+      currentIntake.issueCount=issueCount;
+      currentIntake._upa_server_case_id=access;
+      currentIntake._upa_case_id=currentIntake._upa_case_id||currentIntake.active_case_id||('upa-server-'+access);
+      currentIntake.active_case_id=currentIntake._upa_case_id;
+      currentIntake._upa_source='server-case';
+      currentIntake._upa_active_at=new Date().toISOString();
+      caseData.intake=currentIntake;
+      caseData.issueCount=issueCount;
+      var paid=!!(verified||existingActive.paid||(existingActive.session&&existingActive.session.paid));
+      var activeSession={
+        version:4,
+        sessionId:currentIntake._upa_case_id,
+        activeCaseId:currentIntake._upa_case_id,
+        createdAt:currentIntake._upa_active_at,
+        updatedAt:currentIntake._upa_active_at,
+        stage:'server-case-hydrated',
+        source:'server-case',
+        paid:paid,
+        intake:currentIntake,
+        meta:{serverCaseId:access}
+      };
+      var activeCase={
+        version:1,
+        caseId:currentIntake._upa_case_id,
+        serverCaseId:access,
+        source:'server-case',
+        updatedAt:currentIntake._upa_active_at,
+        paid:paid,
+        intake:currentIntake,
+        session:activeSession,
+        scan:scan
+      };
       var text=JSON.stringify(caseData);
       localStorage.setItem(DOSSIER_KEY,text);
       sessionStorage.setItem(DOSSIER_KEY,text);
-      if(caseData.intake){
-        localStorage.setItem('upa.intake.v1',JSON.stringify(caseData.intake));
-        sessionStorage.setItem('upa.intake.v1',JSON.stringify(caseData.intake));
-      }
+      localStorage.setItem('upa.intake.v1',JSON.stringify(currentIntake));
+      sessionStorage.setItem('upa.intake.v1',JSON.stringify(currentIntake));
+      localStorage.setItem('upa.active.case.v1',JSON.stringify(activeCase));
+      sessionStorage.setItem('upa.active.case.v1',JSON.stringify(activeCase));
+      writeLooseCurrent('providerName',provider);
+      writeLooseCurrent('totalBilled',formattedTotal(total));
+      writeLooseCurrent('dateOfService',serviceDate);
+      writeLooseCurrent('referenceNumber',account);
+      writeLooseCurrent('issueCount',issueCount);
       if(caseData.scanData){
         localStorage.setItem('upa.scan.v1',JSON.stringify(caseData.scanData));
         sessionStorage.setItem('upa.scan.v1',JSON.stringify(caseData.scanData));
@@ -3221,6 +3366,17 @@ function seoTryRecover(){
       <button class="tab-btn" onclick="showTab('actionplan')">☑ Action Plan</button>
       <button class="tab-btn" onclick="showTab('timeline')">⏱ Timeline</button>
     </div>
+  </div>
+
+  <div class="dashboard-space-controls" aria-label="Dashboard display controls">
+    <button class="dashboard-space-toggle" id="toggle-case-overview" type="button" aria-expanded="true" onclick="toggleDashboardSpace('case')">
+      <span class="dashboard-space-toggle-icon" aria-hidden="true">&#8593;</span>
+      <span class="dashboard-space-toggle-label">Hide case overview</span>
+    </button>
+    <button class="dashboard-space-toggle" id="toggle-case-summary" type="button" aria-expanded="true" onclick="toggleDashboardSpace('summary')">
+      <span class="dashboard-space-toggle-icon" aria-hidden="true">&#8593;</span>
+      <span class="dashboard-space-toggle-label">Hide summary cards</span>
+    </button>
   </div>
 
   <!-- KPI strip -->
@@ -6478,6 +6634,113 @@ body{font-family:'DM Sans','Plus Jakarta Sans',system-ui,sans-serif!important}
 }
 /* === END UPA LIGHT DASHBOARD NAVIGATION REFINEMENT === */
 </style>
+<style id="upa-dashboard-space-controls">
+.dashboard-space-controls{
+  display:flex;justify-content:flex-end;align-items:center;gap:8px;
+  margin:12px 24px 0;
+}
+.dashboard-space-toggle{
+  min-height:40px;padding:9px 13px;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  border:1px solid rgba(22,32,51,.10);border-radius:10px;background:rgba(255,255,255,.82);
+  color:#3A4658;font:600 .72rem/1 "DM Sans","Plus Jakarta Sans",system-ui,sans-serif;
+  cursor:pointer;box-shadow:0 3px 12px rgba(22,32,51,.045);
+}
+.dashboard-space-toggle:hover{
+  background:#E6F4EE;border-color:rgba(29,158,117,.22);color:#168560;
+}
+.dashboard-space-toggle-icon{font-size:.9rem;transition:transform .18s ease}
+.dashboard-space-toggle-label{white-space:normal;line-height:1.2}
+.dashboard-space-toggle[aria-expanded="false"] .dashboard-space-toggle-icon{transform:rotate(180deg)}
+.case-header.is-collapsed{
+  padding:0 0 12px!important;
+}
+.case-header.is-collapsed .ch-top-line,
+.case-header.is-collapsed .ch-inner{
+  display:none!important;
+}
+.main.summary-collapsed > .kpi-strip,
+.main.summary-collapsed > #upa-guidance-hint,
+.main.summary-collapsed > .upa-intake-context,
+.main.summary-collapsed > .upa-case-note{
+  display:none!important;
+}
+@media(max-width:820px){
+  .dashboard-space-controls{
+    width:calc(100% - 24px);max-width:calc(100vw - 24px);
+    margin:10px 12px 0;justify-content:stretch;
+  }
+  .dashboard-space-toggle{
+    flex:1 1 0;min-width:0;max-width:50%;min-height:44px;padding:10px 6px;font-size:.66rem;
+  }
+  .case-header.is-collapsed{padding:0 0 10px!important}
+}
+</style>
+<script>
+(function(){
+  var viewStateKey = 'upa.dashboard.view-space.v1';
+
+  function readViewState(){
+    try{
+      return JSON.parse(sessionStorage.getItem(viewStateKey) || '{}');
+    }catch(e){
+      return {};
+    }
+  }
+
+  function writeViewState(state){
+    try{
+      sessionStorage.setItem(viewStateKey, JSON.stringify(state));
+    }catch(e){}
+  }
+
+  function setToggleState(section, collapsed){
+    var button = document.getElementById(section === 'case' ? 'toggle-case-overview' : 'toggle-case-summary');
+    if(!button) return;
+    button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    var label = button.querySelector('.dashboard-space-toggle-label');
+    if(label){
+      var compact = window.innerWidth <= 820;
+      label.textContent = collapsed
+        ? (section === 'case' ? (compact ? 'Show overview' : 'Show case overview') : (compact ? 'Show summary' : 'Show summary cards'))
+        : (section === 'case' ? (compact ? 'Hide overview' : 'Hide case overview') : (compact ? 'Hide summary' : 'Hide summary cards'));
+    }
+  }
+
+  window.toggleDashboardSpace = function(section){
+    var state = readViewState();
+    var collapsed;
+    if(section === 'case'){
+      var header = document.querySelector('.case-header');
+      if(!header) return;
+      collapsed = header.classList.toggle('is-collapsed');
+      state.caseCollapsed = collapsed;
+    }else{
+      var main = document.querySelector('.main');
+      if(!main) return;
+      collapsed = main.classList.toggle('summary-collapsed');
+      state.summaryCollapsed = collapsed;
+    }
+    setToggleState(section, collapsed);
+    writeViewState(state);
+  };
+
+  function restoreDashboardSpace(){
+    var state = readViewState();
+    var header = document.querySelector('.case-header');
+    var main = document.querySelector('.main');
+    if(header && state.caseCollapsed) header.classList.add('is-collapsed');
+    if(main && state.summaryCollapsed) main.classList.add('summary-collapsed');
+    setToggleState('case', !!state.caseCollapsed);
+    setToggleState('summary', !!state.summaryCollapsed);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', restoreDashboardSpace);
+  }else{
+    restoreDashboardSpace();
+  }
+})();
+</script>
 <!-- forensic overlay removed for production -->
 </body>
 </html>

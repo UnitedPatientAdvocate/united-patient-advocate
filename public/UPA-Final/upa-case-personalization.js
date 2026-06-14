@@ -800,12 +800,12 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   }
 
   function phase3Text(value){
-    return clean(value)
+    return cleanCustomerCopy(clean(value)
       .replace(/\bis illegal\b/gi,'may need review')
       .replace(/\bclearly illegal\b/gi,'may need review')
       .replace(/\byou are owed\b/gi,'you may request review of')
       .replace(/\bmust pay\b/gi,'may need to confirm')
-      .replace(/\bguaranteed\b/gi,'possible');
+      .replace(/\bguaranteed\b/gi,'possible'));
   }
 
   function phase3Array(value){
@@ -1575,13 +1575,10 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     } catch(e){ /* audit must never break case build */ }
 
     var amount = amountInfo(data);
-    var first = clean(data.first_name);
-    var last = clean(data.last_name);
-    var joinedName = first && last ? first + ' ' + last : '';
-    // FIX 1: route patient name through safeProperNoun so gibberish/test strings
-    // ("Odjdjt", "asdf", "aaaa") fall back to a neutral "Patient" label rather
-    // than getting echoed across every letter, finding card, and dashboard pill.
-    var name = safeProperNoun(clean(data.patient_name || data.patientName || data.full_name || data.fullName || data.name || joinedName), '');
+    var name = buyerTypedName();
+    var nameBits = name.split(/\s+/).filter(Boolean);
+    var first = nameBits[0] || '';
+    var last = nameBits.length > 1 ? nameBits[nameBits.length - 1] : '';
     var nameParts = name ? name.split(/\s+/).filter(Boolean) : [];
     var lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : (nameParts[0] || '');
     var prepDate = formatDate(data.submitted_at || new Date().toISOString(), 'Today');
@@ -1696,7 +1693,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       provider:provider,
       email:email,
       phone:phone,
-      contactLine:[email, phone].filter(Boolean).join(' | ') || 'Contact not provided',
+      contactLine:[email, phone].filter(Boolean).join(' | ') || 'Contact details can be added before sending',
       dateOfService:dos,
       dateShort:shortDate(rawDos),
       prepDate:prepDate,
@@ -1707,7 +1704,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       billType:billType,
       coverage:coverage,
       paymentStatus:paymentStatus,
-      patientLabel:lastName ? lastName + ' - ' + coverage : coverage,
+      patientLabel:lastName ? lastName + ' · ' + coverage : coverage,
       amount:amount,
       issues:issues,
       primary:primary,
@@ -1731,6 +1728,17 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       letterPlanSummary:letterPlan.dashboardSummary,
       letterPlan:letterPlan
     };
+  }
+
+  function buyerTypedName(){
+    var values = [];
+    try{ values.push(sessionStorage.getItem('upa.buyer.name.v1')); }catch(e){}
+    try{ values.push(localStorage.getItem('upa.buyer.name.v1')); }catch(e){}
+    for(var i = 0; i < values.length; i += 1){
+      var value = safeProperNoun(clean(values[i]), '');
+      if(value && !/^(patient|account holder|your name|click to add your name|name not provided)$/i.test(value)) return value;
+    }
+    return '';
   }
 
   function all(selector, root){
@@ -1770,7 +1778,6 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var confirmedText = c.amount.exact ? 'Confirms once your itemized bill is added' : 'Pending itemized bill';
     return [
       ['Patient: First Name Last Name', c.patientName],
-      ['Patient · Account Holder', c.patientLabel],
       ['Your Name', c.patientName],
       ['First Name Last Name', c.patientName],
       ['Your Provider', c.provider],
@@ -1832,6 +1839,55 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       textNode.nodeValue = value;
     });
   }
+
+  function cleanCustomerCopy(value){
+    return String(value == null ? '' : value)
+      .replace(/Federal\s+No\s+Surprises\s+Act\s+protections/gi, 'Federal surprise-billing protections')
+      .replace(/No\s+Surprises\s+Act(?:,\s*Public\s+Law\s*\d+(?:-\d+)?(?:\s*\(\d{4}\))?|\s*\(\d{4}\))?/gi, 'federal surprise-billing protections')
+      .replace(/Public\s+Law\s*\d+(?:-\d+)?(?:\s*\(\d{4}\))?/gi, 'federal billing protections')
+      .replace(/CMS\s+Claims\s+Processing\s+Manual,\s*(?:Chapter|Ch\.)\s*1,?\s*(?:\u00c2?\u00a7)\s*80\.7/gi, 'published billing guidance')
+      .replace(/CMS\s*(?:Chapter|Ch\.)\s*1\s*(?:\u00c2?\u00a7)\s*80\.7/gi, 'published billing guidance')
+      .replace(/(?:CMS\s*)?(?:\u00c2?\u00a7)\s*80\.7/gi, 'published billing guidance')
+      .replace(/Ch\.?\s*1\s*(?:\u00c2?\u00a7)\s*80\.7/gi, 'published billing guidance')
+      .replace(/Fair\s+Debt\s+Collection\s+Practices\s+Act/gi, 'consumer collection protections')
+      .replace(/Consult\s+a\s+licensed\s+attorney\s+for\s+legal\s+guidance\s+specific\s+to\s+your\s+situation\.?/gi, 'For situation-specific questions, consider contacting a qualified consumer support resource.')
+      .replace(/Nothing in this packet constitutes legal counsel or a guarantee of outcome\.?/gi, 'This packet supports your own review and communication.')
+      .replace(/We do not provide professional legal, medical, insurance, or financial services\./gi, 'This service provides educational billing review support.')
+      .replace(/Not professional legal, medical, insurance, or financial services\./gi, 'Educational billing review support only.')
+      .replace(/Not a legal service\.?/gi, 'Educational billing review support only.')
+      .replace(/\blegal representation\b/gi, 'outside representation')
+      .replace(/\blegal protections\b/gi, 'billing protections')
+      .replace(/\blegal conclusion\b/gi, 'professional conclusion')
+      .replace(/\blegal, medical, insurance, or financial conclusion\b/gi, 'professional conclusion')
+      .replace(/Itemized\s+eob\s+bill/gi, 'Itemized EOB bill')
+      .replace(/\u2014|&mdash;|&#8212;|&#x2014;/gi, ' | ')
+      .replace(/\s+[-:]\s+/g, ' | ')
+      .replace(/\s*(?:\u00c2?\u00a7)\s*/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
+  function cleanCustomerTextNodes(root){
+    if(!root || !document.createTreeWalker) return;
+    var skip = {SCRIPT:1,STYLE:1,NOSCRIPT:1,TEXTAREA:1,INPUT:1,OPTION:1};
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode:function(node){
+        return node.parentNode && !skip[node.parentNode.nodeName] ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    var nodes = [];
+    var node;
+    while((node = walker.nextNode())) nodes.push(node);
+    nodes.forEach(function(textNode){
+      var raw = textNode.nodeValue || '';
+      var leading = /^\s/.test(raw);
+      var trailing = /\s$/.test(raw);
+      var cleaned = cleanCustomerCopy(raw);
+      textNode.nodeValue = cleaned ? (leading ? ' ' : '') + cleaned + (trailing ? ' ' : '') : '';
+    });
+  }
+  window.UPACleanCustomerCopy = cleanCustomerCopy;
+  window.UPACleanCustomerTextNodes = cleanCustomerTextNodes;
 
   function guideReplacements(c, name){
     var replacements = commonReplacements(c);
@@ -1902,7 +1958,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     ];
     if(hasKnown(c.dateOfService, 'On file')) parts.push('DOS ' + h(c.dateOfService));
     if(c.uploaded) parts.push('Uploaded bill: ' + h(c.uploadedBill));
-    if(c.contactLine !== 'Contact not provided') parts.push('Contact: ' + h(c.contactLine));
+    if(c.contactLine !== 'Contact details can be added before sending') parts.push('Contact: ' + h(c.contactLine));
     parts.push('Concerns: ' + h(c.concernSummary));
     if(c.userDetail) parts.push('Billing note: ' + h(c.userDetail));
     return parts.join(' | ');
@@ -2247,7 +2303,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var coverageText = hasKnown(c.coverage, 'Your coverage') ? c.coverage : 'Insurance you listed at intake';
     setText('#nav-case-text', providerKnown ? 'Your case \u00b7 ' + c.provider : 'Your case \u00b7 awaiting provider details');
     setText('#nav-case-ref', 'Account: ' + c.accountRef + ' | Opened ' + c.prepDate);
-    setText('#sb-patient-name', c.firstName && c.firstName !== 'You' ? c.firstName + (c.lastName && c.lastName !== 'Account Holder' ? ' ' + c.lastName : '') : '');
+    setText('#sb-patient-name', c.patientName);
     setText('#sb-provider', providerText);
     setText('#sb-sub', c.billType + ' - ' + c.dateShort);
     setText('#sb-bill-amount', c.amount.display);
@@ -2323,7 +2379,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     insertGuidanceHint(c);
     setText('.ncp-text', hasKnown(c.provider, 'Your provider') ? 'Your case · ' + c.provider : 'Your case · awaiting provider details');
     setText('.nav-ref', 'Account: ' + c.accountRef + ' | Opened ' + c.prepDate);
-    setText('#sb-patient-name', c.firstName && c.firstName !== 'You' ? c.firstName + (c.lastName && c.lastName !== 'Account Holder' ? ' ' + c.lastName : '') : '');
+    setText('#sb-patient-name', c.patientName);
     setText('#db-case-name', hasKnown(c.provider, 'Your provider') ? 'Your case - ' + c.provider : 'Your case - provider details needed');
     setText('.sb-hospital', c.provider);
     setText('.sb-sub', c.billType + ' - ' + c.dateShort);
@@ -2388,7 +2444,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var actionDescs = [
       'Send Letter 1 to ' + providerLabel(c) + ' asking for the full line-by-line statement, codes, units, adjustments, and payer responsibility for the concerns you entered: ' + c.concernSummary + '. About five minutes of your time.',
       'Once your itemized statement arrives, use Letter 2 to ask billing to answer this question directly: ' + c.issues[0].title + '.',
-      'Use Letter 3 to sort out coverage, EOB, network status, payer adjustments, and any rate question tied to ' + c.coverage + '. Your contact on file for the packet is ' + c.contactLine + '.',
+      'Use Letter 3 to sort out coverage, EOB, network status, payer adjustments, and any rate question tied to ' + c.coverage + '. ' + (c.contactLine === 'Contact details can be added before sending' ? c.contactLine + '.' : 'Your contact on file for the packet is ' + c.contactLine + '.'),
       'If there is no written reply within 30 days, follow up with billing, then escalate with copies of your letters and proof of delivery.'
     ];
     var providerHint = c.provider === 'Your provider' ? 'the provider' : c.provider;
@@ -2568,6 +2624,8 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     }
     try{ localStorage.setItem('patientName',value); }catch(e){}
     try{ sessionStorage.setItem('patientName',value); }catch(e){}
+    try{ localStorage.setItem('upa.buyer.name.v1',value); }catch(e){}
+    try{ sessionStorage.setItem('upa.buyer.name.v1',value); }catch(e){}
     try{ localStorage.setItem(nameKey,value); }catch(e){}
     try{ sessionStorage.setItem(nameKey,value); }catch(e){}
   }
@@ -2579,7 +2637,9 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     function currentName(){
       var stored = null;
       var nameKey = editablePatientNameKey(c);
-      try{ stored = sessionStorage.getItem(nameKey); }catch(e){}
+      try{ stored = sessionStorage.getItem('upa.buyer.name.v1'); }catch(e){}
+      if(stored === null){ try{ stored = localStorage.getItem('upa.buyer.name.v1'); }catch(e){} }
+      if(stored === null){ try{ stored = sessionStorage.getItem(nameKey); }catch(e){} }
       if(stored === null){ try{ stored = localStorage.getItem(nameKey); }catch(e){} }
       if(stored !== null) return clean(stored);
       return clean(c && c.patientName || window.UPACase && window.UPACase.patientName || '');
@@ -2724,6 +2784,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
             if(checks[0]) checks[0].innerHTML = '<strong>Bill review prepared.</strong> Your review organized ' + h(c.amount.display) + ' around ' + h(c.issueCount) + ' review areas from this intake: ' + h(c.concernSummary) + '.';
             if(checks[1]) checks[1].innerHTML = '<strong>Send the itemized statement request.</strong> Download Letter 1' + (c.patientName ? ', sign it as ' + h(c.patientName) : '') + ', and send it to ' + h(c.provider) + ' Patient Financial Services.';
           }
+          cleanCustomerTextNodes(root);
         }
       },20);
       return result;
@@ -2782,6 +2843,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     wireEditablePatientNames(c);
     renderClfsBenchmarks();
     applyGuideHook(c);
+    cleanCustomerTextNodes(document.body);
     if(window.__UPA_MOBILE_DEBUG__) window.__UPA_MOBILE_DEBUG__.render('after-personalization');
   }
 

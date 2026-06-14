@@ -11,47 +11,60 @@
     try {
       return readJSON(sessionStorage.getItem(key) || localStorage.getItem(key) || '');
     } catch(e) {
-      return {};
+      return withBuyerTypedName({});
     }
-  }
-
-  function readDossier(){
-    var dossier = readStorageJSON('upa.ai.dossier.v1');
-    if(dossier && Object.keys(dossier).length) return dossier;
-    dossier = readStorageJSON('upa.paid.results.v2');
-    return dossier && Object.keys(dossier).length ? dossier : {};
   }
 
   function clean(value){
     return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
   }
 
-  function patientFullName(intake){
-    intake = intake || {};
-    var firstLast = clean([intake.first_name || intake.firstName, intake.last_name || intake.lastName].filter(Boolean).join(' '));
-    return clean(intake.patient_name || intake.patientName || intake.full_name || intake.fullName || intake.name || firstLast);
+  function buyerTypedName(){
+    var values = [];
+    try { values.push(sessionStorage.getItem('upa.buyer.name.v1')); } catch(e) {}
+    try { values.push(localStorage.getItem('upa.buyer.name.v1')); } catch(e) {}
+    for(var i = 0; i < values.length; i += 1){
+      var value = clean(values[i]);
+      if(value && !/^(patient|account holder|your name|click to add your name|name not provided)$/i.test(value)) return value;
+    }
+    return '';
   }
 
-  function formatLooseMoney(value){
-    var text = clean(value);
-    var match = text.match(/\d[\d,]*(?:\.\d+)?/);
-    if(!match) return text;
-    var n = parseFloat(match[0].replace(/,/g,''));
-    if(!isFinite(n)) return text;
-    return '$' + n.toLocaleString('en-US', { maximumFractionDigits:n % 1 ? 2 : 0 });
+  function withBuyerTypedName(intake){
+    var result = Object.assign({}, intake || {});
+    var name = buyerTypedName();
+    result.patientName = name;
+    result.patient_name = name;
+    result.fullName = name;
+    result.full_name = name;
+    result.name = name;
+    return result;
   }
 
-  function looksLikeSentence(value){
-    var text = clean(value);
-    var words = text.split(/\s+/).filter(Boolean);
-    return /[.!?]/.test(text) ||
-      words.length >= 7 ||
-      /\b(i|me|my|mine|we|they|them|because|called|said|told|denied|covered|received|got|from my|through my)\b/i.test(text);
-  }
-
-  function safeCoverage(value){
-    var text = clean(value);
-    return looksLikeSentence(text) ? 'Coverage: see your EOB' : text;
+  function cleanCustomerCopy(value){
+    return String(value == null ? '' : value)
+      .replace(/Federal\s+No\s+Surprises\s+Act\s+protections/gi, 'Federal surprise-billing protections')
+      .replace(/No\s+Surprises\s+Act(?:,\s*Public\s+Law\s*\d+(?:-\d+)?(?:\s*\(\d{4}\))?|\s*\(\d{4}\))?/gi, 'federal surprise-billing protections')
+      .replace(/Public\s+Law\s*\d+(?:-\d+)?(?:\s*\(\d{4}\))?/gi, 'federal billing protections')
+      .replace(/CMS\s+Claims\s+Processing\s+Manual,\s*(?:Chapter|Ch\.)\s*1,?\s*(?:\u00c2?\u00a7)\s*80\.7/gi, 'published billing guidance')
+      .replace(/CMS\s*(?:Chapter|Ch\.)\s*1\s*(?:\u00c2?\u00a7)\s*80\.7/gi, 'published billing guidance')
+      .replace(/(?:CMS\s*)?(?:\u00c2?\u00a7)\s*80\.7/gi, 'published billing guidance')
+      .replace(/Ch\.?\s*1\s*(?:\u00c2?\u00a7)\s*80\.7/gi, 'published billing guidance')
+      .replace(/Fair\s+Debt\s+Collection\s+Practices\s+Act/gi, 'consumer collection protections')
+      .replace(/Consult\s+a\s+licensed\s+attorney\s+for\s+legal\s+guidance\s+specific\s+to\s+your\s+situation\.?/gi, 'For situation-specific questions, consider contacting a qualified consumer support resource.')
+      .replace(/Nothing in this packet constitutes legal counsel or a guarantee of outcome\.?/gi, 'This packet supports your own review and communication.')
+      .replace(/We do not provide professional legal, medical, insurance, or financial services\./gi, 'This service provides educational billing review support.')
+      .replace(/Not professional legal, medical, insurance, or financial services\./gi, 'Educational billing review support only.')
+      .replace(/Not a legal service\.?/gi, 'Educational billing review support only.')
+      .replace(/\blegal representation\b/gi, 'outside representation')
+      .replace(/\blegal protections\b/gi, 'billing protections')
+      .replace(/\blegal conclusion\b/gi, 'professional conclusion')
+      .replace(/Itemized\s+eob\s+bill/gi, 'Itemized EOB bill')
+      .replace(/\u2014|&mdash;|&#8212;|&#x2014;/gi, ' | ')
+      .replace(/\s+[-:]\s+/g, ' | ')
+      .replace(/\s*(?:\u00c2?\u00a7)\s*/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
   }
 
   function normalizeAppIntake(form, session){
@@ -80,8 +93,7 @@
     var visitReason = clean(form.visitReason);
     return {
       submitted_at: clean(session && session.savedAt) || new Date().toISOString(),
-      name: patientFullName(form) || clean(session && session.patientName),
-      patient_name: patientFullName(form) || clean(session && session.patientName),
+      name: clean(session && session.patientName),
       provider: clean(form.providerName || (session && session.provider)),
       bill_amount: clean(form.totalBilled || (session && session.totalAmount)),
       bill_amount_raw: form.totalBilled ? 'other' : '',
@@ -99,20 +111,20 @@
   }
 
   function readIntake(){
-    if(window.__UPA_PACKET_INTAKE__) return window.__UPA_PACKET_INTAKE__;
+    if(window.__UPA_PACKET_INTAKE__) return withBuyerTypedName(window.__UPA_PACKET_INTAKE__);
     try {
       if(window.UPAState && window.UPAState.restoreSession) window.UPAState.restoreSession({stage:'packet-download-load'});
       if(window.UPAState && window.UPAState.getIntake){
         var restored = window.UPAState.getIntake();
-        if(restored && Object.keys(restored).length) return restored;
+        if(restored && Object.keys(restored).length) return withBuyerTypedName(restored);
       }
       var intake = readStorageJSON(STORE_KEY);
-      if(intake && Object.keys(intake).length) return intake;
+      if(intake && Object.keys(intake).length) return withBuyerTypedName(intake);
       var checkout = readStorageJSON('upa.checkout.session.v2');
-      if(checkout && checkout.intake) return (checkout.intake.provider || checkout.intake.name || checkout.intake.bill_amount) ? checkout.intake : normalizeAppIntake(checkout.intake, checkout);
+      if(checkout && checkout.intake) return withBuyerTypedName((checkout.intake.provider || checkout.intake.name || checkout.intake.bill_amount) ? checkout.intake : normalizeAppIntake(checkout.intake, checkout));
       var paid = readStorageJSON('upa.paid.results.v2');
-      if(paid && paid.session && paid.session.intake) return (paid.session.intake.provider || paid.session.intake.name || paid.session.intake.bill_amount) ? paid.session.intake : normalizeAppIntake(paid.session.intake, paid.session);
-      return {};
+      if(paid && paid.session && paid.session.intake) return withBuyerTypedName((paid.session.intake.provider || paid.session.intake.name || paid.session.intake.bill_amount) ? paid.session.intake : normalizeAppIntake(paid.session.intake, paid.session));
+      return withBuyerTypedName({});
     } catch(e) {
       return {};
     }
@@ -134,7 +146,7 @@
   }
 
   function packetFilename(intake){
-    var patient = filePart(patientFullName(intake) || 'patient', 'patient');
+    var patient = filePart(buyerTypedName() || 'your-name', 'your-name');
     var stamp = new Date().toISOString().slice(0,10);
     return 'upa-packet-' + patient + '-' + stamp + '.html';
   }
@@ -146,87 +158,59 @@
   }
 
   function letterFilename(intake, letterNo, title){
-    var patient = filePart(patientFullName(intake) || 'patient', 'patient');
+    var patient = filePart(buyerTypedName() || 'your-name', 'your-name');
     var stamp = new Date().toISOString().slice(0,10);
     var label = filePart(title || ('letter-' + letterNo), 'letter-' + letterNo);
     return 'upa-' + label + '-' + patient + '-' + stamp + '.html';
   }
 
   function caseContext(intake){
-    // Resolve patient name. Per directive: if not collected, use the explicit
-    // honest fallback "Patient Name Not Provided" — never the misleading
-    // placeholder "Your Name" or the bare "Patient".
-    var rawName = patientFullName(intake);
-    var hasName = !!rawName && rawName.toLowerCase() !== 'patient' && rawName.toLowerCase() !== 'your name';
+    // H3 FIX: removed window.UPACase read. Using it caused scrubTemplateText() to
+    // diverge from the live dashboard when UPACase was from a prior personalization run
+    // (stale closure) or when called from the scan page before personalization ran (undefined).
+    // All needed fields are already in the intake object from readIntake().
     return {
-      patient:    hasName ? rawName : 'Patient Name Not Provided',
-      patientHas: hasName,
-      provider:   clean(intake.provider || intake.providerName || intake.extracted_provider || ''),
-      amount:     formatLooseMoney(intake.bill_amount_other || intake.bill_amount || (intake.extracted_bill_amount ? '$' + intake.extracted_bill_amount : '') || intake.totalBilled || intake.balance || ''),
-      dos:        clean(intake.date_of_service || intake.extracted_date_of_service || intake.service_date || intake.serviceDate || ''),
-      account:    clean(intake.account_number || intake.extracted_account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || ''),
-      coverage:   safeCoverage(intake.insurance_other || intake.insurance || intake.extracted_insurance || intake.insuranceType || ''),
-      prepDate:   clean(new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})),
-      email:      clean(intake.email || ''),
-      phone:      clean(intake.phone || ''),
-      address:    clean(intake.address || intake.mailingAddress || intake.mailing_address || '')
+      patient:   buyerTypedName(),
+      provider:  clean(intake.provider || intake.providerName || intake.extracted_provider || ''),
+      amount:    clean(intake.bill_amount_other || intake.bill_amount || (intake.extracted_bill_amount ? '$' + intake.extracted_bill_amount : '') || intake.totalBilled || intake.balance || ''),
+      dos:       clean(intake.date_of_service || intake.extracted_date_of_service || intake.service_date || intake.serviceDate || ''),
+      account:   clean(intake.account_number || intake.extracted_account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || ''),
+      coverage:  clean(intake.insurance || intake.extracted_insurance || intake.insuranceType || ''),
+      prepDate:  clean(new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})),
+      email:     clean(intake.email || ''),
+      phone:     clean(intake.phone || '')
     };
   }
 
   function scrubTemplateText(html, intake){
     var ctx = caseContext(intake || {});
-    var provider = ctx.provider || 'Provider on bill (click to edit)';
-    var amount = ctx.amount || 'Amount on statement (click to edit)';
-    var dos = ctx.dos || 'Service date on statement (click to edit)';
-    var accountRef = ctx.account || 'on file';
-    var account = ctx.account ? ctx.account : 'Account: on file';
-    var coverage = ctx.coverage || 'Coverage on file (click to edit)';
-    var contact = [ctx.email, ctx.phone].filter(Boolean).join(' · ') || 'Phone & email — click to edit';
-    var addressBlock = ctx.address || 'Mailing address — click to edit';
-    var addrFull = ctx.address
-      ? (ctx.address + (contact && contact !== 'Phone & email — click to edit' ? '<br>' + contact : ''))
-      : (addressBlock + '<br>' + contact);
+    var provider = ctx.provider || 'Provider to confirm';
+    var amount = ctx.amount || 'Amount to confirm';
+    var dos = ctx.dos || 'Date to confirm';
+    var account = ctx.account || 'Account to confirm';
+    var coverage = ctx.coverage || 'Coverage to confirm';
+    var contact = [ctx.email, ctx.phone].filter(Boolean).join(' | ') || 'Add contact details before sending';
     return String(html || '')
-      // ── Patient name ─────────────────────────────────────────────────
-      // Catches the original placeholder ("Your Name") AND the historical
-      // demo phrase ("First Name Last Name"). Both map to either the real
-      // patient name from intake or the directive-mandated explicit fallback
-      // "Patient Name Not Provided".
-      .replace(/Your Name/g, ctx.patient)
       .replace(/First Name Last Name/g, ctx.patient)
-      // ── Provider / address ───────────────────────────────────────────
       .replace(/Your Provider/g, provider)
       .replace(/Provider billing address/g, 'Billing address on statement')
-      // ── Address + contact block (multi-line and segmented variants) ──
-      .replace(/Address on file<br>Phone &amp; email on file/g, addrFull)
-      .replace(/Address on file/g, addressBlock)
-      .replace(/Phone &amp; email on file/g, contact)
-      .replace(/Phone & email on file/g, contact)
       .replace(/2847 Coral Springs Drive<br>Hollywood, FL 33021<br>phone number\s*(?:Â·|·|-)\s*patient@example\.com/g, contact)
       .replace(/2847 Coral Springs Drive/g, '')
       .replace(/Hollywood, FL 33021/g, '')
       .replace(/phone number\s*(?:Â·|·|-)\s*patient@example\.com/g, contact)
       .replace(/patient@example\.com/g, ctx.email || '')
       .replace(/\bphone number\b/g, ctx.phone || '')
-      // ── Service dates / amounts / accounts / coverage ────────────────
       .replace(/date of service/g, dos)
       .replace(/Preparation date/g, ctx.prepDate)
       .replace(/Prepared Preparation date/g, 'Prepared ' + ctx.prepDate)
       .replace(/Bill amount/g, amount)
       .replace(/Bill Amount/g, amount)
-      .replace(/Account:\s*account number/gi, 'Account: ' + accountRef)
-      .replace(/Account number on statement \(click to edit\)/g, account)
       .replace(/Account number/g, account)
       .replace(/account number/g, account)
       .replace(/billing reference/g, account)
       .replace(/Medicare Beneficiary/g, coverage)
       .replace(/Medicare primary/g, coverage)
-      .replace(/Medicare as the primary payer/g, coverage ? coverage + ' as the listed coverage' : 'the listed coverage')
-      // ── Liability-language scrub (matches prior credentials directive) ─
-      // "treating provider" / "treating clinician" must NOT appear in
-      // customer-facing letters per the credential-neutrality directive.
-      .replace(/treating provider/g, 'requesting party listed in my medical record')
-      .replace(/treating clinician/g, 'party listed as having performed the service');
+      .replace(/Medicare as the primary payer/g, coverage ? coverage + ' as the listed coverage' : 'the listed coverage');
   }
 
   function addBase(html, sourceUrl){
@@ -270,16 +254,9 @@
   function addIntake(html, intake){
     var json = JSON.stringify(intake || {}).replace(/</g, '\\u003c');
     var script = '<script>window.__UPA_PACKET_INTAKE__=' + json + ';try{sessionStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));localStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));}catch(e){}<\/script>';
-    // Always force-inject fresh intake — remove any existing baked-in intake first
+    // Always force-inject fresh intake. Remove any existing baked-in intake first
     // so stale data from a previous session never bleeds into a new download.
     html = html.replace(/<script[^>]*>[\s\S]*?window\.__UPA_PACKET_INTAKE__[\s\S]*?<\/script>/i, '');
-    return html.replace(/<\/head>/i, script + '</head>');
-  }
-
-  function addDossier(html, dossier){
-    var json = JSON.stringify(dossier || {}).replace(/</g, '\\u003c');
-    var script = '<script>window.__UPA_AI_DOSSIER__=' + json + ';try{sessionStorage.setItem("upa.ai.dossier.v1",JSON.stringify(window.__UPA_AI_DOSSIER__));localStorage.setItem("upa.ai.dossier.v1",JSON.stringify(window.__UPA_AI_DOSSIER__));}catch(e){}<\/script>';
-    html = html.replace(/<script[^>]*>[\s\S]*?window\.__UPA_AI_DOSSIER__[\s\S]*?<\/script>/i, '');
     return html.replace(/<\/head>/i, script + '</head>');
   }
 
@@ -299,6 +276,7 @@
       '  editSelectors.forEach(function(sel){' +
       '    document.querySelectorAll(sel).forEach(function(el){' +
       '      el.setAttribute("contenteditable","true");' +
+      '      if(el.matches(".lhd-name,.lbs-name")){el.setAttribute("data-placeholder","Click to add your name");if(!el.textContent.trim())el.innerHTML="";}' +
       '      el.style.cursor="text";' +
       '      el.style.outline="none";' +
       '      el.style.borderBottom="1px dashed rgba(28,43,72,0.25)";' +
@@ -311,7 +289,7 @@
       '    var hint=document.createElement("div");' +
       '    hint.id="upa-edit-hint";' +
       '    hint.style.cssText="font-family:system-ui,sans-serif;font-size:11px;color:#5A7A8A;background:#F0F7F3;border:1px solid rgba(30,184,122,0.25);border-radius:6px;padding:8px 12px;margin-bottom:12px;display:flex;align-items:center;gap:8px";' +
-      '    hint.innerHTML="<span style=\'font-size:14px\'>✏️</span> <span><strong>Your letters are ready to send.</strong> Click any underlined field to edit — your name, address, or any detail — then print or save as PDF.</span>";' +
+      '    hint.innerHTML="<span style=\'font-size:14px\'>✏️</span> <span><strong>Your letters are ready to send.</strong> Click any underlined field to edit your name, address, or any detail, then print or save as PDF.</span>";' +
       '    firstLhd.parentNode.insertBefore(hint,firstLhd);' +
       '  }' +
       '});' +
@@ -322,13 +300,8 @@
 
   function inlinePersonalization(html, scriptText){
     if(!scriptText) return html;
-    var encoded = '';
-    try {
-      encoded = 'base64,' + btoa(unescape(encodeURIComponent(scriptText)));
-    } catch(e) {
-      encoded = ',' + encodeURIComponent(scriptText);
-    }
-    return html.replace(/<script\b[^>]*src=["'][^"']*upa-case-personalization\.js[^"']*["'][^>]*>\s*<\/script>/i, '<script src="data:text/javascript;charset=utf-8;' + encoded + '"><\/script>');
+    var safe = scriptText.replace(/<\/script/gi, '<\\/script');
+    return html.replace(/<script\b[^>]*src=["'][^"']*upa-case-personalization\.js[^"']*["'][^>]*>\s*<\/script>/i, '<script>' + safe + '<\/script>');
   }
 
   async function loadText(url){
@@ -402,7 +375,7 @@
       var node;
       while((node = walker.nextNode())) textNodes.push(node);
       textNodes.forEach(function(textNode){
-        textNode.nodeValue = textNode.nodeValue
+        textNode.nodeValue = cleanCustomerCopy(textNode.nodeValue
           .replace(/United Patient Advocate/g, '')
           .replace(/UPA REVIEW/g, 'account number')
           .replace(/\bUPA-\d{8}-[A-Z0-9]+\b/g, 'account number')
@@ -410,7 +383,7 @@
           .replace(/Help us improve UPA, share ideas and features you’d like to see added:/g, '')
           .replace(/\bsupport@unitedpatientadvocate\.com\b/g, '')
           .replace(/\bWe are formally requesting\b/g, 'I am formally requesting')
-          .replace(/\bWe are disputing\b/g, 'I am disputing');
+          .replace(/\bWe are disputing\b/g, 'I am disputing'));
       });
     }
     return scrubTemplateText(clone.outerHTML, readIntake());
@@ -442,7 +415,6 @@
 
   async function buildDownloadHtml(){
     var intake = readIntake();
-    var dossier = readDossier();
     var onPacketPage = /05_upa-packet\.html(?:$|[?#])/i.test(window.location.pathname);
     var sourceUrl = absoluteUrl(packetUrl());
     var html = onPacketPage ? currentPacketSnapshot() : await loadText(sourceUrl);
@@ -452,7 +424,6 @@
     } catch(e) {}
     html = addBase(html, sourceUrl);
     html = addIntake(html, intake);
-    html = addDossier(html, dossier);
     html = inlinePersonalization(html, personalization);
     html = stripDownloadScript(html);
     html = scrubTemplateText(html, intake);
@@ -470,7 +441,7 @@
     var styles = Array.prototype.slice.call(document.querySelectorAll('style')).map(function(style){ return style.textContent; }).join('\n');
     var base = window.location.href.replace(/[^\/]*$/, '');
     var letterBody = sanitizeLetterElement(paper || card);
-    var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><base href="' + base + '"><title>' + escapeHTML(title) + '</title><style>' + styles + '\nbody{padding:28px 24px;background:#E9EEF5;font-family:"Plus Jakarta Sans",system-ui,sans-serif}.single-letter-wrap{max-width:840px;margin:0 auto}.single-letter-card{background:white;border:1px solid rgba(28,43,72,.12);border-radius:14px;padding:28px 32px 32px;box-shadow:0 16px 48px rgba(17,28,46,.14)}.single-letter-title{font:800 26px Georgia,serif;color:#1C2B48;margin:0 0 4px;letter-spacing:-0.01em}.single-letter-sub{font:700 12px system-ui,sans-serif;color:#6E8898;margin-bottom:22px;letter-spacing:0.06em;text-transform:uppercase}.single-letter-actions{display:flex;justify-content:flex-end;margin-bottom:14px}.single-letter-actions button{font:700 13px system-ui,sans-serif;border:1px solid rgba(28,43,72,.16);background:#fff;color:#1C2B48;border-radius:7px;padding:9px 14px;cursor:pointer}.single-letter-actions button:hover{background:#1C2B48;color:#fff}\n/* === Letter — readable sizes (override tiny card preview) === */\n.dpc-paper{height:auto!important;min-height:auto!important;max-width:none!important;width:auto!important;margin:0 auto!important;border-radius:10px!important;border:1px solid rgba(17,28,46,.08)!important;box-shadow:none!important;overflow:visible!important;position:relative!important;font-family:"Plus Jakarta Sans",system-ui,sans-serif!important;color:#1C2B48!important;background:#FFFEFB!important}\n.dpc-paper::before{height:5px!important}\n.mini-lh{padding:24px 36px 18px!important;align-items:flex-start!important;background:linear-gradient(180deg,#FEFDFB,#FAFAF7)!important}\n.mini-lh-left{gap:12px!important;align-items:center!important}\n.mini-shield{width:46px!important;height:46px!important;flex-shrink:0!important}\n.mini-org{font-size:15.5px!important;font-weight:700!important;line-height:1.25!important;color:#1C2B48!important;letter-spacing:-0.005em!important}\n.mini-org-sub{font-size:9.5px!important;letter-spacing:0.18em!important;margin-top:3px!important;color:#6E8898!important;text-transform:uppercase!important;font-weight:600!important}\n.mini-date{font-size:12.5px!important;text-align:right!important;color:#42546B!important;font-weight:600!important}\n.mini-ref{font-family:"DM Mono",ui-monospace,monospace!important;font-size:11px!important;margin-top:3px!important;color:#7A8AA0!important}\n.mini-body{padding:28px 36px 44px!important;position:relative!important}\n.mini-to{font-size:14px!important;line-height:1.65!important;margin-bottom:18px!important;color:#2E4060!important;white-space:pre-line!important}\n.mini-re{font-family:"DM Mono",ui-monospace,monospace!important;font-size:13.5px!important;padding:11px 14px!important;margin-bottom:22px!important;border-left-width:4px!important;line-height:1.55!important;background:rgba(17,28,46,.045)!important;font-weight:700!important;color:#1C2B48!important}\n.mini-salut{font-size:15px!important;margin-bottom:14px!important;font-weight:600!important;color:#1C2B48!important}\n.mini-text{font-size:14.5px!important;line-height:1.78!important;margin-bottom:16px!important;color:#324560!important}\n.mini-highlight{display:block!important;font-size:14.5px!important;line-height:1.78!important;padding:12px 14px!important;margin-bottom:18px!important;background:#FFF6BF!important;border-radius:5px!important;border-left:4px solid #E6C84A!important;color:#1C2B48!important;font-weight:500!important}\n.mini-text-2{font-size:13.5px!important;line-height:1.72!important;margin-bottom:28px!important;color:#42546B!important}\n.mini-sig{padding-top:22px!important;border-top:1px dashed rgba(17,28,46,0.16)!important;justify-content:flex-start!important;display:block!important}\n.mini-sig-close{font-size:13.5px!important;margin-bottom:8px!important;color:#42546B!important}\n.mini-sig-name{font-family:Georgia,serif!important;font-size:28px!important;font-style:italic!important;color:#1C2B48!important;line-height:1.1!important}\n.mini-sig-sub{font-size:10.5px!important;margin-top:6px!important;letter-spacing:0.14em!important;text-transform:uppercase!important;color:#6E8898!important;font-weight:600!important;display:block!important}\n.mini-stamp{position:absolute!important;right:32px!important;bottom:32px!important;width:96px!important;height:96px!important;display:block!important;opacity:0.92!important}\n.mini-stamp svg{width:100%!important;height:100%!important}\n@media print{body{padding:0;background:white}.single-letter-actions{display:none}.single-letter-card{box-shadow:none;border:none;padding:0}.single-letter-title,.single-letter-sub{display:none}.dpc-paper{transform:none!important;border:none!important;border-radius:0!important}}<\/style></head><body><div class="single-letter-actions"><button onclick="window.print()">Print / Save PDF</button></div><div class="single-letter-wrap"><div class="single-letter-card"><h1 class="single-letter-title">' + escapeHTML(title) + '</h1><div class="single-letter-sub">' + escapeHTML(prepared ? prepared.textContent : 'Prepared letter') + '</div>' + letterBody + '</div></div></body></html>';
+    var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><base href="' + base + '"><title>' + escapeHTML(title) + '</title><style>' + styles + '\nbody{padding:28px 24px;background:#E9EEF5;font-family:"Plus Jakarta Sans",system-ui,sans-serif}.single-letter-wrap{max-width:840px;margin:0 auto}.single-letter-card{background:white;border:1px solid rgba(28,43,72,.12);border-radius:14px;padding:28px 32px 32px;box-shadow:0 16px 48px rgba(17,28,46,.14)}.single-letter-title{font:800 26px Georgia,serif;color:#1C2B48;margin:0 0 4px;letter-spacing:-0.01em}.single-letter-sub{font:700 12px system-ui,sans-serif;color:#6E8898;margin-bottom:22px;letter-spacing:0.06em;text-transform:uppercase}.single-letter-actions{display:flex;justify-content:flex-end;margin-bottom:14px}.single-letter-actions button{font:700 13px system-ui,sans-serif;border:1px solid rgba(28,43,72,.16);background:#fff;color:#1C2B48;border-radius:7px;padding:9px 14px;cursor:pointer}.single-letter-actions button:hover{background:#1C2B48;color:#fff}\n/* Letter readable sizes override tiny card preview */\n.dpc-paper{height:auto!important;min-height:auto!important;max-width:none!important;width:auto!important;margin:0 auto!important;border-radius:10px!important;border:1px solid rgba(17,28,46,.08)!important;box-shadow:none!important;overflow:visible!important;position:relative!important;font-family:"Plus Jakarta Sans",system-ui,sans-serif!important;color:#1C2B48!important;background:#FFFEFB!important}\n.dpc-paper::before{height:5px!important}\n.mini-lh{padding:24px 36px 18px!important;align-items:flex-start!important;background:linear-gradient(180deg,#FEFDFB,#FAFAF7)!important}\n.mini-lh-left{gap:12px!important;align-items:center!important}\n.mini-shield{width:46px!important;height:46px!important;flex-shrink:0!important}\n.mini-org{font-size:15.5px!important;font-weight:700!important;line-height:1.25!important;color:#1C2B48!important;letter-spacing:-0.005em!important}\n.mini-org-sub{font-size:9.5px!important;letter-spacing:0.18em!important;margin-top:3px!important;color:#6E8898!important;text-transform:uppercase!important;font-weight:600!important}\n.mini-date{font-size:12.5px!important;text-align:right!important;color:#42546B!important;font-weight:600!important}\n.mini-ref{font-family:"DM Mono",ui-monospace,monospace!important;font-size:11px!important;margin-top:3px!important;color:#7A8AA0!important}\n.mini-body{padding:28px 36px 44px!important;position:relative!important}\n.mini-to{font-size:14px!important;line-height:1.65!important;margin-bottom:18px!important;color:#2E4060!important;white-space:pre-line!important}\n.mini-re{font-family:"DM Mono",ui-monospace,monospace!important;font-size:13.5px!important;padding:11px 14px!important;margin-bottom:22px!important;border-left-width:4px!important;line-height:1.55!important;background:rgba(17,28,46,.045)!important;font-weight:700!important;color:#1C2B48!important}\n.mini-salut{font-size:15px!important;margin-bottom:14px!important;font-weight:600!important;color:#1C2B48!important}\n.mini-text{font-size:14.5px!important;line-height:1.78!important;margin-bottom:16px!important;color:#324560!important}\n.mini-highlight{display:block!important;font-size:14.5px!important;line-height:1.78!important;padding:12px 14px!important;margin-bottom:18px!important;background:#FFF6BF!important;border-radius:5px!important;border-left:4px solid #E6C84A!important;color:#1C2B48!important;font-weight:500!important}\n.mini-text-2{font-size:13.5px!important;line-height:1.72!important;margin-bottom:28px!important;color:#42546B!important}\n.mini-sig{padding-top:22px!important;border-top:1px dashed rgba(17,28,46,0.16)!important;justify-content:flex-start!important;display:block!important}\n.mini-sig-close{font-size:13.5px!important;margin-bottom:8px!important;color:#42546B!important}\n.mini-sig-name{font-family:Georgia,serif!important;font-size:28px!important;font-style:italic!important;color:#1C2B48!important;line-height:1.1!important}\n.mini-sig-sub{font-size:10.5px!important;margin-top:6px!important;letter-spacing:0.14em!important;text-transform:uppercase!important;color:#6E8898!important;font-weight:600!important;display:block!important}\n.mini-stamp{position:absolute!important;right:32px!important;bottom:32px!important;width:96px!important;height:96px!important;display:block!important;opacity:0.92!important}\n.mini-stamp svg{width:100%!important;height:100%!important}\n@media print{body{padding:0;background:white}.single-letter-actions{display:none}.single-letter-card{box-shadow:none;border:none;padding:0}.single-letter-title,.single-letter-sub{display:none}.dpc-paper{transform:none!important;border:none!important;border-radius:0!important}}<\/style></head><body><div class="single-letter-actions"><button onclick="window.print()">Print / Save PDF</button></div><div class="single-letter-wrap"><div class="single-letter-card"><h1 class="single-letter-title">' + escapeHTML(title) + '</h1><div class="single-letter-sub">' + escapeHTML(prepared ? prepared.textContent : 'Prepared letter') + '</div>' + letterBody + '</div></div></body></html>';
     return { html: scrubTemplateText(html, intake), filename: letterFilename(intake, letterNo, title), title: title, letterNo: letterNo };
   }
 
@@ -591,60 +562,6 @@
 
   window.upaPrintPacketPDF = function(evt){
     return window.upaPrintFullPackage(evt);
-  };
-
-  // ── Generic deliverable download ────────────────────────────────────────
-  // Wraps any in-page content (a guide, worksheet, checklist, report) in a
-  // branded, scrubbed, print-ready single-file HTML document so EVERY promised
-  // deliverable is individually downloadable — not just letters and the packet.
-  function deliverableFilename(intake, label){
-    var patient = filePart(patientFullName(intake) || 'patient', 'patient');
-    var stamp = new Date().toISOString().slice(0,10);
-    var slug = filePart(label || 'document', 'document');
-    return 'upa-' + slug + '-' + patient + '-' + stamp + '.html';
-  }
-
-  function buildDeliverableHtml(opts, intake){
-    var title = clean(opts.title) || 'United Patient Advocate';
-    var sub = clean(opts.sub);
-    var body = opts.bodyHtml || '';
-    var nm = patientFullName(intake);
-    var preparedFor = nm ? 'Prepared for ' + nm : 'Prepared for your case';
-    var dateStr = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
-    // Pull the host page styles so guide markup renders exactly as designed.
-    var styles = Array.prototype.slice.call(document.querySelectorAll('style')).map(function(s){ return s.textContent; }).join('\n');
-    var base = window.location.href.replace(/[^\/]*$/, '');
-    var shell = '\nbody{margin:0;padding:26px 18px;background:#E9EEF5;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#1C2B48}'
-      + '.upa-doc-actions{max-width:840px;margin:0 auto 12px;display:flex;justify-content:flex-end}'
-      + '.upa-doc-actions button{font:800 13px system-ui,sans-serif;border:1px solid rgba(28,43,72,.16);background:#fff;color:#1C2B48;border-radius:8px;padding:10px 16px;cursor:pointer}'
-      + '.upa-doc-actions button:hover{background:#1C2B48;color:#fff}'
-      + '.upa-doc-wrap{max-width:840px;margin:0 auto;background:#fff;border:1px solid rgba(28,43,72,.10);border-radius:16px;box-shadow:0 18px 54px rgba(17,28,46,.16);overflow:hidden}'
-      + '.upa-doc-head{padding:30px 36px 24px;background:linear-gradient(135deg,#1C2B48,#0E1828);color:#fff;position:relative}'
-      + '.upa-doc-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,#C9A84C,#1EB87A)}'
-      + '.upa-doc-brand{font:800 12px system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,168,76,.95);margin-bottom:14px}'
-      + '.upa-doc-kicker{font:700 10px system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:rgba(235,244,255,.6);margin-bottom:6px;min-height:10px}'
-      + '.upa-doc-title{font:800 26px Georgia,serif;margin:0 0 8px;letter-spacing:-.01em;line-height:1.15}'
-      + '.upa-doc-meta{font:600 12px system-ui,sans-serif;color:rgba(235,244,255,.72)}'
-      + '.upa-doc-body{padding:26px 30px 30px!important;display:flex!important;flex-direction:column;gap:14px;background:#fff}'
-      + '.upa-doc-foot{padding:16px 30px 24px;font:500 10.5px system-ui,sans-serif;color:#7A98B0;line-height:1.6;border-top:1px solid rgba(28,43,72,.08)}'
-      + '@media print{body{padding:0;background:#fff}.upa-doc-actions{display:none}.upa-doc-wrap{box-shadow:none;border:none;border-radius:0}}';
-    var html = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="' + base + '"><title>' + escapeHTML(title) + ' — United Patient Advocate</title><style>' + styles + shell + '<\/style></head><body><div class="upa-doc-actions"><button onclick="window.print()">Print / Save as PDF</button></div><div class="upa-doc-wrap"><header class="upa-doc-head"><div class="upa-doc-brand">United Patient Advocate</div><div class="upa-doc-kicker">' + escapeHTML(sub) + '</div><h1 class="upa-doc-title">' + escapeHTML(title) + '</h1><div class="upa-doc-meta">' + escapeHTML(preparedFor) + ' · ' + escapeHTML(dateStr) + '</div></header><main class="gd-body upa-doc-body">' + body + '</main><footer class="upa-doc-foot">United Patient Advocate provides educational and informational billing-review support. This document is informational only and is not legal, medical, or insurance advice. You remain responsible for reviewing your records and communicating directly with your providers or insurers.</footer></div></body></html>';
-    return scrubTemplateText(html, intake);
-  }
-
-  window.upaDownloadDeliverable = function(opts){
-    try {
-      opts = opts || {};
-      if(!clean(opts.bodyHtml)) throw new Error('No deliverable content to download');
-      var intake = readIntake();
-      var html = buildDeliverableHtml(opts, intake);
-      downloadFile(html, deliverableFilename(intake, opts.slug || opts.title));
-      notify('Downloaded', '“' + (clean(opts.title) || 'Document') + '” was saved to your downloads.');
-    } catch(e) {
-      if(window.console && console.error) console.error('UPA deliverable download failed', e);
-      notify('Download unavailable', 'Open the document and use your browser Print / Save as PDF.');
-    }
-    return false;
   };
 
   function escapeHTML(value){

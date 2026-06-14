@@ -54,6 +54,22 @@
       "dest": "/UPA-Final/denied-claim-help.html"
     },
     {
+      "src": "/terms/?",
+      "dest": "/UPA-Final/terms.html"
+    },
+    {
+      "src": "/terms\\.html",
+      "dest": "/UPA-Final/terms.html"
+    },
+    {
+      "src": "/refund-policy/?",
+      "dest": "/UPA-Final/refund-policy.html"
+    },
+    {
+      "src": "/refund-policy\\.html",
+      "dest": "/UPA-Final/refund-policy.html"
+    },
+    {
       "src": "/mission-control\\.html",
       "dest": "/mission-control.html"
     },

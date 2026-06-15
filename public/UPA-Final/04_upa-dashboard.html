@@ -3071,7 +3071,7 @@ function seoTryRecover(){
     </div>
     <div>
       <div class="nav-brand-name">United Patient Advocate</div>
-      <span class="nav-brand-sub">Patient First, Billing Second.</span>
+      <span class="nav-brand-sub">The charges they hope you won't check.</span>
     </div>
   </a>
   <div class="nav-center">
@@ -4255,8 +4255,15 @@ function showTab(name) {
     if(prev) prev.disabled = mbnIdx === 0;
     if(next) next.disabled = mbnIdx === MBN_TABS.length - 1;
   }
+  function mbnVisibleIndex(){
+    var active = document.querySelector('.tab-panel.active');
+    var activeName = active && active.id ? active.id.replace(/^tab-/, '') : '';
+    var activeIdx = MBN_TABS.indexOf(activeName);
+    return activeIdx === -1 ? mbnIdx : activeIdx;
+  }
   window.mbnNav = function(dir){
-    var newIdx = mbnIdx + dir;
+    var currentIdx = mbnVisibleIndex();
+    var newIdx = currentIdx + (dir < 0 ? -1 : 1);
     if(newIdx < 0 || newIdx >= MBN_TABS.length) return;
     mbnIdx = newIdx;
     if(typeof showTab === 'function') showTab(MBN_TABS[mbnIdx]);

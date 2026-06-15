@@ -411,8 +411,12 @@ body{background:var(--navy)}
   text-decoration:none;
 }
 .btn-upgrade:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(17,28,46,0.40)}
-.btn-upgrade.is-preparing{cursor:wait;opacity:0.78;transform:none;box-shadow:0 4px 20px rgba(17,28,46,0.20)}
+.btn-upgrade.is-preparing{cursor:wait;opacity:0.78;transform:none;box-shadow:0 4px 20px rgba(17,28,46,0.20);pointer-events:none}
 .btn-upgrade svg{width:16px;height:16px;stroke:#FFE7B0;stroke-width:2.2;fill:none}
+.ub-working-spinner{display:none;width:16px;height:16px;flex:0 0 16px;border:2px solid rgba(255,231,176,0.34);border-top-color:#FFE7B0;border-radius:50%;animation:upaUnlockSpin .75s linear infinite}
+.btn-upgrade.is-preparing>svg{display:none}
+.btn-upgrade.is-preparing .ub-working-spinner{display:inline-block}
+@keyframes upaUnlockSpin{to{transform:rotate(360deg)}}
 .ub-price{font-size:0.875rem;opacity:0.75;margin-left:auto}
 .ub-store-status{min-height:18px;margin-top:9px;font-size:0.6875rem;line-height:1.45;color:var(--ink-4);text-align:center}
 .ub-store-progress{display:none;height:5px;margin-top:10px;overflow:hidden;border-radius:999px;background:rgba(29,158,117,0.14)}
@@ -761,8 +765,24 @@ function isReturningScan() {
   }
 }
 
+function hasExistingLicenseKey() {
+  try {
+    var params = new URLSearchParams(window.location.search || '');
+    if (params.get('license_key') || params.get('key')) return true;
+  } catch(e) {}
+  try {
+    return !!(sessionStorage.getItem('upa.license.key') || localStorage.getItem('upa.license.key'));
+  } catch(e) {
+    return false;
+  }
+}
+
+function isReturningOrLicensedBuyer() {
+  return isReturningScan() || hasExistingLicenseKey();
+}
+
 function routeReturningScanToDashboard(caseData) {
-  if (!isReturningScan()) return Promise.resolve(false);
+  if (!isReturningOrLicensedBuyer()) return Promise.resolve(false);
   if (!caseData || typeof caseData !== 'object') {
     return Promise.reject(new Error('Your prepared review is not ready yet'));
   }
@@ -817,18 +837,21 @@ function persistServerCaseId(caseId) {
 function updateCheckoutStoreState() {
   var link = document.querySelector('#upgrade-block .btn-upgrade');
   var label = link && link.querySelector('.ub-action-label');
+  var price = link && link.querySelector('.ub-price');
   var status = document.getElementById('ub-store-status');
   var progress = document.getElementById('ub-store-progress');
   if (!link || !label || !status || !progress) return;
+  var returningOrLicensed = isReturningOrLicensedBuyer();
   link.classList.toggle('is-preparing', _serverCaseStoreState === 'pending');
   link.setAttribute('aria-disabled', _serverCaseStoreState === 'pending' ? 'true' : 'false');
   link.setAttribute('aria-busy', _serverCaseStoreState === 'pending' ? 'true' : 'false');
   progress.classList.toggle('show', _serverCaseStoreState === 'pending');
+  if (price) price.hidden = returningOrLicensed;
   if (_serverCaseStoreState === 'pending') {
-    label.textContent = _serverCaseStoreAttempt > 1 ? 'Still preparing secure checkout' : 'Preparing secure checkout';
-    status.textContent = _serverCaseStoreMessage || 'Saving your prepared review. Checkout will open automatically when it is ready.';
+    label.textContent = 'Preparing your review...';
+    status.textContent = _serverCaseStoreMessage || 'Saving your prepared review. Keep this page open.';
   } else {
-    label.textContent = 'Unlock my full review';
+    label.textContent = returningOrLicensed ? 'Unlock with your license key' : 'Unlock my full review';
     status.textContent = '';
   }
 }
@@ -907,7 +930,7 @@ function storeCompletedScanCaseUntilReady(caseData) {
   _serverCaseStoreAttempt += 1;
   _serverCaseStoreState = 'pending';
   _serverCaseStoreMessage = _serverCaseStoreAttempt === 1
-    ? 'Saving your prepared review. Checkout will open automatically when it is ready.'
+    ? 'Saving your prepared review. Keep this page open.'
     : 'The connection is taking longer than usual. Automatic attempt ' + _serverCaseStoreAttempt + ' is underway. Keep this page open.';
   updateCheckoutStoreState();
   return storeCompletedScanCase(caseData).catch(function(error) {
@@ -1388,7 +1411,7 @@ function routeAfterScan(data) {
       console.warn('[UPA] Preview analysis did not update the checkout case', error && error.message);
       return _completedScanCaseForStore;
     });
-  if (isReturningScan()) {
+  if (isReturningOrLicensedBuyer()) {
     _casePreparationPromise
       .then(routeReturningScanToDashboard)
       .catch(function(error) {
@@ -1726,6 +1749,7 @@ function renderFindings(data, findings) {
     '</div>' +
     '<a class="btn-upgrade" href="' + esc(checkoutHref) + '">' +
       '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' +
+      '<span class="ub-working-spinner" aria-hidden="true"></span>' +
       '<span class="ub-action-label">Unlock my full review</span>' +
       '<span class="ub-price">' + esc(UPA_SCAN_CONFIG.upgradePrice) + '</span>' +
     '</a>' +
@@ -1748,7 +1772,10 @@ function renderFindings(data, findings) {
       event.preventDefault();
       if (upgradeLink.dataset.checkoutBusy === 'true') return;
       upgradeLink.dataset.checkoutBusy = 'true';
-      if (isReturningScan()) {
+      _serverCaseStoreState = 'pending';
+      _serverCaseStoreMessage = 'Saving your prepared review. Keep this page open.';
+      updateCheckoutStoreState();
+      if (isReturningOrLicensedBuyer()) {
         try {
           var returningCase = await Promise.resolve(_casePreparationPromise || _completedScanCaseForStore);
           await routeReturningScanToDashboard(returningCase);

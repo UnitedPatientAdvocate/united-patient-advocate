@@ -2661,7 +2661,6 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
 (function(){
   var DOSSIER_KEY='upa.ai.dossier.v1';
   var CASE_ID_KEY='upa.server.case-id.v1';
-  var HYDRATED_KEY='upa.full-dashboard.hydrated-case.v1';
   var access='';
   try{
     var params=new URLSearchParams(window.location.search||'');
@@ -2678,11 +2677,6 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
     if(!gateDossier||gateDossier.licenseVerified!==true)document.documentElement.classList.add('upa-license-pending');
   }catch(e){document.documentElement.classList.add('upa-license-pending');}
   if(!access) return;
-  try{
-    sessionStorage.setItem(CASE_ID_KEY,access);
-    localStorage.setItem(CASE_ID_KEY,access);
-    if(sessionStorage.getItem(HYDRATED_KEY)===access) return;
-  }catch(e){}
   document.documentElement.classList.add('upa-case-loading');
   window.UPAFullDashboardHydrating=true;
   fetch('/api/get-case?caseId='+encodeURIComponent(access),{headers:{Accept:'application/json'}})
@@ -2695,14 +2689,10 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
     .then(function(caseData){
       var verified=false;
       var verifiedAt='';
-      var existingActive={};
       try{
         var existing=window.UPAParseStoredJSON(localStorage.getItem(DOSSIER_KEY)||sessionStorage.getItem(DOSSIER_KEY)||'{}',{});
         verified=existing&&existing.licenseVerified===true;
         verifiedAt=existing&&existing.licenseVerifiedAt||'';
-      }catch(e){}
-      try{
-        existingActive=JSON.parse(localStorage.getItem('upa.active.case.v1')||sessionStorage.getItem('upa.active.case.v1')||'{}')||{};
       }catch(e){}
       if(verified){
         caseData.licenseVerified=true;
@@ -2765,21 +2755,6 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
         });
         return merged.length;
       }
-      function formattedTotal(value){
-        var number=Number(String(value==null?'':value).replace(/[^0-9.-]/g,''));
-        return isFinite(number)&&number>0?'$'+number.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):String(value||'');
-      }
-      function writeLooseCurrent(key,value){
-        try{
-          if(value!==undefined&&value!==null&&String(value).trim()!==''){
-            sessionStorage.setItem(key,String(value));
-            localStorage.setItem(key,String(value));
-          }else{
-            sessionStorage.removeItem(key);
-            localStorage.removeItem(key);
-          }
-        }catch(e){}
-      }
       var provider=currentProvider(caseData.providerName,caseData.provider,caseData.hospitalName,scan.provider,currentIntake.provider,currentIntake.providerName,currentIntake.extracted_provider);
       var total=firstCurrent(caseData.totalBilled,scan.totalBilled,currentIntake.totalBilled,currentIntake.bill_amount_other,currentIntake.bill_amount,currentIntake.extracted_bill_amount);
       var serviceDate=firstCurrent(caseData.dateOfService,scan.serviceDateRaw,scan.serviceDate,currentIntake.dateOfService,currentIntake.date_of_service,currentIntake.extracted_date_of_service);
@@ -2820,53 +2795,19 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
       currentIntake._upa_active_at=new Date().toISOString();
       caseData.intake=currentIntake;
       caseData.issueCount=issueCount;
-      var paid=!!(verified||existingActive.paid||(existingActive.session&&existingActive.session.paid));
-      var activeSession={
-        version:4,
-        sessionId:currentIntake._upa_case_id,
-        activeCaseId:currentIntake._upa_case_id,
-        createdAt:currentIntake._upa_active_at,
-        updatedAt:currentIntake._upa_active_at,
-        stage:'server-case-hydrated',
-        source:'server-case',
-        paid:paid,
-        intake:currentIntake,
-        meta:{serverCaseId:access}
-      };
-      var activeCase={
-        version:1,
-        caseId:currentIntake._upa_case_id,
-        serverCaseId:access,
-        source:'server-case',
-        updatedAt:currentIntake._upa_active_at,
-        paid:paid,
-        intake:currentIntake,
-        session:activeSession,
-        scan:scan
-      };
-      var text=JSON.stringify(caseData);
-      localStorage.setItem(DOSSIER_KEY,text);
-      sessionStorage.setItem(DOSSIER_KEY,text);
-      localStorage.setItem('upa.intake.v1',JSON.stringify(currentIntake));
-      sessionStorage.setItem('upa.intake.v1',JSON.stringify(currentIntake));
-      localStorage.setItem('upa.active.case.v1',JSON.stringify(activeCase));
-      sessionStorage.setItem('upa.active.case.v1',JSON.stringify(activeCase));
-      writeLooseCurrent('providerName',provider);
-      writeLooseCurrent('totalBilled',formattedTotal(total));
-      writeLooseCurrent('dateOfService',serviceDate);
-      writeLooseCurrent('referenceNumber',account);
-      writeLooseCurrent('issueCount',issueCount);
-      if(caseData.scanData){
-        localStorage.setItem('upa.scan.v1',JSON.stringify(caseData.scanData));
-        sessionStorage.setItem('upa.scan.v1',JSON.stringify(caseData.scanData));
-      }
-      sessionStorage.setItem(HYDRATED_KEY,access);
-      window.location.reload();
+      window.__UPA_ACCESS_CASE__=caseData;
+      window.__UPA_ACCESS_INTAKE__=currentIntake;
+      window.UPAFullDashboardHydrating=false;
+      document.documentElement.classList.remove('upa-case-loading');
+      var loader=document.getElementById('upa-case-loading-card');
+      if(loader)loader.classList.remove('show');
+      window.dispatchEvent(new CustomEvent('upa:access-case-ready',{detail:{caseId:access}}));
     })
     .catch(function(error){
       window.UPAFullDashboardHydrationError=error&&error.message||'Saved case could not be loaded';
       document.documentElement.classList.remove('upa-case-loading');
       window.UPAFullDashboardHydrating=false;
+      window.dispatchEvent(new CustomEvent('upa:access-case-error',{detail:{caseId:access,error:window.UPAFullDashboardHydrationError}}));
     });
 })();
 </script>
@@ -4759,6 +4700,9 @@ function upaSectionWithoutEmDashes(value) {
 }
 
 function upaSectionReadJSON(key) {
+  if (key === 'upa.ai.dossier.v1' && window.__UPA_ACCESS_CASE__) return window.__UPA_ACCESS_CASE__;
+  if (key === 'upa.intake.v1' && window.__UPA_ACCESS_INTAKE__) return window.__UPA_ACCESS_INTAKE__;
+  if (key === 'upa.scan.v1' && window.__UPA_ACCESS_CASE__ && window.__UPA_ACCESS_CASE__.scanData) return window.__UPA_ACCESS_CASE__.scanData;
   var raw = '';
   try { raw = sessionStorage.getItem(key) || ''; } catch(e) {}
   if (!raw) { try { raw = localStorage.getItem(key) || ''; } catch(e) {} }
@@ -5314,9 +5258,11 @@ function tlToggle(idx) {
 function animateBars() {
   (function recomputeBenchBars() {
     try {
-      var intake = {};
+      var intake = window.__UPA_ACCESS_INTAKE__ && typeof window.__UPA_ACCESS_INTAKE__ === 'object'
+        ? window.__UPA_ACCESS_INTAKE__
+        : {};
       var keys = ['upa.intake.v1', 'upa.active.case.v1'];
-      for (var ki = 0; ki < keys.length; ki++) {
+      for (var ki = 0; ki < keys.length && !Object.keys(intake).length; ki++) {
         try {
           var raw = sessionStorage.getItem(keys[ki]) || localStorage.getItem(keys[ki]);
           if (raw) { intake = JSON.parse(raw) || {}; if (Object.keys(intake).length) break; }
@@ -6325,8 +6271,10 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 (function(){
   'use strict';
   var DOSSIER_KEY='upa.ai.dossier.v1';
+  var controlsWired=false;
 
   function readDossier(){
+    if(window.__UPA_ACCESS_CASE__&&typeof window.__UPA_ACCESS_CASE__==='object')return window.__UPA_ACCESS_CASE__;
     try{
       var raw=localStorage.getItem(DOSSIER_KEY)||sessionStorage.getItem(DOSSIER_KEY)||'';
       return raw?window.UPAParseStoredJSON(raw,{}):{};
@@ -6334,6 +6282,11 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   }
 
   function writeDossier(dossier){
+    if(window.__UPA_ACCESS_CASE__&&typeof window.__UPA_ACCESS_CASE__==='object'){
+      window.__UPA_ACCESS_CASE__=dossier||{};
+      if(dossier&&dossier.intake)window.__UPA_ACCESS_INTAKE__=dossier.intake;
+      return;
+    }
     var text=JSON.stringify(dossier||{});
     try{localStorage.setItem(DOSSIER_KEY,text);}catch(e){}
     try{sessionStorage.setItem(DOSSIER_KEY,text);}catch(e){}
@@ -6390,6 +6343,13 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
         localStorage.setItem('upa.license.key',key);
       }catch(e){}
       setStatus('Purchase verified. Opening your complete workspace.',false);
+      if(window.__UPA_ACCESS_CASE__){
+        var gate=document.getElementById('upa-license-gate');
+        if(gate)gate.classList.remove('show');
+        document.documentElement.classList.remove('upa-license-pending');
+        window.dispatchEvent(new CustomEvent('upa:access-case-ready',{detail:{caseId:window.UPAFullDashboardCaseId||''}}));
+        return;
+      }
       window.setTimeout(function(){window.location.reload();},450);
     })
     .catch(function(error){
@@ -6412,14 +6372,20 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       return;
     }
     var dossier=readDossier();
-    if(dossier&&dossier.licenseVerified===true)return;
+    if(dossier&&dossier.licenseVerified===true){
+      document.documentElement.classList.remove('upa-license-pending');
+      return;
+    }
     showGate();
     var button=document.getElementById('upa-full-license-button');
     var input=document.getElementById('upa-full-license-input');
-    if(button)button.addEventListener('click',verifyLicense);
-    if(input)input.addEventListener('keydown',function(event){
-      if(event.key==='Enter'){event.preventDefault();verifyLicense();}
-    });
+    if(!controlsWired){
+      controlsWired=true;
+      if(button)button.addEventListener('click',verifyLicense);
+      if(input)input.addEventListener('keydown',function(event){
+        if(event.key==='Enter'){event.preventDefault();verifyLicense();}
+      });
+    }
     try{
       if(input&&input.value&&sessionStorage.getItem('upa.full-license.auto-attempted.v1')!=='1'){
         sessionStorage.setItem('upa.full-license.auto-attempted.v1','1');
@@ -6430,6 +6396,8 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
+  window.addEventListener('upa:access-case-ready',boot);
+  window.addEventListener('upa:access-case-error',boot);
 })();
 </script>
 <script>
@@ -6443,6 +6411,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   'use strict';
 
   function isPaidSession(){
+    if(window.__UPA_ACCESS_CASE__&&window.__UPA_ACCESS_CASE__.licenseVerified===true)return true;
     try {
       var raw = localStorage.getItem('upa.ai.dossier.v1') || sessionStorage.getItem('upa.ai.dossier.v1') || '{}';
       var dossier = window.UPAParseStoredJSON(raw,{});
@@ -6452,6 +6421,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   }
 
   function getStoredIntake(){
+    if(window.__UPA_ACCESS_INTAKE__&&typeof window.__UPA_ACCESS_INTAKE__==='object')return window.__UPA_ACCESS_INTAKE__;
     try {
       var raw = localStorage.getItem('upa.intake.v1') || sessionStorage.getItem('upa.intake.v1') || '{}';
       return JSON.parse(raw);
@@ -6459,6 +6429,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   }
 
   function getStoredScan(){
+    if(window.__UPA_ACCESS_CASE__&&window.__UPA_ACCESS_CASE__.scanData&&typeof window.__UPA_ACCESS_CASE__.scanData==='object')return window.__UPA_ACCESS_CASE__.scanData;
     try {
       var raw = localStorage.getItem('upa.scan.v1') || sessionStorage.getItem('upa.scan.v1') || '{}';
       return JSON.parse(raw);
@@ -6486,9 +6457,9 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   }
 
   function buildAIDossierIntake(intake, scan){
-    var storedDossier = {};
+    var storedDossier = window.__UPA_ACCESS_CASE__&&typeof window.__UPA_ACCESS_CASE__==='object'?window.__UPA_ACCESS_CASE__:{};
     try {
-      storedDossier = window.UPAParseStoredJSON(localStorage.getItem('upa.ai.dossier.v1') || sessionStorage.getItem('upa.ai.dossier.v1') || '{}',{});
+      if(!Object.keys(storedDossier).length)storedDossier = window.UPAParseStoredJSON(localStorage.getItem('upa.ai.dossier.v1') || sessionStorage.getItem('upa.ai.dossier.v1') || '{}',{});
     } catch(e) {}
     var codeAnalysis = [];
     if(scan && Array.isArray(scan.codeAnalysis)) codeAnalysis = scan.codeAnalysis;
@@ -6522,7 +6493,9 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     if(!dossier) return;
     dossier = cleanAIDossierText(dossier);
     try {
-      var existingDossier = window.UPAParseStoredJSON(localStorage.getItem('upa.ai.dossier.v1') || sessionStorage.getItem('upa.ai.dossier.v1') || '{}',{});
+      var existingDossier = window.__UPA_ACCESS_CASE__&&typeof window.__UPA_ACCESS_CASE__==='object'
+        ? window.__UPA_ACCESS_CASE__
+        : window.UPAParseStoredJSON(localStorage.getItem('upa.ai.dossier.v1') || sessionStorage.getItem('upa.ai.dossier.v1') || '{}',{});
       if(existingDossier.licenseVerified === true){
         dossier.licenseVerified = true;
         dossier.licenseVerifiedAt = existingDossier.licenseVerifiedAt || new Date().toISOString();
@@ -6580,7 +6553,12 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     try{
       if(dossier.lineItems && !dossier.codeAnalysis) dossier.codeAnalysis = dossier.lineItems;
       if(dossier.paidDossier && dossier.paidDossier.lineItems && !dossier.paidDossier.codeAnalysis) dossier.paidDossier.codeAnalysis = dossier.paidDossier.lineItems;
-      localStorage.setItem(['upa', String.fromCharCode(97,105), 'dossier', 'v1'].join('.'), JSON.stringify(dossier));
+      if(window.__UPA_ACCESS_CASE__){
+        window.__UPA_ACCESS_CASE__=Object.assign({},window.__UPA_ACCESS_CASE__,dossier);
+        if(window.__UPA_ACCESS_CASE__.intake)window.__UPA_ACCESS_INTAKE__=window.__UPA_ACCESS_CASE__.intake;
+      }else{
+        localStorage.setItem(['upa', String.fromCharCode(97,105), 'dossier', 'v1'].join('.'), JSON.stringify(dossier));
+      }
     }catch(e){}
     if(window.UPARenderCLFSBenchmarks) window.UPARenderCLFSBenchmarks();
     if(window.UPARenderPhase3CaseGeneration) window.UPARenderPhase3CaseGeneration(dossier, window.UPACase || {});
@@ -6601,9 +6579,10 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 
     // Check if already loaded this session
     try{
-      var existing = localStorage.getItem(['upa', String.fromCharCode(97,105), 'dossier', 'v1'].join('.'));
-      if(existing){
-        var d = window.UPAParseStoredJSON(existing,{});
+      var d = window.__UPA_ACCESS_CASE__&&typeof window.__UPA_ACCESS_CASE__==='object'
+        ? window.__UPA_ACCESS_CASE__
+        : window.UPAParseStoredJSON(localStorage.getItem(['upa', String.fromCharCode(97,105), 'dossier', 'v1'].join('.'))||'',{});
+      if(d&&Object.keys(d).length){
         if(d && d.generationMode === 'paid_dossier' && dossierCodeAnalysisLength(d)){
           renderAIDossier(d);
           return;
@@ -6647,6 +6626,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   } else {
     window.setTimeout(runAIDossier, 400);
   }
+  window.addEventListener('upa:access-case-ready',function(){window.setTimeout(runAIDossier,400);});
 
 })();
 </script>

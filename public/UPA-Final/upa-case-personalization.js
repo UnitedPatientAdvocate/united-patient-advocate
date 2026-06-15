@@ -255,6 +255,9 @@
   }
 
   function readStorageJSON(key){
+    if(key === 'upa.ai.dossier.v1' && window.__UPA_ACCESS_CASE__) return window.__UPA_ACCESS_CASE__;
+    if(key === STORE_KEY && window.__UPA_ACCESS_INTAKE__) return window.__UPA_ACCESS_INTAKE__;
+    if(key === 'upa.scan.v1' && window.__UPA_ACCESS_CASE__ && window.__UPA_ACCESS_CASE__.scanData) return window.__UPA_ACCESS_CASE__.scanData;
     try{
       var raw = sessionStorage.getItem(key) || localStorage.getItem(key) || '';
       return raw ? (window.UPAParseStoredJSON ? window.UPAParseStoredJSON(raw,null) : JSON.parse(raw)) : null;
@@ -408,11 +411,18 @@
       // empty localStorage of a fresh browser tab.
       //
       // Priority order:
-      //   1. __UPA_PACKET_INTAKE__   : downloaded HTML packets (offline)
-      //   2. readIntakeFromUrl()     : URL params (cross-context recovery) ← PROMOTED FROM LAST
-      //   3. UPAState.getIntake()    : localStorage (same-browser return)
-      //   4. STORE_KEY direct read   : UPAState script load failure
+      //   1. __UPA_ACCESS_INTAKE__   : freshly fetched access= server case
+      //   2. __UPA_PACKET_INTAKE__   : downloaded HTML packets (offline)
+      //   3. readIntakeFromUrl()     : URL params (cross-context recovery)
+      //   4. UPAState.getIntake()    : localStorage (same-browser return)
+      //   5. STORE_KEY direct read   : UPAState script load failure
       // ═══════════════════════════════════════════════════════════════════
+      if(window.__UPA_ACCESS_INTAKE__ && typeof window.__UPA_ACCESS_INTAKE__ === 'object'){
+        return window.__UPA_ACCESS_INTAKE__;
+      }
+      if(window.__UPA_ACCESS_CASE__ && window.__UPA_ACCESS_CASE__.intake && typeof window.__UPA_ACCESS_CASE__.intake === 'object'){
+        return window.__UPA_ACCESS_CASE__.intake;
+      }
       if(window.__UPA_PACKET_INTAKE__) return window.__UPA_PACKET_INTAKE__;
 
       // PRIORITY 1: URL params. Single most important hydration channel.
@@ -2813,6 +2823,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
 
   function run(){
     if(__upaPersonalizationRunDone) return;
+    if(window.UPAFullDashboardHydrating === true) return;
     __upaPersonalizationRunDone = true;
 
     // FIX 2A: Detect truly-empty intake (no localStorage, no sessionStorage,
@@ -2830,9 +2841,13 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       clean(probe.insurance)
     );
     var overlay = document.getElementById('session-expired-overlay');
-    if(overlay && !hasAnyIntake){
-      overlay.classList.remove('show');
-      console.warn('[UPA] No intake data found in storage or URL : keeping dashboard visible.');
+    if(overlay){
+      if(!hasAnyIntake && !window.UPAFullDashboardCaseId){
+        overlay.classList.add('show');
+        console.warn('[UPA] No access case, recovery data, or browser case was available.');
+      }else{
+        overlay.classList.remove('show');
+      }
     }
 
     var c = buildCase();
@@ -2856,4 +2871,5 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   // fires before UPAState is available (e.g. a script loads async). The __upaPersonalizationRunDone
   // guard above ensures it's a no-op if the first run already completed.
   window.addEventListener('load', function(){ window.setTimeout(run, 50); });
+  window.addEventListener('upa:access-case-ready', run);
 })();

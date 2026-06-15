@@ -2395,7 +2395,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     setText('.sb-sub', c.billType + ' - ' + c.dateShort);
     setAllText('.sb-kpi-val', [c.amount.display, c.amount.reviewText]);
     setAllText('.sb-kpi-sub', [hasKnown(c.coverage, 'Your coverage') ? c.coverage : 'Insurance you listed at intake', c.uploaded ? 'Your itemized bill is in this case' : 'Add your itemized bill to unlock the full review']);
-    setText('.sb-score-num', 'Ready to use');
+    setText('.sb-readiness-text', 'Your review tools are ready to use');
 
     setText('.ch-ref', c.accountRef);
 
@@ -2478,9 +2478,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     setAllText('.rpc-row-val', [c.amount.unknown ? 'Pending your bill' : c.amount.display, c.issueCount ? String(c.issueCount) : 'Pending your bill', c.generatedLetterCount ? c.generatedLetterCount + ' drafted' : 'From your review']);
     var rpsPayment = c.paymentStatus || 'Review timing depends on your situation';
     setAllText('.rps-row-val', [c.issueCount ? c.issueCount + (c.issueCount === 1 ? ' review area' : ' review areas') : 'From your review', c.dossierFindings.length ? findingSummaryTitle(c.dossierFindings[0]) : 'From your review', rpsPayment, c.uploaded ? 'Working from your uploaded bill' : 'Ask for an itemized statement first']);
-    setText('#rp-gauge-amount', 'Ready');
-    setText('#rp-gauge-pct', '');
-    setText('.rp-gauge-sub', 'Prepared tools ready to use');
+    setText('.rp-readiness-text', 'Your review tools are ready to use');
     all('.rp-flag').slice(0,3).forEach(function(flag, idx){
       setText('.rp-flag-title', c.issues[idx].title, flag);
       setText('.rp-flag-sub', c.issues[idx].action, flag);
@@ -2497,8 +2495,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     syncQuickCalc(c);
     syncMobileDashboardCase(c);
     window.setTimeout(function(){
-      setText('#rp-gauge-amount', 'Ready');
-      setText('#rp-gauge-pct', '');
+      setText('.rp-readiness-text', 'Your review tools are ready to use');
       syncQuickCalc(c);
       syncMobileDashboardCase(c);
     },1400);

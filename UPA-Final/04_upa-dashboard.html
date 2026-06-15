@@ -115,15 +115,12 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .sb-kpi-sub { font-size: 0.5rem; color: var(--on-dark-3); margin-top: 2px; }
 .sb-div { height: 1px; background: rgba(255,255,255,0.06); }
 
-.sb-score { padding: 9px 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.sb-score-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.sb-score-lbl { font-size: 0.4rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--on-dark-3); }
-.sb-score-num { font-family: var(--mono); font-size: 0.6875rem; font-weight: 500; color: var(--green); }
-.sb-score-track { height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
-.sb-score-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #158A5C, #1EB87A); width: 0; transition: width 1.2s var(--ease) 0.6s; }
-.sb-score-zones { display: flex; justify-content: space-between; }
-.sb-score-zone { font-size: 0.4rem; color: rgba(235,244,255,0.20); font-weight: 500; }
-.sb-score-zone.active { color: var(--green); opacity: 0.8; font-weight: 700; }
+.sb-readiness { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.sb-readiness-row { display: flex; align-items: center; gap: 8px; }
+.sb-readiness-check { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex: 0 0 22px; background: rgba(30,184,122,0.14); color: var(--green); font-size: 0.75rem; font-weight: 800; }
+.sb-readiness-copy { min-width: 0; }
+.sb-readiness-label { font-size: 0.4rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--on-dark-3); margin-bottom: 2px; }
+.sb-readiness-text { font-size: 0.625rem; font-weight: 600; color: var(--on-dark); line-height: 1.35; }
 
 .sb-nav { padding: 8px 6px; flex: 1; display: flex; flex-direction: column; gap: 1px; }
 .sb-grp { font-size: 0.4rem; font-weight: 700; letter-spacing: 0.20em; text-transform: uppercase; color: var(--on-dark-3); padding: 7px 8px 4px; margin-top: 4px; }
@@ -330,17 +327,12 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .rps-row-val.green   { color: var(--green-dk); }
 .rps-row-val.amber   { color: var(--amber); }
 
-/* Recovery potential gauge - right panel version */
-.rp-gauge-wrap { padding: 14px 20px; border-bottom: 1px solid var(--bdr); }
-.rp-gauge-label { font-size: 0.5rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 12px; }
-.rp-gauge-svg-wrap { position: relative; width: 160px; height: 95px; margin: 0 auto 8px; }
-.rp-gauge-svg { overflow: visible; }
-.rp-gauge-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -20%); text-align: center; }
-.rp-gauge-amount { font-family: var(--serif); font-size: 1.125rem; font-weight: 900; color: var(--ink); letter-spacing: -0.03em; line-height: 1; }
-.rp-gauge-pct { font-size: 0.6875rem; font-weight: 700; color: var(--green-dk); margin-top: 2px; }
-.rp-gauge-sub { font-size: 0.5rem; color: var(--ink-4); text-align: center; letter-spacing: 0.04em; }
-.rp-gauge-scale { display: flex; justify-content: space-between; margin-top: 4px; }
-.rp-gauge-scale span { font-size: 0.4375rem; color: var(--ink-5); }
+/* Honest workspace readiness status */
+.rp-readiness-wrap { padding: 14px 20px; border-bottom: 1px solid var(--bdr); }
+.rp-readiness-label { font-size: 0.5rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 12px; }
+.rp-readiness-status { display: flex; align-items: center; gap: 11px; padding: 13px 14px; background: var(--green-lt); border: 1px solid rgba(29,158,117,0.16); border-radius: 12px; }
+.rp-readiness-check { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex: 0 0 30px; background: var(--green); color: #fff; font-size: 0.875rem; font-weight: 800; }
+.rp-readiness-text { font-size: 0.75rem; color: var(--ink-2); font-weight: 700; line-height: 1.4; }
 
 /* Why these were flagged */
 .rp-flags { display: flex; flex-direction: column; gap: 7px; padding: 0 0 4px; }
@@ -1425,7 +1417,6 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .fv-fill { transition: width 1.2s cubic-bezier(0.22,1,0.36,1) !important; }
 
 /* ── Gauge arc - premium spring ── */
-#rp-arc { transition: stroke-dashoffset 2s cubic-bezier(0.22,1,0.36,1) 0.3s !important; }
 
 /* ── Progress ring - spring ── */
 #checklist-ring { transition: stroke-dashoffset 0.7s cubic-bezier(0.22,1,0.36,1) !important; }
@@ -1525,10 +1516,8 @@ body { font-family: var(--sans); background: var(--dark-deep); color: var(--ink)
 .gd-card:nth-child(5) { animation-delay: 0.26s; }
 
 /* ── Right panel gauge ring - refined glow ── */
-#rp-arc { filter: drop-shadow(0 0 5px rgba(30,184,122,0.35)); }
 
 /* ── Sidebar score fill - smooth delay ── */
-.sb-score-fill { transition: width 1.4s cubic-bezier(0.22,1,0.36,1) 0.5s !important; }
 
 /* ── Tab pip badges - pop entrance ── */
 .tab-pip {
@@ -1835,7 +1824,7 @@ body{display:block;background:var(--bg)}
 .btn-nv{padding:5px 10px;font-size:.6875rem}
 .shell{display:block;overflow:visible}
 .sidebar{width:100%;max-height:none;display:block;border-right:none;border-bottom:1px solid rgba(255,255,255,.06);overflow:visible}
-.sb-case,.sb-kpis,.sb-score{padding-left:16px;padding-right:16px}
+.sb-case,.sb-kpis,.sb-readiness{padding-left:16px;padding-right:16px}
 .sb-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sb-div{display:none}
 .sb-nav{display:flex;flex-direction:row;overflow-x:auto;gap:6px;padding:10px 12px;scrollbar-width:none}
@@ -1895,7 +1884,7 @@ body{display:block;background:var(--bg)}
 .sb-foot{display:none}
 /* Hide the sidebar score widget on mobile to save vertical space (KPIs
    already carry the strength indication). */
-.sb-score{display:none}
+.sb-readiness{display:none}
 /* FIX 2B: RESTORE the secondary "Guides & Tools" nav section on mobile.
    Previous turn fully hid .sb-nav which deleted half the navigation. The
    primary brass tab nav is now handled by the dropdown above; this
@@ -1935,7 +1924,6 @@ body{display:block;background:var(--bg)}
 .fin-table{min-width:640px}
 .tl-item{grid-template-columns:1fr;gap:8px;min-height:0}
 .right-panel{display:none}
-.rp-gauge-svg-wrap{max-width:100%}
 .qc-fab{right:14px;bottom:14px}
 .qc-panel{left:12px;right:12px;bottom:84px;width:auto;max-width:none;max-height:calc(100vh - 100px);overflow-y:auto}
 .btn-dpc-icon{width:40px!important;height:40px!important}
@@ -2372,13 +2360,12 @@ body{font-family:var(--sans);background:#EEF1F6;color:var(--ink)}
   box-shadow:4px 0 24px rgba(22,32,51,.035);
 }
 .sidebar::-webkit-scrollbar-thumb{background:rgba(22,32,51,.12)}
-.sb-case,.sb-kpis,.sb-score{padding:20px;border-bottom:1px solid var(--bdr)}
+.sb-case,.sb-kpis,.sb-readiness{padding:20px;border-bottom:1px solid var(--bdr)}
 .sb-patient-name{color:var(--ink);font-size:.9rem}
-.sb-tag,.sb-sub,.sb-kpi-lbl,.sb-kpi-sub,.sb-score-lbl,.sb-score-zone{color:var(--ink-4)}
+.sb-tag,.sb-sub,.sb-kpi-lbl,.sb-kpi-sub,.sb-readiness-label{color:var(--ink-4)}
 .sb-hospital,.sb-kpi-val{color:var(--ink)}
-.sb-kpi-val.green,.sb-score-num{color:var(--green-dk);text-shadow:none}
+.sb-kpi-val.green,.sb-readiness-text{color:var(--green-dk);text-shadow:none}
 .sb-div{background:var(--bdr)}
-.sb-score-track{height:6px;background:#E9EEF2}
 .sb-nav{padding:14px 12px;gap:5px}
 .sb-grp{padding:13px 10px 7px;color:var(--ink-5)}
 .sb-item{
@@ -2498,14 +2485,14 @@ body{font-family:var(--sans);background:#EEF1F6;color:var(--ink)}
   width:310px;padding:18px;background:#F8FAFB;border-left:1px solid var(--bdr);
   box-shadow:-4px 0 24px rgba(22,32,51,.035);
 }
-.rp-charges,.rp-section,.rp-gauge-wrap,.rp-next{
+.rp-charges,.rp-section,.rp-readiness-wrap,.rp-next{
   margin-bottom:16px;padding:22px;background:#fff;border:1px solid var(--bdr);
   border-radius:18px;box-shadow:var(--sh-xs);
 }
 .rpc-seal,.mini-stamp{display:none}
 .rpc-main{margin-bottom:10px}
 .rpc-amount{font-size:2rem;color:var(--green-dk);text-shadow:none}
-.rpc-label,.rps-label,.rp-gauge-label,.rp-next-label{color:var(--green-dk);font-size:11px;letter-spacing:.14em}
+.rpc-label,.rps-label,.rp-readiness-label,.rp-next-label{color:var(--green-dk);font-size:11px;letter-spacing:.14em}
 .rpc-sub{color:var(--ink-4)}
 .rpc-rows,.rps-rows{gap:0}
 .rpc-row,.rps-row{padding:10px 0;border-bottom:1px solid var(--bdr)}
@@ -2513,7 +2500,7 @@ body{font-family:var(--sans);background:#EEF1F6;color:var(--ink)}
 .rpc-row-label,.rps-row-lbl{color:var(--ink-4)}
 .rpc-row-val,.rps-row-val{color:var(--ink);font-weight:700}
 .rpc-row-val.check,.rps-row-val.green,.rps-row-val.crimson,.rps-row-val.amber{color:var(--green-dk)}
-.rp-gauge-amount{font-family:var(--serif);font-size:1.65rem;font-weight:600}
+.rp-readiness-text{font-family:var(--sans);font-size:.75rem;font-weight:700}
 .rp-flag{margin-top:10px;padding:14px;background:#F8FAFB;border:1px solid var(--bdr);border-radius:14px}
 .rp-next-title{font-family:var(--serif);font-size:1.15rem;color:var(--ink)}
 .btn-rp-cta{width:100%;justify-content:center}
@@ -3121,16 +3108,13 @@ function seoTryRecover(){
       <div class="sb-kpi-sub">Across charges worth pressing on</div>
     </div>
   </div>
-  <div class="sb-score">
-    <div class="sb-score-row">
-      <span class="sb-score-lbl">Workspace Readiness</span>
-      <span class="sb-score-num">Ready to use</span>
-    </div>
-    <div class="sb-score-track"><div class="sb-score-fill" id="sb-fill"></div></div>
-    <div class="sb-score-zones">
-      <span class="sb-score-zone">Started</span>
-      <span class="sb-score-zone active">Prepared</span>
-      <span class="sb-score-zone">Ready</span>
+  <div class="sb-readiness">
+    <div class="sb-readiness-row">
+      <span class="sb-readiness-check" aria-hidden="true">&#10003;</span>
+      <div class="sb-readiness-copy">
+        <div class="sb-readiness-label">Workspace Readiness</div>
+        <div class="sb-readiness-text">Your review tools are ready to use</div>
+      </div>
     </div>
   </div>
   <nav class="sb-nav">
@@ -4060,33 +4044,13 @@ function seoTryRecover(){
     </div>
   </div>
 
-  <!-- Workspace readiness indicator -->
-  <div class="rp-gauge-wrap">
-    <div class="rp-gauge-label">Workspace Readiness</div>
-    <div class="rp-gauge-svg-wrap">
-      <svg class="rp-gauge-svg" viewBox="0 0 160 95" width="160" height="95" overflow="visible">
-        <defs>
-          <linearGradient id="rpg-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#158A5C"/>
-            <stop offset="60%" stop-color="#1EB87A"/>
-            <stop offset="100%" stop-color="#4AE8A0"/>
-          </linearGradient>
-          <filter id="rpg-glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        </defs>
-        <!-- Track -->
-        <path d="M 13 80 A 67 67 0 0 1 147 80" fill="none" stroke="#E8EDF4" stroke-width="12" stroke-linecap="round"/>
-        <!-- Full arc indicates that the prepared workspace is ready to use. -->
-        <path id="rp-arc" d="M 13 80 A 67 67 0 0 1 147 80" fill="none" stroke="url(#rpg-grad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="243" stroke-dashoffset="243" filter="url(#rpg-glow)" style="transition:stroke-dashoffset 1.6s cubic-bezier(0.22,1,0.36,1) 0.4s"/>
-        <!-- Scale labels -->
-        <text x="8" y="94" font-family="Plus Jakarta Sans,sans-serif" font-size="8" fill="#96AFBE" font-weight="600">0%</text>
-        <text x="130" y="94" font-family="Plus Jakarta Sans,sans-serif" font-size="8" fill="#96AFBE" font-weight="600">100%</text>
-      </svg>
-      <div class="rp-gauge-center">
-        <div class="rp-gauge-amount" id="rp-gauge-amount">Ready</div>
-        <div class="rp-gauge-pct" id="rp-gauge-pct"></div>
-      </div>
+  <!-- Workspace readiness status -->
+  <div class="rp-readiness-wrap">
+    <div class="rp-readiness-label">Workspace Readiness</div>
+    <div class="rp-readiness-status">
+      <span class="rp-readiness-check" aria-hidden="true">&#10003;</span>
+      <div class="rp-readiness-text">Your review tools are ready to use</div>
     </div>
-    <div class="rp-gauge-sub">Prepared tools ready to use</div>
   </div>
 
   <!-- Why these were flagged -->
@@ -5335,23 +5299,6 @@ function animateWaterfall() {
   });
 }
 
-function animateRPGauge() {
-  const arc = document.getElementById('rp-arc');
-  const amountEl = document.getElementById('rp-gauge-amount');
-  const pctEl = document.getElementById('rp-gauge-pct');
-  if (!arc) return;
-  setTimeout(() => {
-    arc.style.strokeDashoffset = 0;
-    if (pctEl) pctEl.textContent = '';
-    if (amountEl) amountEl.textContent = 'Ready';
-  }, 420);
-}
-
-function animateSidebar() {
-  const fill = document.getElementById('sb-fill');
-  if (fill) fill.style.width = '100%';
-}
-
 /* Shimmer pass on financial panels after data loads */
 function triggerShimmer() {
   const targets = [
@@ -5647,8 +5594,6 @@ function animateDrawerCards() {
 /* ── Dashboard animations (preserved) ── */
 window.addEventListener('load', () => {
   animateBars();
-  animateRPGauge();
-  animateSidebar();
   setTimeout(animateWaterfall, 200);
   setTimeout(triggerShimmer, 900);
 });
@@ -5659,7 +5604,7 @@ const FILM = [
     body: "This dashboard contains everything you need to dispute charges, talk to billing, and get your money back. The next scenes walk through every section so you know exactly where to go.",
     duration: 7000 },
   { title: "The case identity (top of sidebar)",
-    body: "On the left, the top of the sidebar shows your provider, total bill, and the amount worth pressing on, alongside a workspace readiness indicator.",
+    body: "On the left, the top of the sidebar shows your provider, total bill, and the amount worth pressing on, alongside a simple workspace readiness status.",
     duration: 8500 },
   { title: "Six tabs across the top",
     body: "Overview · Financials · Findings · Documents · Action Plan · Timeline. The active tab shows as a dark navy slot stamped into the brass. Click any tab to jump there.",
@@ -5790,9 +5735,9 @@ const TOUR_STEPS = [
   { selector: '.sb-case', side: 'right',
     title: '👤 Your case identity',
     body: 'Right here is your provider, payor, and case reference. Always at the top of the sidebar so you never lose your place.' },
-  { selectors: ['.sb-kpis', '.sb-score'], side: 'right',
+  { selectors: ['.sb-kpis', '.sb-readiness'], side: 'right',
     title: '📊 Your bill at a glance',
-    body: 'Total bill, the amount worth pressing on, and a workspace readiness indicator showing that your prepared tools are ready to use.' },
+    body: 'Total bill, the amount worth pressing on, and a simple status confirming that your prepared tools are ready to use.' },
   { selector: '.tab-bar', side: 'bottom',
     title: '🗂️ Six tabs across the top',
     body: 'Overview · Financials · Findings · Documents · Action Plan · Timeline. The active tab shows as a dark navy slot stamped into the brass strip. Click any to jump there.' },
@@ -6651,13 +6596,12 @@ body{font-family:'DM Sans','Plus Jakarta Sans',system-ui,sans-serif!important}
   box-shadow:4px 0 24px rgba(22,32,51,.035)!important;
 }
 .sidebar *{text-shadow:none!important}
-.sb-case,.sb-kpis,.sb-score,.sb-foot{background:#FFFFFF!important;border-color:var(--upa-border)!important;padding:20px!important}
+.sb-case,.sb-kpis,.sb-readiness,.sb-foot{background:#FFFFFF!important;border-color:var(--upa-border)!important;padding:20px!important}
 .sb-patient-name,.sb-hospital,.sb-kpi-val{color:var(--upa-ink)!important}
-.sb-tag,.sb-sub,.sb-kpi-lbl,.sb-kpi-sub,.sb-score-lbl,.sb-score-zone,.sb-grp{color:var(--upa-muted)!important}
-.sb-kpi-val.green,.sb-score-num{color:var(--upa-teal)!important}
+.sb-tag,.sb-sub,.sb-kpi-lbl,.sb-kpi-sub,.sb-readiness-label,.sb-grp{color:var(--upa-muted)!important}
+.sb-kpi-val.green,.sb-readiness-text{color:var(--upa-teal)!important}
 .sb-div{background:var(--upa-border)!important}
-.sb-score-track{height:6px!important;background:#E7ECEF!important}
-.sb-score-fill{background:linear-gradient(90deg,var(--upa-teal-dark),var(--upa-teal))!important}
+.sb-readiness-check{background:var(--upa-teal-soft)!important;color:var(--upa-teal)!important}
 .sb-nav{background:#FFFFFF!important;padding:16px 12px!important;gap:6px!important}
 .sb-item{
   min-height:44px!important;padding:11px 13px!important;background:#FFFFFF!important;
@@ -6728,7 +6672,7 @@ body{font-family:'DM Sans','Plus Jakarta Sans',system-ui,sans-serif!important}
 .ov-grid,.findings-grid,.fin-grid,.doc-tab-wrap,.action-grid,.timeline-grid{padding:24px!important;gap:20px!important}
 
 /* Non-negotiable: every primary dashboard card is white */
-:is(.card,.rights-card,.intel-card,.finding-card,.forensic-card,.fin-table-wrap,.doc-step-bar,.doc-packet-header,.doc-preview-card,.action-step,.script-card,.sc-card,.tab-dl-bar,.cmd-snapshot,.cmd-health,.cmd-nba,.cmd-path-card,.cmd-vault-card,.timeline-grid,.rp-charges,.rp-section,.rp-gauge-wrap,.rp-next){
+:is(.card,.rights-card,.intel-card,.finding-card,.forensic-card,.fin-table-wrap,.doc-step-bar,.doc-packet-header,.doc-preview-card,.action-step,.script-card,.sc-card,.tab-dl-bar,.cmd-snapshot,.cmd-health,.cmd-nba,.cmd-path-card,.cmd-vault-card,.timeline-grid,.rp-charges,.rp-section,.rp-readiness-wrap,.rp-next){
   background:#FFFFFF!important;color:var(--upa-ink)!important;
   border:1px solid var(--upa-border)!important;border-radius:20px!important;
   box-shadow:var(--upa-shadow)!important;
@@ -6791,12 +6735,12 @@ body{font-family:'DM Sans','Plus Jakarta Sans',system-ui,sans-serif!important}
   background:linear-gradient(170deg,#F6F8FB,#EEF1F6)!important;color:var(--upa-ink)!important;
   border-left:1px solid var(--upa-border)!important;box-shadow:-4px 0 24px rgba(22,32,51,.035)!important;
 }
-.rp-charges,.rp-section,.rp-gauge-wrap,.rp-next{margin:0 0 18px!important;padding:24px!important}
+.rp-charges,.rp-section,.rp-readiness-wrap,.rp-next{margin:0 0 18px!important;padding:24px!important}
 .right-panel *{text-shadow:none!important}
-.rpc-label,.rps-label,.rp-gauge-label{color:var(--upa-teal)!important;font-size:11px!important;letter-spacing:.14em!important}
+.rpc-label,.rps-label,.rp-readiness-label{color:var(--upa-teal)!important;font-size:11px!important;letter-spacing:.14em!important}
 .rpc-amount{font-family:Playfair Display,Georgia,serif!important;color:var(--upa-teal)!important;font-size:2rem!important}
-.rpc-sub,.rpc-row-label,.rps-row-lbl,.rp-gauge-sub,.rp-next-desc{color:var(--upa-muted)!important}
-.rpc-row-val,.rps-row-val,.rp-gauge-amount{color:var(--upa-ink)!important}
+.rpc-sub,.rpc-row-label,.rps-row-lbl,.rp-next-desc{color:var(--upa-muted)!important}
+.rpc-row-val,.rps-row-val,.rp-readiness-text{color:var(--upa-ink)!important}
 .rpc-row,.rps-row{padding:11px 0!important;border-bottom:1px solid var(--upa-border)!important}
 .rpc-row:last-child,.rps-row:last-child{border-bottom:0!important}
 .rpc-seal{display:none!important}
@@ -6804,7 +6748,8 @@ body{font-family:'DM Sans','Plus Jakarta Sans',system-ui,sans-serif!important}
 .rp-flag{padding:15px!important;background:#F8FAFB!important;border:1px solid var(--upa-border)!important;border-radius:14px!important}
 .rp-flag-title{color:var(--upa-ink)!important}.rp-flag-sub{color:var(--upa-muted)!important}
 .rp-flag-icon.f-crimson,.rp-flag-icon.f-cobalt,.rp-flag-icon.f-gray{background:var(--upa-teal-soft)!important}
-.rp-gauge-svg-wrap{background:#FFFFFF!important}
+.rp-readiness-status{background:var(--upa-teal-soft)!important;border-color:rgba(29,158,117,.16)!important}
+.rp-readiness-check{background:var(--upa-teal)!important;color:#FFFFFF!important}
 
 /* Light findings, benchmark cards, and summary rows */
 .finding-card{grid-template-columns:5px 1fr!important}
@@ -6892,7 +6837,7 @@ body{font-family:'DM Sans','Plus Jakarta Sans',system-ui,sans-serif!important}
 .sidebar .sb-grp,
 .sidebar .sb-tag,
 .sidebar .sb-kpi-lbl,
-.sidebar .sb-score-lbl{
+.sidebar .sb-readiness-label{
   color:#6B7688!important;
 }
 .sidebar .sb-item:hover .sb-name,

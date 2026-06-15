@@ -752,6 +752,38 @@ var _serverCaseStoreMessage = '';
 var CASE_STORE_TIMEOUT_MS = 25000;
 var CASE_STORE_RETRY_MAX_DELAY_MS = 8000;
 
+function isReturningScan() {
+  try {
+    return new URLSearchParams(window.location.search || '').get('returning') === '1';
+  } catch(e) {
+    return false;
+  }
+}
+
+function routeReturningScanToDashboard(caseData) {
+  if (!isReturningScan()) return Promise.resolve(false);
+  if (!caseData || typeof caseData !== 'object') {
+    return Promise.reject(new Error('Your prepared review is not ready yet'));
+  }
+  var serverCasePromise = (_serverCaseStoreState === 'pending' || _serverCaseStoreState === 'ready') && _serverCaseStorePromise
+    ? _serverCaseStorePromise
+    : (_serverCaseStorePromise = storeCompletedScanCaseUntilReady(caseData));
+  return Promise.resolve(serverCasePromise).then(function(caseId) {
+    if (!isValidServerCaseId(caseId)) throw new Error('Case storage returned an invalid case ID');
+    _serverCaseStoreState = 'ready';
+    _serverCaseStoreError = null;
+    updateCheckoutStoreState();
+    window.location.href = '04_upa-dashboard.html?access=' + encodeURIComponent(caseId);
+    return true;
+  }).catch(function(error) {
+    _serverCaseStoreState = 'error';
+    _serverCaseStoreError = error || new Error('Case storage failed');
+    _serverCaseStorePromise = null;
+    updateCheckoutStoreState();
+    throw _serverCaseStoreError;
+  });
+}
+
 function isValidServerCaseId(caseId) {
   return /^[A-Za-z0-9_-]{32}$/.test(caseId || '');
 }
@@ -1341,6 +1373,13 @@ function routeAfterScan(data) {
       console.warn('[UPA] Preview analysis did not update the checkout case', error && error.message);
       return _completedScanCaseForStore;
     });
+  if (isReturningScan()) {
+    _casePreparationPromise
+      .then(routeReturningScanToDashboard)
+      .catch(function(error) {
+        console.warn('[UPA] Returning scan could not open the dashboard', error && error.message);
+      });
+  }
 }
 
 /* ─── FREE PREVIEW CALL ─── */
@@ -1692,6 +1731,15 @@ function renderFindings(data, findings) {
       event.preventDefault();
       if (upgradeLink.dataset.checkoutBusy === 'true') return;
       upgradeLink.dataset.checkoutBusy = 'true';
+      if (isReturningScan()) {
+        try {
+          var returningCase = await Promise.resolve(_casePreparationPromise || _completedScanCaseForStore);
+          await routeReturningScanToDashboard(returningCase);
+        } catch(e) {
+          delete upgradeLink.dataset.checkoutBusy;
+        }
+        return;
+      }
       var caseStorePromise = ensureServerCaseStored();
       _serverCaseStoreState = 'pending';
       updateCheckoutStoreState();

@@ -2363,6 +2363,8 @@ body{font-family:var(--sans);background:#EEF1F6;color:var(--ink)}
 }
 .btn-nv{min-height:40px;padding:8px 15px;border-radius:12px;background:#fff;color:var(--ink-3)}
 .btn-nv:hover{background:#F6F8FB;border-color:rgba(29,158,117,.22);color:var(--green-dk)}
+.btn-nv-scan{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-family:'DM Sans',var(--sans);color:#1D9E75;border-color:rgba(29,158,117,.45)}
+.btn-nv-scan:hover{background:#E6F4EE;border-color:#1D9E75;color:#168560}
 .btn-nv-green{background:linear-gradient(135deg,#1D9E75,#168560);color:#fff;border-color:transparent;box-shadow:0 6px 20px rgba(29,158,117,.22)}
 .btn-nv-green:hover{background:linear-gradient(135deg,#22A87F,#147B59);color:#fff;box-shadow:0 8px 24px rgba(29,158,117,.30)}
 .sidebar{
@@ -3149,6 +3151,7 @@ function seoTryRecover(){
     <span class="nav-ref" id="nav-case-ref">Review ready · Opened today</span>
   </div>
   <div class="nav-right">
+    <a class="btn-nv btn-nv-scan" href="00_upa-scan.html?returning=1">Scan another bill</a>
     <button class="btn-nv btn-nv-green" onclick="showTab('overview');return false;">My Case</button>
   </div>
 </div>

@@ -47,7 +47,6 @@ module.exports = async function handler(req, res) {
     const params = new URLSearchParams();
     params.set('product_id', GUMROAD_PRODUCT_ID);
     params.set('license_key', licenseKey);
-    params.set('increment_uses_count', 'true');
     params.set('access_token', token);
 
     const response = await fetch(GUMROAD_VERIFY_URL, {
@@ -68,16 +67,15 @@ module.exports = async function handler(req, res) {
 
   const purchase = data.purchase && typeof data.purchase === 'object' ? data.purchase : {};
 
-  // Test purchases (Gumroad test-mode keys) bypass the refund/dispute/uses gate.
+  // Test purchases (Gumroad test-mode keys) bypass the refund/dispute gate.
   if (purchase.test === true) {
     return res.status(200).json({ valid: true, test: true });
   }
 
   const refunded = purchase.refunded === true;
   const disputed = purchase.disputed === true || purchase.chargebacked === true;
-  const uses = typeof data.uses === 'number' ? data.uses : Number(data.uses || 0);
 
-  const valid = data.success === true && !refunded && !disputed && uses <= 1;
+  const valid = data.success === true && !refunded && !disputed;
 
   return res.status(200).json(
     valid

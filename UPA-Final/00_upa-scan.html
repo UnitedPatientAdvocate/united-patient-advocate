@@ -749,6 +749,7 @@ var _completedScanCaseForStore = null;
 var _casePreparationPromise = null;
 var _serverCaseStoreAttempt = 0;
 var _serverCaseStoreMessage = '';
+var _manualPreviewServerCaseId = '';
 var CASE_STORE_TIMEOUT_MS = 25000;
 var CASE_STORE_RETRY_MAX_DELAY_MS = 8000;
 
@@ -961,6 +962,20 @@ function checkoutUrlContainsCaseId(href, caseId) {
     } catch(e) {}
   }
   return false;
+}
+
+function manualCheckoutBridgeUrl(gumroadUrl, caseId) {
+  if (!isValidServerCaseId(caseId)) throw new Error('The fresh manual case ID is missing');
+  var successUrl = new URL('/UPA-Final/05_upa-success.html', window.location.origin);
+  successUrl.searchParams.set('access', caseId);
+  var targetUrl = new URL(gumroadUrl, window.location.href);
+  targetUrl.searchParams.set('upa_checkout', '1');
+  targetUrl.searchParams.set('access', caseId);
+  targetUrl.searchParams.set('redirect', successUrl.href);
+  var bridgeUrl = new URL('/checkout', window.location.origin);
+  bridgeUrl.searchParams.set('access', caseId);
+  bridgeUrl.searchParams.set('to', targetUrl.href);
+  return bridgeUrl.href;
 }
 let animHoldReached = false;
 let animResumeFn    = null;
@@ -1684,7 +1699,9 @@ function renderFindings(data, findings) {
   upgradeBlock.id = 'upgrade-block';
   let checkoutHref = UPA_SCAN_CONFIG.gumroadURL;
   try {
-    if (window.UPAState && window.UPAState.checkoutBridgeUrl) {
+    if (data._manualIntake && isValidServerCaseId(_manualPreviewServerCaseId)) {
+      checkoutHref = manualCheckoutBridgeUrl(UPA_SCAN_CONFIG.gumroadURL, _manualPreviewServerCaseId);
+    } else if (window.UPAState && window.UPAState.checkoutBridgeUrl) {
       checkoutHref = window.UPAState.checkoutBridgeUrl(UPA_SCAN_CONFIG.gumroadURL, { stage: 'scan-upgrade-render', source: 'scan' });
     } else if (window.UPAState && window.UPAState.checkoutUrlWithToken) {
       checkoutHref = window.UPAState.checkoutUrlWithToken(UPA_SCAN_CONFIG.gumroadURL, { stage: 'scan-upgrade-render', source: 'scan' });
@@ -1745,15 +1762,19 @@ function renderFindings(data, findings) {
       updateCheckoutStoreState();
       try {
         var caseId = await caseStorePromise;
-        persistServerCaseId(caseId);
         _serverCaseStoreState = 'ready';
         updateCheckoutStoreState();
-        if (window.UPAState && window.UPAState.markCheckout) {
+        if (data._manualIntake) {
+          upgradeLink.href = manualCheckoutBridgeUrl(UPA_SCAN_CONFIG.gumroadURL, caseId);
+        } else {
+          persistServerCaseId(caseId);
+        }
+        if (!data._manualIntake && window.UPAState && window.UPAState.markCheckout) {
           window.UPAState.markCheckout({ stage: 'checkout-started', source: 'scan', gumroadUrl: UPA_SCAN_CONFIG.gumroadURL });
         }
-        if (window.UPAState && window.UPAState.checkoutBridgeUrl) {
+        if (!data._manualIntake && window.UPAState && window.UPAState.checkoutBridgeUrl) {
           upgradeLink.href = window.UPAState.checkoutBridgeUrl(UPA_SCAN_CONFIG.gumroadURL, { stage: 'gumroad-handoff', source: 'scan' });
-        } else if (window.UPAState && window.UPAState.checkoutUrlWithToken) {
+        } else if (!data._manualIntake && window.UPAState && window.UPAState.checkoutUrlWithToken) {
           upgradeLink.href = window.UPAState.checkoutUrlWithToken(UPA_SCAN_CONFIG.gumroadURL, { stage: 'gumroad-handoff', source: 'scan' });
         }
         if (!checkoutUrlContainsCaseId(upgradeLink.href, caseId)) {
@@ -1909,9 +1930,8 @@ function manualPreviewFindings(dossier) {
   return source.map(manualPreviewFinding).filter(function(f){ return f.body; }).slice(0, 8);
 }
 
-function hydratePreparedManualPreview() {
-  var dossier = readStoredJSON('upa.ai.dossier.v1') || {};
-  var intake = dossier.intake || readStoredJSON('upa.intake.v1') || {};
+function renderPreparedManualPreview(dossier, caseId) {
+  var intake = dossier.intake || {};
   var findings = manualPreviewFindings(dossier);
   if (!findings.length) {
     findings = [manualPreviewFinding({
@@ -1934,13 +1954,45 @@ function hydratePreparedManualPreview() {
   window._upaScanData = data;
   window._upaScanFindings = findings;
   _completedScanCaseForStore = dossier;
+  if (isValidServerCaseId(caseId)) {
+    _manualPreviewServerCaseId = caseId;
+    _serverCaseStoreState = 'ready';
+    _serverCaseStorePromise = Promise.resolve(caseId);
+  }
   renderFindings(data, findings);
   showState('state-findings');
 }
 
+function hydratePreparedManualPreview() {
+  var caseId = '';
+  try {
+    caseId = new URLSearchParams(window.location.search || '').get('access') || '';
+  } catch(e) {}
+  if (!isValidServerCaseId(caseId)) {
+    showState('state-fallback');
+    return Promise.reject(new Error('The fresh manual case ID is missing'));
+  }
+  return fetch('/api/get-case?caseId=' + encodeURIComponent(caseId), { headers: { Accept: 'application/json' } })
+    .then(function(response) {
+      return response.json().catch(function(){ return {}; }).then(function(result) {
+        if (!response.ok || !result.case) throw new Error(result.error || 'The fresh manual case could not be loaded');
+        return result.case;
+      });
+    })
+    .then(function(dossier) {
+      renderPreparedManualPreview(dossier, caseId);
+      return dossier;
+    })
+    .catch(function(error) {
+      console.warn('[UPA] Manual preview could not load the saved case', error && error.message);
+      showState('state-fallback');
+      throw error;
+    });
+}
+
 var previewMode = '';
 try { previewMode = new URLSearchParams(window.location.search || '').get('preview') || ''; } catch(e) {}
-if (previewMode === 'manual') hydratePreparedManualPreview();
+if (previewMode === 'manual') hydratePreparedManualPreview().catch(function(){});
 else hydrateCurrentScanCase();
 </script>
 <footer aria-label="Legal links" style="position:fixed;left:0;right:0;bottom:0;z-index:1000;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:7px 12px;background:rgba(14,24,40,.92);border-top:1px solid rgba(255,255,255,.07);color:rgba(235,244,255,.48);font-family:'DM Sans',system-ui,sans-serif;font-size:.62rem;backdrop-filter:blur(10px)"><span>United Patient Advocate&trade;</span><span>&middot;</span><a href="terms.html" style="color:inherit;text-decoration:none">Terms</a><span>&middot;</span><a href="refund-policy.html" style="color:inherit;text-decoration:none">Refund Policy</a><span>&middot;</span><a href="mailto:support@unitedpatientadvocate.com" style="color:inherit;text-decoration:none">Contact</a></footer>

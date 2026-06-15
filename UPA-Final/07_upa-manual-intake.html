@@ -79,12 +79,12 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
     <div class="eyebrow">Complete your case details</div>
     <h1>A few details your bill may not show.</h1>
     <p class="hero-copy">These answers help personalize the educational tools and review paths in your case. Choose only what you know.</p>
-    <div class="quick-note"><span>Six straightforward questions</span><span>Your answers save immediately</span></div>
+    <div class="quick-note"><span>Six straightforward questions</span><span>Your answers create a fresh case</span></div>
   </section>
 
   <section class="shell">
     <form class="form-card" id="manual-intake-form">
-      <div class="intro">Your answers are added to the case information stored in this browser and reviewed with the same process used for uploaded bill details.</div>
+      <div class="intro">Your answers are used to prepare a fresh case with the same review process used for uploaded bill details.</div>
 
       <div class="question-grid">
       <div class="question">
@@ -171,75 +171,10 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
 </main>
 
 <script>
-window.UPAStartFreshCase = function(){
-  var keys = [
-    'upa.intake.v1',
-    'upa.scan.v1',
-    'upa.ai.dossier.v1',
-    'upa.active.case',
-    'upa.active.case.v1',
-    'upa.case.snapshot.v1',
-    'upa.checkout.session.v2',
-    'upa.review.session.v1',
-    'upa.paid.results.v2',
-    'upa.dashboard.state.v1',
-    'upa.case.handoff.token.v1',
-    'upa.recovery.params.v1',
-    'upa.server.case-id.v1',
-    'upa.full-dashboard.hydrated-case.v1',
-    'upa.paid',
-    'patientName',
-    'providerName',
-    'dateOfService',
-    'insuranceName',
-    'totalBilled',
-    'referenceNumber',
-    'billRange',
-    'visitReason'
-  ];
-  keys.forEach(function(key){
-    try{ sessionStorage.removeItem(key); }catch(e){}
-    try{ localStorage.removeItem(key); }catch(e){}
-  });
-  try{
-    if(/^UPA_RECOVERY:/.test(window.name || '')) window.name = '';
-  }catch(e){}
-};
-window.UPAIsCaseRecoveryEntry = function(){
-  try{
-    var params = new URLSearchParams(window.location.search || '');
-    var access = params.get('access') || params.get('caseId') || '';
-    return params.get('resume') === '1'
-      || /^[A-Za-z0-9_-]{32}$/.test(access)
-      || !!params.get('case')
-      || !!params.get('r');
-  }catch(e){
-    return false;
-  }
-};
-if(!window.UPAIsCaseRecoveryEntry()) window.UPAStartFreshCase();
-</script>
-<script src="/UPA-Final/upa-state-persistence.js"></script>
-<script>
 (function(){
   'use strict';
-  var DOSSIER_KEY = 'upa.ai.dossier.v1';
-  var INTAKE_KEY = 'upa.intake.v1';
-  var SCAN_KEY = 'upa.scan.v1';
   var REQUEST_TIMEOUT_MS = 12000;
-
-  function readJSON(key){
-    try{
-      var raw = localStorage.getItem(key) || sessionStorage.getItem(key) || '';
-      return raw ? JSON.parse(raw) : {};
-    }catch(e){ return {}; }
-  }
-
-  function writeJSON(key, value){
-    var text = JSON.stringify(value);
-    localStorage.setItem(key, text);
-    sessionStorage.setItem(key, text);
-  }
+  var CASE_ID_PATTERN = /^[A-Za-z0-9_-]{32}$/;
 
   function selectedValue(name){
     var input = document.querySelector('input[name="' + name + '"]:checked');
@@ -261,34 +196,6 @@ if(!window.UPAIsCaseRecoveryEntry()) window.UPAStartFreshCase();
     return flags;
   }
 
-  function providerFrom(dossier, intake, scan){
-    return dossier.providerName
-      || dossier.provider
-      || dossier.hospitalName
-      || dossier.paidDossier && dossier.paidDossier.providerName
-      || intake.providerName
-      || intake.provider
-      || intake.extracted_provider
-      || scan.provider
-      || 'Unknown Provider';
-  }
-
-  function lineItemsFrom(dossier, intake, scan){
-    var candidates = [
-      dossier.lineItems,
-      dossier.codeAnalysis,
-      dossier.paidDossier && dossier.paidDossier.lineItems,
-      intake.lineItems,
-      intake.codeAnalysis,
-      intake._code_analysis,
-      scan.codeAnalysis
-    ];
-    for(var i=0;i<candidates.length;i+=1){
-      if(Array.isArray(candidates[i]) && candidates[i].length) return candidates[i];
-    }
-    return [];
-  }
-
   function parseResponsePayload(response){
     if(response && response.normalizedPayload) return response.normalizedPayload;
     var text = response && Array.isArray(response.content)
@@ -297,24 +204,19 @@ if(!window.UPAIsCaseRecoveryEntry()) window.UPAStartFreshCase();
     return text ? JSON.parse(text) : null;
   }
 
-  function prefill(){
-    var dossier = readJSON(DOSSIER_KEY);
-    var intake = readJSON(INTAKE_KEY);
-    var flags = Object.assign({}, intake.dossierFlags || {}, dossier.dossierFlags || {});
-    function choose(name, value){
-      var input = document.querySelector('input[name="' + name + '"][value="' + value + '"]');
-      if(input) input.checked = true;
-    }
-    if(flags.nonprofitHospital === true) choose('nonprofit','yes');
-    else if(flags.nonprofitHospital === false) choose('nonprofit','no');
-    if(flags.selfPay === true) choose('selfPay','yes');
-    else if(flags.selfPay === false) choose('selfPay','no');
-    if(flags.emergencyCare === true) choose('emergencyCare','yes');
-    else if(flags.emergencyCare === false) choose('emergencyCare','no');
-    if(flags.inCollections === true || flags.collections === true) choose('inCollections','yes');
-    else if(flags.inCollections === false || flags.collections === false) choose('inCollections','no');
-    document.getElementById('care-state').value = flags.state || dossier.state || intake.state || '';
-    document.getElementById('bill-total').value = flags.billTotal || '';
+  function storeCase(caseData){
+    return fetch('/api/store-case', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(caseData)
+    }).then(function(response){
+      return response.json().catch(function(){ return {}; }).then(function(result){
+        if(!response.ok || !result.ok || !CASE_ID_PATTERN.test(result.caseId || '')){
+          throw new Error(result.error || 'The fresh case could not be saved');
+        }
+        return result.caseId;
+      });
+    });
   }
 
   function setProgress(title, detail){
@@ -345,42 +247,37 @@ if(!window.UPAIsCaseRecoveryEntry()) window.UPAStartFreshCase();
     var button = document.getElementById('submit-button');
     if(!form.reportValidity()) return;
 
-    var dossier = readJSON(DOSSIER_KEY);
-    var intake = readJSON(INTAKE_KEY);
-    var scan = readJSON(SCAN_KEY);
-    var flags = Object.assign({}, intake.dossierFlags || {}, dossier.dossierFlags || {}, buildFlags());
-    var lineItems = lineItemsFrom(dossier, intake, scan);
-    var providerName = providerFrom(dossier, intake, scan);
-    var storedDossier = Object.assign({}, dossier, {
+    var flags = buildFlags();
+    var lineItems = [];
+    var providerName = 'Provider not provided';
+    var storedDossier = {
+      generationMode: 'free_preview',
       providerName: providerName,
       state: flags.state,
-      dossierFlags: flags
-    });
-    var storedIntake = Object.assign({}, intake, {
+      dossierFlags: flags,
+      lineItems: lineItems,
+      codeAnalysis: lineItems
+    };
+    var storedIntake = {
       providerName: providerName,
+      totalBilled: flags.billTotal || '',
       state: flags.state,
       dossierFlags: flags
-    });
-    writeJSON(DOSSIER_KEY, storedDossier);
-    writeJSON(INTAKE_KEY, storedIntake);
-
-    var paid = localStorage.getItem('upa.paid') === '1'
-      || sessionStorage.getItem('upa.paid') === '1'
-      || dossier.generationMode === 'paid_dossier';
+    };
     var requestIntake = {
       providerName: providerName,
-      totalBilled: intake.totalBilled || scan.totalBilled || flags.billTotal || '',
-      amountOwed: intake.amountOwed || scan.patientBalance || '',
-      hasInsurance: flags.selfPay === true ? false : intake.hasInsurance,
-      insuranceType: intake.insuranceType || intake.insurance || scan.insuranceName || '',
-      planType: intake.planType || intake.insuranceType || intake.insurance || '',
+      totalBilled: flags.billTotal || '',
+      amountOwed: '',
+      hasInsurance: flags.selfPay !== true,
+      insuranceType: '',
+      planType: '',
       state: flags.state,
-      visitReason: intake.visitReason || scan.billType || '',
-      servicesReceived: intake.servicesReceived || '',
-      stayDuration: intake.stayDuration || '',
-      billStatus: flags.inCollections ? 'collections' : intake.billStatus || 'received',
-      specificConcerns: intake.specificConcerns || 'manual case details added',
-      billText: intake.billText || scan.rawText || '',
+      visitReason: flags.emergencyCare ? 'emergency room care' : '',
+      servicesReceived: '',
+      stayDuration: '',
+      billStatus: flags.inCollections ? 'collections' : 'received',
+      specificConcerns: 'manual case details added',
+      billText: '',
       codeAnalysis: lineItems,
       lineItems: lineItems,
       dossierFlags: flags
@@ -396,7 +293,7 @@ if(!window.UPAIsCaseRecoveryEntry()) window.UPAStartFreshCase();
 
     var requestBody = {
       generationMode: 'manual_flags',
-      targetGenerationMode: paid ? 'paid_dossier' : 'free_preview',
+      targetGenerationMode: 'free_preview',
       dossier: storedDossier,
       intake: Object.assign({}, requestIntake, { dossierFlags: flags })
     };
@@ -421,25 +318,30 @@ if(!window.UPAIsCaseRecoveryEntry()) window.UPAStartFreshCase();
       if(!normalized) throw new Error('Review response was incomplete');
       var nextDossier = Object.assign({}, storedDossier, normalized, {
         providerName: providerName,
+        totalBilled: flags.billTotal || '',
         state: flags.state,
         dossierFlags: flags,
         intake: Object.assign({}, storedIntake, requestIntake)
       });
-      writeJSON(DOSSIER_KEY, nextDossier);
+      setProgress('Your preview is ready', 'Saving this fresh case before opening the preview.');
+      return storeCase(nextDossier);
+    })
+    .then(function(caseId){
       setProgress('Your preview is ready', 'Opening the preview and payment options now.');
-      window.setTimeout(function(){ window.location.href = '/UPA-Final/00_upa-scan.html?resume=1&preview=manual'; }, 650);
+      window.setTimeout(function(){
+        window.location.href = '/UPA-Final/00_upa-scan.html?resume=1&preview=manual&access=' + encodeURIComponent(caseId);
+      }, 650);
     })
     .catch(function(error){
       showRecovery(error && error.name === 'AbortError'
-        ? 'Your answers are saved, but preparing the preview took too long. Please retry.'
-        : 'Your answers are saved, but the preview could not be prepared. Please retry.');
+        ? 'Preparing the fresh case took too long. Please retry.'
+        : 'The fresh case could not be prepared. Please retry.');
     })
     .finally(function(){
       window.clearTimeout(timeout);
     });
   });
 
-  prefill();
 })();
 </script>
 </body>

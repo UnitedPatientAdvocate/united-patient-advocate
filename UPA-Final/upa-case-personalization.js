@@ -1938,7 +1938,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       '.upa-editable-patient-name:hover{background:rgba(29,158,117,.07);box-shadow:0 0 0 2px rgba(29,158,117,.10)}' +
       '.upa-editable-patient-name:focus{background:#fff;box-shadow:0 0 0 2px rgba(29,158,117,.30)}' +
       '.upa-editable-patient-name:empty:before{content:attr(data-placeholder);color:#6B7688;font-family:var(--sans,Arial,sans-serif);font-style:normal;font-weight:500;opacity:.82}' +
-      '@media print{.upa-editable-patient-name{box-shadow:none!important;background:transparent!important}.upa-editable-patient-name:empty:before{content:"Your name";color:#6B7688}}';
+      '@media print{.upa-editable-patient-name{box-shadow:none!important;background:transparent!important}.upa-editable-patient-name:empty:before{content:""!important}}';
     document.head.appendChild(style);
   }
 
@@ -2395,7 +2395,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     setText('.sb-sub', c.billType + ' - ' + c.dateShort);
     setAllText('.sb-kpi-val', [c.amount.display, c.amount.reviewText]);
     setAllText('.sb-kpi-sub', [hasKnown(c.coverage, 'Your coverage') ? c.coverage : 'Insurance you listed at intake', c.uploaded ? 'Your itemized bill is in this case' : 'Add your itemized bill to unlock the full review']);
-    setText('.sb-score-num', c.detailScore >= 70 ? 'Strong start' : 'Open case');
+    setText('.sb-score-num', 'Ready to use');
 
     setText('.ch-ref', c.accountRef);
 
@@ -2478,9 +2478,9 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     setAllText('.rpc-row-val', [c.amount.unknown ? 'Pending your bill' : c.amount.display, c.issueCount ? String(c.issueCount) : 'Pending your bill', c.generatedLetterCount ? c.generatedLetterCount + ' drafted' : 'From your review']);
     var rpsPayment = c.paymentStatus || 'Review timing depends on your situation';
     setAllText('.rps-row-val', [c.issueCount ? c.issueCount + (c.issueCount === 1 ? ' review area' : ' review areas') : 'From your review', c.dossierFindings.length ? findingSummaryTitle(c.dossierFindings[0]) : 'From your review', rpsPayment, c.uploaded ? 'Working from your uploaded bill' : 'Ask for an itemized statement first']);
-    setText('#rp-gauge-amount', c.detailScore >= 70 ? 'Strong start' : 'Open case');
-    setText('#rp-gauge-pct', c.detailScore + '%');
-    setText('.rp-gauge-sub', c.uploaded ? 'Your itemized bill is in the case' : 'Adding your itemized bill sharpens the review');
+    setText('#rp-gauge-amount', 'Ready');
+    setText('#rp-gauge-pct', '');
+    setText('.rp-gauge-sub', 'Prepared tools ready to use');
     all('.rp-flag').slice(0,3).forEach(function(flag, idx){
       setText('.rp-flag-title', c.issues[idx].title, flag);
       setText('.rp-flag-sub', c.issues[idx].action, flag);
@@ -2497,8 +2497,8 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     syncQuickCalc(c);
     syncMobileDashboardCase(c);
     window.setTimeout(function(){
-      setText('#rp-gauge-amount', c.detailScore >= 70 ? 'Review' : 'Prelim');
-      setText('#rp-gauge-pct', c.detailScore + '%');
+      setText('#rp-gauge-amount', 'Ready');
+      setText('#rp-gauge-pct', '');
       syncQuickCalc(c);
       syncMobileDashboardCase(c);
     },1400);
@@ -2507,8 +2507,10 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   function applyLetterBodies(c){
     var bodies = all('.lbody');
     var headers = all('.lhd');
+    var packetBuyerName = '';
+    try{ packetBuyerName = clean(window.__UPA_BUYER_NAME__ || sessionStorage.getItem('upa.buyer.name.v1') || localStorage.getItem('upa.buyer.name.v1') || ''); }catch(e){}
     headers.forEach(function(header){
-      setText('.lhd-name', c.patientName, header);
+      setText('.lhd-name', packetBuyerName, header);
       setText('.lhd-sub', c.patientLabel, header);
       // Only render contact lines that actually have content. A formal letter
       // showing "email not provided / phone not provided" reads as broken.
@@ -2517,12 +2519,16 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       var addrLines = [];
       if (addrEmail) addrLines.push(h(addrEmail));
       if (addrPhone) addrLines.push(h(addrPhone));
-      setHTML('.lhd-addr', addrLines.length ? addrLines.join('<br>') : '<em style="opacity:.4;font-style:italic;font-size:.9em">Add your contact info before sending</em>', header);
+      var addressField = one('.lhd-addr', header);
+      if(addressField){
+        addressField.classList.toggle('upa-edit-hint-only', !addrLines.length);
+        addressField.innerHTML = addrLines.length ? addrLines.join('<br>') : '<em style="opacity:.4;font-style:italic;font-size:.9em">Add your contact info before sending</em>';
+      }
       setText('.lhd-date', c.prepDate, header);
       setText('.lhd-acct', 'Account: ' + c.accountRef, header);
     });
-    setAllText('.lbs-name', c.patientName);
-    var sigName = c.lastName || c.patientName || '';
+    setAllText('.lbs-name', packetBuyerName);
+    var sigName = packetBuyerName;
     setAllText('.lbs-sub', sigName ? sigName + ' / ' + c.coverage + ' - ' + c.accountRef : c.coverage + ' - ' + c.accountRef);
     setAllText('.ltb-title', [
       'Request for fully itemized statement - send this first',
@@ -2573,6 +2579,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   function persistEditablePatientName(name, c){
     var value = clean(name);
     var nameKey = editablePatientNameKey(c);
+    window.__UPA_BUYER_NAME__ = value;
     if(c){
       c.patientName = value;
       c.firstName = value ? value.split(/\s+/)[0] : 'You';
@@ -2645,13 +2652,14 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var syncing = false;
 
     function currentName(){
-      var stored = null;
+      var stored = window.__UPA_BUYER_NAME__ !== undefined ? window.__UPA_BUYER_NAME__ : null;
       var nameKey = editablePatientNameKey(c);
-      try{ stored = sessionStorage.getItem('upa.buyer.name.v1'); }catch(e){}
+      if(stored === null){ try{ stored = sessionStorage.getItem('upa.buyer.name.v1'); }catch(e){} }
       if(stored === null){ try{ stored = localStorage.getItem('upa.buyer.name.v1'); }catch(e){} }
       if(stored === null){ try{ stored = sessionStorage.getItem(nameKey); }catch(e){} }
       if(stored === null){ try{ stored = localStorage.getItem(nameKey); }catch(e){} }
       if(stored !== null) return clean(stored);
+      if(one('.toolbar') && all('.page').length >= 4) return '';
       return clean(c && c.patientName || window.UPACase && window.UPACase.patientName || '');
     }
 
@@ -2716,7 +2724,8 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     if(!one('.toolbar') || all('.page').length < 4) return;
     // Set ALL name fields globally first : catches elements outside .lhd wrappers
     // (e.g. the "Prepared For" block on page 1) that applyLetterBodies misses.
-    var displayName = c.patientName || '';
+    var displayName = '';
+    try{ displayName = clean(window.__UPA_BUYER_NAME__ || sessionStorage.getItem('upa.buyer.name.v1') || localStorage.getItem('upa.buyer.name.v1') || ''); }catch(e){}
     setAllText('.lhd-name', displayName);
     setAllText('.lbs-name', displayName);
     setText('.tb-sub', '- ' + c.accountRef + (displayName ? ' - ' + displayName : '') + ' packet');

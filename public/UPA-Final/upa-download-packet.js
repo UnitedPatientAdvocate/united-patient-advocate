@@ -253,7 +253,8 @@
 
   function addIntake(html, intake){
     var json = JSON.stringify(intake || {}).replace(/</g, '\\u003c');
-    var script = '<script>window.__UPA_PACKET_INTAKE__=' + json + ';try{sessionStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));localStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));}catch(e){}<\/script>';
+    var buyerName = JSON.stringify(buyerTypedName()).replace(/</g, '\\u003c');
+    var script = '<script>window.__UPA_PACKET_INTAKE__=' + json + ';window.__UPA_BUYER_NAME__=' + buyerName + ';try{sessionStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));localStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));sessionStorage.setItem("upa.buyer.name.v1",window.__UPA_BUYER_NAME__);localStorage.setItem("upa.buyer.name.v1",window.__UPA_BUYER_NAME__);}catch(e){}<\/script>';
     // Always force-inject fresh intake. Remove any existing baked-in intake first
     // so stale data from a previous session never bleeds into a new download.
     html = html.replace(/<script[^>]*>[\s\S]*?window\.__UPA_PACKET_INTAKE__[\s\S]*?<\/script>/i, '');
@@ -267,7 +268,7 @@
     // 1. Print/Save PDF button works via window.print()
     // 2. Key letter fields become click-to-edit so users can fill in any missing info
     //    without needing a separate word processor
-    var inlineFallback = '<script>' +
+    var inlineFallback = '<style>@media print{.lb-cite,#upa-edit-hint,.upa-edit-hint,.upa-edit-hint-only,[data-upa-edit-hint]{display:none!important}[contenteditable="true"]{border-bottom:0!important;background:transparent!important;outline:none!important}[contenteditable="true"][data-placeholder]:empty::before{content:""!important}}</style><script>' +
       'window.upaPrintPacketPDF=function(){window.print();};' +
       'window.upaPrintFullPackage=function(){window.print();};' +
       // Make editable fields on load
@@ -288,6 +289,7 @@
       '  if(firstLhd&&!document.getElementById("upa-edit-hint")){' +
       '    var hint=document.createElement("div");' +
       '    hint.id="upa-edit-hint";' +
+      '    hint.className="upa-edit-hint";' +
       '    hint.style.cssText="font-family:system-ui,sans-serif;font-size:11px;color:#5A7A8A;background:#F0F7F3;border:1px solid rgba(30,184,122,0.25);border-radius:6px;padding:8px 12px;margin-bottom:12px;display:flex;align-items:center;gap:8px";' +
       '    hint.innerHTML="<span style=\'font-size:14px\'>✏️</span> <span><strong>Your letters are ready to send.</strong> Click any underlined field to edit your name, address, or any detail, then print or save as PDF.</span>";' +
       '    firstLhd.parentNode.insertBefore(hint,firstLhd);' +

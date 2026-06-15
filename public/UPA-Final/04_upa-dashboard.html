@@ -3123,14 +3123,14 @@ function seoTryRecover(){
   </div>
   <div class="sb-score">
     <div class="sb-score-row">
-      <span class="sb-score-lbl">Case Strength</span>
-      <span class="sb-score-num">Strong start</span>
+      <span class="sb-score-lbl">Workspace Readiness</span>
+      <span class="sb-score-num">Ready to use</span>
     </div>
     <div class="sb-score-track"><div class="sb-score-fill" id="sb-fill"></div></div>
     <div class="sb-score-zones">
-      <span class="sb-score-zone">Low</span>
-      <span class="sb-score-zone active">Strong ✓</span>
-      <span class="sb-score-zone">Max</span>
+      <span class="sb-score-zone">Started</span>
+      <span class="sb-score-zone active">Prepared</span>
+      <span class="sb-score-zone">Ready</span>
     </div>
   </div>
   <nav class="sb-nav">
@@ -4060,9 +4060,9 @@ function seoTryRecover(){
     </div>
   </div>
 
-  <!-- Review Potential gauge -->
+  <!-- Workspace readiness indicator -->
   <div class="rp-gauge-wrap">
-    <div class="rp-gauge-label">Case Strength</div>
+    <div class="rp-gauge-label">Workspace Readiness</div>
     <div class="rp-gauge-svg-wrap">
       <svg class="rp-gauge-svg" viewBox="0 0 160 95" width="160" height="95" overflow="visible">
         <defs>
@@ -4075,18 +4075,18 @@ function seoTryRecover(){
         </defs>
         <!-- Track -->
         <path d="M 13 80 A 67 67 0 0 1 147 80" fill="none" stroke="#E8EDF4" stroke-width="12" stroke-linecap="round"/>
-        <!-- Fill arc: 72% → dashoffset = 243 - (243*0.72) = 68 -->
+        <!-- Full arc indicates that the prepared workspace is ready to use. -->
         <path id="rp-arc" d="M 13 80 A 67 67 0 0 1 147 80" fill="none" stroke="url(#rpg-grad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="243" stroke-dashoffset="243" filter="url(#rpg-glow)" style="transition:stroke-dashoffset 1.6s cubic-bezier(0.22,1,0.36,1) 0.4s"/>
         <!-- Scale labels -->
         <text x="8" y="94" font-family="Plus Jakarta Sans,sans-serif" font-size="8" fill="#96AFBE" font-weight="600">0%</text>
         <text x="130" y="94" font-family="Plus Jakarta Sans,sans-serif" font-size="8" fill="#96AFBE" font-weight="600">100%</text>
       </svg>
       <div class="rp-gauge-center">
-        <div class="rp-gauge-amount" id="rp-gauge-amount">$0</div>
-        <div class="rp-gauge-pct" id="rp-gauge-pct">0%</div>
+        <div class="rp-gauge-amount" id="rp-gauge-amount">Ready</div>
+        <div class="rp-gauge-pct" id="rp-gauge-pct"></div>
       </div>
     </div>
-    <div class="rp-gauge-sub">Review guidance</div>
+    <div class="rp-gauge-sub">Prepared tools ready to use</div>
   </div>
 
   <!-- Why these were flagged -->
@@ -5340,27 +5340,16 @@ function animateRPGauge() {
   const amountEl = document.getElementById('rp-gauge-amount');
   const pctEl = document.getElementById('rp-gauge-pct');
   if (!arc) return;
-  const score = 72;
-  const totalDash = 243;
-  const offset = totalDash - (totalDash * score / 100);
   setTimeout(() => {
-    arc.style.strokeDashoffset = offset;
-    let curr = 0;
-    const steps = 60;
-    const step = score / steps;
-    const iv = setInterval(() => {
-      curr = Math.min(curr + step, score);
-      const eased = score * (1 - Math.pow(1 - curr/score, 3));
-      if (pctEl) pctEl.textContent = Math.round(eased) + '%';
-      if (amountEl) amountEl.textContent = 'Review';
-      if (curr >= score) clearInterval(iv);
-    }, 28);
+    arc.style.strokeDashoffset = 0;
+    if (pctEl) pctEl.textContent = '';
+    if (amountEl) amountEl.textContent = 'Ready';
   }, 420);
 }
 
 function animateSidebar() {
   const fill = document.getElementById('sb-fill');
-  if (fill) fill.style.width = '72%';
+  if (fill) fill.style.width = '100%';
 }
 
 /* Shimmer pass on financial panels after data loads */
@@ -5670,7 +5659,7 @@ const FILM = [
     body: "This dashboard contains everything you need to dispute charges, talk to billing, and get your money back. The next scenes walk through every section so you know exactly where to go.",
     duration: 7000 },
   { title: "The case identity (top of sidebar)",
-    body: "On the left, the top of the sidebar shows your provider, total bill, and the amount worth pressing on - alongside a Case Strength meter showing how solid your position is.",
+    body: "On the left, the top of the sidebar shows your provider, total bill, and the amount worth pressing on, alongside a workspace readiness indicator.",
     duration: 8500 },
   { title: "Six tabs across the top",
     body: "Overview · Financials · Findings · Documents · Action Plan · Timeline. The active tab shows as a dark navy slot stamped into the brass. Click any tab to jump there.",
@@ -5803,7 +5792,7 @@ const TOUR_STEPS = [
     body: 'Right here is your provider, payor, and case reference. Always at the top of the sidebar so you never lose your place.' },
   { selectors: ['.sb-kpis', '.sb-score'], side: 'right',
     title: '📊 Your bill at a glance',
-    body: 'Total bill, the amount worth pressing on, and a Case Strength meter showing how solid your position is. The greener the bar, the more we found worth pursuing.' },
+    body: 'Total bill, the amount worth pressing on, and a workspace readiness indicator showing that your prepared tools are ready to use.' },
   { selector: '.tab-bar', side: 'bottom',
     title: '🗂️ Six tabs across the top',
     body: 'Overview · Financials · Findings · Documents · Action Plan · Timeline. The active tab shows as a dark navy slot stamped into the brass strip. Click any to jump there.' },

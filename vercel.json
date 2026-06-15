@@ -30,6 +30,13 @@
       "dest": "/UPA-Final/06_upa-scanner.html"
     },
     {
+      "src": "/access/?",
+      "headers": {
+        "Location": "/UPA-Final/04_upa-dashboard.html"
+      },
+      "status": 308
+    },
+    {
       "src": "/dashboard/?",
       "dest": "/UPA-Final/04_upa-dashboard.html"
     },

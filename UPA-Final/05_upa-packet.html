@@ -261,7 +261,7 @@ body{padding:12px 10px 40px;overflow-x:hidden}
 
   <!-- Packet contents -->
   <div style="padding:0 36px 24px">
-    <div style="font-size:.4rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink4);margin-bottom:12px;display:flex;align-items:center;gap:8px">What's Inside This 11-Page Packet<span style="flex:1;height:1px;background:var(--bdr);display:block"></span></div>
+    <div style="font-size:.4rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink4);margin-bottom:12px;display:flex;align-items:center;gap:8px">What's Inside This 12-Page Packet<span style="flex:1;height:1px;background:var(--bdr);display:block"></span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <!-- col 1 -->
       <div style="display:flex;flex-direction:column;gap:6px">
@@ -1104,11 +1104,32 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       }
       return '';
     }
-    function buyerTypedName(){
+    function formatMoneyText(value){
+      var text = String(value || '').replace(/\s+/g,' ').trim().replace(/^Other:\s*/i,'');
+      var match = text.match(/\d[\d,]*(?:\.\d+)?/);
+      var hasRange = /-|to|under|over|not sure|unknown|approx|around|between/i.test(text);
+      if(match && !hasRange){
+        var n = parseFloat(match[0].replace(/,/g,''));
+        if(isFinite(n)) return '$' + n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+      }
+      return text;
+    }
+    function scopedBuyerNameKey(source){
+      if(!source || typeof source !== 'object') return '';
+      var ref = String(source.accountRef || source.account_number || source.accountNumber || source.account || source.billing_reference || source.billingReference || source.extracted_account_number || source.referenceNumber || '').replace(/\s+/g,' ').trim();
+      var provider = String(source.provider || source.providerName || source.extracted_provider || '').replace(/\s+/g,' ').trim();
+      var dos = String(source.dateOfService || source.date_of_service || source.dos || source.extracted_date_of_service || source.serviceDate || '').replace(/\s+/g,' ').trim();
+      var scope = [ref, provider, dos].filter(Boolean).join('|').replace(/[^a-z0-9_-]+/gi,'_').slice(0,180);
+      return scope ? 'upa.patient-name.v1.' + scope : '';
+    }
+    function buyerTypedName(source){
       var values = [];
-      values.push(window.__UPA_BUYER_NAME__);
-      try{ values.push(sessionStorage.getItem('upa.buyer.name.v1')); }catch(e){}
-      try{ values.push(localStorage.getItem('upa.buyer.name.v1')); }catch(e){}
+      var nameKey = scopedBuyerNameKey(source);
+      if(nameKey){
+        try{ values.push(sessionStorage.getItem(nameKey)); }catch(e){}
+        try{ values.push(localStorage.getItem(nameKey)); }catch(e){}
+      }
+      if(window.__UPA_BUYER_NAME__ !== undefined) values.push(window.__UPA_BUYER_NAME__);
       for(var i=0;i<values.length;i+=1){
         var value = String(values[i] || '').replace(/\s+/g,' ').trim();
         if(value && !/^(patient|account holder|your name|click to add your name|name not provided)$/i.test(value)) return value;
@@ -1116,11 +1137,11 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       return '';
     }
     var current = storedCurrentIntake();
-    var patientName = buyerTypedName();
+    var patientName = buyerTypedName(current);
     var providerName = providerFromCurrent(current) || 'provider on statement';
     var dateOfService = current.dateOfService || current.date_of_service || current.extracted_date_of_service || 'date on statement';
-    var totalBilled = current.bill_amount_other || current.bill_amount || current.totalBilled || current.extracted_bill_amount || 'amount on statement';
-    var referenceNumber = current.referenceNumber || current.account_number || current.extracted_account_number || 'on file';
+    var totalBilled = formatMoneyText(current.bill_amount_other || current.bill_amount || current.totalBilled || current.extracted_bill_amount || 'amount on statement');
+    var referenceNumber = current.referenceNumber || current.account_number || current.extracted_account_number || '';
     document.querySelectorAll('.lhd-name,.lbs-name').forEach(function(el){
       el.textContent = patientName;
       el.setAttribute('contenteditable','true');
@@ -1135,7 +1156,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       ['St. Johns', providerName],
       ['Your Provider', providerName],
       ['Account number on statement', referenceNumber],
-      ['Account: account number', 'Account: ' + referenceNumber],
+      ['Account: account number', referenceNumber ? 'Account: ' + referenceNumber : ''],
       ['Account number', referenceNumber],
       ['account number', referenceNumber]
     ];
@@ -1151,8 +1172,14 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     nodes.forEach(function(node){
       var text = node.nodeValue;
       replacements.forEach(function(pair){
-        if(pair[1]) text = text.split(pair[0]).join(pair[1]);
+        if(pair[1] !== null && pair[1] !== undefined) text = text.split(pair[0]).join(pair[1]);
       });
+      if(!referenceNumber) text = text
+        .replace(/\s*·\s*Account\s*$/i,'')
+        .replace(/\bAccount:\s*$/i,'')
+        .replace(/(?:\s*·\s*){2,}/g,' · ')
+        .replace(/\s*·\s*$/,'')
+        .replace(/^\s*·\s*/,'');
       node.nodeValue = text;
     });
     if(typeof window.UPACleanCustomerTextNodes === 'function') window.UPACleanCustomerTextNodes(document.body);

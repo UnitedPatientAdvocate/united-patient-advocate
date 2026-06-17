@@ -495,7 +495,8 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
 
   function amountInfo(data){
     var rawKey = clean(data.bill_amount_raw || '');
-    var rawText = clean(data.bill_amount_other || data.bill_amount || data.balance || '');
+    var rawText = clean(data.bill_amount_other || data.bill_amount || data.totalBilled || data.total_billed || data.amountOwed || data.balance || '');
+    rawText = rawText.replace(/^Other:\s*/i, '');
     var extractedAmount = clean(data.extracted_bill_amount);
     var extractedAmountNumber = parseNumber(extractedAmount);
     var extractedAmountConfidence = confidenceValue(data.extracted_bill_amount_confidence);
@@ -1585,7 +1586,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     } catch(e){ /* audit must never break case build */ }
 
     var amount = amountInfo(data);
-    var name = buyerTypedName();
+    var name = buyerTypedName(data);
     var nameBits = name.split(/\s+/).filter(Boolean);
     var first = nameBits[0] || '';
     var last = nameBits.length > 1 ? nameBits[nameBits.length - 1] : '';
@@ -1740,15 +1741,44 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     };
   }
 
-  function buyerTypedName(){
+  function validBuyerTypedName(value){
+    value = safeProperNoun(clean(value), '');
+    if(!value) return '';
+    if(/^(patient|account holder|your name|click to add your name|name not provided)$/i.test(value)) return '';
+    return value;
+  }
+
+  function scopedBuyerNameKey(source){
+    if(!source || typeof source !== 'object') return '';
+    var ref = clean(source.accountRef || source.account_number || source.accountNumber || source.account || source.billing_reference || source.billingReference || source.extracted_account_number || source.referenceNumber || '');
+    var provider = clean(source.provider || source.providerName || source.extracted_provider || '');
+    var dos = clean(source.dateOfService || source.date_of_service || source.dos || source.extracted_date_of_service || source.serviceDate || '');
+    if(!ref && !provider && !dos) return '';
+    return editablePatientNameKey({accountRef:ref, provider:provider, dateOfService:dos});
+  }
+
+  function buyerTypedName(source){
     var values = [];
-    try{ values.push(sessionStorage.getItem('upa.buyer.name.v1')); }catch(e){}
-    try{ values.push(localStorage.getItem('upa.buyer.name.v1')); }catch(e){}
+    var nameKey = scopedBuyerNameKey(source);
+    if(nameKey){
+      try{ values.push(sessionStorage.getItem(nameKey)); }catch(e){}
+      try{ values.push(localStorage.getItem(nameKey)); }catch(e){}
+    }
+    if(window.__UPA_BUYER_NAME__ !== undefined) values.push(window.__UPA_BUYER_NAME__);
     for(var i = 0; i < values.length; i += 1){
-      var value = safeProperNoun(clean(values[i]), '');
-      if(value && !/^(patient|account holder|your name|click to add your name|name not provided)$/i.test(value)) return value;
+      var value = validBuyerTypedName(values[i]);
+      if(value) return value;
     }
     return '';
+  }
+
+  function knownAccountRef(value){
+    value = clean(value);
+    if(!value) return '';
+    var lower = value.toLowerCase();
+    if(/^(in your case folder|on file|account on file|account number)$/.test(lower)) return '';
+    if(lower.indexOf('account') === 0 && lower.indexOf('confirm') > -1) return '';
+    return value;
   }
 
   function all(selector, root){
@@ -2202,19 +2232,46 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       if(values[4]) values[4].textContent = issue.action ? 'Needs written response' : 'Needs review';
     });
 
-    all('.fin-table tbody tr').forEach(function(row, idx){
-      var issue = issueAt(c, idx);
-      setText('.ft-code', issue.key || ('review-' + (idx + 1)), row);
-      setText('.ft-strong', issue.title, row);
-      setText('.ft-sub', issueCodeLine(c, issue), row);
-      var cells = row.children || [];
-      if(cells[2]) cells[2].textContent = c.uploaded ? 'Bill/EOB review' : 'Pending itemized bill';
-      var amt = row.querySelector('.ft-amount');
-      if(amt) amt.textContent = issue.amountText;
-      var badge = row.querySelector('.ft-badge');
-      if(badge) badge.textContent = idx === 0 ? 'Press first' : 'Review';
-      if(cells[5]) cells[5].textContent = issue.short;
-    });
+    var finRows = all('.fin-table tbody tr');
+    var finBody = one('.fin-table tbody');
+    var finVm = clfsViewModel(readDossierState());
+    if(finRows.length && !finVm.totalCount){
+      finRows.forEach(function(row, idx){
+        row.style.display = idx === 0 ? '' : 'none';
+        if(idx !== 0) return;
+        var cells = row.children || [];
+        if(cells[0]) cells[0].innerHTML = '<span class="ft-code">On standby</span>';
+        if(cells[1]) cells[1].innerHTML = '<div class="ft-strong">Itemized procedure codes not added yet</div><div class="ft-sub">Your itemized procedure codes and Medicare comparisons appear here once you add your itemized bill.</div>';
+        if(cells[2]) cells[2].textContent = '';
+        if(cells[3]) cells[3].innerHTML = '';
+        if(cells[4]) cells[4].innerHTML = '<span class="ft-badge ftb-review">On standby</span>';
+        if(cells[5]) cells[5].textContent = '';
+      });
+    }else if(finRows.length){
+      while(finBody && finRows.length < finVm.lines.length){
+        var clone = finRows[0].cloneNode(true);
+        finBody.appendChild(clone);
+        finRows.push(clone);
+      }
+      finRows.forEach(function(row, idx){
+        var line = finVm.lines[idx];
+        if(!line){
+          row.style.display = 'none';
+          return;
+        }
+        row.style.display = '';
+        setText('.ft-code', line.code || 'Line item', row);
+        setText('.ft-strong', line.shortDescription || 'Line item', row);
+        setText('.ft-sub', line.benchmarkAvailable ? (line.source || 'CMS CLFS 2026') : (line.reason || 'Benchmark unavailable'), row);
+        var cells = row.children || [];
+        if(cells[2]) cells[2].textContent = line.benchmarkAvailable ? formatMoneyFull(line.benchmarkRate) : 'Unavailable';
+        var amt = row.querySelector('.ft-amount');
+        if(amt) amt.textContent = line.billedAmount != null ? formatMoneyFull(line.billedAmount) : 'Amount not detected';
+        var badge = row.querySelector('.ft-badge');
+        if(badge) badge.textContent = line.benchmarkAvailable ? 'CMS match' : 'Review';
+        if(cells[5]) cells[5].textContent = line.benchmarkAvailable && line.percentAboveBenchmark != null ? (line.percentAboveBenchmark + '% above') : (line.reason || 'Review');
+      });
+    }
     setText('.ftr-label', 'Amount Needs Review');
     setText('.ftr-ctx', c.issueCount
       ? c.issueCount + ' review area' + (c.issueCount === 1 ? '' : 's') + (c.generatedLetterCount ? ' - ' + c.generatedLetterCount + ' generated document' + (c.generatedLetterCount === 1 ? '' : 's') : '')
@@ -2504,8 +2561,10 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   function applyLetterBodies(c){
     var bodies = all('.lbody');
     var headers = all('.lhd');
-    var packetBuyerName = '';
-    try{ packetBuyerName = clean(window.__UPA_BUYER_NAME__ || sessionStorage.getItem('upa.buyer.name.v1') || localStorage.getItem('upa.buyer.name.v1') || ''); }catch(e){}
+    var packetBuyerName = buyerTypedName(c);
+    var packetAccountRef = knownAccountRef(c.accountRef);
+    var accountLabel = packetAccountRef ? 'Account: ' + packetAccountRef : '';
+    var accountPhrase = packetAccountRef ? ', account reference ' + h(packetAccountRef) : '';
     headers.forEach(function(header){
       setText('.lhd-name', packetBuyerName, header);
       setText('.lhd-sub', c.patientLabel, header);
@@ -2522,11 +2581,11 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
         addressField.innerHTML = addrLines.length ? addrLines.join('<br>') : '<em style="opacity:.4;font-style:italic;font-size:.9em">Add your contact info before sending</em>';
       }
       setText('.lhd-date', c.prepDate, header);
-      setText('.lhd-acct', 'Account: ' + c.accountRef, header);
+      setText('.lhd-acct', accountLabel, header);
     });
     setAllText('.lbs-name', packetBuyerName);
     var sigName = packetBuyerName;
-    setAllText('.lbs-sub', sigName ? sigName + ' / ' + c.coverage + ' - ' + c.accountRef : c.coverage + ' - ' + c.accountRef);
+    setAllText('.lbs-sub', [sigName ? sigName + ' / ' + c.coverage : c.coverage, packetAccountRef].filter(Boolean).join(' - '));
     setAllText('.ltb-title', [
       'Request for fully itemized statement - send this first',
       'Billing review request - ' + c.issues[0].short,
@@ -2534,8 +2593,8 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     ]);
     if(bodies[0]){
       setHTML('.lb-to-addr', h(c.provider) + ' - Billing & Accounts<br>Billing address : see statement', bodies[0]);
-      setText('.lb-re-txt', 'Request for Fully Itemized Statement - ' + c.accountRef + ' - Date of Service: ' + c.dateOfService, bodies[0]);
-      setHTML('.lb-para', 'I am writing to request a complete, fully itemized statement for medical services rendered on <strong>' + h(c.dateOfService) + '</strong>, account reference ' + h(c.accountRef) + ', at ' + h(c.provider) + '. My current intake lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, payment timing as <strong>' + h(c.paymentStatus) + '</strong>, and concerns including <strong>' + h(c.concernSummary) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' I am reviewing this statement before accepting the patient responsibility.', bodies[0]);
+      setText('.lb-re-txt', 'Request for Fully Itemized Statement' + (packetAccountRef ? ' - ' + packetAccountRef : '') + ' - Date of Service: ' + c.dateOfService, bodies[0]);
+      setHTML('.lb-para', 'I am writing to request a complete, fully itemized statement for medical services rendered on <strong>' + h(c.dateOfService) + '</strong>' + accountPhrase + ', at ' + h(c.provider) + '. My current intake lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, payment timing as <strong>' + h(c.paymentStatus) + '</strong>, and concerns including <strong>' + h(c.concernSummary) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' I am reviewing this statement before accepting the patient responsibility.', bodies[0]);
       setText('.lb-hl', 'Please provide every line item, CPT/HCPCS code, revenue code, units, dates of service, provider adjustments, insurer payments or denials, and the patient-responsibility amount for each individual item.', bodies[0]);
       setText('.lb-sm', 'This request is made so I can reconcile the statement against my EOB, coverage, and records. Please pause collection activity on any disputed portion while this written review is pending and provide a reference number for this request.', bodies[0]);
     }
@@ -2543,7 +2602,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       var issue = c.issues[0];
       setHTML('.lb-to-addr', h(c.provider) + ' - Billing Review Department<br>Billing address : see statement', bodies[1]);
       setText('.lb-re-txt', 'Billing Review Request - ' + issue.title + ' - DOS: ' + c.dateOfService + ' - Amount Under Review: ' + issue.amountText, bodies[1]);
-      setHTML('.lb-para', 'I am requesting a formal written review of my statement, account reference ' + h(c.accountRef) + '. Based on my intake and the documents available to me, my concerns include: <strong>' + h(c.concernSummary) + '</strong>. The primary review point is <strong>' + h(issue.title) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' This review relates to services at ' + h(c.provider) + ' on ' + h(c.dateOfService) + ' with current amount listed as ' + h(c.amount.display) + '.', bodies[1]);
+      setHTML('.lb-para', 'I am requesting a formal written review of my statement' + accountPhrase + '. Based on my intake and the documents available to me, my concerns include: <strong>' + h(c.concernSummary) + '</strong>. The primary review point is <strong>' + h(issue.title) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' This review relates to services at ' + h(c.provider) + ' on ' + h(c.dateOfService) + ' with current amount listed as ' + h(c.amount.display) + '.', bodies[1]);
       setText('.lb-hl', 'I am requesting a written explanation and correction if your review confirms a duplicate entry.', bodies[1]);
       var cite = one('.lb-cite', bodies[1]);
       if(cite) cite.remove();
@@ -2552,15 +2611,15 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     if(bodies[2]){
       var issue3 = c.issues[2];
       setHTML('.lb-to-addr', 'Billing Department - ' + h(c.provider) + '<br>Insurance / payer review contact if available', bodies[2]);
-      setText('.lb-re-txt', 'Insurance / EOB / Rate Clarification - ' + issue3.title + ' - Account: ' + c.accountRef, bodies[2]);
+      setText('.lb-re-txt', 'Insurance / EOB / Rate Clarification - ' + issue3.title + (packetAccountRef ? ' - Account: ' + packetAccountRef : ''), bodies[2]);
       setHTML('.lb-para', 'I am writing to request written clarification of the insurance, EOB, network, and rate handling for my <strong>' + h(c.dateOfService) + ' ' + h(c.billType) + '</strong> at ' + h(c.provider) + '. My coverage is listed as <strong>' + h(c.coverage) + '</strong>, payment timing is <strong>' + h(c.paymentStatus) + '</strong>, and my intake concerns include <strong>' + h(c.concernSummary) + '</strong>. The patient balance requires confirmation before I accept responsibility.', bodies[2]);
       setText('.lb-hl', issue3.action + ' Please identify any payer denial codes, allowed amounts, adjustments, network status, consent documentation if relevant, and appeal or corrected-claim options.', bodies[2]);
       setText('.lb-sm', 'Please respond in writing with the EOB basis, payer responsibility, provider adjustment history, and the current patient-responsibility calculation. If the balance changes, please issue a corrected statement and refund or payment-plan adjustment instructions if applicable.', bodies[2]);
     }
     setAllText('.lfoot .lf-m', [
-      'Core letter 1 - ' + c.accountRef + ' - DOS: ' + c.dateOfService + ' - Prepared ' + c.prepDate,
-      'Core letter 2 - ' + c.accountRef + ' - ' + c.issues[0].short + ' - Prepared ' + c.prepDate,
-      'Core letter 3 - ' + c.accountRef + ' - EOB/rate clarification - Prepared ' + c.prepDate
+      ['Core letter 1', packetAccountRef, 'DOS: ' + c.dateOfService, 'Prepared ' + c.prepDate].filter(Boolean).join(' - '),
+      ['Core letter 2', packetAccountRef, c.issues[0].short, 'Prepared ' + c.prepDate].filter(Boolean).join(' - '),
+      ['Core letter 3', packetAccountRef, 'EOB/rate clarification', 'Prepared ' + c.prepDate].filter(Boolean).join(' - ')
     ]);
   }
 
@@ -2645,17 +2704,16 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   }
 
   function wireEditablePatientNames(c){
-    var selector = '.lhd-name,.lbs-name,.doc-preview-card .mini-org,.doc-preview-card .mini-sig-name';
+    var selector = '#sb-patient-name,.sb-patient-name,.lhd-name,.lbs-name,.doc-preview-card .mini-org,.doc-preview-card .mini-sig-name';
     var syncing = false;
 
     function currentName(){
-      var stored = window.__UPA_BUYER_NAME__ !== undefined ? window.__UPA_BUYER_NAME__ : null;
+      var stored = null;
       var nameKey = editablePatientNameKey(c);
-      if(stored === null){ try{ stored = sessionStorage.getItem('upa.buyer.name.v1'); }catch(e){} }
-      if(stored === null){ try{ stored = localStorage.getItem('upa.buyer.name.v1'); }catch(e){} }
       if(stored === null){ try{ stored = sessionStorage.getItem(nameKey); }catch(e){} }
       if(stored === null){ try{ stored = localStorage.getItem(nameKey); }catch(e){} }
-      if(stored !== null) return clean(stored);
+      if(stored === null && window.__UPA_BUYER_NAME__ !== undefined) stored = window.__UPA_BUYER_NAME__;
+      if(stored !== null) return validBuyerTypedName(stored);
       if(one('.toolbar') && all('.page').length >= 4) return '';
       return clean(c && c.patientName || window.UPACase && window.UPACase.patientName || '');
     }
@@ -2721,11 +2779,11 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     if(!one('.toolbar') || all('.page').length < 4) return;
     // Set ALL name fields globally first : catches elements outside .lhd wrappers
     // (e.g. the "Prepared For" block on page 1) that applyLetterBodies misses.
-    var displayName = '';
-    try{ displayName = clean(window.__UPA_BUYER_NAME__ || sessionStorage.getItem('upa.buyer.name.v1') || localStorage.getItem('upa.buyer.name.v1') || ''); }catch(e){}
+    var displayName = buyerTypedName(c);
+    var packetAccountRef = knownAccountRef(c.accountRef);
     setAllText('.lhd-name', displayName);
     setAllText('.lbs-name', displayName);
-    setText('.tb-sub', '- ' + c.accountRef + (displayName ? ' - ' + displayName : '') + ' packet');
+    setText('.tb-sub', [packetAccountRef, displayName].filter(Boolean).join(' - ') + ([packetAccountRef, displayName].filter(Boolean).length ? ' packet' : 'packet'));
     var firstPageHeader = one('.page .nh');
     if(c.noteText && firstPageHeader && !one('.page .upa-case-note')){
       var note = document.createElement('div');
@@ -2769,7 +2827,10 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     }
 
     all('.nf-r').forEach(function(el){
-      if(/Account|Page/.test(el.textContent)) el.textContent = el.textContent.replace(/Account.+$/,'Account ' + c.accountRef);
+      if(/Account|Page/.test(el.textContent)){
+        var pageText = el.textContent.replace(/\s*·\s*Account.+$/,'').replace(/\s+-\s*Account.+$/,'').trim();
+        el.textContent = packetAccountRef ? pageText + ' · Account ' + packetAccountRef : pageText;
+      }
     });
     renderPhase3CaseGeneration(null, c);
   }

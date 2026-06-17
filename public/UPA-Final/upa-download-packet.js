@@ -19,10 +19,34 @@
     return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
   }
 
-  function buyerTypedName(){
+  function formatMoneyText(value){
+    var text = clean(value).replace(/^Other:\s*/i, '');
+    var match = text.match(/\d[\d,]*(?:\.\d+)?/);
+    var hasRange = /-|to|under|over|not sure|unknown|approx|around|between/i.test(text);
+    if(match && !hasRange){
+      var n = parseFloat(match[0].replace(/,/g, ''));
+      if(isFinite(n)) return '$' + n.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+    }
+    return text;
+  }
+
+  function scopedBuyerNameKey(source){
+    if(!source || typeof source !== 'object') return '';
+    var ref = clean(source.accountRef || source.account_number || source.accountNumber || source.account || source.billing_reference || source.billingReference || source.extracted_account_number || source.referenceNumber || '');
+    var provider = clean(source.provider || source.providerName || source.extracted_provider || '');
+    var dos = clean(source.dateOfService || source.date_of_service || source.dos || source.extracted_date_of_service || source.serviceDate || '');
+    var scope = [ref, provider, dos].filter(Boolean).join('|').replace(/[^a-z0-9_-]+/gi,'_').slice(0,180);
+    return scope ? 'upa.patient-name.v1.' + scope : '';
+  }
+
+  function buyerTypedName(source){
     var values = [];
-    try { values.push(sessionStorage.getItem('upa.buyer.name.v1')); } catch(e) {}
-    try { values.push(localStorage.getItem('upa.buyer.name.v1')); } catch(e) {}
+    var nameKey = scopedBuyerNameKey(source);
+    if(nameKey){
+      try { values.push(sessionStorage.getItem(nameKey)); } catch(e) {}
+      try { values.push(localStorage.getItem(nameKey)); } catch(e) {}
+    }
+    if(window.__UPA_BUYER_NAME__ !== undefined) values.push(window.__UPA_BUYER_NAME__);
     for(var i = 0; i < values.length; i += 1){
       var value = clean(values[i]);
       if(value && !/^(patient|account holder|your name|click to add your name|name not provided)$/i.test(value)) return value;
@@ -32,7 +56,7 @@
 
   function withBuyerTypedName(intake){
     var result = Object.assign({}, intake || {});
-    var name = buyerTypedName();
+    var name = buyerTypedName(result);
     result.patientName = name;
     result.patient_name = name;
     result.fullName = name;
@@ -146,7 +170,7 @@
   }
 
   function packetFilename(intake){
-    var patient = filePart(buyerTypedName() || 'your-name', 'your-name');
+    var patient = filePart(buyerTypedName(intake) || 'your-name', 'your-name');
     var stamp = new Date().toISOString().slice(0,10);
     return 'upa-packet-' + patient + '-' + stamp + '.html';
   }
@@ -158,7 +182,7 @@
   }
 
   function letterFilename(intake, letterNo, title){
-    var patient = filePart(buyerTypedName() || 'your-name', 'your-name');
+    var patient = filePart(buyerTypedName(intake) || 'your-name', 'your-name');
     var stamp = new Date().toISOString().slice(0,10);
     var label = filePart(title || ('letter-' + letterNo), 'letter-' + letterNo);
     return 'upa-' + label + '-' + patient + '-' + stamp + '.html';
@@ -170,9 +194,9 @@
     // (stale closure) or when called from the scan page before personalization ran (undefined).
     // All needed fields are already in the intake object from readIntake().
     return {
-      patient:   buyerTypedName(),
+      patient:   buyerTypedName(intake),
       provider:  clean(intake.provider || intake.providerName || intake.extracted_provider || ''),
-      amount:    clean(intake.bill_amount_other || intake.bill_amount || (intake.extracted_bill_amount ? '$' + intake.extracted_bill_amount : '') || intake.totalBilled || intake.balance || ''),
+      amount:    formatMoneyText(intake.bill_amount_other || intake.bill_amount || intake.totalBilled || (intake.extracted_bill_amount ? '$' + intake.extracted_bill_amount : '') || intake.balance || ''),
       dos:       clean(intake.date_of_service || intake.extracted_date_of_service || intake.service_date || intake.serviceDate || ''),
       account:   clean(intake.account_number || intake.extracted_account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || ''),
       coverage:  clean(intake.insurance || intake.extracted_insurance || intake.insuranceType || ''),
@@ -187,7 +211,7 @@
     var provider = ctx.provider || 'Provider to confirm';
     var amount = ctx.amount || 'Amount to confirm';
     var dos = ctx.dos || 'Date to confirm';
-    var account = ctx.account || 'Account to confirm';
+    var account = ctx.account;
     var coverage = ctx.coverage || 'Coverage to confirm';
     var contact = [ctx.email, ctx.phone].filter(Boolean).join(' | ') || 'Add contact details before sending';
     return String(html || '')
@@ -210,7 +234,12 @@
       .replace(/billing reference/g, account)
       .replace(/Medicare Beneficiary/g, coverage)
       .replace(/Medicare primary/g, coverage)
-      .replace(/Medicare as the primary payer/g, coverage ? coverage + ' as the listed coverage' : 'the listed coverage');
+      .replace(/Medicare as the primary payer/g, coverage ? coverage + ' as the listed coverage' : 'the listed coverage')
+      .replace(/\s*·\s*Account\s*$/g, '')
+      .replace(/\bAccount:\s*$/g, '')
+      .replace(/(?:\s*·\s*){2,}/g, ' · ')
+      .replace(/\s*·\s*$/g, '')
+      .replace(/^\s*·\s*/g, '');
   }
 
   function addBase(html, sourceUrl){
@@ -253,7 +282,7 @@
 
   function addIntake(html, intake){
     var json = JSON.stringify(intake || {}).replace(/</g, '\\u003c');
-    var buyerName = JSON.stringify(buyerTypedName()).replace(/</g, '\\u003c');
+    var buyerName = JSON.stringify(buyerTypedName(intake)).replace(/</g, '\\u003c');
     var script = '<script>window.__UPA_PACKET_INTAKE__=' + json + ';window.__UPA_BUYER_NAME__=' + buyerName + ';try{sessionStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));localStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));sessionStorage.setItem("upa.buyer.name.v1",window.__UPA_BUYER_NAME__);localStorage.setItem("upa.buyer.name.v1",window.__UPA_BUYER_NAME__);}catch(e){}<\/script>';
     // Always force-inject fresh intake. Remove any existing baked-in intake first
     // so stale data from a previous session never bleeds into a new download.

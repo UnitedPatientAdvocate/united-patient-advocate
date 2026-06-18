@@ -344,6 +344,46 @@ function extractCPTCodes(text) {
   return { codes: [...new Set(codes)], hasDuplicates: dupes.length > 0, duplicateCodes: dupes };
 }
 
+function extractItemizedLineItems(lines) {
+  const items = [];
+  const codePattern = /\b(\d{5}|\d{4}[A-Z]|[A-Z]\d{4})\b/i;
+  const moneyPattern = /\$\s*([\d,]+(?:\.\d{1,2})?)/g;
+
+  (Array.isArray(lines) ? lines : []).forEach(function(rawLine) {
+    const line = String(rawLine || '').replace(/\s+/g, ' ').trim();
+    const codeMatch = codePattern.exec(line);
+    if (!codeMatch) return;
+
+    const amounts = [];
+    let amountMatch;
+    moneyPattern.lastIndex = 0;
+    while ((amountMatch = moneyPattern.exec(line)) !== null) {
+      amounts.push({ value: parseAmount(amountMatch[1]), index: amountMatch.index });
+    }
+    if (!amounts.length) return;
+
+    const billed = amounts[amounts.length - 1];
+    if (billed.value === null) return;
+
+    let description = line.slice(codeMatch.index + codeMatch[0].length, billed.index).trim();
+    let units = 1;
+    const unitsMatch = description.match(/\s+(\d+(?:\.\d+)?)\s*$/);
+    if (unitsMatch) {
+      units = Number(unitsMatch[1]) || 1;
+      description = description.slice(0, unitsMatch.index).trim();
+    }
+
+    items.push({
+      code: codeMatch[1].toUpperCase(),
+      shortDescription: description,
+      billedAmount: billed.value,
+      units: units
+    });
+  });
+
+  return items;
+}
+
 /* ─────────────────────────────────────────────
    DENIAL DETECTION
 ───────────────────────────────────────────── */
@@ -395,6 +435,7 @@ async function extractFromPDF(file) {
     insurancePaid: null, adjustmentAmount: null, allAmounts: [],
     claimNumber: null, insuranceName: null,
     cptCodes: [], hasDuplicateCodes: false, duplicateCodes: [],
+    codeAnalysis: [], lineItems: [],
     denialDetected: false, pageCount: 0,
     rawText: '', lines: [],
     confidence: 'low', _scan: true, _scanTimestamp: Date.now()
@@ -429,6 +470,7 @@ async function extractFromPDF(file) {
     const amounts  = extractAmounts(fullText);
     const dates    = extractDates(fullText);
     const cpt      = extractCPTCodes(fullText);
+    const lineItems = extractItemizedLineItems(allLines);
 
     Object.assign(result, {
       totalBilled:      amounts.totalBilled,
@@ -444,6 +486,8 @@ async function extractFromPDF(file) {
       cptCodes:         cpt.codes,
       hasDuplicateCodes:cpt.hasDuplicates,
       duplicateCodes:   cpt.duplicateCodes,
+      codeAnalysis:     lineItems,
+      lineItems:        lineItems,
       denialDetected:   detectDenial(fullText)
     });
 

@@ -4694,40 +4694,10 @@ function upaSectionPatientName() {
   }) || '';
 }
 
-function upaPersistSectionPatientName(name) {
-  var value = upaSectionClean(name);
-  if (/^(patient|account holder|your name|click to add your name|name not provided)$/i.test(value)) value = '';
-  if (window.UPACase) window.UPACase.patientName = value;
-  try { sessionStorage.setItem('patientName', value); } catch(e) {}
-  try { localStorage.setItem('patientName', value); } catch(e) {}
-  try { sessionStorage.setItem('upa.buyer.name.v1', value); } catch(e) {}
-  try { localStorage.setItem('upa.buyer.name.v1', value); } catch(e) {}
-  ['upa.intake.v1','upa.ai.dossier.v1'].forEach(function(key) {
-    var data = upaSectionReadJSON(key);
-    if (!data || typeof data !== 'object') data = {};
-    data.patientName = value;
-    data.patient_name = value;
-    data.name = value;
-    if (data.intake && typeof data.intake === 'object') {
-      data.intake.patientName = value;
-      data.intake.patient_name = value;
-      data.intake.name = value;
-    }
-    var json = JSON.stringify(data);
-    try { sessionStorage.setItem(key, json); } catch(e) {}
-    try { localStorage.setItem(key, json); } catch(e) {}
-  });
-  document.querySelectorAll('[data-upa-editable-name="1"]').forEach(function(el) {
-    if (el.id !== 'sb-patient-name' && upaSectionClean(el.textContent) !== value) el.textContent = value;
-  });
-  return value;
-}
-
 function wireSectionExportPatientName() {
   var field = document.getElementById('sb-patient-name');
   if (!field || field.getAttribute('data-upa-section-name-wired') === '1') return;
   field.setAttribute('data-upa-section-name-wired', '1');
-  field.setAttribute('data-upa-editable-name', '1');
   field.setAttribute('contenteditable', 'true');
   field.setAttribute('role', 'textbox');
   field.setAttribute('aria-label', 'Patient name');
@@ -4735,22 +4705,7 @@ function wireSectionExportPatientName() {
   field.setAttribute('data-placeholder', 'Click to add your name');
   field.setAttribute('spellcheck', 'false');
   var current = upaSectionPatientName();
-  field.textContent = current;
-  field.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      field.blur();
-    }
-  });
-  field.addEventListener('input', function() {
-    var value = String(field.textContent || '').replace(/[\r\n]+/g, ' ');
-    document.querySelectorAll('[data-upa-editable-name="1"]').forEach(function(el) {
-      if (el !== field) el.textContent = value;
-    });
-  });
-  field.addEventListener('blur', function() {
-    field.textContent = upaPersistSectionPatientName(field.textContent);
-  });
+  if (current && !upaSectionClean(field.textContent)) field.textContent = current;
 }
 
 function upaSectionCaseMeta() {

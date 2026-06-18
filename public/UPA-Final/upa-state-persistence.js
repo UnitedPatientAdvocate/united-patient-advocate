@@ -393,6 +393,7 @@
   function compactCase(caseData){
     if(!caseData || typeof caseData !== 'object') return {};
     var out = {
+      buyerName: caseData.buyerName || '',
       patientName: caseData.patientName || caseData.name || '',
       provider: caseData.provider || caseData.providerName || '',
       amount: caseData.amount || caseData.billAmount || caseData.totalBilled || '',
@@ -453,6 +454,8 @@
   }
 
   function getIntake(){
+    if(window.__UPA_ACCESS_INTAKE__ && hasIntake(window.__UPA_ACCESS_INTAKE__)) return window.__UPA_ACCESS_INTAKE__;
+    if(window.__UPA_ACCESS_CASE__ && window.__UPA_ACCESS_CASE__.intake && hasIntake(window.__UPA_ACCESS_CASE__.intake)) return window.__UPA_ACCESS_CASE__.intake;
     if(window.__UPA_PACKET_INTAKE__ && hasIntake(window.__UPA_PACKET_INTAKE__)) return window.__UPA_PACKET_INTAKE__;
     // newestIntakeCandidate() already checks ALL storage keys (active, intake, scan, checkout, review, paid, case)
     // and picks the most recent by timestamp — do NOT add per-key fallbacks below or stale paid data can resurface

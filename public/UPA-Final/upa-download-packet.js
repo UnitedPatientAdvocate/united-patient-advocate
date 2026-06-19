@@ -299,9 +299,9 @@
     var dossierJson = JSON.stringify(dossier || {}).replace(/</g, '\\u003c');
     var buyerName = JSON.stringify(buyerTypedName(intake)).replace(/</g, '\\u003c');
     var script = '<script>window.__UPA_PACKET_INTAKE__=' + json + ';window.__UPA_PACKET_DOSSIER__=' + dossierJson + ';window.__UPA_BUYER_NAME__=' + buyerName + ';try{sessionStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));localStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));sessionStorage.setItem("upa.buyer.name.v1",window.__UPA_BUYER_NAME__);localStorage.setItem("upa.buyer.name.v1",window.__UPA_BUYER_NAME__);}catch(e){}<\/script>';
-    // Always force-inject fresh intake. Remove any existing baked-in intake first
-    // so stale data from a previous session never bleeds into a new download.
-    html = html.replace(/<script[^>]*>[\s\S]*?window\.__UPA_PACKET_INTAKE__[\s\S]*?<\/script>/i, '');
+    // Always force-inject fresh intake. Remove only a previously injected
+    // packet-state block, never neighboring application scripts.
+    html = html.replace(/<script\b(?![^>]*\bsrc=)[^>]*>\s*window\.__UPA_PACKET_INTAKE__\s*=[\s\S]*?<\/script>/i, '');
     return html.replace(/<\/head>/i, script + '</head>');
   }
 

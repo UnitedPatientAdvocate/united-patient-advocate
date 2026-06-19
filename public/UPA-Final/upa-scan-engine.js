@@ -312,6 +312,19 @@ function extractInsurance(text) {
   return null;
 }
 
+function extractCareState(text) {
+  const stateCodes = new Set(['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC']);
+  const addressMatch = String(text || '').match(/,\s*([A-Z]{2})\s+\d{5}(?:-\d{4})?\b/);
+  if (addressMatch && stateCodes.has(addressMatch[1])) return addressMatch[1];
+  const labeledMatch = String(text || '').match(/\b(?:state|care\s+state)\s*[:\-]\s*([A-Z]{2})\b/i);
+  const labeledCode = labeledMatch ? labeledMatch[1].toUpperCase() : '';
+  return stateCodes.has(labeledCode) ? labeledCode : '';
+}
+
+function detectsFinancialAssistance(text) {
+  return /\b(?:financial assistance|charity care)\b/i.test(String(text || ''));
+}
+
 /* ─────────────────────────────────────────────
    EXTRACTION — CPT CODES
 ───────────────────────────────────────────── */
@@ -436,7 +449,7 @@ async function extractFromPDF(file) {
     claimNumber: null, insuranceName: null,
     cptCodes: [], hasDuplicateCodes: false, duplicateCodes: [],
     codeAnalysis: [], lineItems: [],
-    denialDetected: false, pageCount: 0,
+    denialDetected: false, financialAssistanceDetected: false, state: '', pageCount: 0,
     rawText: '', lines: [],
     confidence: 'low', _scan: true, _scanTimestamp: Date.now()
   };
@@ -481,6 +494,7 @@ async function extractFromPDF(file) {
       serviceDate:      dates.serviceDate,
       serviceDateRaw:   dates.serviceDateRaw,
       provider:         extractProvider(fullText, allLines),
+      state:            extractCareState(fullText),
       claimNumber:      extractClaimNumber(fullText),
       insuranceName:    extractInsurance(fullText),
       cptCodes:         cpt.codes,
@@ -488,7 +502,8 @@ async function extractFromPDF(file) {
       duplicateCodes:   cpt.duplicateCodes,
       codeAnalysis:     lineItems,
       lineItems:        lineItems,
-      denialDetected:   detectDenial(fullText)
+      denialDetected:   detectDenial(fullText),
+      financialAssistanceDetected: detectsFinancialAssistance(fullText)
     });
 
     result.confidence = scoreConfidence(result);

@@ -2,6 +2,7 @@
   'use strict';
 
   var STORE_KEY = 'upa.intake.v1';
+  var DOSSIER_KEY = 'upa.ai.dossier.v1';
 
   function readJSON(value){
     try { return value ? JSON.parse(value) : {}; } catch(e) { return {}; }
@@ -41,6 +42,10 @@
 
   function buyerTypedName(source){
     var values = [];
+    if(source && typeof source === 'object'){
+      values.push(source.buyerName);
+      if(source.intake && typeof source.intake === 'object') values.push(source.intake.buyerName);
+    }
     var nameKey = scopedBuyerNameKey(source);
     if(nameKey){
       try { values.push(sessionStorage.getItem(nameKey)); } catch(e) {}
@@ -135,6 +140,8 @@
   }
 
   function readIntake(){
+    if(window.__UPA_ACCESS_INTAKE__ && typeof window.__UPA_ACCESS_INTAKE__ === 'object') return withBuyerTypedName(window.__UPA_ACCESS_INTAKE__);
+    if(window.__UPA_ACCESS_CASE__ && window.__UPA_ACCESS_CASE__.intake && typeof window.__UPA_ACCESS_CASE__.intake === 'object') return withBuyerTypedName(window.__UPA_ACCESS_CASE__.intake);
     if(window.__UPA_PACKET_INTAKE__) return withBuyerTypedName(window.__UPA_PACKET_INTAKE__);
     try {
       if(window.UPAState && window.UPAState.restoreSession) window.UPAState.restoreSession({stage:'packet-download-load'});
@@ -242,6 +249,13 @@
       .replace(/^\s*·\s*/g, '');
   }
 
+  function readDossier(){
+    if(window.__UPA_ACCESS_CASE__ && typeof window.__UPA_ACCESS_CASE__ === 'object') return window.__UPA_ACCESS_CASE__;
+    if(window.__UPA_PACKET_DOSSIER__ && typeof window.__UPA_PACKET_DOSSIER__ === 'object') return window.__UPA_PACKET_DOSSIER__;
+    var dossier = readStorageJSON(DOSSIER_KEY);
+    return dossier && Object.keys(dossier).length ? dossier : {};
+  }
+
   function addBase(html, sourceUrl){
     if(/<base\s/i.test(html)) return html;
     var base = sourceUrl.replace(/[^\/]*$/, '');
@@ -280,10 +294,11 @@
     return html;
   }
 
-  function addIntake(html, intake){
+  function addIntake(html, intake, dossier){
     var json = JSON.stringify(intake || {}).replace(/</g, '\\u003c');
+    var dossierJson = JSON.stringify(dossier || {}).replace(/</g, '\\u003c');
     var buyerName = JSON.stringify(buyerTypedName(intake)).replace(/</g, '\\u003c');
-    var script = '<script>window.__UPA_PACKET_INTAKE__=' + json + ';window.__UPA_BUYER_NAME__=' + buyerName + ';try{sessionStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));localStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));sessionStorage.setItem("upa.buyer.name.v1",window.__UPA_BUYER_NAME__);localStorage.setItem("upa.buyer.name.v1",window.__UPA_BUYER_NAME__);}catch(e){}<\/script>';
+    var script = '<script>window.__UPA_PACKET_INTAKE__=' + json + ';window.__UPA_PACKET_DOSSIER__=' + dossierJson + ';window.__UPA_BUYER_NAME__=' + buyerName + ';try{sessionStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));localStorage.setItem("' + STORE_KEY + '",JSON.stringify(window.__UPA_PACKET_INTAKE__));sessionStorage.setItem("upa.buyer.name.v1",window.__UPA_BUYER_NAME__);localStorage.setItem("upa.buyer.name.v1",window.__UPA_BUYER_NAME__);}catch(e){}<\/script>';
     // Always force-inject fresh intake. Remove any existing baked-in intake first
     // so stale data from a previous session never bleeds into a new download.
     html = html.replace(/<script[^>]*>[\s\S]*?window\.__UPA_PACKET_INTAKE__[\s\S]*?<\/script>/i, '');
@@ -446,6 +461,7 @@
 
   async function buildDownloadHtml(){
     var intake = readIntake();
+    var dossier = readDossier();
     var onPacketPage = /05_upa-packet\.html(?:$|[?#])/i.test(window.location.pathname);
     var sourceUrl = absoluteUrl(packetUrl());
     var html = onPacketPage ? currentPacketSnapshot() : await loadText(sourceUrl);
@@ -454,7 +470,7 @@
       personalization = await loadText(new URL('upa-case-personalization.js', sourceUrl).href);
     } catch(e) {}
     html = addBase(html, sourceUrl);
-    html = addIntake(html, intake);
+    html = addIntake(html, intake, dossier);
     html = inlinePersonalization(html, personalization);
     html = stripDownloadScript(html);
     html = scrubTemplateText(html, intake);

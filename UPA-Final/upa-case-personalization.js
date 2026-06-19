@@ -545,6 +545,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   function readDossierState(){
     var injectedKey = ['__UPA', String.fromCharCode(65,73), 'DOSSIER__'].join('_');
     var storageKey = ['upa', String.fromCharCode(97,105), 'dossier', 'v1'].join('.');
+    if(window.__UPA_PACKET_DOSSIER__ && typeof window.__UPA_PACKET_DOSSIER__ === 'object') return window.__UPA_PACKET_DOSSIER__;
     if(window[injectedKey] && typeof window[injectedKey] === 'object') return window[injectedKey];
     var dossier = readStorageJSON(storageKey);
     if(dossier && Object.keys(dossier).length) return dossier;
@@ -1013,7 +1014,86 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     }
   }
 
+  function triggerGuidanceData(dossier){
+    dossier = readPhase3Dossier(dossier);
+    var paid = dossier && dossier.paidDossier || {};
+    var triggers = firstArray(dossier && dossier.triggers, paid.triggers);
+    var charity = triggers.find(function(trigger){ return trigger && trigger.type === 'charity_care_eligible'; });
+    var surprise = triggers.filter(function(trigger){
+      return trigger && (trigger.type === 'surprise_billing_emergency' || trigger.type === 'surprise_billing_ancillary');
+    });
+    var stateNotes = [];
+    surprise.forEach(function(trigger){
+      var note = phase3Text(trigger.stateNote);
+      if(note && stateNotes.indexOf(note) === -1) stateNotes.push(note);
+    });
+    var pack = dossier && dossier.charityCarePack || paid.charityCarePack || {};
+    return {
+      charity: charity,
+      charitySteps: Array.isArray(pack.applicationSteps) ? pack.applicationSteps.map(phase3Text).filter(Boolean).slice(0,5) : [],
+      surprise: surprise,
+      stateNotes: stateNotes
+    };
+  }
+
+  function triggerGuidanceHtml(data, packet){
+    var groups = [];
+    if(data.charity){
+      var charityItems = data.charitySteps.length ? data.charitySteps : [
+        'Call the hospital billing office and ask for the current financial assistance application.',
+        'Request the eligibility criteria and required documents in writing.',
+        'Keep a copy of the completed application and follow up in writing.'
+      ];
+      groups.push('<section class="upa-trigger-group"><div class="upa-trigger-title">Charity Care Guidance</div><div class="upa-trigger-copy">Your bill mentions financial assistance. You can ask the hospital for its current policy, eligibility criteria, and application.</div><ul>' + charityItems.map(function(item){ return '<li>' + h(item) + '</li>'; }).join('') + '</ul></section>');
+    }
+    if(data.stateNotes.length){
+      groups.push('<section class="upa-trigger-group"><div class="upa-trigger-title">State-Aware Guidance</div>' + data.stateNotes.map(function(note){ return '<div class="upa-trigger-copy">' + h(note) + '</div>'; }).join('') + '</section>');
+    }
+    if(data.surprise.length){
+      groups.push('<section class="upa-trigger-group"><div class="upa-trigger-title">Surprise-Billing Guidance</div><div class="upa-trigger-copy">Emergency or ancillary charges in this case may qualify for an out-of-network billing review. Ask the provider and insurer to explain the network status, consent records, and patient-responsibility calculation in writing.</div></section>');
+    }
+    if(!groups.length) return '';
+    return '<div class="upa-trigger-eyebrow">Guidance matched to this case</div><div class="upa-trigger-heading">Additional review paths</div><div class="upa-trigger-grid' + (packet ? ' packet' : '') + '">' + groups.join('') + '</div>';
+  }
+
+  function renderTriggerGuidance(dossier){
+    ensureStyles();
+    var data = triggerGuidanceData(dossier);
+    var html = triggerGuidanceHtml(data, false);
+    var findingsTab = one('#tab-findings');
+    var dashboardPanel = one('#upa-trigger-dashboard-panel');
+    if(findingsTab && html){
+      if(!dashboardPanel){
+        dashboardPanel = document.createElement('div');
+        dashboardPanel.id = 'upa-trigger-dashboard-panel';
+        dashboardPanel.className = 'upa-trigger-panel';
+        var dashboardAnchor = one('#upa-phase3-dashboard-panel', findingsTab) || one('.findings-grid', findingsTab) || findingsTab.firstChild;
+        if(dashboardAnchor && dashboardAnchor.parentNode) dashboardAnchor.parentNode.insertBefore(dashboardPanel, dashboardAnchor.nextSibling);
+      }
+      dashboardPanel.innerHTML = html;
+    }else if(dashboardPanel){
+      dashboardPanel.remove();
+    }
+
+    var firstPage = all('.page')[0];
+    var packetPanel = one('#upa-trigger-packet-panel');
+    var packetHtml = triggerGuidanceHtml(data, true);
+    if(firstPage && packetHtml){
+      if(!packetPanel){
+        packetPanel = document.createElement('div');
+        packetPanel.id = 'upa-trigger-packet-panel';
+        packetPanel.className = 'upa-trigger-panel packet';
+        var packetAnchor = one('#upa-phase3-packet-panel', firstPage) || one('.packet-findings-box', firstPage) || one('.upa-intake-context', firstPage) || one('.nh', firstPage);
+        if(packetAnchor && packetAnchor.parentNode) packetAnchor.parentNode.insertBefore(packetPanel, packetAnchor.nextSibling);
+      }
+      packetPanel.innerHTML = packetHtml;
+    }else if(packetPanel){
+      packetPanel.remove();
+    }
+  }
+
   function renderPhase3CaseGeneration(dossier, c){
+    renderTriggerGuidance(dossier);
     var phase = phase3FromDossier(dossier);
     if(!phase || !Object.keys(phase).length) return;
     ensureStyles();
@@ -1025,6 +1105,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   }
 
   window.UPARenderPhase3CaseGeneration = renderPhase3CaseGeneration;
+  window.UPARenderTriggerGuidance = renderTriggerGuidance;
 
   function formatDate(value, fallback){
     var raw = clean(value);
@@ -1759,12 +1840,23 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
 
   function buyerTypedName(source){
     var values = [];
+    var hasAccessCase = !!(window.__UPA_ACCESS_CASE__ && typeof window.__UPA_ACCESS_CASE__ === 'object');
+    if(source && typeof source === 'object'){
+      values.push(source.buyerName);
+      if(source.intake && typeof source.intake === 'object') values.push(source.intake.buyerName);
+    }
+    if(hasAccessCase){
+      values.push(window.__UPA_ACCESS_CASE__.buyerName);
+      if(window.__UPA_ACCESS_CASE__.intake && typeof window.__UPA_ACCESS_CASE__.intake === 'object'){
+        values.push(window.__UPA_ACCESS_CASE__.intake.buyerName);
+      }
+    }
     var nameKey = scopedBuyerNameKey(source);
-    if(nameKey){
+    if(nameKey && !hasAccessCase){
       try{ values.push(sessionStorage.getItem(nameKey)); }catch(e){}
       try{ values.push(localStorage.getItem(nameKey)); }catch(e){}
     }
-    if(window.__UPA_BUYER_NAME__ !== undefined) values.push(window.__UPA_BUYER_NAME__);
+    if(!hasAccessCase && window.__UPA_BUYER_NAME__ !== undefined) values.push(window.__UPA_BUYER_NAME__);
     for(var i = 0; i < values.length; i += 1){
       var value = validBuyerTypedName(values[i]);
       if(value) return value;
@@ -1964,6 +2056,16 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       '.upa-p3-title{font-size:.58rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#6E8898;margin-bottom:5px}' +
       '.upa-p3-item{font-size:.72rem;line-height:1.55;color:#42546B;padding:6px 0;border-top:1px solid rgba(28,43,72,.06)}' +
       '.upa-p3-notice{font-size:.62rem;line-height:1.55;color:#7A8AA0;margin-top:10px;border-top:1px solid rgba(28,43,72,.08);padding-top:8px}' +
+      '.upa-trigger-panel{margin:14px;padding:18px;border:1px solid rgba(29,158,117,.20);border-radius:12px;background:#fff;box-shadow:0 8px 24px rgba(17,28,46,.06);color:#1C2B48}' +
+      '.upa-trigger-panel.packet{margin:0 36px 18px;background:#F9FBFD;box-shadow:none}' +
+      '.upa-trigger-eyebrow{font-size:.48rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#1D9E75;margin-bottom:5px}' +
+      '.upa-trigger-heading{font-family:Georgia,serif;font-size:1.05rem;font-weight:800;color:#1C2B48;margin-bottom:10px}' +
+      '.upa-trigger-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}' +
+      '.upa-trigger-grid.packet{grid-template-columns:1fr}' +
+      '.upa-trigger-group{padding:12px;border:1px solid rgba(28,43,72,.09);border-left:4px solid #1D9E75;border-radius:8px;background:#FAFCFB}' +
+      '.upa-trigger-title{font-size:.72rem;font-weight:800;color:#1C2B48;margin-bottom:5px}' +
+      '.upa-trigger-copy,.upa-trigger-group li{font-size:.66rem;line-height:1.55;color:#52677C}' +
+      '.upa-trigger-group ul{margin:7px 0 0;padding-left:17px}' +
       '.upa-editable-patient-name{display:inline-block;min-width:7em;max-width:100%;border-radius:4px;cursor:text;outline:none;white-space:nowrap}' +
       '.upa-editable-patient-name:hover{background:rgba(29,158,117,.07);box-shadow:0 0 0 2px rgba(29,158,117,.10)}' +
       '.upa-editable-patient-name:focus{background:#fff;box-shadow:0 0 0 2px rgba(29,158,117,.30)}' +
@@ -2632,9 +2734,64 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     return 'upa.patient-name.v1.' + (scope || 'current-case');
   }
 
+  function accessCaseId(){
+    var value = clean(window.UPAFullDashboardCaseId || '');
+    if(!value){
+      try{
+        var params = new URLSearchParams(window.location.search || '');
+        value = clean(params.get('access') || params.get('caseId') || '');
+      }catch(e){}
+    }
+    return /^[A-Za-z0-9_-]{32}$/.test(value) ? value : '';
+  }
+
+  function applyBuyerName(target,value){
+    if(!target || typeof target !== 'object') return;
+    target.buyerName = value;
+    target.patientName = value;
+    target.patient_name = value;
+    target.name = value;
+    if(target.intake && typeof target.intake === 'object'){
+      target.intake.buyerName = value;
+      target.intake.patientName = value;
+      target.intake.patient_name = value;
+      target.intake.name = value;
+    }
+  }
+
+  function persistBuyerNameToServer(value){
+    var caseId = accessCaseId();
+    if(!caseId || typeof fetch !== 'function') return;
+    all('[data-upa-editable-name="1"]').forEach(function(field){ field.setAttribute('data-upa-name-save-state','saving'); });
+    fetch('/api/update-case',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({caseId:caseId,patientName:value})
+    })
+    .then(function(response){
+      return response.json().catch(function(){return {};}).then(function(result){
+        if(!response.ok || result.ok !== true || !result.case) throw new Error(result.error || 'Name could not be saved');
+        return result.case;
+      });
+    })
+    .then(function(serverCase){
+      if(window.__UPA_BUYER_NAME__ !== value) return;
+      window.__UPA_ACCESS_CASE__ = serverCase;
+      window.__UPA_ACCESS_INTAKE__ = serverCase.intake && typeof serverCase.intake === 'object' ? serverCase.intake : {};
+      applyBuyerName(window.UPACase,value);
+      all('[data-upa-editable-name="1"]').forEach(function(field){ field.setAttribute('data-upa-name-save-state','saved'); });
+    })
+    .catch(function(error){
+      all('[data-upa-editable-name="1"]').forEach(function(field){ field.setAttribute('data-upa-name-save-state','error'); });
+      if(typeof window.showToast === 'function') window.showToast('Name not saved','Please click the name and try again.');
+      if(window.console && console.warn) console.warn('[UPA] buyer name server save failed',error);
+    });
+  }
+
   function persistEditablePatientName(name, c){
     var value = clean(name);
     var nameKey = editablePatientNameKey(c);
+    var serverCaseId = accessCaseId();
     window.__UPA_BUYER_NAME__ = value;
     if(c){
       c.patientName = value;
@@ -2646,10 +2803,16 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       window.UPACase.firstName = value ? value.split(/\s+/)[0] : 'You';
       window.UPACase.lastName = value && value.split(/\s+/).length > 1 ? value.split(/\s+/).slice(-1)[0] : '';
     }
+    applyBuyerName(window.__UPA_ACCESS_CASE__,value);
+    if(window.__UPA_ACCESS_CASE__ && window.__UPA_ACCESS_CASE__.intake) window.__UPA_ACCESS_INTAKE__ = window.__UPA_ACCESS_CASE__.intake;
     if(window.__UPA_PACKET_INTAKE__ && typeof window.__UPA_PACKET_INTAKE__ === 'object'){
       window.__UPA_PACKET_INTAKE__.patientName = value;
       window.__UPA_PACKET_INTAKE__.patient_name = value;
       window.__UPA_PACKET_INTAKE__.name = value;
+    }
+    if(serverCaseId){
+      persistBuyerNameToServer(value);
+      return;
     }
     var intake = readIntake() || readStorageJSON('upa.intake.v1') || {};
     intake.patientName = value;
@@ -2709,6 +2872,11 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
 
     function currentName(){
       var stored = null;
+      var serverName = validBuyerTypedName(window.__UPA_ACCESS_CASE__ && (
+        window.__UPA_ACCESS_CASE__.buyerName ||
+        window.__UPA_ACCESS_CASE__.intake && window.__UPA_ACCESS_CASE__.intake.buyerName
+      ));
+      if(window.__UPA_ACCESS_CASE__ && typeof window.__UPA_ACCESS_CASE__ === 'object') return serverName;
       var nameKey = editablePatientNameKey(c);
       if(stored === null){ try{ stored = sessionStorage.getItem(nameKey); }catch(e){} }
       if(stored === null){ try{ stored = localStorage.getItem(nameKey); }catch(e){} }
@@ -2728,8 +2896,9 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     }
 
     function wire(field){
-      if(!field || field.getAttribute('data-upa-editable-name') === '1') return;
+      if(!field || field.getAttribute('data-upa-patient-name-handler-wired') === '1') return;
       field.setAttribute('data-upa-editable-name','1');
+      field.setAttribute('data-upa-patient-name-handler-wired','1');
       field.setAttribute('contenteditable','true');
       field.setAttribute('role','textbox');
       field.setAttribute('aria-label','Patient name');

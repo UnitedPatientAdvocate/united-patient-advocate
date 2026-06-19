@@ -1522,6 +1522,11 @@ function callFreePreviewAI(data) {
       billStatus:        data.denialDetected ? 'denied' : 'received',
       specificConcerns:  codeList.length && data.hasDuplicateCodes ? 'possible duplicate charges detected' : 'bill amount seems high',
       billText:          data.rawText || '',
+      state:             data.state || '',
+      dossierFlags:      Object.assign({}, data.dossierFlags || {}, {
+        state: data.state || '',
+        nonprofitHospital: data.financialAssistanceDetected === true
+      }),
       codeAnalysis:      codeAnalysis,
       lineItems:         codeAnalysis
     };

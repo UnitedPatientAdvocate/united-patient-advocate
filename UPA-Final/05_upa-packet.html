@@ -1124,6 +1124,10 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     }
     function buyerTypedName(source){
       var values = [];
+      if(source && typeof source === 'object'){
+        values.push(source.buyerName);
+        if(source.intake && typeof source.intake === 'object') values.push(source.intake.buyerName);
+      }
       var nameKey = scopedBuyerNameKey(source);
       if(nameKey){
         try{ values.push(sessionStorage.getItem(nameKey)); }catch(e){}

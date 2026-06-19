@@ -640,7 +640,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     dossier = dossier || {};
     var paid = dossier.paidDossier || {};
     var summary = dossier.summary || {};
-    var rows = firstArray(dossier.lineItems, dossier.codeAnalysis, paid.lineItems, paid.codeAnalysis, summary.lineItems, summary.codeAnalysis);
+    var rows = firstArray(dossier.codeAnalysis, dossier.lineItems, paid.codeAnalysis, paid.lineItems, summary.codeAnalysis, summary.lineItems);
     return rows.map(function(row){
       row = row || {};
       var code = clean(row.code || row.hcpcs || row.cptCode || row.procedureCode).toUpperCase();

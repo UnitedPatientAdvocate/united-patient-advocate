@@ -2472,7 +2472,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var coverageText = hasKnown(c.coverage, 'Your coverage') ? c.coverage : 'Insurance you listed at intake';
     setText('#nav-case-text', providerKnown ? 'Your case \u00b7 ' + c.provider : 'Your case \u00b7 awaiting provider details');
     setText('#nav-case-ref', 'Account: ' + c.accountRef + ' | Opened ' + c.prepDate);
-    setText('#sb-patient-name', c.patientName);
+    if(!window.__upaNameEditing) setText('#sb-patient-name', c.patientName);
     setText('#sb-provider', providerText);
     setText('#sb-sub', c.billType + ' - ' + c.dateShort);
     setText('#sb-bill-amount', c.amount.display);
@@ -2907,6 +2907,9 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       field.setAttribute('data-placeholder', field.classList.contains('mini-org') || field.classList.contains('mini-sig-name') ? 'Your name' : 'Click to add your name');
       field.classList.add('upa-editable-patient-name');
       if(!clean(field.textContent) && currentName()) field.textContent = currentName();
+      field.addEventListener('focus',function(){
+        window.__upaNameEditing = true;
+      });
       field.addEventListener('keydown',function(event){
         if(event.key === 'Enter'){
           event.preventDefault();
@@ -2924,12 +2927,13 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
         field.textContent = value;
         syncFields(value,field);
         persistEditablePatientName(value,c);
+        window.__upaNameEditing = false;
       });
     }
 
     function refresh(){
       all(selector).forEach(wire);
-      syncFields(currentName(),null);
+      if(!window.__upaNameEditing) syncFields(currentName(),null);
     }
 
     refresh();

@@ -347,7 +347,9 @@
   function inlinePersonalization(html, scriptText){
     if(!scriptText) return html;
     var safe = scriptText.replace(/<\/script/gi, '<\\/script');
-    return html.replace(/<script\b[^>]*src=["'][^"']*upa-case-personalization\.js[^"']*["'][^>]*>\s*<\/script>/i, '<script>' + safe + '<\/script>');
+    return html.replace(/<script\b[^>]*src=["'][^"']*upa-case-personalization\.js[^"']*["'][^>]*>\s*<\/script>/i, function(){
+      return '<script data-upa-inline="case-personalization">' + safe + '<\/script>';
+    });
   }
 
   async function loadText(url){

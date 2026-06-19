@@ -1481,13 +1481,11 @@ function routeAfterScan(data) {
   renderFindings(data, scanFindings);
   showState('state-findings');
   // Call /api/analyze with real bill text for personalized findings
-  var initialLineItems = caseLineItemsFrom(data);
   _completedScanCaseForStore = {
     providerName: data.provider || '',
-    codeAnalysis: initialLineItems,
-    lineItems: initialLineItems,
     scanData: data,
-    findings: scanFindings
+    findings: scanFindings,
+    benchmarkEnrichmentPending: true
   };
   _casePreparationPromise = callFreePreviewAI(data)
     .catch(function(error) {

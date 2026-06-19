@@ -2659,10 +2659,7 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
   }
   if(!/^[A-Za-z0-9_-]{32}$/.test(access)) access='';
   window.UPAFullDashboardCaseId=access;
-  try{
-    var gateDossier=window.UPAParseStoredJSON(localStorage.getItem(DOSSIER_KEY)||sessionStorage.getItem(DOSSIER_KEY)||'{}',{});
-    if(!gateDossier||gateDossier.licenseVerified!==true)document.documentElement.classList.add('upa-license-pending');
-  }catch(e){document.documentElement.classList.add('upa-license-pending');}
+  document.documentElement.classList.add('upa-license-pending');
   if(!access) return;
   document.documentElement.classList.add('upa-case-loading');
   window.UPAFullDashboardHydrating=true;
@@ -2674,17 +2671,8 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
       });
     })
     .then(function(caseData){
-      var verified=false;
-      var verifiedAt='';
-      try{
-        var existing=window.UPAParseStoredJSON(localStorage.getItem(DOSSIER_KEY)||sessionStorage.getItem(DOSSIER_KEY)||'{}',{});
-        verified=existing&&existing.licenseVerified===true;
-        verifiedAt=existing&&existing.licenseVerifiedAt||'';
-      }catch(e){}
-      if(verified){
-        caseData.licenseVerified=true;
-        caseData.licenseVerifiedAt=verifiedAt;
-      }
+      delete caseData.licenseVerified;
+      delete caseData.licenseVerifiedAt;
       var scan=caseData.scanData&&typeof caseData.scanData==='object'?caseData.scanData:{};
       var currentIntake=caseData.intake&&typeof caseData.intake==='object'
         ? Object.assign({},caseData.intake)
@@ -6168,6 +6156,8 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   'use strict';
   var DOSSIER_KEY='upa.ai.dossier.v1';
   var controlsWired=false;
+  var autoVerifyStarted=false;
+  var serverVerifiedThisLoad=false;
 
   function readDossier(){
     if(window.__UPA_ACCESS_CASE__&&typeof window.__UPA_ACCESS_CASE__==='object')return window.__UPA_ACCESS_CASE__;
@@ -6231,6 +6221,8 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       }
       var dossier=readDossier();
       if(!dossier||!Object.keys(dossier).length)throw new Error('Your saved case is missing. Contact support with your receipt.');
+      serverVerifiedThisLoad=true;
+      window.__UPA_LICENSE_SERVER_VERIFIED__=true;
       dossier.licenseVerified=true;
       dossier.licenseVerifiedAt=new Date().toISOString();
       writeDossier(dossier);
@@ -6239,14 +6231,10 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
         localStorage.setItem('upa.license.key',key);
       }catch(e){}
       setStatus('Purchase verified. Opening your complete workspace.',false);
-      if(window.__UPA_ACCESS_CASE__){
-        var gate=document.getElementById('upa-license-gate');
-        if(gate)gate.classList.remove('show');
-        document.documentElement.classList.remove('upa-license-pending');
-        window.dispatchEvent(new CustomEvent('upa:access-case-ready',{detail:{caseId:window.UPAFullDashboardCaseId||''}}));
-        return;
-      }
-      window.setTimeout(function(){window.location.reload();},450);
+      var gate=document.getElementById('upa-license-gate');
+      if(gate)gate.classList.remove('show');
+      document.documentElement.classList.remove('upa-license-pending');
+      window.dispatchEvent(new CustomEvent('upa:access-case-ready',{detail:{caseId:window.UPAFullDashboardCaseId||''}}));
     })
     .catch(function(error){
       if(button){button.disabled=false;button.textContent='Unlock review';}
@@ -6267,8 +6255,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       setStatus('We could not retrieve the saved case linked to this receipt. Contact support@unitedpatientadvocate.com.',true);
       return;
     }
-    var dossier=readDossier();
-    if(dossier&&dossier.licenseVerified===true){
+    if(serverVerifiedThisLoad){
       document.documentElement.classList.remove('upa-license-pending');
       return;
     }
@@ -6282,12 +6269,10 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
         if(event.key==='Enter'){event.preventDefault();verifyLicense();}
       });
     }
-    try{
-      if(input&&input.value&&sessionStorage.getItem('upa.full-license.auto-attempted.v1')!=='1'){
-        sessionStorage.setItem('upa.full-license.auto-attempted.v1','1');
-        window.setTimeout(verifyLicense,120);
-      }
-    }catch(e){}
+    if(input&&input.value&&!autoVerifyStarted){
+      autoVerifyStarted=true;
+      window.setTimeout(verifyLicense,120);
+    }
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
@@ -6307,13 +6292,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   'use strict';
 
   function isPaidSession(){
-    if(window.__UPA_ACCESS_CASE__&&window.__UPA_ACCESS_CASE__.licenseVerified===true)return true;
-    try {
-      var raw = localStorage.getItem('upa.ai.dossier.v1') || sessionStorage.getItem('upa.ai.dossier.v1') || '{}';
-      var dossier = window.UPAParseStoredJSON(raw,{});
-      return dossier && dossier.licenseVerified === true;
-    } catch(e){}
-    return false;
+    return window.__UPA_LICENSE_SERVER_VERIFIED__===true;
   }
 
   function getStoredIntake(){

@@ -1909,6 +1909,8 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   function commonReplacements(c){
     var confirmedText = c.amount.exact ? 'Confirms once your itemized bill is added' : 'Pending itemized bill';
     return [
+      ['the same billing line item appears twice on date of service', 'the same line item appears twice on the same date of service'],
+      ['a billing line item may appear more than once for the same date of service', 'a line item may appear more than once for the same date of service'],
       ['Patient: First Name Last Name', c.patientName],
       ['Your Name', c.patientName],
       ['First Name Last Name', c.patientName],

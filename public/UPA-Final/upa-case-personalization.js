@@ -2983,7 +2983,10 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var findingsBox = one('.packet-findings-box');
     if(findingsBox && c.issues && c.issues.length){
       var pfCount = one('.pf-count', findingsBox);
-      if(pfCount) pfCount.textContent = c.issues.length + (c.issues.length === 1 ? ' issue found' : ' issues found');
+      var reviewAreaCount = Number(c.issueCount) || 0;
+      if(pfCount) pfCount.textContent = reviewAreaCount
+        ? reviewAreaCount + (reviewAreaCount === 1 ? ' review area' : ' review areas')
+        : 'Review areas identified';
       var pfList = one('.pf-list', findingsBox);
       if(pfList){
         pfList.innerHTML = c.issues.slice(0,3).map(function(issue){

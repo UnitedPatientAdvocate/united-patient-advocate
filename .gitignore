@@ -26,3 +26,19 @@ api/data/26clabq2_extract/
 .codex-dashboard-deploy-target.txt
 .codex-safe-attribution-deploy-20260531214356.zip
 .codex-safe-attribution-deploy-current.txt
+
+# Temporary workspaces and generated artifacts
+.tmp-*/
+screenshots/
+artifacts/
+test-assets/
+public/images/
+*.pdf
+*.txt
+
+# Ignore standalone HTML outside the UPA-Final mirrors
+*.html
+!UPA-Final/*.html
+!UPA-Final/**/*.html
+!public/UPA-Final/*.html
+!public/UPA-Final/**/*.html

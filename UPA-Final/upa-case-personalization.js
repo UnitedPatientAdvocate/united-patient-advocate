@@ -76,12 +76,19 @@
   }
 
   function safeCoverageText(data){
+    var dossier = window.__UPA_ACCESS_CASE__ && typeof window.__UPA_ACCESS_CASE__ === 'object'
+      ? window.__UPA_ACCESS_CASE__
+      : readDossierState();
+    var scanData = data.scanData || (dossier && dossier.scanData) || {};
+    var scanInsurance = clean(scanData.insuranceName || data.insuranceName || data.insuranceType || '');
     var rawOther = clean(data.insurance_other || '');
     var raw = clean(data.insurance || '');
     var extracted = clean(data.extracted_insurance || '');
+    var safe = safeProperNoun(scanInsurance, '');
+    if(safe) return safe;
     if(rawOther && looksLikeSentence(rawOther)) return 'Coverage: see your EOB';
     var primary = rawOther || raw;
-    var safe = safeProperNoun(primary, '');
+    safe = safeProperNoun(primary, '');
     if(safe) return safe;
     safe = safeProperNoun(extracted, '');
     return safe || 'Your coverage';

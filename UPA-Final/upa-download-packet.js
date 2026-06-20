@@ -200,13 +200,15 @@
     // diverge from the live dashboard when UPACase was from a prior personalization run
     // (stale closure) or when called from the scan page before personalization ran (undefined).
     // All needed fields are already in the intake object from readIntake().
+    var dossier = readDossier();
+    var scanData = intake.scanData || (dossier && dossier.scanData) || {};
     return {
       patient:   buyerTypedName(intake),
       provider:  clean(intake.provider || intake.providerName || intake.extracted_provider || ''),
       amount:    formatMoneyText(intake.bill_amount_other || intake.bill_amount || intake.totalBilled || (intake.extracted_bill_amount ? '$' + intake.extracted_bill_amount : '') || intake.balance || ''),
       dos:       clean(intake.date_of_service || intake.extracted_date_of_service || intake.service_date || intake.serviceDate || ''),
       account:   clean(intake.account_number || intake.extracted_account_number || intake.accountNumber || intake.account || intake.billing_reference || intake.billingReference || ''),
-      coverage:  clean(intake.insurance || intake.extracted_insurance || intake.insuranceType || ''),
+      coverage:  clean(scanData.insuranceName || intake.insuranceName || intake.insuranceType || intake.insurance || intake.extracted_insurance || ''),
       prepDate:  clean(new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})),
       email:     clean(intake.email || ''),
       phone:     clean(intake.phone || '')

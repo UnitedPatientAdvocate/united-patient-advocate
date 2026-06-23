@@ -2622,6 +2622,13 @@ window.UPAParseStoredJSON=window.UPAParseStoredJSON||function(raw,fallback){
   return fallback===undefined?{}:fallback;
 };
 </script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18266741864"></script>
+<script>
+window.dataLayer=window.dataLayer||[];
+function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());
+gtag('config','AW-18266741864');
+</script>
 <style>
 html.upa-case-loading body>*{visibility:hidden}
 html.upa-case-loading .upa-case-loading-card{visibility:visible}
@@ -6162,6 +6169,8 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   var controlsWired=false;
   var autoVerifyStarted=false;
   var serverVerifiedThisLoad=false;
+  var ADS_CONVERSION_ID='AW-18266741864';
+  var ADS_CONVERSION_LABEL='5IzqCPKGqsQcEOi4oYZE';
 
   function readDossier(){
     if(window.__UPA_ACCESS_CASE__&&typeof window.__UPA_ACCESS_CASE__==='object')return window.__UPA_ACCESS_CASE__;
@@ -6206,6 +6215,35 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     }catch(e){}
   }
 
+  function trackVerifiedPurchaseUnlock(key,dossier){
+    var caseId=window.UPAFullDashboardCaseId||(dossier&&dossier._upa_case_id)||(dossier&&dossier.caseId)||'';
+    var guardKey='upa.ads.saleTracked.v1:'+(caseId||key||'unknown');
+    try{
+      if(localStorage.getItem(guardKey))return;
+      localStorage.setItem(guardKey,new Date().toISOString());
+    }catch(e){return;}
+    try{
+      if(typeof window.gtag==='function'){
+        window.gtag('event','conversion',{send_to:ADS_CONVERSION_ID+'/'+ADS_CONVERSION_LABEL});
+      }
+    }catch(e){}
+    try{
+      fetch('/api/track',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        keepalive:true,
+        body:JSON.stringify({
+          event:'sale',
+          occurredAt:new Date().toISOString(),
+          path:window.location.pathname,
+          url:window.location.href,
+          source:new URLSearchParams(window.location.search||'').get('src')||'direct',
+          meta:{caseId:caseId,licenseVerified:true}
+        })
+      }).catch(function(){});
+    }catch(e){}
+  }
+
   function verifyLicense(){
     var input=document.getElementById('upa-full-license-input');
     var button=document.getElementById('upa-full-license-button');
@@ -6227,6 +6265,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       if(!dossier||!Object.keys(dossier).length)throw new Error('Your saved case is missing. Contact support with your receipt.');
       serverVerifiedThisLoad=true;
       window.__UPA_LICENSE_SERVER_VERIFIED__=true;
+      trackVerifiedPurchaseUnlock(key,dossier);
       dossier.licenseVerified=true;
       dossier.licenseVerifiedAt=new Date().toISOString();
       writeDossier(dossier);

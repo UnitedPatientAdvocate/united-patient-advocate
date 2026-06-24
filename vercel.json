@@ -77,6 +77,14 @@
       "dest": "/UPA-Final/refund-policy.html"
     },
     {
+      "src": "/privacy-policy/?",
+      "dest": "/UPA-Final/privacy-policy.html"
+    },
+    {
+      "src": "/privacy-policy\\.html",
+      "dest": "/UPA-Final/privacy-policy.html"
+    },
+    {
       "src": "/mission-control\\.html",
       "dest": "/mission-control.html"
     },

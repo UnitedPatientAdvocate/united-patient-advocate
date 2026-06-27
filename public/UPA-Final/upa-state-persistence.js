@@ -17,20 +17,8 @@
   var MAX_TOKEN_LENGTH = 6000;
   var MAX_CASE_PARAM_LENGTH = 1200;
   var MAX_CHECKOUT_URL_LENGTH = 1800;
-  var PAID_ACCESS_PARAM = 'access';
-  var PAID_ACCESS_TOKEN = 'upa_8f3kd92nd_paid';
-
   function now(){
     return new Date().toISOString();
-  }
-
-  function hasPaidAccessToken(search){
-    try{
-      var params = new URLSearchParams(typeof search === 'string' ? search : (window.location.search || ''));
-      return params.get(PAID_ACCESS_PARAM) === PAID_ACCESS_TOKEN;
-    }catch(e){
-      return false;
-    }
   }
 
   function setServerCaseId(caseId){
@@ -1106,6 +1094,7 @@
   }
 
   function markPaid(meta){
+    if(!meta || meta.licenseVerified !== true || !clean(meta.licenseKey)) return null;
     var session = restoreSession({ stage:'success-restore' }).session || currentSession();
     var intake = getIntake();
     if(hasIntake(intake)) session.intake = intake;
@@ -1161,8 +1150,7 @@
     setServerCaseId:setServerCaseId,
     getServerCaseId:getServerCaseId,
     markCheckout:markCheckout,
-    markPaid:markPaid,
-    hasPaidAccessToken:hasPaidAccessToken
+    markPaid:markPaid
   };
 
   getServerCaseId();

@@ -6305,7 +6305,7 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
 
   function trackVerifiedPurchaseUnlock(key,dossier){
     var caseId=window.UPAFullDashboardCaseId||(dossier&&dossier._upa_case_id)||(dossier&&dossier.caseId)||'';
-    var guardKey='upa.ads.saleTracked.v1:'+(caseId||key||'unknown');
+    var guardKey='upa.ads.saleTracked.v1:'+(key||caseId||'unknown');
     try{
       if(localStorage.getItem(guardKey))return;
       localStorage.setItem(guardKey,new Date().toISOString());

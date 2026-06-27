@@ -3823,13 +3823,22 @@ function seoTryRecover(){
         .tl-item.tl-expanded .tl-dot { transform: scale(1.35); }
         .tl-dot { transition: transform 260ms cubic-bezier(0.22,1,0.36,1), box-shadow 260ms ease; }
         .tl-expand-panel {
-          max-height: 0; overflow: hidden;
-          transition: max-height 380ms cubic-bezier(0.22,1,0.36,1), opacity 300ms ease, padding 280ms ease;
+          height: 0; overflow: hidden;
+          transition: height 380ms cubic-bezier(0.22,1,0.36,1), opacity 300ms ease, padding 280ms ease;
           opacity: 0; padding: 0 0 0 0;
           margin-left: 112px; /* aligns with tl-content column */
         }
         .tl-item.tl-expanded .tl-expand-panel {
-          max-height: 200px; opacity: 1; padding: 8px 0 14px;
+          opacity: 1; padding: 8px 0 14px;
+        }
+        .tab-content:has(#tab-timeline.active),
+        #tab-timeline.active {
+          height: auto;
+          flex: 0 0 auto;
+          overflow: visible;
+        }
+        @media (max-width: 820px) {
+          .tl-expand-panel { margin-left: 0; }
         }
         .tl-encourage {
           display: flex; align-items: flex-start; gap: 10px;
@@ -3870,7 +3879,7 @@ function seoTryRecover(){
           <div class="tl-date"><div class="tl-date-main" id="tl-date-0">Today</div><div class="tl-date-sub">Step 1</div></div>
           <div class="tl-line"><div class="tl-dot d-green"></div><div class="tl-connector"></div></div>
           <div class="tl-content">
-            <div class="tl-ev-title">Initial Review Complete <span class="tl-chevron">▼</span></div>
+            <div class="tl-ev-title"><span class="tl-title-text">Initial Review Complete</span> <span class="tl-chevron">▼</span></div>
             <div class="tl-ev-desc">We've gone through the intake details and pulled out the charges worth pressing on first. Three letters are drafted - add your name and address to make them mail-ready.</div>
             <span class="tl-ev-tag" style="background:var(--green-lt);color:var(--green-dk);border:1px solid rgba(30,184,122,.22)">Done</span>
             <div class="tl-expand-panel">
@@ -3888,7 +3897,7 @@ function seoTryRecover(){
           <div class="tl-date"><div class="tl-date-main" id="tl-date-1">Today</div><div class="tl-date-sub">Do This Now</div></div>
           <div class="tl-line"><div class="tl-dot d-gold"></div><div class="tl-connector"></div></div>
           <div class="tl-content">
-            <div class="tl-ev-title">Send your itemized statement request <span class="tl-chevron">▼</span></div>
+            <div class="tl-ev-title"><span class="tl-title-text">Send your itemized statement request</span> <span class="tl-chevron">▼</span></div>
             <div class="tl-ev-desc">Mail or email Letter 1 to Patient Financial Services at your provider. Keep a copy for your records - certified mail is the strongest option, but the provider's portal is fine if you'd rather move quickly.</div>
             <span class="tl-ev-tag" style="background:var(--gold-lt);color:var(--gold-dk);border:1px solid rgba(240,165,0,.22)">When you're ready</span>
             <div class="tl-expand-panel">
@@ -3906,7 +3915,7 @@ function seoTryRecover(){
           <div class="tl-date"><div class="tl-date-main" id="tl-date-2">+30 days</div><div class="tl-date-sub">Soft deadline</div></div>
           <div class="tl-line"><div class="tl-dot d-cobalt"></div><div class="tl-connector"></div></div>
           <div class="tl-content">
-            <div class="tl-ev-title">Follow up if you haven't heard back <span class="tl-chevron">▼</span></div>
+            <div class="tl-ev-title"><span class="tl-title-text">Follow up if you haven't heard back</span> <span class="tl-chevron">▼</span></div>
             <div class="tl-ev-desc">Around the 30-day mark, follow up in writing. When the itemized bill arrives, work through the line items against the questions in your case.</div>
             <span class="tl-ev-tag" style="background:var(--cobalt-lt);color:var(--cobalt);border:1px solid rgba(59,110,224,.22)">Soft deadline</span>
             <div class="tl-expand-panel">
@@ -3924,7 +3933,7 @@ function seoTryRecover(){
           <div class="tl-date"><div class="tl-date-main" id="tl-date-3">+30 days</div><div class="tl-date-sub">Ready to send</div></div>
           <div class="tl-line"><div class="tl-dot d-crimson"></div><div class="tl-connector"></div></div>
           <div class="tl-content">
-            <div class="tl-ev-title">Send the dispute and rate-review letters <span class="tl-chevron">▼</span></div>
+            <div class="tl-ev-title"><span class="tl-title-text">Send the dispute and rate-review letters</span> <span class="tl-chevron">▼</span></div>
             <div class="tl-ev-desc">Mail Letter 2 (line-item question) and Letter 3 (network/rate review) with your itemized bill attached as evidence. Send them together so the billing department sees the full picture.</div>
             <span class="tl-ev-tag" style="background:var(--crimson-lt);color:var(--crimson-dk);border:1px solid rgba(224,59,59,.20)">When you're ready</span>
             <div class="tl-expand-panel">
@@ -3942,7 +3951,7 @@ function seoTryRecover(){
           <div class="tl-date"><div class="tl-date-main" id="tl-date-4">+60 days</div><div class="tl-date-sub">Watch for reply</div></div>
           <div class="tl-line"><div class="tl-dot d-gray"></div><div class="tl-connector"></div></div>
           <div class="tl-content">
-            <div class="tl-ev-title">A written reply usually arrives by now <span class="tl-chevron">▼</span></div>
+            <div class="tl-ev-title"><span class="tl-title-text">A written reply usually arrives by now</span> <span class="tl-chevron">▼</span></div>
             <div class="tl-ev-desc">Most hospital billing departments respond within 30–45 days. If nothing has arrived by this point, your escalation letter is drafted in the case - that's the next step.</div>
             <span class="tl-ev-tag" style="background:rgba(17,28,46,.06);color:var(--ink-5);border:1px solid var(--bdr-md)">Watching for reply</span>
             <div class="tl-expand-panel">
@@ -5176,24 +5185,88 @@ ${cardsHTML}
   return false;
 }
 
-/* ════ BUG 3 FIX: TIMELINE INTERACTIVE TOGGLE ════
+/* Timeline interactive toggle.
    Each timeline item expands on click to reveal an encouraging message.
    Clicking the same item again collapses it. Only one can be open at a time. */
+function tlSetExpanded(item, expand) {
+  if (!item) return;
+  var panel = item.querySelector('.tl-expand-panel');
+  item.setAttribute('aria-expanded', expand ? 'true' : 'false');
+  if (!panel) {
+    item.classList.toggle('tl-expanded', !!expand);
+    return;
+  }
+
+  panel.removeEventListener('transitionend', panel.__tlHeightDone || function(){});
+  if (expand) {
+    item.classList.add('tl-expanded');
+    panel.style.height = 'auto';
+    var targetHeight = panel.scrollHeight;
+    panel.style.height = '0px';
+    panel.offsetHeight;
+    panel.style.height = targetHeight + 'px';
+    panel.__tlHeightDone = function(event) {
+      if (event.propertyName !== 'height') return;
+      panel.removeEventListener('transitionend', panel.__tlHeightDone);
+      if (item.classList.contains('tl-expanded')) panel.style.height = 'auto';
+    };
+    panel.addEventListener('transitionend', panel.__tlHeightDone);
+  } else {
+    if (item.classList.contains('tl-expanded')) {
+      panel.style.height = panel.scrollHeight + 'px';
+      panel.offsetHeight;
+    }
+    item.classList.remove('tl-expanded');
+    panel.style.height = '0px';
+  }
+}
+
 function tlToggle(idx) {
   var items = document.querySelectorAll('.tl-item');
   items.forEach(function(item, i) {
     if (i === idx) {
       var wasOpen = item.classList.contains('tl-expanded');
-      item.classList.toggle('tl-expanded', !wasOpen);
+      tlSetExpanded(item, !wasOpen);
       // Animate dot on expand
       var dot = item.querySelector('.tl-dot');
       if (dot && !wasOpen) {
         dot.style.transition = 'transform 320ms cubic-bezier(0.22,1,0.36,1), box-shadow 320ms ease';
       }
+      if (!wasOpen) {
+        window.setTimeout(function() {
+          try { item.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch(e) {}
+        }, 90);
+      }
     } else {
-      item.classList.remove('tl-expanded');
+      tlSetExpanded(item, false);
     }
   });
+}
+
+function tlInitA11y() {
+  document.querySelectorAll('.tl-item').forEach(function(item, idx) {
+    var panel = item.querySelector('.tl-expand-panel');
+    item.setAttribute('role', 'button');
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('aria-expanded', item.classList.contains('tl-expanded') ? 'true' : 'false');
+    if (panel) {
+      if (!panel.id) panel.id = 'tl-panel-' + idx;
+      item.setAttribute('aria-controls', panel.id);
+    }
+    if (item.__tlKeyReady) return;
+    item.__tlKeyReady = true;
+    item.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        tlToggle(idx);
+      }
+    });
+  });
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', tlInitA11y);
+} else {
+  tlInitA11y();
 }
 function animateBars() {
   (function recomputeBenchBars() {

@@ -2456,6 +2456,23 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   function hydrateTimeline(c){
     if(!one('#tab-timeline')) return;
     var rows = all('.tl-item');
+    function setTimelineTitle(row, value){
+      var title = one('.tl-ev-title', row);
+      if(!title) return;
+      var text = one('.tl-title-text', title);
+      if(!text){
+        var chevron = one('.tl-chevron', title);
+        text = document.createElement('span');
+        text.className = 'tl-title-text';
+        title.textContent = '';
+        title.appendChild(text);
+        if(chevron){
+          title.appendChild(document.createTextNode(' '));
+          title.appendChild(chevron);
+        }
+      }
+      text.textContent = value;
+    }
     var timeline = [
       [c.openedShort, 'Today', 'Initial review complete', 'The restored intake for ' + providerLabel(c) + ' was organized around ' + c.issueCount + ' review areas and ' + c.letterCount + ' prepared letters.', 'Done'],
       [c.openedShort, 'Today', 'Send your itemized statement request', 'Send Letter 1 to ' + providerLabel(c) + '. Keep a copy and ask for a written response tied to account ' + c.accountRef + '.', 'When ready'],
@@ -2467,7 +2484,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       var d = timeline[idx] || timeline[timeline.length - 1];
       setText('.tl-date-main', d[0], row);
       setText('.tl-date-sub', d[1], row);
-      setText('.tl-ev-title', d[2], row);
+      setTimelineTitle(row, d[2]);
       setText('.tl-ev-desc', d[3], row);
       setText('.tl-ev-tag', d[4], row);
     });

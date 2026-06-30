@@ -16,7 +16,7 @@
   --sans:'Plus Jakarta Sans',system-ui,sans-serif;
   --pop:cubic-bezier(.16,1,.3,1);
 }
-html,body{height:100%;font-family:var(--sans);background:var(--navy-deep);color:var(--on-dark);-webkit-font-smoothing:antialiased;overflow:hidden}
+html,body{min-height:100%;font-family:var(--sans);background:var(--navy-deep);color:var(--on-dark);-webkit-font-smoothing:antialiased;overflow-x:hidden;overflow-y:auto}
 
 /* ── BACKGROUND ── */
 .bg-orb{position:fixed;border-radius:50%;pointer-events:none;filter:blur(90px);z-index:0}
@@ -26,7 +26,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--navy-deep);color:
 @keyframes o2{from{transform:translate(0,0)}to{transform:translate(-36px,22px)}}
 
 /* ── SCENE ── */
-.scene{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px}
+.scene{position:relative;z-index:10;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:max(32px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(58px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left))}
 
 /* ── CHECKMARK ANIMATION ── */
 .check-wrap{width:88px;height:88px;position:relative;margin:0 auto 28px;flex-shrink:0}
@@ -72,6 +72,29 @@ html,body{height:100%;font-family:var(--sans);background:var(--navy-deep);color:
 /* ── ENTRY ANIMATION ── */
 .card{opacity:0;transform:translateY(20px);transition:opacity .7s var(--pop) .1s,transform .7s var(--pop) .1s}
 .card.loaded{opacity:1;transform:translateY(0)}
+@media(max-width:520px){
+  .scene{justify-content:flex-start;padding-top:max(20px,env(safe-area-inset-top));padding-bottom:max(28px,env(safe-area-inset-bottom))}
+  .card{padding:26px 18px 24px;border-radius:16px}
+  .check-wrap,.check-circle,.check-ring{width:68px;height:68px}
+  .check-wrap{margin-bottom:18px}
+  .check-svg{width:32px;height:32px}
+  .card-title{font-size:1.55rem}
+  .card-sub{margin-bottom:18px}
+  .feat-list{gap:8px;margin-bottom:18px}
+  .feat-item{padding:9px 10px}
+  .btn-open{min-height:50px}
+}
+@media(max-height:720px) and (max-width:520px){
+  .check-wrap{width:54px;height:54px;margin-bottom:12px}
+  .check-circle,.check-ring{width:54px;height:54px}
+  .check-svg{width:26px;height:26px}
+  .card-eyebrow{margin-bottom:8px}
+  .card-title{font-size:1.4rem;margin-bottom:6px}
+  .card-sub{font-size:.78rem;line-height:1.5;margin-bottom:12px}
+  .feat-list{margin-bottom:12px}
+  .feat-item{padding:7px 9px}
+  .prog-wrap{margin-bottom:14px}
+}
 </style>
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -279,6 +302,6 @@ window.addEventListener('load', function() {
   });
 });
 </script>
-<footer aria-label="Legal links" style="position:fixed;left:0;right:0;bottom:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:7px 12px;background:rgba(14,24,40,.90);border-top:1px solid rgba(255,255,255,.07);color:rgba(235,244,255,.40);font-family:'DM Sans',system-ui,sans-serif;font-size:.6rem;backdrop-filter:blur(10px)"><span>United Patient Advocate&trade;</span><span>&middot;</span><a href="terms.html" style="color:inherit;text-decoration:none">Terms</a><span>&middot;</span><a href="refund-policy.html" style="color:inherit;text-decoration:none">Refund Policy</a><span>&middot;</span><a href="mailto:support@unitedpatientadvocate.com" style="color:inherit;text-decoration:none">Contact</a></footer>
+<footer aria-label="Legal links" style="position:relative;z-index:100;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:10px 12px max(10px,env(safe-area-inset-bottom));background:rgba(14,24,40,.90);border-top:1px solid rgba(255,255,255,.07);color:rgba(235,244,255,.40);font-family:'DM Sans',system-ui,sans-serif;font-size:.6rem;backdrop-filter:blur(10px)"><span>United Patient Advocate&trade;</span><span>&middot;</span><a href="terms.html" style="color:inherit;text-decoration:none">Terms</a><span>&middot;</span><a href="refund-policy.html" style="color:inherit;text-decoration:none">Refund Policy</a><span>&middot;</span><a href="mailto:support@unitedpatientadvocate.com" style="color:inherit;text-decoration:none">Contact</a></footer>
 </body>
 </html>

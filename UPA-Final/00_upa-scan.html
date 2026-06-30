@@ -6,7 +6,6 @@
 <title>United Patient Advocate · Bill Scan</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://gumroad.com/js/gumroad.js"></script>
 <style>
 /* ─── RESET + ROOT ─── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -96,6 +95,43 @@ body{background:var(--navy)}
 .drop-sub{font-size:0.75rem;color:var(--on-dark-3)}
 .drop-file-help{max-width:420px;margin:10px auto 0;font-size:0.6875rem;line-height:1.5;color:var(--on-dark-3)}
 .drop-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-source-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.upload-source-btn{
+  min-height:46px;display:flex;align-items:center;justify-content:center;gap:8px;
+  border:1px solid rgba(255,255,255,0.14);border-radius:10px;background:rgba(255,255,255,0.05);
+  color:var(--on-dark);font-family:var(--sans);font-size:0.8125rem;font-weight:700;cursor:pointer;
+}
+.upload-source-btn:hover,.upload-source-btn:focus-visible{border-color:var(--green);background:rgba(30,184,122,0.12);outline:none}
+.upload-source-btn svg{width:18px;height:18px;stroke:var(--green);fill:none;stroke-width:2}
+.camera-input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%)}
+.fsb-remove{min-width:44px;min-height:44px}
+.scan-cancel{
+  width:max-content;min-height:44px;margin-top:18px;padding:10px 18px;align-self:flex-start;
+  border:1px solid rgba(255,255,255,0.14);border-radius:10px;background:rgba(255,255,255,0.06);
+  color:var(--on-dark-2);font:700 0.75rem var(--sans);cursor:pointer;
+}
+.scan-cancel:hover,.scan-cancel:focus-visible{border-color:var(--green);color:var(--on-dark);outline:none}
+.upa-image-editor[hidden]{display:none}
+.upa-image-editor{
+  position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;
+  padding:max(18px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
+  background:rgba(5,12,24,0.92);backdrop-filter:blur(10px);
+}
+.upa-image-editor-card{
+  width:min(720px,100%);max-height:calc(100dvh - 36px);display:flex;flex-direction:column;
+  border:1px solid rgba(255,255,255,0.12);border-radius:18px;background:var(--navy-mid);
+  box-shadow:0 24px 70px rgba(0,0,0,0.55);overflow:hidden;
+}
+.upa-image-editor-head{padding:18px 20px 12px}
+.upa-image-editor-head h2{font:700 1.25rem var(--serif);color:var(--on-dark);margin-bottom:5px}
+.upa-image-editor-head p{font-size:0.75rem;line-height:1.5;color:var(--on-dark-2)}
+.upa-image-editor-stage{height:min(58dvh,520px);min-height:260px;background:#07111f}
+.upa-image-editor-stage img{display:block;max-width:100%}
+.upa-image-editor-tools,.upa-image-editor-actions{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px}
+.upa-image-editor-actions{justify-content:flex-end;border-top:1px solid rgba(255,255,255,0.08)}
+.upa-editor-btn{min-height:44px;padding:10px 14px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.06);color:var(--on-dark);font:700 0.75rem var(--sans);cursor:pointer}
+.upa-editor-btn.primary{border-color:transparent;background:var(--green);color:#fff}
+body.upa-image-editor-open{overflow:hidden}
 
 /* Scan button */
 .btn-scan{
@@ -213,6 +249,7 @@ body{background:var(--navy)}
   background:linear-gradient(90deg,var(--green-dk),var(--green));
   transition:width 600ms var(--ease);
 }
+.scan-progress-meta{width:100%;max-width:320px;display:flex;justify-content:space-between;margin-top:8px;color:var(--on-dark-3);font-size:0.6875rem}
 
 /* Status panel */
 .scan-status-panel{
@@ -475,7 +512,11 @@ body{background:var(--navy)}
   .findings-scroll{padding:16px}
   .upload-card{padding:28px 20px 24px}
   .case-value-block{flex-direction:column}
+  .upload-source-actions{grid-template-columns:1fr}
+  .upa-image-editor-stage{height:50dvh}
+  .upa-image-editor-tools,.upa-image-editor-actions{padding:10px 12px}
 }
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -513,11 +554,22 @@ body{background:var(--navy)}
     <p class="upload-sub">Upload your bill or EOB and we will review it for duplicate charges, flagged charges, and coding issues for free. Your dispute documentation is ready to unlock if you proceed.</p>
 
     <div class="drop-zone" id="drop-zone">
-      <input type="file" accept=".pdf" class="drop-input" id="file-input">
+      <input type="file" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif,.pdf,.jpg,.jpeg,.png,.heic,.heif" class="drop-input" id="file-input" aria-label="Choose a medical bill or EOB file">
       <span class="drop-icon">📄</span>
-      <div class="drop-label">Drop your bill or EOB PDF here</div>
-      <div class="drop-sub">hospital bill, office statement, or insurance EOB</div>
+      <div class="drop-label">Choose your bill, EOB, or clear photo</div>
+      <div class="drop-sub">PDF, JPEG, PNG, HEIC, or HEIF</div>
       <div class="drop-file-help">A clear PDF or text-based file reads best. A phone photo may scan less completely. If your photo does not fully read, you can still request your itemized statement and run that.</div>
+    </div>
+    <div class="upload-source-actions">
+      <label class="upload-source-btn" for="camera-input">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l2-3h6l2 3h3v13H4z"/><circle cx="12" cy="13" r="4"/></svg>
+        Take a photo
+      </label>
+      <label class="upload-source-btn" for="file-input">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 14v6h14v-6"/></svg>
+        Choose from files
+      </label>
+      <input type="file" accept="image/jpeg,image/png,image/heic,image/heif,.jpg,.jpeg,.png,.heic,.heif" capture="environment" class="camera-input" id="camera-input" aria-label="Take a photo of your medical bill">
     </div>
 
     <div class="file-selected-badge" id="file-badge" style="display:none">
@@ -526,7 +578,7 @@ body{background:var(--navy)}
       <button class="fsb-remove" id="file-remove" title="Remove">✕</button>
     </div>
 
-    <div class="upload-error" id="upload-error"></div>
+    <div class="upload-error" id="upload-error" role="alert" aria-live="assertive"></div>
 
     <button class="btn-scan" id="btn-scan" disabled>
       <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -536,7 +588,7 @@ body{background:var(--navy)}
     <div class="upload-trust">
       <div class="trust-item">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        Scanned in your browser
+        You choose what to upload
       </div>
       <div class="trust-item">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -587,9 +639,10 @@ body{background:var(--navy)}
           <div class="scan-callout-label">Line-item clues</div>
         </div>
       </div>
-      <div class="scan-progress-bar">
+      <div class="scan-progress-bar" id="scan-progress-track" role="progressbar" aria-label="Document extraction progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
         <div class="scan-progress-fill" id="scan-progress"></div>
       </div>
+      <div class="scan-progress-meta"><span>Document review progress</span><strong id="scan-progress-percent">0%</strong></div>
     </div>
 
     <!-- Status + value feed -->
@@ -597,7 +650,7 @@ body{background:var(--navy)}
       <div class="scan-status-headline">Reading your bill</div>
       <div class="scan-status-sub">Looking for real values we can safely use in your review: provider, amount, service date, insurance, and account details.</div>
 
-      <div class="scan-status-text" id="scan-status-text">Reading document structure...</div>
+      <div class="scan-status-text" id="scan-status-text" role="status" aria-live="polite">Reading document structure...</div>
 
       <div class="scan-value-feed" id="scan-value-feed">
         <!-- Value items injected here by JS -->
@@ -610,6 +663,7 @@ body{background:var(--navy)}
           <div class="sfc-sub">Preliminary review ready in a moment</div>
         </div>
       </div>
+      <button type="button" class="scan-cancel" id="scan-cancel">Cancel scan</button>
     </div>
   </div>
 </section>
@@ -677,8 +731,28 @@ body{background:var(--navy)}
       </select>
     </div>
     <button class="btn-fallback" id="btn-fallback-submit">Continue With These Details &rarr;</button>
+    <button class="scan-cancel" id="btn-retry-scan" type="button">Try scanning this file again</button>
   </div>
 </section>
+
+<div class="upa-image-editor" id="upa-image-editor" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="upa-image-editor-title" hidden>
+  <div class="upa-image-editor-card">
+    <div class="upa-image-editor-head">
+      <h2 id="upa-image-editor-title">Make the bill easy to read</h2>
+      <p>Rotate if needed, then crop so the full bill and all amounts stay visible.</p>
+    </div>
+    <div class="upa-image-editor-stage"><img id="upa-image-editor-preview" alt="Selected bill photo"></div>
+    <div class="upa-image-editor-tools">
+      <button class="upa-editor-btn" id="upa-image-rotate-left" type="button">Rotate left</button>
+      <button class="upa-editor-btn" id="upa-image-rotate-right" type="button">Rotate right</button>
+      <button class="upa-editor-btn" id="upa-image-reset" type="button">Reset</button>
+    </div>
+    <div class="upa-image-editor-actions">
+      <button class="upa-editor-btn" id="upa-image-cancel" type="button">Cancel</button>
+      <button class="upa-editor-btn primary" id="upa-image-apply" type="button">Use this photo</button>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════
      SCRIPTS
@@ -741,8 +815,9 @@ if (typeof pdfjsLib !== 'undefined') {
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 </script>
-<script src="upa-state-persistence.js"></script>
-<script src="upa-scan-engine.js"></script>
+<script src="/UPA-Final/upa-state-persistence.js"></script>
+<script src="/UPA-Final/upa-mobile-upload.js"></script>
+<script src="/UPA-Final/upa-scan-engine.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════════
    UPA SCAN PAGE - Orchestration Layer
@@ -772,9 +847,13 @@ var _serverCaseStoreMessage = '';
 var _manualPreviewServerCaseId = '';
 var _casePreparationProgress = 0;
 var _casePreparationProgressTimer = null;
-var CASE_STORE_TIMEOUT_MS = 25000;
-var CASE_STORE_RETRY_MAX_DELAY_MS = 8000;
-var CASE_STORE_MAX_ATTEMPTS = 3;
+var _scanAbortController = null;
+var _filePrepareAbortController = null;
+var _caseEnrichmentState = 'idle';
+var _caseEnrichmentError = null;
+var CASE_STORE_TIMEOUT_MS = 15000;
+var CASE_STORE_RETRY_MAX_DELAY_MS = 2500;
+var CASE_STORE_MAX_ATTEMPTS = 2;
 
 function isReturningScan() {
   try {
@@ -843,6 +922,8 @@ function routeReturningScanToDashboard(caseData) {
     : (_serverCaseStorePromise = storeCompletedScanCaseUntilReady(preparedCase));
   return Promise.resolve(serverCasePromise).then(function(caseId) {
     if (!isValidServerCaseId(caseId)) throw new Error('Case storage returned an invalid case ID');
+    return verifyStoredCase(caseId);
+  }).then(function(caseId) {
     _serverCaseStoreState = 'ready';
     _serverCaseStoreError = null;
     finishCasePreparationProgress();
@@ -927,12 +1008,23 @@ function updateCheckoutStoreState() {
   var progress = document.getElementById('ub-store-progress-wrap');
   if (!link || !label || !status || !progress) return;
   var returningOrLicensed = isReturningOrLicensedBuyer();
-  link.classList.toggle('is-preparing', _serverCaseStoreState === 'pending');
-  link.setAttribute('aria-disabled', _serverCaseStoreState === 'pending' ? 'true' : 'false');
-  link.setAttribute('aria-busy', _serverCaseStoreState === 'pending' ? 'true' : 'false');
+  var enrichmentPending = _caseEnrichmentState === 'pending';
+  var enrichmentFailed = _caseEnrichmentState === 'error';
+  var busy = _serverCaseStoreState === 'pending' || enrichmentPending;
+  link.classList.toggle('is-preparing', busy);
+  link.setAttribute('aria-disabled', busy ? 'true' : 'false');
+  link.setAttribute('aria-busy', busy ? 'true' : 'false');
   progress.classList.toggle('show', _serverCaseStoreState === 'pending' || (_serverCaseStoreState === 'ready' && _casePreparationProgress === 100));
   if (price) price.hidden = returningOrLicensed;
-  if (_serverCaseStoreState === 'pending') {
+  if (enrichmentPending) {
+    label.textContent = 'Finishing your review...';
+    status.textContent = 'Checking your extracted bill details before checkout.';
+  } else if (enrichmentFailed) {
+    label.textContent = 'Try finishing my review again';
+    status.textContent = _caseEnrichmentError && _caseEnrichmentError.message
+      ? _caseEnrichmentError.message
+      : 'We could not finish checking this case. Please scan it again before checkout.';
+  } else if (_serverCaseStoreState === 'pending') {
     label.textContent = 'Preparing your review...';
     status.textContent = _serverCaseStoreMessage || 'Saving your prepared review. Keep this page open.';
   } else if (_serverCaseStoreState === 'error') {
@@ -980,10 +1072,25 @@ function trackServerCaseStore(promise) {
   return _serverCaseStorePromise;
 }
 
+function compactCaseForServer(caseData) {
+  var compact = JSON.parse(JSON.stringify(caseData || {}));
+  if (compact.scanData && typeof compact.scanData === 'object') {
+    delete compact.scanData.rawText;
+    delete compact.scanData.lines;
+  }
+  if (compact.intake && typeof compact.intake === 'object') {
+    delete compact.intake.billText;
+  }
+  delete compact.rawText;
+  delete compact.lines;
+  return compact;
+}
+
 function storeCompletedScanCase(caseData) {
   if (!caseData || typeof caseData !== 'object') {
     return Promise.reject(new Error('Completed scan case is required'));
   }
+  var compactCase = compactCaseForServer(caseData);
   var controller = typeof AbortController === 'function' ? new AbortController() : null;
   var timeout = window.setTimeout(function() {
     if (controller) controller.abort();
@@ -992,7 +1099,7 @@ function storeCompletedScanCase(caseData) {
   return fetch('/api/store-case', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(caseData),
+    body: JSON.stringify(compactCase),
     signal: controller ? controller.signal : undefined
   })
   .then(function(response) {
@@ -1045,6 +1152,12 @@ function storeCompletedScanCaseUntilReady(caseData) {
 }
 
 function ensureServerCaseStored() {
+  if (_caseEnrichmentState !== 'ready') {
+    return Promise.reject(_caseEnrichmentError || new Error('Your review must finish before checkout'));
+  }
+  if (!_completedScanCaseForStore || _completedScanCaseForStore.benchmarkEnrichmentPending === true) {
+    return Promise.reject(new Error('Your enriched review is not ready for checkout'));
+  }
   if ((_serverCaseStoreState === 'pending' || _serverCaseStoreState === 'ready') && _serverCaseStorePromise) {
     return _serverCaseStorePromise;
   }
@@ -1069,6 +1182,26 @@ function ensureServerCaseStored() {
     return Promise.resolve(persistServerCaseId(existingCaseId));
   }
   return Promise.reject(_serverCaseStoreError || new Error('No completed case is ready to store'));
+}
+
+function verifyStoredCase(caseId) {
+  var controller = typeof AbortController === 'function' ? new AbortController() : null;
+  var timeout = window.setTimeout(function() {
+    if (controller) controller.abort();
+  }, 10000);
+  return fetch('/api/get-case?caseId=' + encodeURIComponent(caseId), {
+    headers: { Accept: 'application/json' },
+    signal: controller ? controller.signal : undefined
+  }).then(function(response) {
+    return response.json().catch(function() { return {}; }).then(function(result) {
+      if (!response.ok || !result.ok || !result.case) {
+        throw new Error('Your saved case could not be confirmed. Please try again.');
+      }
+      return caseId;
+    });
+  }).finally(function() {
+    window.clearTimeout(timeout);
+  });
 }
 
 function checkoutUrlContainsCaseId(href, caseId) {
@@ -1130,6 +1263,7 @@ function readStoredJSON(key) {
 /* ─── FILE UPLOAD HANDLING ─── */
 const dropZone   = document.getElementById('drop-zone');
 const fileInput  = document.getElementById('file-input');
+const cameraInput= document.getElementById('camera-input');
 const fileBadge  = document.getElementById('file-badge');
 const badgeName  = document.getElementById('file-badge-name');
 const fileRemove = document.getElementById('file-remove');
@@ -1142,35 +1276,66 @@ function showUploadError(msg) {
 }
 function clearUploadError() { uploadErr.style.display = 'none'; uploadErr.textContent = ''; }
 
-function onFileSelected(file) {
+async function onFileSelected(file) {
   clearUploadError();
   if (!file) return;
-  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-    showUploadError("Please upload a PDF file. Hospital bills, EOBs, and doctor's office statements work best.");
+  if (!window.UPAMobileUpload || !window.UPAMobileUpload.isSupported(file)) {
+    showUploadError('Please choose a PDF, JPEG, PNG, HEIC, or HEIF file.');
     fileInput.value = '';
+    if (cameraInput) cameraInput.value = '';
     return;
   }
   if (file.size > 30 * 1024 * 1024) {
-    showUploadError('File too large. Please upload a PDF under 30MB.');
+    showUploadError('File too large. Please choose a file under 30MB.');
     return;
   }
-  selectedFile = file;
+  if (_filePrepareAbortController) _filePrepareAbortController.abort();
+  _filePrepareAbortController = typeof AbortController === 'function' ? new AbortController() : null;
+  btnScan.disabled = true;
   badgeName.textContent = file.name;
   fileBadge.style.display = 'flex';
-  dropZone.querySelector('.drop-label').textContent = 'File ready';
-  dropZone.querySelector('.drop-sub').textContent   = 'Ready to scan: ' + file.name;
-  btnScan.disabled = false;
+  dropZone.querySelector('.drop-label').textContent = window.UPAMobileUpload.isImage(file) ? 'Preparing your photo' : 'File ready';
+  dropZone.querySelector('.drop-sub').textContent = window.UPAMobileUpload.isImage(file) ? 'You can crop and rotate it next' : 'Ready to scan: ' + file.name;
+  try {
+    selectedFile = window.UPAMobileUpload.isImage(file)
+      ? await window.UPAMobileUpload.prepareImage(file, {
+          signal: _filePrepareAbortController ? _filePrepareAbortController.signal : undefined,
+          onProgress: function(percent, message) {
+            dropZone.querySelector('.drop-sub').textContent = message || ('Preparing photo ' + percent + '%');
+          }
+        })
+      : file;
+    badgeName.textContent = selectedFile.name;
+    dropZone.querySelector('.drop-label').textContent = 'File ready';
+    dropZone.querySelector('.drop-sub').textContent = 'Ready to scan: ' + selectedFile.name;
+    btnScan.disabled = false;
+  } catch (error) {
+    selectedFile = null;
+    fileBadge.style.display = 'none';
+    if (!error || error.name !== 'AbortError') {
+      showUploadError(error && error.message ? error.message : 'The selected image could not be prepared.');
+    }
+    dropZone.querySelector('.drop-label').textContent = 'Choose your bill, EOB, or clear photo';
+    dropZone.querySelector('.drop-sub').textContent = 'PDF, JPEG, PNG, HEIC, or HEIF';
+  } finally {
+    _filePrepareAbortController = null;
+  }
 }
 
 fileInput.addEventListener('change', function() {
   if (this.files && this.files[0]) onFileSelected(this.files[0]);
 });
+cameraInput.addEventListener('change', function() {
+  if (this.files && this.files[0]) onFileSelected(this.files[0]);
+});
 fileRemove.addEventListener('click', function() {
+  if (_filePrepareAbortController) _filePrepareAbortController.abort();
   selectedFile = null;
   fileInput.value = '';
+  cameraInput.value = '';
   fileBadge.style.display = 'none';
-  dropZone.querySelector('.drop-label').textContent = 'Drop your bill or EOB PDF here';
-  dropZone.querySelector('.drop-sub').textContent   = 'hospital bill, office statement, or insurance EOB';
+  dropZone.querySelector('.drop-label').textContent = 'Choose your bill, EOB, or clear photo';
+  dropZone.querySelector('.drop-sub').textContent   = 'PDF, JPEG, PNG, HEIC, or HEIF';
   btnScan.disabled = true;
   clearUploadError();
 });
@@ -1179,9 +1344,18 @@ dropZone.addEventListener('dragleave', function() { this.classList.remove('drag-
 dropZone.addEventListener('drop', function(e) {
   e.preventDefault(); this.classList.remove('drag-over');
   const f = e.dataTransfer.files[0];
-  if (f) { fileInput.files = e.dataTransfer.files; onFileSelected(f); }
+  if (f) onFileSelected(f);
 });
 btnScan.addEventListener('click', startScan);
+document.getElementById('scan-cancel').addEventListener('click', function() {
+  if (_scanAbortController) _scanAbortController.abort();
+  resetToUpload();
+  showUploadError('Scan cancelled. Your file was not submitted.');
+});
+document.getElementById('btn-retry-scan').addEventListener('click', function() {
+  if (selectedFile) startScan();
+  else resetToUpload();
+});
 
 var UPA_SIMPLE_FUNNEL_KEYS = ['patientName','providerName','dateOfService','insuranceName','totalBilled','referenceNumber','billRange','visitReason'];
 function clearSimpleFunnelKeys(){
@@ -1220,9 +1394,13 @@ function mirrorScanSessionFields(data){
 function startScan() {
   if (!selectedFile) return;
   clearTimers();
+  if (_scanAbortController) _scanAbortController.abort();
+  _scanAbortController = typeof AbortController === 'function' ? new AbortController() : null;
   extractedData   = null;
   animHoldReached = false;
   animResumeFn    = null;
+  _caseEnrichmentState = 'idle';
+  _caseEnrichmentError = null;
 
   // ─── EVICT STALE ACTIVE CASE IMMEDIATELY ───────────────────────────────
   // Write a provisional placeholder to upa.active.case.v1 RIGHT NOW,
@@ -1247,25 +1425,51 @@ function startScan() {
   showState('state-scanning');
   renderDocumentPreview(selectedFile);
   runAnimationSequence();
-  // Start extraction in parallel
   if (typeof UPAScanEngine === 'undefined') {
-    console.error('[UPA] upa-scan-engine.js not loaded');
+    showState('state-fallback');
     return;
   }
-  UPAScanEngine.extractFromPDF(selectedFile).then(function(data) {
-    extractedData = data;
-    if (animHoldReached && animResumeFn) {
-      animResumeFn(data);
+  UPAScanEngine.extractFromFile(selectedFile, {
+    signal: _scanAbortController ? _scanAbortController.signal : undefined,
+    onProgress: function(progress, message) {
+      var percent = typeof progress === 'object' ? progress.percent : progress;
+      var status = typeof progress === 'object' ? progress.message : message;
+      if (Number.isFinite(Number(percent))) setProgress(Number(percent));
+      if (status) setStatus(status);
     }
+  }).then(function(data) {
+    extractedData = data;
+    resumeAnimation(data);
   }).catch(function(err) {
+    if (err && err.name === 'AbortError') return;
     console.warn('[UPA] Extraction failed:', err);
     extractedData = { confidence: 'failed', pageCount: 1, _scan: true, _scanTimestamp: Date.now() };
-    if (animHoldReached && animResumeFn) animResumeFn(extractedData);
+    showState('state-fallback');
+  }).finally(function() {
+    _scanAbortController = null;
   });
 }
 
 /* ─── DOCUMENT PREVIEW RENDER ─── */
 function renderDocumentPreview(file) {
+  if (window.UPAMobileUpload && window.UPAMobileUpload.isImage(file)) {
+    const canvas = document.getElementById('scan-canvas');
+    const wrap = document.getElementById('scan-doc-wrap');
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    image.onload = function() {
+      const maxW = wrap.offsetWidth || 280;
+      const scale = Math.min(1, maxW / image.naturalWidth);
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+      canvas.classList.add('visible');
+      URL.revokeObjectURL(objectUrl);
+    };
+    image.onerror = function() { URL.revokeObjectURL(objectUrl); };
+    image.src = objectUrl;
+    return;
+  }
   if (typeof pdfjsLib === 'undefined') return;
   const reader = new FileReader();
   reader.onload = function(e) {
@@ -1304,12 +1508,17 @@ const STATUS_STEPS = [
 function setStatus(text) {
   const el = document.getElementById('scan-status-text');
   if (!el) return;
-  el.style.opacity = '0';
-  setTimeout(function() { el.textContent = text; el.style.opacity = '1'; }, 200);
+  el.textContent = text;
+  el.style.opacity = '1';
 }
 function setProgress(pct) {
+  pct = Math.max(0, Math.min(100, Math.round(Number(pct) || 0)));
   const el = document.getElementById('scan-progress');
   if (el) el.style.width = pct + '%';
+  const label = document.getElementById('scan-progress-percent');
+  if (label) label.textContent = pct + '%';
+  const track = document.getElementById('scan-progress-track');
+  if (track) track.setAttribute('aria-valuenow', String(pct));
 }
 function showCallout(id) {
   const el = document.getElementById('callout-' + id);
@@ -1339,37 +1548,12 @@ function confidenceWord(data) {
 }
 
 function runAnimationSequence() {
-  setProgress(0);
-  // T+0
-  setStatus(STATUS_STEPS[0]);
-  // T+600: provider/biller area appears first
-  after(600, function() { showCallout(2); setProgress(12); });
-  // T+1400: status 2
-  after(1400, function() { setStatus(STATUS_STEPS[1]); setProgress(26); });
-  // T+2200: amount area
-  after(2200, function() { showCallout(3); });
-  // T+3000: status 3
-  after(3000, function() { setStatus(STATUS_STEPS[2]); setProgress(40); });
-  // T+4200: status 4 + date/line areas
-  after(4200, function() { setStatus(STATUS_STEPS[3]); setProgress(55); showCallout(1); showCallout(4); });
-  // T+5400: HOLD POINT - wait for extraction
-  after(5400, function() {
-    setStatus(STATUS_STEPS[4]);
-    setProgress(68);
-    animHoldReached = true;
-    if (extractedData !== null) {
-      resumeAnimation(extractedData);
-    } else {
-      animResumeFn = resumeAnimation;
-      // Safety valve: force-proceed after 9s regardless
-      after(9000, function() {
-        if (!extractedData) {
-          extractedData = { confidence: 'low', _scan: true, _scanTimestamp: Date.now() };
-          resumeAnimation(extractedData);
-        }
-      });
-    }
-  });
+  setProgress(2);
+  setStatus('Opening your document...');
+  showCallout(2);
+  showCallout(3);
+  showCallout(1);
+  showCallout(4);
 }
 
 /* Resume after extraction promise resolves */
@@ -1378,7 +1562,7 @@ function resumeAnimation(data) {
 
   // Inject real extracted values into the feed
   let feedDelay = 0;
-  function feedItem(fn) { after(feedDelay, fn); feedDelay += 900; }
+  function feedItem(fn) { after(feedDelay, fn); feedDelay += 300; }
 
   // Provider first: this is the strongest trust anchor when it is real.
   if (data.provider) {
@@ -1456,7 +1640,7 @@ function resumeAnimation(data) {
     setProgress(84);
   });
   // Finding count reveal
-  after(feedDelay + 900, function() {
+  after(feedDelay + 450, function() {
     const findings = UPAScanEngine.buildScanFindings(data);
     const countEl  = document.getElementById('scan-finding-count');
     const textEl   = document.getElementById('sfc-text');
@@ -1467,11 +1651,11 @@ function resumeAnimation(data) {
     setProgress(95);
   });
   // "Analysis complete" + transition
-  after(feedDelay + 1900, function() {
+  after(feedDelay + 850, function() {
     setStatus(STATUS_STEPS[6]);
     setProgress(100);
   });
-  after(feedDelay + 3100, function() {
+  after(feedDelay + 1250, function() {
     routeAfterScan(data);
   });
 }
@@ -1486,6 +1670,8 @@ function routeAfterScan(data) {
   _serverCaseStoreError = null;
   _serverCaseStoreAttempt = 0;
   _serverCaseStoreMessage = '';
+  _caseEnrichmentState = 'pending';
+  _caseEnrichmentError = null;
   if (data.confidence === 'low' || data.confidence === 'failed') {
     showState('state-fallback');
     return;
@@ -1507,10 +1693,23 @@ function routeAfterScan(data) {
     benchmarkEnrichmentPending: true
   };
   _casePreparationPromise = callFreePreviewAI(data)
+    .then(function(preparedCase) {
+      if (!preparedCase || preparedCase.benchmarkEnrichmentPending === true) {
+        throw new Error('The bill review did not finish enrichment');
+      }
+      _caseEnrichmentState = 'ready';
+      _caseEnrichmentError = null;
+      updateCheckoutStoreState();
+      return preparedCase;
+    })
     .catch(function(error) {
+      _caseEnrichmentState = 'error';
+      _caseEnrichmentError = new Error('We could not finish checking this case. Please scan it again before checkout.');
       console.warn('[UPA] Preview analysis did not update the checkout case', error && error.message);
-      return _completedScanCaseForStore;
+      updateCheckoutStoreState();
+      throw _caseEnrichmentError;
     });
+  _casePreparationPromise.catch(function() {});
   if (isReturningOrLicensedBuyer()) {
     _casePreparationPromise
       .then(routeReturningScanToDashboard)
@@ -1554,10 +1753,15 @@ function callFreePreviewAI(data) {
       localStorage.setItem('upa.intake.v1', JSON.stringify(stored));
     } catch(e) {}
 
+    var controller = typeof AbortController === 'function' ? new AbortController() : null;
+    var timeout = window.setTimeout(function() {
+      if (controller) controller.abort();
+    }, 45000);
     return fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ generationMode: 'free_preview', intake: intake })
+      body: JSON.stringify({ generationMode: 'free_preview', intake: intake }),
+      signal: controller ? controller.signal : undefined
     })
     .then(function(resp) {
       if (!resp.ok) throw new Error('Preview analysis failed');
@@ -1565,6 +1769,7 @@ function callFreePreviewAI(data) {
     })
     .then(function(resp) {
       try {
+        if (resp && resp.fallback === true) throw new Error('Preview enrichment was unavailable');
         var aiData = resp && resp.normalizedPayload;
         var text = Array.isArray(resp.content) ? resp.content.map(function(p){ return p.text||''; }).join('') : '';
         if (!aiData && text) aiData = JSON.parse(text);
@@ -1684,7 +1889,8 @@ function callFreePreviewAI(data) {
             codeAnalysis: enrichedLineItems,
             lineItems: enrichedLineItems,
             scanData: data,
-            intake: intake
+            intake: intake,
+            benchmarkEnrichmentPending: false
           });
           localStorage.setItem('upa.ai.dossier.v1', JSON.stringify(nextDossier));
           sessionStorage.setItem('upa.ai.dossier.v1', JSON.stringify(nextDossier));
@@ -1698,7 +1904,11 @@ function callFreePreviewAI(data) {
       }
     })
     .catch(function(e) {
+      if (e && e.name === 'AbortError') throw new Error('The bill review timed out');
       throw e;
+    })
+    .finally(function() {
+      window.clearTimeout(timeout);
     });
   } catch(e) {
     return Promise.reject(e);
@@ -1880,6 +2090,30 @@ function renderFindings(data, findings) {
     upgradeLink.addEventListener('click', async function(event) {
       event.preventDefault();
       if (upgradeLink.dataset.checkoutBusy === 'true') return;
+      if (_caseEnrichmentState === 'pending') {
+        updateCheckoutStoreState();
+        return;
+      }
+      if (_caseEnrichmentState === 'error') {
+        _caseEnrichmentState = 'pending';
+        _caseEnrichmentError = null;
+        updateCheckoutStoreState();
+        try {
+          var retriedCase = await callFreePreviewAI(data);
+          if (!retriedCase || retriedCase.benchmarkEnrichmentPending === true) {
+            throw new Error('The bill review did not finish enrichment');
+          }
+          _completedScanCaseForStore = retriedCase;
+          _casePreparationPromise = Promise.resolve(retriedCase);
+          _caseEnrichmentState = 'ready';
+          updateCheckoutStoreState();
+        } catch (retryError) {
+          _caseEnrichmentState = 'error';
+          _caseEnrichmentError = new Error('We could not finish checking this case. Please try again.');
+          updateCheckoutStoreState();
+          return;
+        }
+      }
       upgradeLink.dataset.checkoutBusy = 'true';
       _serverCaseStoreState = 'pending';
       _serverCaseStoreMessage = 'Saving your prepared review. Keep this page open.';
@@ -1899,6 +2133,7 @@ function renderFindings(data, findings) {
       updateCheckoutStoreState();
       try {
         var caseId = await caseStorePromise;
+        await verifyStoredCase(caseId);
         _serverCaseStoreState = 'ready';
         updateCheckoutStoreState();
         if (data._manualIntake) {
@@ -1968,11 +2203,7 @@ document.getElementById('btn-fallback-submit').addEventListener('click', functio
 
   if (billType) syntheticData._inferredBillType = billType;
 
-  UPAScanEngine.writeScanStateToStorage(syntheticData);
-  mirrorScanSessionFields(syntheticData);
-  scanFindings = UPAScanEngine.buildScanFindings(syntheticData);
-  renderFindings(syntheticData, scanFindings);
-  showState('state-findings');
+  routeAfterScan(syntheticData);
 });
 
 /* ─── RESET ─── */
@@ -1984,6 +2215,12 @@ function resetToUpload() {
   _aiMergedFindings = [];
   animHoldReached = false;
   animResumeFn    = null;
+  _caseEnrichmentState = 'idle';
+  _caseEnrichmentError = null;
+  _completedScanCaseForStore = null;
+  _casePreparationPromise = null;
+  _serverCaseStorePromise = null;
+  _serverCaseStoreState = 'idle';
   // Reset canvas
   const canvas = document.getElementById('scan-canvas');
   if (canvas) { canvas.classList.remove('visible'); const ctx = canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
@@ -2090,7 +2327,9 @@ function renderPreparedManualPreview(dossier, caseId) {
   _aiMergedFindings = findings;
   window._upaScanData = data;
   window._upaScanFindings = findings;
-  _completedScanCaseForStore = dossier;
+  _completedScanCaseForStore = Object.assign({}, dossier, { benchmarkEnrichmentPending: false });
+  _caseEnrichmentState = 'ready';
+  _caseEnrichmentError = null;
   if (isValidServerCaseId(caseId)) {
     _manualPreviewServerCaseId = caseId;
     _serverCaseStoreState = 'ready';

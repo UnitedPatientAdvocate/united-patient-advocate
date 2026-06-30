@@ -8,10 +8,10 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{
-  min-height:100vh;background:linear-gradient(135deg,#0D1B2A 0%,#162033 60%,#0A1628 100%);color:#EAF6F0;
+  min-height:100vh;min-height:100dvh;background:linear-gradient(135deg,#0D1B2A 0%,#162033 60%,#0A1628 100%);color:#EAF6F0;
   font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
   display:block;
-  padding:0 16px 48px;-webkit-font-smoothing:antialiased;overflow-x:hidden
+  padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) max(48px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));-webkit-font-smoothing:antialiased;overflow-x:hidden
 }
 body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 20%,rgba(29,158,117,.07),transparent 34%),linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);background-size:auto,44px 44px,44px 44px;opacity:.9}
 .checkout-hero{width:calc(100% + 32px);min-height:200px;margin:0 -16px 32px;padding:48px 24px;text-align:center;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background-image:linear-gradient(180deg,rgba(13,27,42,.95) 0%,rgba(22,32,51,.92) 100%),url("../images/hero-advocate.jpg");background-size:cover;background-position:center center}
@@ -56,6 +56,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
   min-height:50px /* mobile tap target */
 }
 .btn:active{transform:translateY(1px)}
+.btn[aria-disabled="true"]{opacity:.5;pointer-events:none;box-shadow:none}
 .btn-primary{background:linear-gradient(135deg,#1A8957,#20B875);color:#fff;box-shadow:0 4px 18px rgba(32,184,117,.32)}
 .btn-primary svg{width:16px;height:16px;stroke:#fff;stroke-width:2.4;fill:none}
 .btn-secondary{
@@ -127,7 +128,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
       </div>
     </div>
 
-    <a id="checkout-btn" href="#" class="btn btn-primary">
+    <a id="checkout-btn" href="#" class="btn btn-primary" aria-disabled="true" aria-busy="true">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       Open secure checkout
     </a>
@@ -139,7 +140,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
     <span class="checkout-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Your Data Stays Yours</span>
     <span class="checkout-trust-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>7-Day Satisfaction Guarantee</span>
   </div>
-  <div class="foot">Secure · All sales are final · Your data stays on this device until you tap continue.</div>
+  <div class="foot">Secure checkout · All sales are final · Your prepared case stays linked to this checkout.</div>
 </div>
 
 <script src="/UPA-Final/upa-state-persistence.js"></script>
@@ -164,6 +165,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
   var to = params.get('to') || 'https://upadvocate.gumroad.com/l/busfn?wanted=true';
   var r  = params.get('r')  || '';
   var serverCaseId = '';
+  var caseReady = false;
   try {
     var accessParam = params.get('access') || '';
     var targetParams = new URL(to, window.location.href).searchParams;
@@ -171,8 +173,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
       accessParam,
       params.get('caseId') || '',
       targetParams.get('access') || '',
-      targetParams.get('caseId') || '',
-      window.UPAState && window.UPAState.getServerCaseId ? window.UPAState.getServerCaseId() : ''
+      targetParams.get('caseId') || ''
     ];
     serverCaseId = caseCandidates.find(function(value) {
       return /^[A-Za-z0-9_-]{32}$/.test(value || '');
@@ -223,17 +224,63 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
   var step1 = document.getElementById('step-1');
   var step2 = document.getElementById('step-2');
 
-  checkoutBtn.href = to; // fallback for browsers that don't honor window.open
   checkoutBtn.setAttribute('target', '_blank');
   checkoutBtn.setAttribute('rel', 'noopener');
+  var errorBox = document.getElementById('error');
+
+  function showCheckoutError(message) {
+    errorBox.textContent = message;
+    errorBox.classList.add('show');
+    checkoutBtn.setAttribute('aria-disabled', 'true');
+    checkoutBtn.setAttribute('aria-busy', 'false');
+  }
+
+  function verifyPreparedCase() {
+    if (!serverCaseId) {
+      showCheckoutError('Your prepared case is missing. Return to the scan and prepare your review before checkout.');
+      return;
+    }
+    var controller = typeof AbortController === 'function' ? new AbortController() : null;
+    var timeout = window.setTimeout(function() {
+      if (controller) controller.abort();
+    }, 10000);
+    fetch('/api/get-case?caseId=' + encodeURIComponent(serverCaseId), {
+      headers: { Accept: 'application/json' },
+      signal: controller ? controller.signal : undefined
+    }).then(function(response) {
+      return response.json().catch(function() { return {}; }).then(function(result) {
+        if (!response.ok || !result.ok || !result.case) {
+          throw new Error('Your prepared case could not be confirmed. Return to the scan and try again.');
+        }
+        if (result.case.benchmarkEnrichmentPending === true) {
+          throw new Error('Your bill review is not finished yet. Return to the scan and wait for the review to complete.');
+        }
+        caseReady = true;
+        checkoutBtn.href = to;
+        checkoutBtn.setAttribute('aria-disabled', 'false');
+        checkoutBtn.setAttribute('aria-busy', 'false');
+        errorBox.classList.remove('show');
+      });
+    }).catch(function(error) {
+      showCheckoutError(error && error.message ? error.message : 'Your prepared case could not be confirmed.');
+    }).finally(function() {
+      window.clearTimeout(timeout);
+    });
+  }
 
   checkoutBtn.addEventListener('click', function(e){
+    if (!caseReady) {
+      e.preventDefault();
+      showCheckoutError('Please wait while your prepared case is confirmed.');
+      return;
+    }
     // Let the browser handle target="_blank" naturally — this preserves the
     // user-gesture context that popup blockers require. Advance the step UI so
     // the buyer knows to watch for their license-key email.
     if(step1){ step1.classList.remove('active'); step1.classList.add('done'); }
     if(step2){ step2.classList.add('active'); }
   });
+  verifyPreparedCase();
 })();
 </script>
 <footer aria-label="Legal links" style="position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:24px;padding:16px 12px;border-top:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.40);font-family:'DM Sans',system-ui,sans-serif;font-size:.68rem"><span>United Patient Advocate&trade;</span><span>&middot;</span><a href="terms.html" style="color:inherit;text-decoration:none">Terms</a><span>&middot;</span><a href="refund-policy.html" style="color:inherit;text-decoration:none">Refund Policy</a><span>&middot;</span><a href="mailto:support@unitedpatientadvocate.com" style="color:inherit;text-decoration:none">Contact</a></footer>

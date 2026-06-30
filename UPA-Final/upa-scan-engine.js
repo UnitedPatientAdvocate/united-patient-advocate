@@ -438,10 +438,26 @@ function inferBillType(rawText) {
 }
 
 /* ─────────────────────────────────────────────
-   MAIN: extractFromPDF
+   MAIN: extractFromFile
 ───────────────────────────────────────────── */
 
-async function extractFromPDF(file) {
+function throwIfScanAborted(signal) {
+  if (signal && signal.aborted) {
+    const error = new Error('Scan cancelled');
+    error.name = 'AbortError';
+    throw error;
+  }
+}
+
+function reportScanProgress(options, percent, message) {
+  if (options && typeof options.onProgress === 'function') {
+    options.onProgress({ percent, message });
+  }
+}
+
+async function extractFromPDF(file, options) {
+  options = options || {};
+  const signal = options.signal;
   const result = {
     provider: null, serviceDate: null, serviceDateRaw: null,
     totalBilled: null, patientBalance: null,
@@ -455,26 +471,44 @@ async function extractFromPDF(file) {
   };
 
   try {
-    /* Read file */
-    const buf = await new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload  = e => res(e.target.result);
-      r.onerror = () => rej(new Error('FileReader failed'));
-      r.readAsArrayBuffer(file);
-    });
+    throwIfScanAborted(signal);
+    reportScanProgress(options, 8, 'Opening your PDF...');
+    const buf = await file.arrayBuffer();
+    throwIfScanAborted(signal);
 
     /* Load PDF */
     const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
     result.pageCount = pdf.numPages;
+    reportScanProgress(options, 14, `Reading ${pdf.numPages} page${pdf.numPages === 1 ? '' : 's'}...`);
 
     /* Extract text from all pages */
     let allLines = [], fullText = '';
     for (let i = 1; i <= pdf.numPages; i++) {
+      throwIfScanAborted(signal);
       const page   = await pdf.getPage(i);
       const tc     = await page.getTextContent();
       const pLines = buildLines(tc);
       allLines = allLines.concat(pLines);
       fullText += pLines.join('\n') + '\n';
+      reportScanProgress(
+        options,
+        14 + Math.round((i / pdf.numPages) * 56),
+        `Reading page ${i} of ${pdf.numPages}...`
+      );
+    }
+
+    if (fullText.trim().length < 120
+        && window.UPAMobileUpload
+        && typeof window.UPAMobileUpload.renderPdfPagesForOcr === 'function') {
+      reportScanProgress(options, 72, 'This PDF is image-based. Reading the visible bill details...');
+      const imageResult = await window.UPAMobileUpload.renderPdfPagesForOcr(pdf, options);
+      throwIfScanAborted(signal);
+      return Object.assign(result, imageResult || {}, {
+        pageCount: pdf.numPages,
+        _scan: true,
+        _scanTimestamp: Date.now(),
+        _imageBasedPdf: true
+      });
     }
     result.rawText = fullText;
     result.lines   = allLines;
@@ -507,13 +541,31 @@ async function extractFromPDF(file) {
     });
 
     result.confidence = scoreConfidence(result);
+    reportScanProgress(options, 78, 'Checking the bill details we found...');
 
   } catch (err) {
+    if (err && err.name === 'AbortError') throw err;
     console.warn('[UPA Scan Engine] Extraction error:', err.message);
     result.confidence = 'failed';
   }
 
   return result;
+}
+
+async function extractFromFile(file, options) {
+  if (!file) throw new Error('Choose a bill or EOB first');
+  if (window.UPAMobileUpload && window.UPAMobileUpload.isImage(file)) {
+    reportScanProgress(options, 8, 'Preparing your bill image...');
+    const imageResult = await window.UPAMobileUpload.extractImage(file, options || {});
+    reportScanProgress(options, 78, 'Checking the bill details we found...');
+    return Object.assign({
+      confidence: 'low',
+      pageCount: 1,
+      _scan: true,
+      _scanTimestamp: Date.now()
+    }, imageResult || {});
+  }
+  return extractFromPDF(file, options);
 }
 
 /* ─────────────────────────────────────────────
@@ -778,6 +830,7 @@ function writeScanStateToStorage(ext) {
 ───────────────────────────────────────────── */
 
 window.UPAScanEngine = {
+  extractFromFile,
   extractFromPDF,
   buildScanFindings,
   buildCaseValueEstimate,

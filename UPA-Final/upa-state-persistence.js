@@ -1090,6 +1090,11 @@
       var recoveryToken = checkoutRecoveryToken();
       if(recoveryToken && recoveryToken.length <= MAX_CASE_PARAM_LENGTH) window.name = 'UPA_RECOVERY:' + recoveryToken;
     }catch(e){}
+    try{
+      if(window.UPAAnalytics && typeof window.UPAAnalytics.trackBeginCheckout === 'function'){
+        window.UPAAnalytics.trackBeginCheckout(meta && meta.source || 'funnel');
+      }
+    }catch(e){}
     return session;
   }
 

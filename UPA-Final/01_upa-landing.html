@@ -267,13 +267,19 @@ a{color:inherit;text-decoration:none}
     })(window, document, "clarity", "script", "xcbb4h1bob");
 </script>
     <!-- Google Analytics 4 + Google Ads -->
+    <script src="/UPA-Final/upa-analytics.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-E9M0HYG0GS"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-E9M0HYG0GS');
-      gtag('config', 'AW-18266741864');
+      var upaMeasurementConfig = {
+        page_location: window.UPAAnalytics && typeof window.UPAAnalytics.sanitizedPageLocation === 'function'
+          ? window.UPAAnalytics.sanitizedPageLocation()
+          : window.location.origin + window.location.pathname
+      };
+      gtag('config', 'G-E9M0HYG0GS', upaMeasurementConfig);
+      gtag('config', 'AW-18266741864', upaMeasurementConfig);
     </script>
 </head>
 <body>

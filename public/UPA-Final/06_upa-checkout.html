@@ -92,12 +92,19 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
     })(window, document, "clarity", "script", "xcbb4h1bob");
 </script>
     <!-- Google Analytics 4 -->
+    <script src="/UPA-Final/upa-analytics.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-E9M0HYG0GS"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-E9M0HYG0GS');
+      var upaMeasurementConfig = {
+        page_location: window.UPAAnalytics && typeof window.UPAAnalytics.sanitizedPageLocation === 'function'
+          ? window.UPAAnalytics.sanitizedPageLocation()
+          : window.location.origin + window.location.pathname
+      };
+      gtag('config', 'G-E9M0HYG0GS', upaMeasurementConfig);
+      gtag('config', 'AW-18266741864', upaMeasurementConfig);
     </script>
 </head>
 <body>
@@ -228,16 +235,24 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
   checkoutBtn.setAttribute('rel', 'noopener');
   var errorBox = document.getElementById('error');
 
-  function showCheckoutError(message) {
+  function showCheckoutError(message, reason) {
     errorBox.textContent = message;
     errorBox.classList.add('show');
     checkoutBtn.setAttribute('aria-disabled', 'true');
     checkoutBtn.setAttribute('aria-busy', 'false');
+    try {
+      if (window.UPAAnalytics && typeof window.UPAAnalytics.track === 'function') {
+        window.UPAAnalytics.track('checkout_blocked', {
+          funnel_step: 'checkout',
+          failure_stage: reason || 'case_verification'
+        });
+      }
+    } catch (error) {}
   }
 
   function verifyPreparedCase() {
     if (!serverCaseId) {
-      showCheckoutError('Your prepared case is missing. Return to the scan and prepare your review before checkout.');
+      showCheckoutError('Your prepared case is missing. Return to the scan and prepare your review before checkout.', 'missing_case');
       return;
     }
     var controller = typeof AbortController === 'function' ? new AbortController() : null;
@@ -262,7 +277,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
         errorBox.classList.remove('show');
       });
     }).catch(function(error) {
-      showCheckoutError(error && error.message ? error.message : 'Your prepared case could not be confirmed.');
+      showCheckoutError(error && error.message ? error.message : 'Your prepared case could not be confirmed.', 'case_verification');
     }).finally(function() {
       window.clearTimeout(timeout);
     });
@@ -271,7 +286,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
   checkoutBtn.addEventListener('click', function(e){
     if (!caseReady) {
       e.preventDefault();
-      showCheckoutError('Please wait while your prepared case is confirmed.');
+      showCheckoutError('Please wait while your prepared case is confirmed.', 'case_not_ready');
       return;
     }
     // Let the browser handle target="_blank" naturally — this preserves the

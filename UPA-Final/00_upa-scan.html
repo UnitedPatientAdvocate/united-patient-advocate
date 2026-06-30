@@ -526,13 +526,19 @@ body.upa-image-editor-open{overflow:hidden}
     })(window, document, "clarity", "script", "xcbb4h1bob");
 </script>
     <!-- Google Analytics 4 + Google Ads -->
+    <script src="/UPA-Final/upa-analytics.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-E9M0HYG0GS"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-E9M0HYG0GS');
-      gtag('config', 'AW-18266741864');
+      var upaMeasurementConfig = {
+        page_location: window.UPAAnalytics && typeof window.UPAAnalytics.sanitizedPageLocation === 'function'
+          ? window.UPAAnalytics.sanitizedPageLocation()
+          : window.location.origin + window.location.pathname
+      };
+      gtag('config', 'G-E9M0HYG0GS', upaMeasurementConfig);
+      gtag('config', 'AW-18266741864', upaMeasurementConfig);
     </script>
 </head>
 <body>
@@ -1276,19 +1282,52 @@ function showUploadError(msg) {
 }
 function clearUploadError() { uploadErr.style.display = 'none'; uploadErr.textContent = ''; }
 
-async function onFileSelected(file) {
+function analyticsFileFormat(file) {
+  if (!file) return 'unknown';
+  if (window.UPAMobileUpload && window.UPAMobileUpload.isHeic(file)) return 'heic';
+  if (window.UPAMobileUpload && window.UPAMobileUpload.isPdf(file)) return 'pdf';
+  var type = String(file.type || '').toLowerCase();
+  return type.indexOf('png') !== -1 ? 'png' : 'jpeg';
+}
+
+function trackFunnelEvent(name, params, options) {
+  try {
+    if (window.UPAAnalytics && typeof window.UPAAnalytics.track === 'function') {
+      window.UPAAnalytics.track(name, params || {}, options || {});
+    }
+  } catch (error) {}
+}
+
+async function onFileSelected(file, uploadSource) {
   clearUploadError();
   if (!file) return;
   if (!window.UPAMobileUpload || !window.UPAMobileUpload.isSupported(file)) {
     showUploadError('Please choose a PDF, JPEG, PNG, HEIC, or HEIF file.');
+    trackFunnelEvent('upload_failed', {
+      funnel_step: 'upload',
+      upload_source: uploadSource || 'file_picker',
+      file_format: 'unsupported',
+      failure_stage: 'unsupported_format'
+    });
     fileInput.value = '';
     if (cameraInput) cameraInput.value = '';
     return;
   }
   if (file.size > 30 * 1024 * 1024) {
     showUploadError('File too large. Please choose a file under 30MB.');
+    trackFunnelEvent('upload_failed', {
+      funnel_step: 'upload',
+      upload_source: uploadSource || 'file_picker',
+      file_format: analyticsFileFormat(file),
+      failure_stage: 'file_too_large'
+    });
     return;
   }
+  trackFunnelEvent('upload_started', {
+    funnel_step: 'upload_started',
+    upload_source: uploadSource || 'file_picker',
+    file_format: analyticsFileFormat(file)
+  });
   if (_filePrepareAbortController) _filePrepareAbortController.abort();
   _filePrepareAbortController = typeof AbortController === 'function' ? new AbortController() : null;
   btnScan.disabled = true;
@@ -1314,6 +1353,12 @@ async function onFileSelected(file) {
     fileBadge.style.display = 'none';
     if (!error || error.name !== 'AbortError') {
       showUploadError(error && error.message ? error.message : 'The selected image could not be prepared.');
+      trackFunnelEvent('upload_failed', {
+        funnel_step: 'upload',
+        upload_source: uploadSource || 'file_picker',
+        file_format: analyticsFileFormat(file),
+        failure_stage: 'image_preparation'
+      });
     }
     dropZone.querySelector('.drop-label').textContent = 'Choose your bill, EOB, or clear photo';
     dropZone.querySelector('.drop-sub').textContent = 'PDF, JPEG, PNG, HEIC, or HEIF';
@@ -1323,10 +1368,10 @@ async function onFileSelected(file) {
 }
 
 fileInput.addEventListener('change', function() {
-  if (this.files && this.files[0]) onFileSelected(this.files[0]);
+  if (this.files && this.files[0]) onFileSelected(this.files[0], 'file_picker');
 });
 cameraInput.addEventListener('change', function() {
-  if (this.files && this.files[0]) onFileSelected(this.files[0]);
+  if (this.files && this.files[0]) onFileSelected(this.files[0], 'camera_capture');
 });
 fileRemove.addEventListener('click', function() {
   if (_filePrepareAbortController) _filePrepareAbortController.abort();
@@ -1344,11 +1389,15 @@ dropZone.addEventListener('dragleave', function() { this.classList.remove('drag-
 dropZone.addEventListener('drop', function(e) {
   e.preventDefault(); this.classList.remove('drag-over');
   const f = e.dataTransfer.files[0];
-  if (f) onFileSelected(f);
+  if (f) onFileSelected(f, 'drag_drop');
 });
 btnScan.addEventListener('click', startScan);
 document.getElementById('scan-cancel').addEventListener('click', function() {
   if (_scanAbortController) _scanAbortController.abort();
+  trackFunnelEvent('upload_cancelled', {
+    funnel_step: 'upload',
+    file_format: analyticsFileFormat(selectedFile)
+  });
   resetToUpload();
   showUploadError('Scan cancelled. Your file was not submitted.');
 });
@@ -1439,10 +1488,21 @@ function startScan() {
     }
   }).then(function(data) {
     extractedData = data;
+    trackFunnelEvent('upload_completed', {
+      funnel_step: 'upload_completed',
+      file_format: analyticsFileFormat(selectedFile),
+      extraction_method: data && data._imageExtraction ? 'image_ocr' : data && data._imageBasedPdf ? 'pdf_ocr' : 'pdf_text',
+      page_count_bucket: data && data.pageCount > 5 ? '6_plus' : data && data.pageCount > 1 ? '2_to_5' : '1'
+    }, { onceKey: 'scan_upload_completed' });
     resumeAnimation(data);
   }).catch(function(err) {
     if (err && err.name === 'AbortError') return;
     console.warn('[UPA] Extraction failed:', err);
+    trackFunnelEvent('upload_failed', {
+      funnel_step: 'upload',
+      file_format: analyticsFileFormat(selectedFile),
+      failure_stage: 'extraction'
+    });
     extractedData = { confidence: 'failed', pageCount: 1, _scan: true, _scanTimestamp: Date.now() };
     showState('state-fallback');
   }).finally(function() {
@@ -1699,12 +1759,25 @@ function routeAfterScan(data) {
       }
       _caseEnrichmentState = 'ready';
       _caseEnrichmentError = null;
+      trackFunnelEvent('analysis_completed', {
+        funnel_step: 'analysis_completed',
+        generation_mode: 'free_preview'
+      }, { onceKey: 'scan_analysis_completed' });
+      trackFunnelEvent('findings_viewed', {
+        funnel_step: 'findings_viewed',
+        view_context: 'scan_preview'
+      }, { onceKey: 'scan_findings_viewed' });
       updateCheckoutStoreState();
       return preparedCase;
     })
     .catch(function(error) {
       _caseEnrichmentState = 'error';
       _caseEnrichmentError = new Error('We could not finish checking this case. Please scan it again before checkout.');
+      trackFunnelEvent('analysis_failed', {
+        funnel_step: 'analysis',
+        generation_mode: 'free_preview',
+        failure_stage: 'enrichment'
+      });
       console.warn('[UPA] Preview analysis did not update the checkout case', error && error.message);
       updateCheckoutStoreState();
       throw _caseEnrichmentError;
@@ -2106,10 +2179,23 @@ function renderFindings(data, findings) {
           _completedScanCaseForStore = retriedCase;
           _casePreparationPromise = Promise.resolve(retriedCase);
           _caseEnrichmentState = 'ready';
+          trackFunnelEvent('analysis_completed', {
+            funnel_step: 'analysis_completed',
+            generation_mode: 'free_preview'
+          }, { onceKey: 'scan_analysis_completed' });
+          trackFunnelEvent('findings_viewed', {
+            funnel_step: 'findings_viewed',
+            view_context: 'scan_preview'
+          }, { onceKey: 'scan_findings_viewed' });
           updateCheckoutStoreState();
         } catch (retryError) {
           _caseEnrichmentState = 'error';
           _caseEnrichmentError = new Error('We could not finish checking this case. Please try again.');
+          trackFunnelEvent('analysis_failed', {
+            funnel_step: 'analysis',
+            generation_mode: 'free_preview',
+            failure_stage: 'enrichment_retry'
+          });
           updateCheckoutStoreState();
           return;
         }
@@ -2156,6 +2242,10 @@ function renderFindings(data, findings) {
       } catch(e) {
         _serverCaseStoreState = 'error';
         _serverCaseStoreError = e;
+        trackFunnelEvent('checkout_blocked', {
+          funnel_step: 'checkout',
+          failure_stage: 'case_storage_or_verification'
+        });
         delete upgradeLink.dataset.checkoutBusy;
         updateCheckoutStoreState();
       }
@@ -2330,6 +2420,14 @@ function renderPreparedManualPreview(dossier, caseId) {
   _completedScanCaseForStore = Object.assign({}, dossier, { benchmarkEnrichmentPending: false });
   _caseEnrichmentState = 'ready';
   _caseEnrichmentError = null;
+  trackFunnelEvent('analysis_completed', {
+    funnel_step: 'analysis_completed',
+    generation_mode: 'manual_flags'
+  }, { onceKey: 'manual_analysis_completed' });
+  trackFunnelEvent('findings_viewed', {
+    funnel_step: 'findings_viewed',
+    view_context: 'manual_preview'
+  }, { onceKey: 'manual_findings_viewed' });
   if (isValidServerCaseId(caseId)) {
     _manualPreviewServerCaseId = caseId;
     _serverCaseStoreState = 'ready';

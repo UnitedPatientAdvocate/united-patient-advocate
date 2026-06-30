@@ -2794,13 +2794,19 @@ html.upa-license-pending .upa-license-gate,html.upa-license-pending .upa-case-lo
     })(window, document, "clarity", "script", "xcbb4h1bob");
 </script>
     <!-- Google Analytics 4 + Google Ads -->
+    <script src="/UPA-Final/upa-analytics.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-E9M0HYG0GS"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-E9M0HYG0GS');
-      gtag('config', 'AW-18266741864');
+      var upaMeasurementConfig = {
+        page_location: window.UPAAnalytics && typeof window.UPAAnalytics.sanitizedPageLocation === 'function'
+          ? window.UPAAnalytics.sanitizedPageLocation()
+          : window.location.origin + window.location.pathname
+      };
+      gtag('config', 'G-E9M0HYG0GS', upaMeasurementConfig);
+      gtag('config', 'AW-18266741864', upaMeasurementConfig);
     </script>
 </head>
 <body>
@@ -6300,16 +6306,40 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   function trackVerifiedPurchaseUnlock(key,dossier){
     var caseId=window.UPAFullDashboardCaseId||(dossier&&dossier._upa_case_id)||(dossier&&dossier.caseId)||'';
     var guardKey='upa.ads.saleTracked.v1:'+(key||caseId||'unknown');
+    var transactionId=window.UPAAnalytics&&window.UPAAnalytics.transactionId
+      ?window.UPAAnalytics.transactionId(key||caseId||'verified-purchase')
+      :'upa_'+String(caseId||Date.now()).replace(/[^a-z0-9]/gi,'').slice(0,40);
     try{
       if(localStorage.getItem(guardKey))return;
       localStorage.setItem(guardKey,new Date().toISOString());
     }catch(e){return;}
     try{
       if(typeof window.gtag==='function'){
-        window.gtag('event','conversion',{send_to:ADS_CONVERSION_ID+'/'+ADS_CONVERSION_LABEL});
+        window.gtag('event','conversion',{
+          send_to:ADS_CONVERSION_ID+'/'+ADS_CONVERSION_LABEL,
+          value:97,
+          currency:'USD',
+          transaction_id:transactionId
+        });
       }
     }catch(e){}
     try{
+      if(window.UPAAnalytics&&typeof window.UPAAnalytics.track==='function'){
+        window.UPAAnalytics.track('purchase',{
+          funnel_step:'purchase_completed',
+          transaction_id:transactionId,
+          value:97,
+          currency:'USD',
+          items:[window.UPAAnalytics.productItem()]
+        },{onceKey:transactionId,persistent:true});
+        window.UPAAnalytics.track('dashboard_unlocked',{
+          funnel_step:'dashboard_unlocked',
+          transaction_id:transactionId
+        },{onceKey:transactionId,persistent:true});
+      }
+    }catch(e){}
+    try{
+      var attribution=window.UPAAnalytics&&window.UPAAnalytics.attribution?window.UPAAnalytics.attribution():null;
       fetch('/api/track',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -6318,9 +6348,12 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
           event:'sale',
           occurredAt:new Date().toISOString(),
           path:window.location.pathname,
-          url:window.location.href,
-          source:new URLSearchParams(window.location.search||'').get('src')||'direct',
-          meta:{caseId:caseId,licenseVerified:true}
+          url:window.UPAAnalytics&&window.UPAAnalytics.sanitizedPageLocation?window.UPAAnalytics.sanitizedPageLocation():window.location.origin+window.location.pathname,
+          visitorId:window.UPAAnalytics&&window.UPAAnalytics.visitorId?window.UPAAnalytics.visitorId():'',
+          visitSessionId:window.UPAAnalytics&&window.UPAAnalytics.visitSessionId?window.UPAAnalytics.visitSessionId():'',
+          source:attribution&&attribution.last&&attribution.last.source||'direct',
+          firstSource:attribution&&attribution.first&&attribution.first.source||'direct',
+          meta:{transactionId:transactionId,licenseVerified:true}
         })
       }).catch(function(){});
     }catch(e){}
@@ -6364,6 +6397,14 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     .catch(function(error){
       if(button){button.disabled=false;button.textContent='Unlock review';}
       setStatus(error&&error.message||'We could not verify that license key. Please try again.',true);
+      try{
+        if(window.UPAAnalytics&&typeof window.UPAAnalytics.track==='function'){
+          window.UPAAnalytics.track('license_verification_failed',{
+            funnel_step:'dashboard_unlock',
+            failure_stage:'license_verification'
+          });
+        }
+      }catch(e){}
     });
   }
 

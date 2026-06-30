@@ -72,12 +72,19 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
     })(window, document, "clarity", "script", "xcbb4h1bob");
 </script>
     <!-- Google Analytics 4 -->
+    <script src="/UPA-Final/upa-analytics.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-E9M0HYG0GS"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-E9M0HYG0GS');
+      var upaMeasurementConfig = {
+        page_location: window.UPAAnalytics && typeof window.UPAAnalytics.sanitizedPageLocation === 'function'
+          ? window.UPAAnalytics.sanitizedPageLocation()
+          : window.location.origin + window.location.pathname
+      };
+      gtag('config', 'G-E9M0HYG0GS', upaMeasurementConfig);
+      gtag('config', 'AW-18266741864', upaMeasurementConfig);
     </script>
 </head>
 <body>
@@ -343,11 +350,28 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
     })
     .then(function(caseId){
       setProgress('Your preview is ready', 'Opening the preview and payment options now.');
+      try{
+        if(window.UPAAnalytics&&typeof window.UPAAnalytics.track==='function'){
+          window.UPAAnalytics.track('manual_intake_completed',{
+            funnel_step:'manual_intake_completed',
+            generation_mode:'manual_flags'
+          },{onceKey:'manual_intake_completed'});
+        }
+      }catch(e){}
       window.setTimeout(function(){
         window.location.href = '/UPA-Final/00_upa-scan.html?resume=1&preview=manual&access=' + encodeURIComponent(caseId);
       }, 650);
     })
     .catch(function(error){
+      try{
+        if(window.UPAAnalytics&&typeof window.UPAAnalytics.track==='function'){
+          window.UPAAnalytics.track('analysis_failed',{
+            funnel_step:'manual_intake',
+            generation_mode:'manual_flags',
+            failure_stage:error&&error.name==='AbortError'?'timeout':'preparation'
+          });
+        }
+      }catch(e){}
       showRecovery(error && error.name === 'AbortError'
         ? 'Preparing the fresh case took too long. Please retry.'
         : 'The fresh case could not be prepared. Please retry.');

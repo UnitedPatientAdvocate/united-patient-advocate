@@ -6257,8 +6257,6 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
   var controlsWired=false;
   var autoVerifyStarted=false;
   var serverVerifiedThisLoad=false;
-  var ADS_CONVERSION_ID='AW-18266741864';
-  var ADS_CONVERSION_LABEL='5IzqCPKGqsQcEOi4oYZE';
 
   function readDossier(){
     if(window.__UPA_ACCESS_CASE__&&typeof window.__UPA_ACCESS_CASE__==='object')return window.__UPA_ACCESS_CASE__;
@@ -6303,62 +6301,6 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
     }catch(e){}
   }
 
-  function trackVerifiedPurchaseUnlock(key,dossier){
-    var caseId=window.UPAFullDashboardCaseId||(dossier&&dossier._upa_case_id)||(dossier&&dossier.caseId)||'';
-    var guardKey='upa.ads.saleTracked.v1:'+(key||caseId||'unknown');
-    var transactionId=window.UPAAnalytics&&window.UPAAnalytics.transactionId
-      ?window.UPAAnalytics.transactionId(key||caseId||'verified-purchase')
-      :'upa_'+String(caseId||Date.now()).replace(/[^a-z0-9]/gi,'').slice(0,40);
-    try{
-      if(localStorage.getItem(guardKey))return;
-      localStorage.setItem(guardKey,new Date().toISOString());
-    }catch(e){return;}
-    try{
-      if(typeof window.gtag==='function'){
-        window.gtag('event','conversion',{
-          send_to:ADS_CONVERSION_ID+'/'+ADS_CONVERSION_LABEL,
-          value:97,
-          currency:'USD',
-          transaction_id:transactionId
-        });
-      }
-    }catch(e){}
-    try{
-      if(window.UPAAnalytics&&typeof window.UPAAnalytics.track==='function'){
-        window.UPAAnalytics.track('purchase',{
-          funnel_step:'purchase_completed',
-          transaction_id:transactionId,
-          value:97,
-          currency:'USD',
-          items:[window.UPAAnalytics.productItem()]
-        },{onceKey:transactionId,persistent:true});
-        window.UPAAnalytics.track('dashboard_unlocked',{
-          funnel_step:'dashboard_unlocked',
-          transaction_id:transactionId
-        },{onceKey:transactionId,persistent:true});
-      }
-    }catch(e){}
-    try{
-      var attribution=window.UPAAnalytics&&window.UPAAnalytics.attribution?window.UPAAnalytics.attribution():null;
-      fetch('/api/track',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        keepalive:true,
-        body:JSON.stringify({
-          event:'sale',
-          occurredAt:new Date().toISOString(),
-          path:window.location.pathname,
-          url:window.UPAAnalytics&&window.UPAAnalytics.sanitizedPageLocation?window.UPAAnalytics.sanitizedPageLocation():window.location.origin+window.location.pathname,
-          visitorId:window.UPAAnalytics&&window.UPAAnalytics.visitorId?window.UPAAnalytics.visitorId():'',
-          visitSessionId:window.UPAAnalytics&&window.UPAAnalytics.visitSessionId?window.UPAAnalytics.visitSessionId():'',
-          source:attribution&&attribution.last&&attribution.last.source||'direct',
-          firstSource:attribution&&attribution.first&&attribution.first.source||'direct',
-          meta:{transactionId:transactionId,licenseVerified:true}
-        })
-      }).catch(function(){});
-    }catch(e){}
-  }
-
   function verifyLicense(){
     var input=document.getElementById('upa-full-license-input');
     var button=document.getElementById('upa-full-license-button');
@@ -6380,7 +6322,14 @@ window.addEventListener('pageshow', function(e){ if(e.persisted){ window.locatio
       if(!dossier||!Object.keys(dossier).length)throw new Error('Your saved case is missing. Contact support with your receipt.');
       serverVerifiedThisLoad=true;
       window.__UPA_LICENSE_SERVER_VERIFIED__=true;
-      trackVerifiedPurchaseUnlock(key,dossier);
+      if(window.UPAAnalytics&&typeof window.UPAAnalytics.trackVerifiedPurchase==='function'){
+        window.UPAAnalytics.trackVerifiedPurchase({
+          verified:true,
+          dedupeValue:key,
+          testMode:outcome.result.test===true,
+          dashboardUnlocked:true
+        });
+      }
       dossier.licenseVerified=true;
       dossier.licenseVerifiedAt=new Date().toISOString();
       writeDossier(dossier);

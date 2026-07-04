@@ -236,9 +236,17 @@ var licenseVerificationPromise = Promise.resolve(false);
           }
           return result;
         });
-      }).then(function() {
+      }).then(function(result) {
         sessionStorage.setItem('upa.license.key', licenseKey);
         localStorage.setItem('upa.license.key', licenseKey);
+        if (window.UPAAnalytics && typeof window.UPAAnalytics.trackVerifiedPurchase === 'function') {
+          window.UPAAnalytics.trackVerifiedPurchase({
+            verified: true,
+            dedupeValue: licenseKey,
+            testMode: result.test === true,
+            dashboardUnlocked: false
+          });
+        }
         if (window.UPAState && window.UPAState.markPaid) {
           window.UPAState.markPaid({
             stage: 'success',

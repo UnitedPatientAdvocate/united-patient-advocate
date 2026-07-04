@@ -3,6 +3,7 @@
 
   var GA4_ID = 'G-E9M0HYG0GS';
   var ADS_ID = 'AW-18266741864';
+  var ADS_PURCHASE_LABEL = '5IzqCPKGqsQcEOi4oYZE';
   var ATTRIBUTION_KEY = 'upa.analytics.attribution.v1';
   var VISITOR_KEY = 'upa.analytics.visitor.v1';
   var SESSION_KEY = 'upa.analytics.session.v1';
@@ -26,6 +27,7 @@
     checkout_blocked: true,
     purchase: true,
     dashboard_unlocked: true,
+    sale: true,
     license_verification_failed: true,
     purchase_handoff_viewed: true,
     manual_intake_viewed: true,
@@ -272,6 +274,66 @@
     };
   }
 
+  function trackVerifiedPurchase(options) {
+    var opts = options && typeof options === 'object' ? options : {};
+    if (opts.verified !== true) return false;
+
+    var dedupeValue = clean(opts.dedupeValue, 300);
+    if (!dedupeValue) return false;
+
+    var purchaseTransactionId = transactionId(dedupeValue);
+    var testMode = opts.testMode === true;
+    var debugParams = testMode ? { debug_mode: true } : {};
+
+    if (!testMode && once('ads_purchase:' + purchaseTransactionId, true)) {
+      try {
+        if (typeof global.gtag === 'function') {
+          global.gtag('event', 'conversion', {
+            send_to: ADS_ID + '/' + ADS_PURCHASE_LABEL,
+            value: 97,
+            currency: 'USD',
+            transaction_id: purchaseTransactionId
+          });
+        }
+      } catch (error) {}
+    }
+
+    track('purchase', Object.assign({
+      funnel_step: 'purchase_completed',
+      transaction_id: purchaseTransactionId,
+      value: 97,
+      currency: 'USD',
+      items: [productItem()]
+    }, debugParams), {
+      onceKey: purchaseTransactionId,
+      persistent: true
+    });
+
+    if (opts.dashboardUnlocked === true) {
+      track('dashboard_unlocked', Object.assign({
+        funnel_step: 'dashboard_unlocked',
+        transaction_id: purchaseTransactionId
+      }, debugParams), {
+        onceKey: purchaseTransactionId,
+        persistent: true
+      });
+    }
+
+    if (!testMode && once('verified_sale_api:' + purchaseTransactionId, true)) {
+      sendApi('sale', safeEventParams({
+        funnel_step: 'purchase_completed',
+        transaction_id: purchaseTransactionId,
+        value: 97,
+        currency: 'USD'
+      }));
+    }
+
+    return {
+      transactionId: purchaseTransactionId,
+      testMode: testMode
+    };
+  }
+
   function trackBeginCheckout(context) {
     return track('begin_checkout', {
       funnel_step: 'checkout_started',
@@ -312,7 +374,8 @@
     visitSessionId: visitSessionId,
     productItem: productItem,
     track: track,
-    trackBeginCheckout: trackBeginCheckout
+    trackBeginCheckout: trackBeginCheckout,
+    trackVerifiedPurchase: trackVerifiedPurchase
   };
 
   if (document.readyState === 'loading') {

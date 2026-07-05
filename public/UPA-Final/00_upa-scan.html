@@ -451,6 +451,9 @@ body.upa-image-editor-open{overflow:hidden}
 .btn-upgrade:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(29,158,117,0.40)}
 .btn-upgrade.is-preparing{cursor:wait;opacity:0.92;transform:none;box-shadow:0 6px 20px rgba(29,158,117,0.24);pointer-events:none}
 .btn-upgrade svg{width:18px;height:18px;stroke:#fff;stroke-width:2.2;fill:none}
+.ub-loading-spinner{display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;flex:0 0 auto;animation:ub-spinner-rotate .85s linear infinite}
+.btn-upgrade.is-preparing>svg{display:none}
+.btn-upgrade.is-preparing .ub-loading-spinner{display:block}
 .ub-price{font-size:0.875rem;opacity:0.75;margin-left:auto}
 .ub-store-status{min-height:18px;margin-top:9px;font-size:0.6875rem;line-height:1.45;color:var(--ink-4);text-align:center}
 .ub-store-progress-wrap{display:none;margin-top:10px}
@@ -458,6 +461,13 @@ body.upa-image-editor-open{overflow:hidden}
 .ub-store-progress-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;font-size:0.6875rem;font-weight:700;color:var(--ink-3)}
 .ub-store-progress{height:8px;overflow:hidden;border-radius:999px;background:rgba(29,158,117,0.14)}
 .ub-store-progress-bar{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#1D9E75,#48B894);transition:width 320ms ease}
+.ub-store-progress-wrap.is-indeterminate .ub-store-progress-bar{width:34%!important;animation:ub-progress-travel 1.35s ease-in-out infinite;transition:none}
+@keyframes ub-spinner-rotate{to{transform:rotate(360deg)}}
+@keyframes ub-progress-travel{0%{transform:translateX(-115%)}50%{transform:translateX(95%)}100%{transform:translateX(300%)}}
+@media (prefers-reduced-motion:reduce){
+  .ub-loading-spinner{animation-duration:1.8s}
+  .ub-store-progress-wrap.is-indeterminate .ub-store-progress-bar{animation-duration:2.8s}
+}
 .ub-loss{
   margin-top:12px;padding:10px 12px;
   background:rgba(240,165,0,0.07);border:1px solid rgba(240,165,0,0.16);
@@ -857,6 +867,8 @@ var _scanAbortController = null;
 var _filePrepareAbortController = null;
 var _caseEnrichmentState = 'idle';
 var _caseEnrichmentError = null;
+var _caseEnrichmentStartedAt = 0;
+var _caseEnrichmentStatusTimer = null;
 var CASE_STORE_TIMEOUT_MS = 15000;
 var CASE_STORE_RETRY_MAX_DELAY_MS = 2500;
 var CASE_STORE_MAX_ATTEMPTS = 2;
@@ -1006,12 +1018,28 @@ function stopCasePreparationProgress() {
   _casePreparationProgressTimer = null;
 }
 
+function startCaseEnrichmentFeedback() {
+  if (_caseEnrichmentStatusTimer) window.clearInterval(_caseEnrichmentStatusTimer);
+  _caseEnrichmentStartedAt = Date.now();
+  _caseEnrichmentStatusTimer = window.setInterval(updateCheckoutStoreState, 4000);
+  updateCheckoutStoreState();
+}
+
+function stopCaseEnrichmentFeedback() {
+  if (_caseEnrichmentStatusTimer) window.clearInterval(_caseEnrichmentStatusTimer);
+  _caseEnrichmentStatusTimer = null;
+  _caseEnrichmentStartedAt = 0;
+}
+
 function updateCheckoutStoreState() {
   var link = document.querySelector('#upgrade-block .btn-upgrade');
   var label = link && link.querySelector('.ub-action-label');
   var price = link && link.querySelector('.ub-price');
   var status = document.getElementById('ub-store-status');
   var progress = document.getElementById('ub-store-progress-wrap');
+  var progressTrack = document.getElementById('ub-store-progress');
+  var progressLabel = document.getElementById('ub-store-progress-label');
+  var progressPct = document.getElementById('ub-store-progress-pct');
   if (!link || !label || !status || !progress) return;
   var returningOrLicensed = isReturningOrLicensedBuyer();
   var enrichmentPending = _caseEnrichmentState === 'pending';
@@ -1020,11 +1048,23 @@ function updateCheckoutStoreState() {
   link.classList.toggle('is-preparing', busy);
   link.setAttribute('aria-disabled', busy ? 'true' : 'false');
   link.setAttribute('aria-busy', busy ? 'true' : 'false');
-  progress.classList.toggle('show', _serverCaseStoreState === 'pending' || (_serverCaseStoreState === 'ready' && _casePreparationProgress === 100));
+  progress.classList.toggle('show', enrichmentPending || _serverCaseStoreState === 'pending' || (_serverCaseStoreState === 'ready' && _casePreparationProgress === 100));
+  progress.classList.toggle('is-indeterminate', enrichmentPending);
   if (price) price.hidden = returningOrLicensed;
   if (enrichmentPending) {
+    var enrichmentSeconds = _caseEnrichmentStartedAt ? Math.floor((Date.now() - _caseEnrichmentStartedAt) / 1000) : 0;
     label.textContent = 'Finishing your review...';
-    status.textContent = 'Checking your extracted bill details before checkout.';
+    status.textContent = enrichmentSeconds < 10
+      ? 'Checking your extracted bill details before checkout.'
+      : enrichmentSeconds < 25
+        ? 'Reviewing codes, amounts, and duplicate patterns. Keep this page open.'
+        : 'Still working. Multi-page bills can take longer. Keep this page open.';
+    if (progressLabel) progressLabel.textContent = 'Reviewing your bill details';
+    if (progressPct) progressPct.textContent = 'In progress';
+    if (progressTrack) {
+      progressTrack.removeAttribute('aria-valuenow');
+      progressTrack.setAttribute('aria-label', 'Bill review in progress');
+    }
   } else if (enrichmentFailed) {
     label.textContent = 'Try finishing my review again';
     status.textContent = _caseEnrichmentError && _caseEnrichmentError.message
@@ -1033,6 +1073,12 @@ function updateCheckoutStoreState() {
   } else if (_serverCaseStoreState === 'pending') {
     label.textContent = 'Preparing your review...';
     status.textContent = _serverCaseStoreMessage || 'Saving your prepared review. Keep this page open.';
+    if (progressLabel) progressLabel.textContent = 'Saving your prepared case';
+    if (progressPct) progressPct.textContent = _casePreparationProgress + '%';
+    if (progressTrack) {
+      progressTrack.setAttribute('aria-valuenow', String(_casePreparationProgress));
+      progressTrack.setAttribute('aria-label', 'Case preparation progress');
+    }
   } else if (_serverCaseStoreState === 'error') {
     label.textContent = returningOrLicensed ? 'Try again with your license key' : 'Try preparing review again';
     status.textContent = _serverCaseStoreError && _serverCaseStoreError.message
@@ -1041,6 +1087,11 @@ function updateCheckoutStoreState() {
   } else {
     label.textContent = returningOrLicensed ? 'Unlock with your license key' : 'Unlock my full review';
     status.textContent = '';
+    if (_serverCaseStoreState === 'ready' && _casePreparationProgress === 100) {
+      if (progressLabel) progressLabel.textContent = 'Review ready';
+      if (progressPct) progressPct.textContent = '100%';
+      if (progressTrack) progressTrack.setAttribute('aria-valuenow', '100');
+    }
   }
 }
 
@@ -1732,7 +1783,9 @@ function routeAfterScan(data) {
   _serverCaseStoreMessage = '';
   _caseEnrichmentState = 'pending';
   _caseEnrichmentError = null;
+  startCaseEnrichmentFeedback();
   if (data.confidence === 'low' || data.confidence === 'failed') {
+    stopCaseEnrichmentFeedback();
     showState('state-fallback');
     return;
   }
@@ -1759,6 +1812,7 @@ function routeAfterScan(data) {
       }
       _caseEnrichmentState = 'ready';
       _caseEnrichmentError = null;
+      stopCaseEnrichmentFeedback();
       trackFunnelEvent('analysis_completed', {
         funnel_step: 'analysis_completed',
         generation_mode: 'free_preview'
@@ -1773,6 +1827,7 @@ function routeAfterScan(data) {
     .catch(function(error) {
       _caseEnrichmentState = 'error';
       _caseEnrichmentError = new Error('We could not finish checking this case. Please scan it again before checkout.');
+      stopCaseEnrichmentFeedback();
       trackFunnelEvent('analysis_failed', {
         funnel_step: 'analysis',
         generation_mode: 'free_preview',
@@ -2139,12 +2194,13 @@ function renderFindings(data, findings) {
     '</div>' +
     '<a class="btn-upgrade" href="' + esc(checkoutHref) + '">' +
       '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' +
+      '<span class="ub-loading-spinner" aria-hidden="true"></span>' +
       '<span class="ub-action-label">Unlock my full review</span>' +
       '<span class="ub-price">' + esc(UPA_SCAN_CONFIG.upgradePrice) + '</span>' +
     '</a>' +
     '<div class="ub-store-status" id="ub-store-status" role="status" aria-live="polite"></div>' +
     '<div class="ub-store-progress-wrap" id="ub-store-progress-wrap">' +
-      '<div class="ub-store-progress-meta"><span>Preparing your saved case</span><strong id="ub-store-progress-pct">0%</strong></div>' +
+      '<div class="ub-store-progress-meta"><span id="ub-store-progress-label">Preparing your saved case</span><strong id="ub-store-progress-pct">0%</strong></div>' +
       '<div class="ub-store-progress" id="ub-store-progress" role="progressbar" aria-label="Case preparation progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="ub-store-progress-bar" id="ub-store-progress-bar"></div></div>' +
     '</div>' +
     '<div class="ub-loss">Timelines vary by provider, payer, and notice type. Written requests help preserve a clear paper trail while you review the bill.</div>' +
@@ -2170,6 +2226,7 @@ function renderFindings(data, findings) {
       if (_caseEnrichmentState === 'error') {
         _caseEnrichmentState = 'pending';
         _caseEnrichmentError = null;
+        startCaseEnrichmentFeedback();
         updateCheckoutStoreState();
         try {
           var retriedCase = await callFreePreviewAI(data);
@@ -2179,6 +2236,7 @@ function renderFindings(data, findings) {
           _completedScanCaseForStore = retriedCase;
           _casePreparationPromise = Promise.resolve(retriedCase);
           _caseEnrichmentState = 'ready';
+          stopCaseEnrichmentFeedback();
           trackFunnelEvent('analysis_completed', {
             funnel_step: 'analysis_completed',
             generation_mode: 'free_preview'
@@ -2191,6 +2249,7 @@ function renderFindings(data, findings) {
         } catch (retryError) {
           _caseEnrichmentState = 'error';
           _caseEnrichmentError = new Error('We could not finish checking this case. Please try again.');
+          stopCaseEnrichmentFeedback();
           trackFunnelEvent('analysis_failed', {
             funnel_step: 'analysis',
             generation_mode: 'free_preview',

@@ -6,6 +6,8 @@
   var CROPPER_CSS = '/UPA-Final/vendor/cropper.min.css';
   var MAX_IMAGE_EDGE = 2200;
   var JPEG_QUALITY = 0.82;
+  var EDITOR_MAX_EDGE = 2000;
+  var EDITOR_JPEG_QUALITY = 0.9;
   var EDITOR_RENDER_TIMEOUT_MS = 8000;
   var loadedAssets = {};
 
@@ -291,6 +293,63 @@
     });
   }
 
+  // Downscale oversized camera photos before the editor. Large iPhone photos
+  // (12MP standard, up to 48MP on Pro) exceed iOS Safari's image/canvas paint
+  // budget and render the crop stage black. Best-effort only: any failure
+  // resolves with the original file so existing editor fallbacks still apply.
+  function downscaleForEditor(file, signal, onProgress) {
+    if (!file || typeof file.type !== 'string' || file.type.indexOf('image/') !== 0) {
+      return Promise.resolve(file);
+    }
+    return new Promise(function (resolve) {
+      var objectUrl = URL.createObjectURL(file);
+      var image = new Image();
+      var done = false;
+
+      function finish(result) {
+        if (done) return;
+        done = true;
+        image.onload = null;
+        image.onerror = null;
+        URL.revokeObjectURL(objectUrl);
+        resolve(result);
+      }
+
+      image.onload = function () {
+        try {
+          if (signal && signal.aborted) { finish(file); return; }
+          var width = image.naturalWidth || image.width;
+          var height = image.naturalHeight || image.height;
+          var longest = Math.max(width, height);
+          if (!width || !height || longest <= EDITOR_MAX_EDGE) { finish(file); return; }
+          var scale = EDITOR_MAX_EDGE / longest;
+          var targetW = Math.max(1, Math.round(width * scale));
+          var targetH = Math.max(1, Math.round(height * scale));
+          var canvas = document.createElement('canvas');
+          canvas.width = targetW;
+          canvas.height = targetH;
+          var context = canvas.getContext('2d');
+          if (!context) { finish(file); return; }
+          context.fillStyle = '#ffffff';
+          context.fillRect(0, 0, targetW, targetH);
+          context.imageSmoothingEnabled = true;
+          context.imageSmoothingQuality = 'high';
+          context.drawImage(image, 0, 0, targetW, targetH);
+          onProgress(12, 'Preparing your photo...');
+          canvas.toBlob(function (blob) {
+            canvas.width = 1;
+            canvas.height = 1;
+            finish(blob ? makeFile(blob, file.name) : file);
+          }, 'image/jpeg', EDITOR_JPEG_QUALITY);
+        } catch (error) {
+          finish(file);
+        }
+      };
+      image.onerror = function () { finish(file); };
+      image.src = objectUrl;
+    });
+  }
+
   function prepareImage(file, options) {
     options = options || {};
     var signal = options.signal;
@@ -299,7 +358,11 @@
     return convertHeic(file, signal, onProgress)
       .then(function (converted) {
         throwIfAborted(signal);
-        return cropAndCompress(converted, signal, onProgress);
+        return downscaleForEditor(converted, signal, onProgress);
+      })
+      .then(function (prepared) {
+        throwIfAborted(signal);
+        return cropAndCompress(prepared, signal, onProgress);
       });
   }
 

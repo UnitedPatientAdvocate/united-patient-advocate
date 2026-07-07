@@ -635,7 +635,7 @@ body.upa-image-editor-open{overflow:hidden}
     <div class="scan-nav-name">United Patient Advocate</div>
     <div class="scan-nav-pill">
       <div class="scan-pill-dot"></div>
-      <span class="scan-pill-label">Reading PDF</span>
+      <span class="scan-pill-label" id="scan-pill-label">Reading PDF</span>
     </div>
   </div>
 
@@ -857,6 +857,7 @@ const UPA_SCAN_CONFIG = {
 let selectedFile    = null;
 let extractedData   = null;
 let scanFindings    = [];
+var _lastUploadSource = '';
 var _aiMergedFindings = [];
 var _serverCaseStorePromise = null;
 var _serverCaseStoreState = 'idle';
@@ -1358,6 +1359,7 @@ function trackFunnelEvent(name, params, options) {
 async function onFileSelected(file, uploadSource) {
   clearUploadError();
   if (!file) return;
+  _lastUploadSource = uploadSource || 'file_picker';
   if (!window.UPAMobileUpload || !window.UPAMobileUpload.isSupported(file)) {
     showUploadError('Please choose a PDF, JPEG, PNG, HEIC, or HEIF file.');
     trackFunnelEvent('upload_failed', {
@@ -1537,6 +1539,16 @@ function startScan() {
   // ───────────────────────────────────────────────────────────────────────
 
   showState('state-scanning');
+  var scanBadge = document.getElementById('scan-pill-label');
+  if (scanBadge) {
+    var badgeLabel = 'Reading Image';
+    if (window.UPAMobileUpload && window.UPAMobileUpload.isPdf(selectedFile)) {
+      badgeLabel = 'Reading PDF';
+    } else if (_lastUploadSource === 'camera_capture') {
+      badgeLabel = 'Reading Photo';
+    }
+    scanBadge.textContent = badgeLabel;
+  }
   renderDocumentPreview(selectedFile);
   runAnimationSequence();
   if (typeof UPAScanEngine === 'undefined') {

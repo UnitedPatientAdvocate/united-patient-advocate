@@ -570,6 +570,17 @@
     try {
       var letter = await buildLetterHtml(docId);
       downloadFile(letter.html, letter.filename);
+      try {
+        if (window.UPAAnalytics && typeof window.UPAAnalytics.track === 'function') {
+          window.UPAAnalytics.track('letter_downloaded', {
+            funnel_step: 'letter_downloaded',
+            view_context: 'letter',
+            file_format: 'html'
+          }, {
+            onceKey: 'letter:' + String(docId || 'unknown') + ':' + (window.UPAAnalytics && typeof window.UPAAnalytics.visitSessionId === 'function' ? window.UPAAnalytics.visitSessionId() : 'session')
+          });
+        }
+      } catch(trackError) {}
       notify('Letter downloaded', 'Only this prepared letter was saved to your downloads.');
     } catch(e) {
       if(window.console && console.error) console.error('UPA letter download failed', e);

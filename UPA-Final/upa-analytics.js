@@ -31,7 +31,8 @@
     license_verification_failed: true,
     purchase_handoff_viewed: true,
     manual_intake_viewed: true,
-    manual_intake_completed: true
+    manual_intake_completed: true,
+    letter_downloaded: true
   };
 
   function clean(value, maxLength) {

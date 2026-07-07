@@ -1378,7 +1378,7 @@ async function onFileSelected(file, uploadSource) {
     funnel_step: 'upload_started',
     upload_source: uploadSource || 'file_picker',
     file_format: analyticsFileFormat(file)
-  });
+  }, { onceKey: 'scan_upload_started' });
   if (_filePrepareAbortController) _filePrepareAbortController.abort();
   _filePrepareAbortController = typeof AbortController === 'function' ? new AbortController() : null;
   btnScan.disabled = true;

@@ -6,6 +6,7 @@
   var CROPPER_CSS = '/UPA-Final/vendor/cropper.min.css';
   var MAX_IMAGE_EDGE = 2200;
   var JPEG_QUALITY = 0.82;
+  var EDITOR_RENDER_TIMEOUT_MS = 8000;
   var loadedAssets = {};
 
   function abortError(message) {
@@ -118,108 +119,176 @@
 
   function cropAndCompress(file, signal, onProgress) {
     loadCss(CROPPER_CSS);
-    return loadScript(CROPPER_SCRIPT, function () { return typeof global.Cropper === 'function'; })
-      .then(function () {
-        throwIfAborted(signal);
-        var modal = document.getElementById('upa-image-editor');
-        var image = document.getElementById('upa-image-editor-preview');
-        var rotateLeft = document.getElementById('upa-image-rotate-left');
-        var rotateRight = document.getElementById('upa-image-rotate-right');
-        var reset = document.getElementById('upa-image-reset');
-        var cancel = document.getElementById('upa-image-cancel');
-        var apply = document.getElementById('upa-image-apply');
-        if (!modal || !image || !rotateLeft || !rotateRight || !reset || !cancel || !apply) {
-          throw new Error('The image editor is unavailable');
-        }
+    throwIfAborted(signal);
+    var modal = document.getElementById('upa-image-editor');
+    var image = document.getElementById('upa-image-editor-preview');
+    var status = document.getElementById('upa-image-editor-status');
+    var rotateLeft = document.getElementById('upa-image-rotate-left');
+    var rotateRight = document.getElementById('upa-image-rotate-right');
+    var reset = document.getElementById('upa-image-reset');
+    var cancel = document.getElementById('upa-image-cancel');
+    var useOriginal = document.getElementById('upa-image-use-original');
+    var apply = document.getElementById('upa-image-apply');
+    if (!modal || !image || !status || !rotateLeft || !rotateRight || !reset || !cancel || !useOriginal || !apply) {
+      throw new Error('The image editor is unavailable');
+    }
 
-        return new Promise(function (resolve, reject) {
-          var objectUrl = URL.createObjectURL(file);
-          var cropper;
-          var settled = false;
-          var previousFocus = document.activeElement;
+    return new Promise(function (resolve, reject) {
+      var objectUrl = URL.createObjectURL(file);
+      var cropper;
+      var settled = false;
+      var previousFocus = document.activeElement;
+      var renderTimer;
 
-          function cleanup() {
-            if (cropper) cropper.destroy();
-            URL.revokeObjectURL(objectUrl);
-            modal.hidden = true;
-            modal.setAttribute('aria-hidden', 'true');
-            document.body.classList.remove('upa-image-editor-open');
-            rotateLeft.onclick = null;
-            rotateRight.onclick = null;
-            reset.onclick = null;
-            cancel.onclick = null;
-            apply.onclick = null;
-            if (signal) signal.removeEventListener('abort', onAbort);
-            if (previousFocus && previousFocus.focus) previousFocus.focus();
-          }
+      function setStatus(message, isError) {
+        status.textContent = message || '';
+        status.hidden = !message;
+        status.classList.toggle('is-error', !!isError);
+      }
 
-          function finishError(error) {
-            if (settled) return;
-            settled = true;
-            cleanup();
-            reject(error);
-          }
+      function showOriginalFallback(message) {
+        if (settled) return;
+        setStatus(message || 'The photo editor could not open. You can use the original photo instead.', true);
+        useOriginal.hidden = false;
+        apply.disabled = true;
+        rotateLeft.disabled = true;
+        rotateRight.disabled = true;
+        reset.disabled = true;
+        try { useOriginal.focus(); } catch (error) {}
+      }
 
-          function onAbort() {
-            finishError(abortError('Upload preparation was cancelled'));
-          }
+      function cleanup() {
+        window.clearTimeout(renderTimer);
+        if (cropper) cropper.destroy();
+        URL.revokeObjectURL(objectUrl);
+        image.onload = null;
+        image.onerror = null;
+        image.removeAttribute('src');
+        modal.hidden = true;
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('upa-image-editor-open');
+        rotateLeft.onclick = null;
+        rotateRight.onclick = null;
+        reset.onclick = null;
+        cancel.onclick = null;
+        useOriginal.onclick = null;
+        apply.onclick = null;
+        rotateLeft.disabled = false;
+        rotateRight.disabled = false;
+        reset.disabled = false;
+        apply.disabled = false;
+        useOriginal.hidden = true;
+        setStatus('', false);
+        if (signal) signal.removeEventListener('abort', onAbort);
+        if (previousFocus && previousFocus.focus) previousFocus.focus();
+      }
 
-          image.onload = function () {
-            try {
-              throwIfAborted(signal);
-              cropper = new global.Cropper(image, {
-                viewMode: 1,
-                dragMode: 'move',
-                autoCropArea: 0.94,
-                responsive: true,
-                background: false,
-                checkOrientation: true,
-                rotatable: true,
-                scalable: false,
-                zoomOnWheel: true,
-                toggleDragModeOnDblclick: false
+      function finishOriginal() {
+        if (settled) return;
+        settled = true;
+        onProgress(22, 'Using the original photo...');
+        cleanup();
+        resolve(file);
+      }
+
+      function finishError(error) {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        reject(error);
+      }
+
+      function onAbort() {
+        finishError(abortError('Upload preparation was cancelled'));
+      }
+
+      function enableCropper() {
+        return loadScript(CROPPER_SCRIPT, function () { return typeof global.Cropper === 'function'; })
+          .then(function () {
+            throwIfAborted(signal);
+            cropper = new global.Cropper(image, {
+              viewMode: 1,
+              dragMode: 'move',
+              autoCropArea: 0.94,
+              responsive: true,
+              background: false,
+              checkOrientation: true,
+              rotatable: true,
+              scalable: false,
+              zoomOnWheel: true,
+              toggleDragModeOnDblclick: false,
+              ready: function () {
+                window.clearTimeout(renderTimer);
+                setStatus('', false);
+                apply.disabled = false;
+                rotateLeft.disabled = false;
+                rotateRight.disabled = false;
+                reset.disabled = false;
+                requestAnimationFrame(function () { apply.focus(); });
+              }
+            });
+            rotateLeft.onclick = function () { if (cropper) cropper.rotate(-90); };
+            rotateRight.onclick = function () { if (cropper) cropper.rotate(90); };
+            reset.onclick = function () { if (cropper) cropper.reset(); };
+            apply.onclick = function () {
+              if (settled || !cropper) return;
+              apply.disabled = true;
+              onProgress(20, 'Compressing your photo...');
+              var canvas = cropper.getCroppedCanvas({
+                maxWidth: MAX_IMAGE_EDGE,
+                maxHeight: MAX_IMAGE_EDGE,
+                fillColor: '#ffffff',
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high'
               });
-              rotateLeft.onclick = function () { cropper.rotate(-90); };
-              rotateRight.onclick = function () { cropper.rotate(90); };
-              reset.onclick = function () { cropper.reset(); };
-              cancel.onclick = function () { finishError(abortError('Photo editing was cancelled')); };
-              apply.onclick = function () {
+              canvasToFile(canvas, file.name, JPEG_QUALITY).then(function (prepared) {
                 if (settled) return;
-                apply.disabled = true;
-                onProgress(20, 'Compressing your photo...');
-                var canvas = cropper.getCroppedCanvas({
-                  maxWidth: MAX_IMAGE_EDGE,
-                  maxHeight: MAX_IMAGE_EDGE,
-                  fillColor: '#ffffff',
-                  imageSmoothingEnabled: true,
-                  imageSmoothingQuality: 'high'
-                });
-                canvasToFile(canvas, file.name, JPEG_QUALITY).then(function (prepared) {
-                  if (settled) return;
-                  settled = true;
-                  cleanup();
-                  resolve(prepared);
-                }).catch(finishError).finally(function () {
-                  apply.disabled = false;
-                });
-              };
-              requestAnimationFrame(function () { apply.focus(); });
-            } catch (error) {
-              finishError(error);
-            }
-          };
-          image.onerror = function () {
-            finishError(new Error('The selected photo could not be opened'));
-          };
+                settled = true;
+                cleanup();
+                resolve(prepared);
+              }).catch(function (error) {
+                apply.disabled = false;
+                showOriginalFallback(error && error.message ? error.message : 'The cropped photo could not be prepared. You can use the original photo instead.');
+              });
+            };
+          })
+          .catch(function (error) {
+            showOriginalFallback(error && error.message ? error.message : 'The photo editor could not open. You can use the original photo instead.');
+          });
+      }
 
-          if (signal) signal.addEventListener('abort', onAbort, { once: true });
-          modal.hidden = false;
-          modal.setAttribute('aria-hidden', 'false');
-          document.body.classList.add('upa-image-editor-open');
-          image.src = objectUrl;
-          onProgress(16, 'Adjust the photo so the full bill is visible.');
-        });
-      });
+      cancel.onclick = function () { finishError(abortError('Photo editing was cancelled')); };
+      useOriginal.onclick = finishOriginal;
+      apply.disabled = true;
+      rotateLeft.disabled = true;
+      rotateRight.disabled = true;
+      reset.disabled = true;
+      useOriginal.hidden = true;
+
+      image.onload = function () {
+        try {
+          throwIfAborted(signal);
+          setStatus('Loading photo editor...', false);
+          enableCropper();
+        } catch (error) {
+          showOriginalFallback(error && error.message ? error.message : 'The photo editor could not open. You can use the original photo instead.');
+        }
+      };
+      image.onerror = function () {
+        showOriginalFallback('The photo preview could not open. You can use the original photo instead.');
+      };
+
+      if (signal) signal.addEventListener('abort', onAbort, { once: true });
+      modal.hidden = false;
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('upa-image-editor-open');
+      setStatus('Opening photo preview...', false);
+      renderTimer = window.setTimeout(function () {
+        showOriginalFallback('The photo preview is taking too long. You can use the original photo instead.');
+      }, EDITOR_RENDER_TIMEOUT_MS);
+      image.src = objectUrl;
+      onProgress(16, 'Adjust the photo so the full bill is visible.');
+    });
   }
 
   function prepareImage(file, options) {

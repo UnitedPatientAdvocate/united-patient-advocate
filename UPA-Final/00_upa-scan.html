@@ -125,11 +125,15 @@ body{background:var(--navy)}
 .upa-image-editor-head{padding:18px 20px 12px}
 .upa-image-editor-head h2{font:700 1.25rem var(--serif);color:var(--on-dark);margin-bottom:5px}
 .upa-image-editor-head p{font-size:0.75rem;line-height:1.5;color:var(--on-dark-2)}
-.upa-image-editor-stage{height:min(58dvh,520px);min-height:260px;background:#07111f}
+.upa-image-editor-stage{height:min(58dvh,520px);min-height:260px;background:#07111f;position:relative;overflow:hidden}
 .upa-image-editor-stage img{display:block;max-width:100%}
+.upa-image-editor-status{position:absolute;left:14px;right:14px;bottom:14px;z-index:3;padding:10px 12px;border-radius:9px;background:rgba(13,24,40,0.92);border:1px solid rgba(255,255,255,0.12);color:var(--on-dark-2);font:700 0.75rem var(--sans);line-height:1.4;text-align:center}
+.upa-image-editor-status[hidden]{display:none}
+.upa-image-editor-status.is-error{border-color:rgba(224,59,59,0.38);background:rgba(224,59,59,0.14);color:#FFB8B8}
 .upa-image-editor-tools,.upa-image-editor-actions{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px}
 .upa-image-editor-actions{justify-content:flex-end;border-top:1px solid rgba(255,255,255,0.08)}
 .upa-editor-btn{min-height:44px;padding:10px 14px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.06);color:var(--on-dark);font:700 0.75rem var(--sans);cursor:pointer}
+.upa-editor-btn:disabled{opacity:0.5;cursor:not-allowed}
 .upa-editor-btn.primary{border-color:transparent;background:var(--green);color:#fff}
 body.upa-image-editor-open{overflow:hidden}
 
@@ -585,7 +589,7 @@ body.upa-image-editor-open{overflow:hidden}
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 14v6h14v-6"/></svg>
         Choose from files
       </label>
-      <input type="file" accept="image/jpeg,image/png,image/heic,image/heif,.jpg,.jpeg,.png,.heic,.heif" capture="environment" class="camera-input" id="camera-input" aria-label="Take a photo of your medical bill">
+      <input type="file" accept="image/*,image/jpeg,image/png,image/heic,image/heif,.jpg,.jpeg,.png,.heic,.heif" capture="environment" class="camera-input" id="camera-input" aria-label="Take a photo of your medical bill">
     </div>
 
     <div class="file-selected-badge" id="file-badge" style="display:none">
@@ -757,7 +761,7 @@ body.upa-image-editor-open{overflow:hidden}
       <h2 id="upa-image-editor-title">Make the bill easy to read</h2>
       <p>Rotate if needed, then crop so the full bill and all amounts stay visible.</p>
     </div>
-    <div class="upa-image-editor-stage"><img id="upa-image-editor-preview" alt="Selected bill photo"></div>
+    <div class="upa-image-editor-stage"><img id="upa-image-editor-preview" alt="Selected bill photo"><div class="upa-image-editor-status" id="upa-image-editor-status" role="status" aria-live="polite" hidden></div></div>
     <div class="upa-image-editor-tools">
       <button class="upa-editor-btn" id="upa-image-rotate-left" type="button">Rotate left</button>
       <button class="upa-editor-btn" id="upa-image-rotate-right" type="button">Rotate right</button>
@@ -765,6 +769,7 @@ body.upa-image-editor-open{overflow:hidden}
     </div>
     <div class="upa-image-editor-actions">
       <button class="upa-editor-btn" id="upa-image-cancel" type="button">Cancel</button>
+      <button class="upa-editor-btn" id="upa-image-use-original" type="button" hidden>Use original photo</button>
       <button class="upa-editor-btn primary" id="upa-image-apply" type="button">Use this photo</button>
     </div>
   </div>
@@ -1321,6 +1326,7 @@ function readStoredJSON(key) {
 const dropZone   = document.getElementById('drop-zone');
 const fileInput  = document.getElementById('file-input');
 const cameraInput= document.getElementById('camera-input');
+const cameraTrigger = document.querySelector('label[for="camera-input"]');
 const fileBadge  = document.getElementById('file-badge');
 const badgeName  = document.getElementById('file-badge-name');
 const fileRemove = document.getElementById('file-remove');
@@ -1421,6 +1427,14 @@ async function onFileSelected(file, uploadSource) {
 fileInput.addEventListener('change', function() {
   if (this.files && this.files[0]) onFileSelected(this.files[0], 'file_picker');
 });
+if (cameraTrigger) {
+  cameraTrigger.addEventListener('click', function() {
+    trackFunnelEvent('camera_capture_opened', {
+      funnel_step: 'upload',
+      upload_source: 'camera_capture'
+    });
+  });
+}
 cameraInput.addEventListener('change', function() {
   if (this.files && this.files[0]) onFileSelected(this.files[0], 'camera_capture');
 });

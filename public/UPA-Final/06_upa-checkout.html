@@ -72,6 +72,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
 .foot a{color:rgba(234,246,240,.65);text-decoration:underline}
 .error{margin-top:10px;padding:10px 12px;background:rgba(224,59,59,.14);border:1px solid rgba(224,59,59,.35);border-radius:8px;font-size:12px;color:#FFC9C9;line-height:1.45;display:none}
 .error.show{display:block}
+.checkout-fallback{margin-top:12px;font-size:12px;line-height:1.55;color:rgba(234,246,240,.58);text-align:center}
+.checkout-alt{display:inline-flex;align-items:center;justify-content:center;margin-top:8px;color:#FFD877;font-size:12px;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.checkout-alt[aria-disabled="true"]{opacity:.5;pointer-events:none}
 .checkout-trust-strip{margin-top:24px;background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);padding:16px 24px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
 .checkout-trust-badge{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,.70);font-size:13px;font-weight:500;white-space:nowrap}
 .checkout-trust-badge svg{width:20px;height:20px;stroke:#1D9E75;stroke-width:1.5;fill:none;flex-shrink:0}
@@ -139,6 +142,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       Open secure checkout
     </a>
+    <div class="checkout-fallback">If Gumroad opens blank, refresh that Gumroad tab once or use the alternate checkout link.</div>
+    <a id="alternate-checkout-btn" class="checkout-alt" href="https://upadvocate.gumroad.com/l/busfn" target="_blank" rel="noopener" aria-disabled="true">Alternate checkout link</a>
     <div class="error" id="error"></div>
   </div>
   <div class="checkout-trust-strip" aria-label="Checkout trust signals">
@@ -228,6 +233,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
 
   // Wire the checkout button: opens Gumroad in a new tab on user tap.
   var checkoutBtn = document.getElementById('checkout-btn');
+  var alternateCheckoutBtn = document.getElementById('alternate-checkout-btn');
   var step1 = document.getElementById('step-1');
   var step2 = document.getElementById('step-2');
 
@@ -235,11 +241,23 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
   checkoutBtn.setAttribute('rel', 'noopener');
   var errorBox = document.getElementById('error');
 
+  function trackCheckoutOpen(eventName, context) {
+    try {
+      if (window.UPAAnalytics && typeof window.UPAAnalytics.track === 'function') {
+        window.UPAAnalytics.track(eventName, {
+          funnel_step: 'checkout',
+          view_context: context || 'primary'
+        });
+      }
+    } catch (error) {}
+  }
+
   function showCheckoutError(message, reason) {
     errorBox.textContent = message;
     errorBox.classList.add('show');
     checkoutBtn.setAttribute('aria-disabled', 'true');
     checkoutBtn.setAttribute('aria-busy', 'false');
+    if (alternateCheckoutBtn) alternateCheckoutBtn.setAttribute('aria-disabled', 'true');
     try {
       if (window.UPAAnalytics && typeof window.UPAAnalytics.track === 'function') {
         window.UPAAnalytics.track('checkout_blocked', {
@@ -274,6 +292,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
         checkoutBtn.href = to;
         checkoutBtn.setAttribute('aria-disabled', 'false');
         checkoutBtn.setAttribute('aria-busy', 'false');
+        if (alternateCheckoutBtn) alternateCheckoutBtn.setAttribute('aria-disabled', 'false');
         errorBox.classList.remove('show');
       });
     }).catch(function(error) {
@@ -289,12 +308,23 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
       showCheckoutError('Please wait while your prepared case is confirmed.', 'case_not_ready');
       return;
     }
+    trackCheckoutOpen('external_checkout_opened', 'primary_wanted');
     // Let the browser handle target="_blank" naturally — this preserves the
     // user-gesture context that popup blockers require. Advance the step UI so
     // the buyer knows to watch for their license-key email.
     if(step1){ step1.classList.remove('active'); step1.classList.add('done'); }
     if(step2){ step2.classList.add('active'); }
   });
+  if (alternateCheckoutBtn) {
+    alternateCheckoutBtn.addEventListener('click', function(e) {
+      if (!caseReady) {
+        e.preventDefault();
+        showCheckoutError('Please wait while your prepared case is confirmed.', 'case_not_ready');
+        return;
+      }
+      trackCheckoutOpen('alternate_checkout_opened', 'alternate_plain');
+    });
+  }
   verifyPreparedCase();
 })();
 </script>

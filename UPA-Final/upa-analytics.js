@@ -15,6 +15,7 @@
   var API_EVENTS = {
     landing_view: true,
     upload_page_viewed: true,
+    camera_capture_opened: true,
     upload_started: true,
     upload_completed: true,
     upload_cancelled: true,
@@ -25,6 +26,8 @@
     checkout_viewed: true,
     begin_checkout: true,
     checkout_blocked: true,
+    external_checkout_opened: true,
+    alternate_checkout_opened: true,
     purchase: true,
     dashboard_unlocked: true,
     sale: true,

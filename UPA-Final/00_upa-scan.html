@@ -179,6 +179,12 @@ body.upa-image-editor-open{overflow:hidden}
   border-radius:8px;padding:10px 14px;margin-top:12px;
   font-size:0.75rem;color:#FF9898;line-height:1.5;display:none;
 }
+.camera-help{
+  background:rgba(240,180,60,0.10);border:1px solid rgba(240,180,60,0.28);
+  border-radius:8px;padding:10px 14px;margin-top:12px;
+  font-size:0.75rem;color:#F4C77B;line-height:1.5;display:none;
+}
+.camera-help .link{color:#F4C77B;text-decoration:underline;background:none;border:none;padding:0;margin:0;font:inherit;cursor:pointer}
 
 /* ═══════════════════════════════════════════
    STATE 2: SCANNING
@@ -590,6 +596,10 @@ body.upa-image-editor-open{overflow:hidden}
         Choose from files
       </label>
       <input type="file" accept="image/*" capture="environment" class="camera-input" id="camera-input" aria-label="Take a photo of your medical bill">
+    </div>
+
+    <div class="camera-help" id="camera-help" role="status" aria-live="polite">
+      If the camera didn't open, this browser may need permission to use the camera. Allow camera access for this browser in its settings, or <button type="button" class="link" id="camera-help-files">choose a photo from your files</button> instead.
     </div>
 
     <div class="file-selected-badge" id="file-badge" style="display:none">
@@ -1333,12 +1343,35 @@ const badgeName  = document.getElementById('file-badge-name');
 const fileRemove = document.getElementById('file-remove');
 const btnScan    = document.getElementById('btn-scan');
 const uploadErr  = document.getElementById('upload-error');
+const cameraHelp = document.getElementById('camera-help');
+const cameraHelpFiles = document.getElementById('camera-help-files');
+let _cameraAttemptPending = false;
+let _cameraHelpTimer = null;
 
 function showUploadError(msg) {
   uploadErr.textContent = msg;
   uploadErr.style.display = 'block';
 }
 function clearUploadError() { uploadErr.style.display = 'none'; uploadErr.textContent = ''; }
+function showCameraHelp() { if (cameraHelp) cameraHelp.style.display = 'block'; }
+function hideCameraHelp() { if (cameraHelp) cameraHelp.style.display = 'none'; }
+
+// A file-input camera (accept+capture) gives no JS-visible permission state and
+// fires no event when the camera cannot open (permission denied for this
+// browser, or an in-app browser that blocks capture). Detect the "returned or
+// never opened with no photo" case and guide the user to allow camera access or
+// use the Choose from files path instead.
+function scheduleCameraHelpCheck(delay) {
+  if (!_cameraAttemptPending) return;
+  if (_cameraHelpTimer) window.clearTimeout(_cameraHelpTimer);
+  _cameraHelpTimer = window.setTimeout(function() {
+    _cameraHelpTimer = null;
+    if (!_cameraAttemptPending) return;
+    if (cameraInput.files && cameraInput.files.length) { _cameraAttemptPending = false; return; }
+    _cameraAttemptPending = false;
+    showCameraHelp();
+  }, delay);
+}
 
 function analyticsFileFormat(file) {
   if (!file) return 'unknown';
@@ -1358,6 +1391,8 @@ function trackFunnelEvent(name, params, options) {
 
 async function onFileSelected(file, uploadSource) {
   clearUploadError();
+  _cameraAttemptPending = false;
+  hideCameraHelp();
   if (!file) return;
   _lastUploadSource = uploadSource || 'file_picker';
   if (!window.UPAMobileUpload || !window.UPAMobileUpload.isSupported(file)) {
@@ -1431,6 +1466,9 @@ fileInput.addEventListener('change', function() {
 });
 if (cameraTrigger) {
   cameraTrigger.addEventListener('click', function() {
+    _cameraAttemptPending = true;
+    hideCameraHelp();
+    scheduleCameraHelpCheck(4000);
     trackFunnelEvent('camera_capture_opened', {
       funnel_step: 'upload',
       upload_source: 'camera_capture'
@@ -1438,7 +1476,19 @@ if (cameraTrigger) {
   });
 }
 cameraInput.addEventListener('change', function() {
+  _cameraAttemptPending = false;
+  if (_cameraHelpTimer) { window.clearTimeout(_cameraHelpTimer); _cameraHelpTimer = null; }
   if (this.files && this.files[0]) onFileSelected(this.files[0], 'camera_capture');
+});
+if (cameraHelpFiles) {
+  cameraHelpFiles.addEventListener('click', function() {
+    hideCameraHelp();
+    fileInput.click();
+  });
+}
+window.addEventListener('focus', function() { scheduleCameraHelpCheck(1200); });
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') scheduleCameraHelpCheck(1200);
 });
 fileRemove.addEventListener('click', function() {
   if (_filePrepareAbortController) _filePrepareAbortController.abort();

@@ -9,6 +9,7 @@
   var EDITOR_MAX_EDGE = 2000;
   var EDITOR_JPEG_QUALITY = 0.9;
   var EDITOR_RENDER_TIMEOUT_MS = 8000;
+  var CANVAS_EXPORT_TIMEOUT_MS = 6000;
   var loadedAssets = {};
 
   function abortError(message) {
@@ -107,15 +108,81 @@
       });
   }
 
+  function dataUrlToFile(dataUrl, originalName) {
+    var parts = String(dataUrl || '').split(',');
+    if (parts.length < 2 || parts[0].indexOf('base64') === -1) {
+      throw new Error('The image could not be encoded');
+    }
+    var binary = atob(parts[1]);
+    var length = binary.length;
+    var bytes = new Uint8Array(length);
+    for (var i = 0; i < length; i += 1) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return makeFile(new Blob([bytes], { type: 'image/jpeg' }), originalName);
+  }
+
+  // Export a canvas to a JPEG File. On iOS Safari canvas.toBlob() can invoke its
+  // callback with null or never fire at all on large canvases, which previously
+  // left the "Use this photo" button spinning forever. Guard the input, race the
+  // async toBlob against a timeout, and fall back to the synchronous toDataURL
+  // path. Reject on empty output so callers can offer the original photo.
   function canvasToFile(canvas, originalName, quality) {
     return new Promise(function (resolve, reject) {
-      canvas.toBlob(function (blob) {
-        if (!blob) {
+      if (!canvas || !canvas.width || !canvas.height) {
+        reject(new Error('The cropped image was empty'));
+        return;
+      }
+      var settled = false;
+      var timer;
+
+      function succeed(file) {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timer);
+        if (!file || !file.size) {
           reject(new Error('The image could not be compressed'));
           return;
         }
-        resolve(makeFile(blob, originalName));
-      }, 'image/jpeg', quality);
+        resolve(file);
+      }
+
+      function fail(error) {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timer);
+        reject(error || new Error('The image could not be compressed'));
+      }
+
+      function fallbackToDataUrl() {
+        if (settled) return;
+        try {
+          succeed(dataUrlToFile(canvas.toDataURL('image/jpeg', quality), originalName));
+        } catch (error) {
+          fail(error);
+        }
+      }
+
+      timer = window.setTimeout(function () {
+        if (settled) return;
+        console.warn('[UPA] canvas.toBlob timed out; falling back to toDataURL');
+        fallbackToDataUrl();
+      }, CANVAS_EXPORT_TIMEOUT_MS);
+
+      try {
+        canvas.toBlob(function (blob) {
+          if (settled) return;
+          if (!blob) {
+            console.warn('[UPA] canvas.toBlob returned null; falling back to toDataURL');
+            fallbackToDataUrl();
+            return;
+          }
+          succeed(makeFile(blob, originalName));
+        }, 'image/jpeg', quality);
+      } catch (error) {
+        console.warn('[UPA] canvas.toBlob threw; falling back to toDataURL', error);
+        fallbackToDataUrl();
+      }
     });
   }
 
@@ -236,13 +303,24 @@
               if (settled || !cropper) return;
               apply.disabled = true;
               onProgress(20, 'Compressing your photo...');
-              var canvas = cropper.getCroppedCanvas({
-                maxWidth: MAX_IMAGE_EDGE,
-                maxHeight: MAX_IMAGE_EDGE,
-                fillColor: '#ffffff',
-                imageSmoothingEnabled: true,
-                imageSmoothingQuality: 'high'
-              });
+              var canvas;
+              try {
+                canvas = cropper.getCroppedCanvas({
+                  maxWidth: MAX_IMAGE_EDGE,
+                  maxHeight: MAX_IMAGE_EDGE,
+                  fillColor: '#ffffff',
+                  imageSmoothingEnabled: true,
+                  imageSmoothingQuality: 'high'
+                });
+              } catch (error) {
+                canvas = null;
+              }
+              if (!canvas || !canvas.width || !canvas.height) {
+                console.warn('[UPA] getCroppedCanvas returned no usable canvas; offering original photo');
+                apply.disabled = false;
+                showOriginalFallback('The cropped photo could not be prepared. You can use the original photo instead.');
+                return;
+              }
               canvasToFile(canvas, file.name, JPEG_QUALITY).then(function (prepared) {
                 if (settled) return;
                 settled = true;

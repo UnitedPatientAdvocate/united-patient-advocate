@@ -810,7 +810,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var vm = clfsViewModel(readDossierState());
     var noMatchedClfsLines = vm.totalCount > 0 && !vm.matchedCount;
     var standbyMessage = noMatchedClfsLines
-      ? 'No CLFS lab lines to benchmark on this bill. Review is based on flagged charges and the full itemized CPT/HCPCS table below.'
+      ? 'No Medicare laboratory benchmark is available for this bill. Your review instead focuses on the detected itemized charges, procedure codes, and documentation questions below.'
       : 'Lab benchmark comparison applies only to itemized lab line items with CMS codes and dollar amounts. Your bill does not show itemized lab lines yet, so this one comparison is on standby. The rest of your review below is complete and ready to use.';
     var packet = one('[data-upa-clfs="packet"]');
     if(packet){
@@ -852,7 +852,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var financialStandby = one('[data-upa-clfs-financial-standby]');
     if(financialStandby){
       financialStandby.innerHTML = noMatchedClfsLines
-        ? '<strong>No CLFS lab lines to benchmark on this bill.</strong> Review is based on flagged charges and the full itemized CPT/HCPCS table below.'
+        ? '<strong>No Medicare laboratory benchmark is available for this bill.</strong> Your review instead focuses on the detected itemized charges, procedure codes, and documentation questions below.'
         : '<strong>Lab comparison on standby.</strong> ' + h(standbyMessage);
     }
     var secondarySection = one('[data-upa-clfs-secondary-section]');

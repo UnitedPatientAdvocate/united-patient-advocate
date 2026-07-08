@@ -937,6 +937,85 @@ function caseLineItemsFrom(source) {
   return [];
 }
 
+function scanIntakeFromData(data) {
+  data = data && typeof data === 'object' ? data : {};
+  var codeAnalysis = caseLineItemsFrom(data);
+  var codeList = codeAnalysis.length
+    ? codeAnalysis.map(function(item){ return item && item.code; }).filter(Boolean)
+    : (data.cptCodes || []);
+  return {
+    providerName:      data.provider || '',
+    totalBilled:       data.totalBilled   != null ? String(data.totalBilled)   : '',
+    amountOwed:        data.patientBalance != null ? String(data.patientBalance) : '',
+    hasInsurance:      !!(data.insuranceName),
+    insuranceType:     data.insuranceName  || '',
+    visitReason:       data.billType       || '',
+    servicesReceived:  codeList.length ? codeList.join(', ') : '',
+    stayDuration:      '',
+    billStatus:        data.denialDetected ? 'denied' : 'received',
+    specificConcerns:  codeList.length && data.hasDuplicateCodes ? 'possible duplicate charges detected' : 'bill amount seems high',
+    billText:          data.rawText || '',
+    state:             data.state || '',
+    dossierFlags:      Object.assign({}, data.dossierFlags || {}, {
+      state: data.state || '',
+      nonprofitHospital: data.financialAssistanceDetected === true
+    }),
+    codeAnalysis:      codeAnalysis,
+    lineItems:         codeAnalysis
+  };
+}
+
+function fallbackSummaryFinding(item) {
+  item = item && typeof item === 'object' ? item : {};
+  var headline = item.headline || item.title || item.label || 'Billing Detail Needs Review';
+  var detail = item.body || item.detail || item.teaser || item.aiTeaser || headline;
+  if (!detail) return null;
+  return {
+    headline: headline,
+    detail: detail,
+    lineItem: item.lineItem || item.code || '',
+    severity: item.severity || ''
+  };
+}
+
+function prepareLocalScanCheckoutCase(data, reason) {
+  var sourceFindings = Array.isArray(window._upaScanFindings) && window._upaScanFindings.length
+    ? window._upaScanFindings
+    : (Array.isArray(scanFindings) && scanFindings.length
+      ? scanFindings
+      : (typeof UPAScanEngine !== 'undefined' && UPAScanEngine.buildScanFindings ? UPAScanEngine.buildScanFindings(data || {}) : []));
+  var findings = sourceFindings.map(function(item, index) {
+    return Object.assign({}, item, { gated: index !== 0 });
+  });
+  var intake = scanIntakeFromData(data);
+  var summaryFindings = findings.map(fallbackSummaryFinding).filter(Boolean);
+  var fallbackCase = {
+    providerName: data && data.provider || '',
+    scanData: data || {},
+    findings: findings,
+    preview: summaryFindings.length ? { teaserFinding: summaryFindings[0] } : {},
+    summary: {
+      errorsFound: summaryFindings,
+      riskLevel: summaryFindings.length > 1 ? 'medium' : 'low'
+    },
+    codeAnalysis: intake.codeAnalysis || [],
+    lineItems: intake.lineItems || [],
+    intake: intake,
+    benchmarkEnrichmentPending: false,
+    _fallbackPreparedCase: true,
+    _fallbackReason: reason || 'preview_enrichment_unavailable'
+  };
+  scanFindings = findings;
+  window._upaScanFindings = findings;
+  _completedScanCaseForStore = fallbackCase;
+  _casePreparationPromise = Promise.resolve(fallbackCase);
+  try {
+    localStorage.setItem('upa.ai.dossier.v1', JSON.stringify(fallbackCase));
+    sessionStorage.setItem('upa.ai.dossier.v1', JSON.stringify(fallbackCase));
+  } catch(e) {}
+  return fallbackCase;
+}
+
 function bestPreparedCase(candidate) {
   var latest = _completedScanCaseForStore;
   var latestLines = caseLineItemsFrom(latest);
@@ -1226,7 +1305,11 @@ function storeCompletedScanCaseUntilReady(caseData) {
 
 function ensureServerCaseStored() {
   if (_caseEnrichmentState !== 'ready') {
-    return Promise.reject(_caseEnrichmentError || new Error('Your review must finish before checkout'));
+    if (_completedScanCaseForStore && _completedScanCaseForStore.benchmarkEnrichmentPending !== true) {
+      _caseEnrichmentState = 'ready';
+    } else {
+      return Promise.reject(_caseEnrichmentError || new Error('Your review must finish before checkout'));
+    }
   }
   if (!_completedScanCaseForStore || _completedScanCaseForStore.benchmarkEnrichmentPending === true) {
     return Promise.reject(new Error('Your enriched review is not ready for checkout'));
@@ -1901,17 +1984,23 @@ function routeAfterScan(data) {
       return preparedCase;
     })
     .catch(function(error) {
-      _caseEnrichmentState = 'error';
-      _caseEnrichmentError = new Error('We could not finish checking this case. Please scan it again before checkout.');
+      var fallbackCase = prepareLocalScanCheckoutCase(data, error && error.message);
+      _caseEnrichmentState = 'ready';
+      _caseEnrichmentError = null;
       stopCaseEnrichmentFeedback();
       trackFunnelEvent('analysis_failed', {
         funnel_step: 'analysis',
         generation_mode: 'free_preview',
-        failure_stage: 'enrichment'
+        failure_stage: 'enrichment',
+        fallback_mode: 'local_scan_checkout'
       });
+      trackFunnelEvent('findings_viewed', {
+        funnel_step: 'findings_viewed',
+        view_context: 'scan_preview'
+      }, { onceKey: 'scan_findings_viewed' });
       console.warn('[UPA] Preview analysis did not update the checkout case', error && error.message);
       updateCheckoutStoreState();
-      throw _caseEnrichmentError;
+      return fallbackCase;
     });
   _casePreparationPromise.catch(function() {});
   if (isReturningOrLicensedBuyer()) {
@@ -1927,29 +2016,7 @@ function routeAfterScan(data) {
 function callFreePreviewAI(data) {
   try {
     var codeAnalysis = caseLineItemsFrom(data);
-    var codeList = codeAnalysis.length
-      ? codeAnalysis.map(function(item){ return item && item.code; }).filter(Boolean)
-      : (data.cptCodes || []);
-    var intake = {
-      providerName:      data.provider || '',
-      totalBilled:       data.totalBilled   != null ? String(data.totalBilled)   : '',
-      amountOwed:        data.patientBalance != null ? String(data.patientBalance) : '',
-      hasInsurance:      !!(data.insuranceName),
-      insuranceType:     data.insuranceName  || '',
-      visitReason:       data.billType       || '',
-      servicesReceived:  codeList.length ? codeList.join(', ') : '',
-      stayDuration:      '',
-      billStatus:        data.denialDetected ? 'denied' : 'received',
-      specificConcerns:  codeList.length && data.hasDuplicateCodes ? 'possible duplicate charges detected' : 'bill amount seems high',
-      billText:          data.rawText || '',
-      state:             data.state || '',
-      dossierFlags:      Object.assign({}, data.dossierFlags || {}, {
-        state: data.state || '',
-        nonprofitHospital: data.financialAssistanceDetected === true
-      }),
-      codeAnalysis:      codeAnalysis,
-      lineItems:         codeAnalysis
-    };
+    var intake = scanIntakeFromData(data);
     // Store intake for dashboard to use when running paid_dossier
     try {
       var stored = JSON.parse(localStorage.getItem('upa.intake.v1') || '{}');
@@ -2296,44 +2363,18 @@ function renderFindings(data, findings) {
       event.preventDefault();
       if (upgradeLink.dataset.checkoutBusy === 'true') return;
       if (_caseEnrichmentState === 'pending') {
+        prepareLocalScanCheckoutCase(data, 'checkout_clicked_before_enrichment_completed');
+        _caseEnrichmentState = 'ready';
+        _caseEnrichmentError = null;
+        stopCaseEnrichmentFeedback();
         updateCheckoutStoreState();
-        return;
       }
       if (_caseEnrichmentState === 'error') {
-        _caseEnrichmentState = 'pending';
+        prepareLocalScanCheckoutCase(data, _caseEnrichmentError && _caseEnrichmentError.message);
+        _caseEnrichmentState = 'ready';
         _caseEnrichmentError = null;
-        startCaseEnrichmentFeedback();
+        stopCaseEnrichmentFeedback();
         updateCheckoutStoreState();
-        try {
-          var retriedCase = await callFreePreviewAI(data);
-          if (!retriedCase || retriedCase.benchmarkEnrichmentPending === true) {
-            throw new Error('The bill review did not finish enrichment');
-          }
-          _completedScanCaseForStore = retriedCase;
-          _casePreparationPromise = Promise.resolve(retriedCase);
-          _caseEnrichmentState = 'ready';
-          stopCaseEnrichmentFeedback();
-          trackFunnelEvent('analysis_completed', {
-            funnel_step: 'analysis_completed',
-            generation_mode: 'free_preview'
-          }, { onceKey: 'scan_analysis_completed' });
-          trackFunnelEvent('findings_viewed', {
-            funnel_step: 'findings_viewed',
-            view_context: 'scan_preview'
-          }, { onceKey: 'scan_findings_viewed' });
-          updateCheckoutStoreState();
-        } catch (retryError) {
-          _caseEnrichmentState = 'error';
-          _caseEnrichmentError = new Error('We could not finish checking this case. Please try again.');
-          stopCaseEnrichmentFeedback();
-          trackFunnelEvent('analysis_failed', {
-            funnel_step: 'analysis',
-            generation_mode: 'free_preview',
-            failure_stage: 'enrichment_retry'
-          });
-          updateCheckoutStoreState();
-          return;
-        }
       }
       upgradeLink.dataset.checkoutBusy = 'true';
       _serverCaseStoreState = 'pending';

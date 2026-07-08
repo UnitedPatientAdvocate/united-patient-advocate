@@ -2507,6 +2507,10 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     ].map(clean).join(' ').toLowerCase();
   }
 
+  function isCptHcpcsRow(line){
+    return !!clean(line && line.code);
+  }
+
   function reviewCategoryLines(c){
     var vm = clfsViewModel(readDossierState());
     var lines = vm.lines.slice();
@@ -2577,9 +2581,6 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   }
 
   function categoryEvidenceHtml(lines){
-    if(!lines.length){
-      return '<div class="upa-fcat-empty">No extracted CPT/HCPCS line is directly tied to this category yet. The existing finding cards and documentation notes remain below.</div>';
-    }
     return lines.map(categoryLineHtml).join('');
   }
 
@@ -2590,50 +2591,56 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     if(c && Array.isArray(c.dossierFindings)) findings = findings.concat(c.dossierFindings);
     if(c && Array.isArray(c.issues)) findings = findings.concat(c.issues);
     if(!findings.length && c && c.primary) findings.push(c.primary);
+    var allFindingText = findings.map(categoryFindingText).join(' ');
+    var hasInsuranceContext = hasKnown(c && c.coverage, 'Your coverage') ||
+      hasKnown(c && c.paymentStatus, 'Account on file') ||
+      /eob|insurance|payer|coverage|patient responsibility|balance|adjustment|denial|claim|allowed amount/.test(allFindingText);
 
     var definitions = [
       {
         key:'benchmark',
-        title:'High Charges vs Medicare Benchmark',
+        title:'High Charges',
         summary:'Matched lab or procedure rows are compared against available Medicare benchmark data so unusually high charge differences can be reviewed first.',
         matchFinding:function(text){ return /medicare|benchmark|clfs|rate|allowable|overcharge|above/.test(text); },
-        matchLine:function(line){ return line.benchmarkAvailable === true; }
+        matchLine:function(line){
+          if(!isCptHcpcsRow(line) || line.benchmarkAvailable !== true) return false;
+          var pct = numberOrNull(line.percentAboveBenchmark);
+          if(pct != null) return pct > 0;
+          var billed = numberOrNull(line.billedAmount);
+          var benchmark = numberOrNull(line.benchmarkRate);
+          return billed != null && benchmark != null ? billed > benchmark : true;
+        }
       },
       {
         key:'duplicate',
-        title:'Possible Duplicate Billing',
+        title:'Possible Duplicates',
         summary:'Repeated-looking codes, duplicate charge patterns, or same-service concerns are grouped here for written confirmation.',
         matchFinding:function(text){ return /duplicate|twice|repeated|same line|same service|charged twice/.test(text); },
-        matchLine:function(line){ return !!duplicateCodes[clean(line.code).toUpperCase()]; }
+        matchLine:function(line){ return isCptHcpcsRow(line) && !!duplicateCodes[clean(line.code).toUpperCase()]; }
       },
       {
         key:'coding',
-        title:'Coding Review',
+        title:'Coding Questions',
         summary:'CPT, HCPCS, revenue-code, modifier, or service-level questions are grouped here so code support can be requested clearly.',
         matchFinding:function(text){ return /coding|code|cpt|hcpcs|revenue|modifier|upcode|procedure|service-level|service level/.test(text); },
-        matchLine:function(line){ return !!clean(line.code); }
+        matchLine:function(line){ return isCptHcpcsRow(line); }
       },
       {
         key:'documentation',
-        title:'Documentation Review',
+        title:'Documentation Questions',
         summary:'Provider records, orders, notes, dates, units, and service descriptions are grouped here for supporting-record review.',
         matchFinding:function(text){ return /documentation|records|support|provider record|medical record|service verification|unrecognized|not received/.test(text); },
-        matchLine:function(line){ return !line.benchmarkAvailable && /record|documentation|unavailable|not a lab|service|line item|benchmark/.test(categoryLineText(line)); }
+        matchLine:function(line){
+          var text = categoryLineText(line);
+          return isCptHcpcsRow(line) && (!line.benchmarkAvailable || !clean(line.date) || !clean(line.units) || /record|documentation|unavailable|not a lab|service|line item|benchmark|support/.test(text));
+        }
       },
       {
         key:'insurance',
-        title:'Insurance/Patient Responsibility Review',
+        title:'Insurance/Patient Responsibility',
         summary:'EOB, denial, payer adjustment, coverage, balance, and patient-responsibility questions are grouped here for reconciliation.',
         matchFinding:function(text){ return /eob|insurance|payer|coverage|patient responsibility|balance|adjustment|denial|claim|allowed amount/.test(text); },
-        matchLine:function(){ return false; },
-        useFallbackAmount:true
-      },
-      {
-        key:'missing-docs',
-        title:'Missing Supporting Documents',
-        summary:'Any missing EOB, provider record, payer note, itemized detail, or written explanation needed to confirm the bill is grouped here.',
-        matchFinding:function(text){ return /missing|needed|request|itemized|supporting document|records needed|documentation needed|need documentation/.test(text); },
-        matchLine:function(line){ return !line.benchmarkAvailable && /unavailable|no benchmark|not a lab|missing|needed/.test(categoryLineText(line)); }
+        matchLine:function(line){ return hasInsuranceContext && isCptHcpcsRow(line) && numberOrNull(line.billedAmount) != null; }
       }
     ];
 
@@ -2642,55 +2649,51 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
         return def.matchFinding(categoryFindingText(item));
       });
       var relatedLines = lines.filter(def.matchLine);
-      if(def.key === 'coding' && !relatedLines.length && lines.length) relatedLines = lines.slice();
-      if(def.key === 'documentation' && !relatedLines.length && lines.length && relatedFindings.length) relatedLines = lines.slice();
-      var amount = categoryAmount(relatedLines, relatedFindings, def.useFallbackAmount ? c.amount : null);
+      var amount = categoryAmount(relatedLines, relatedFindings, null);
       return Object.assign({}, def, {
         findings: relatedFindings,
         lines: relatedLines,
-        relatedCount: Math.max(relatedFindings.length, relatedLines.length),
+        relatedCount: relatedLines.length,
         amount: amount
       });
     }).filter(function(category){
-      return category.relatedCount > 0 || category.key === 'insurance' || category.key === 'missing-docs';
+      return category.lines.length > 0;
     });
-
-    if(!categories.some(function(category){ return category.relatedCount > 0; }) && findings.length){
-      categories[0].findings = findings.slice();
-      categories[0].relatedCount = findings.length;
-      categories[0].amount = categoryAmount([], findings, c.amount);
-    }
     return categories;
   }
 
   function reviewCategoryCardHtml(category){
-    var relatedLabel = category.relatedCount + ' related finding' + (category.relatedCount === 1 ? '' : 's');
     var lineCount = category.lines.length;
     return '<section class="upa-fcat-card upa-fcat-' + h(category.key) + '">' +
-      '<div class="upa-fcat-card-head"><div><span>' + h(relatedLabel) + '</span><h3>' + h(category.title) + '</h3></div><strong>' + h(category.amount.display) + '</strong></div>' +
+      '<div class="upa-fcat-card-head"><div><span>' + h(String(lineCount)) + ' related CPT/HCPCS row' + (lineCount === 1 ? '' : 's') + '</span><h3>' + h(category.title) + '</h3></div><strong>' + h(category.amount.display) + '</strong></div>' +
       '<p>' + h(category.summary) + '</p>' +
-      '<div class="upa-fcat-meta"><span>Related findings: ' + h(String(category.relatedCount)) + '</span><span>Estimated amount: ' + h(category.amount.display) + '</span></div>' +
-      '<details class="upa-fcat-evidence"><summary>Show related CPT/HCPCS lines' + (lineCount ? ' (' + lineCount + ')' : '') + '</summary><div class="upa-fcat-lines">' + categoryEvidenceHtml(category.lines) + '</div></details>' +
+      '<div class="upa-fcat-meta"><span>Related CPT/HCPCS rows: ' + h(String(lineCount)) + '</span><span>Estimated amount: ' + h(category.amount.display) + '</span></div>' +
+      '<details class="upa-fcat-evidence"><summary>Show related CPT/HCPCS lines (' + h(String(lineCount)) + ')</summary><div class="upa-fcat-lines">' + categoryEvidenceHtml(category.lines) + '</div></details>' +
       '</section>';
   }
 
-  function renderReviewCategoryLayer(c){
-    var findingsTab = one('#tab-findings');
-    if(!findingsTab) return;
-    var panel = one('#upa-review-category-panel', findingsTab);
+  function renderFinancialReviewGroups(c){
+    var findingsPanel = one('#upa-review-category-panel', one('#tab-findings'));
+    if(findingsPanel && findingsPanel.parentNode) findingsPanel.parentNode.removeChild(findingsPanel);
+    var financialsTab = one('#tab-financials');
+    if(!financialsTab) return;
+    var categories = buildReviewCategories(c);
+    var panel = one('#upa-financial-category-panel', financialsTab);
+    if(!categories.length){
+      if(panel && panel.parentNode) panel.parentNode.removeChild(panel);
+      return;
+    }
     if(!panel){
       panel = document.createElement('div');
-      panel.id = 'upa-review-category-panel';
+      panel.id = 'upa-financial-category-panel';
       panel.className = 'upa-fcat-panel';
-      var anchor = one('.findings-grid', findingsTab) || findingsTab.firstChild;
+      var anchor = one('.fin-table-wrap', financialsTab) || financialsTab.firstChild;
       if(anchor && anchor.parentNode) anchor.parentNode.insertBefore(panel, anchor);
-      else findingsTab.appendChild(panel);
+      else financialsTab.appendChild(panel);
     }
-    var categories = buildReviewCategories(c);
     var lineCount = reviewCategoryLines(c).length;
-    var findingCount = c && c.issueCount ? c.issueCount : categories.reduce(function(sum, cat){ return sum + cat.relatedCount; }, 0);
     panel.innerHTML =
-      '<div class="upa-fcat-top"><div><div class="upa-fcat-eyebrow">Grouped review categories</div><div class="upa-fcat-title">Major issues first. CPT/HCPCS evidence underneath.</div><p>These categories organize ' + h(String(findingCount || categories.length)) + ' review area' + ((findingCount || categories.length) === 1 ? '' : 's') + (lineCount ? ' and ' + h(String(lineCount)) + ' extracted charge row' + (lineCount === 1 ? '' : 's') : '') + ' without removing the detailed evidence below.</p></div><div class="upa-fcat-total"><span>Evidence rows</span><strong>' + h(String(lineCount || 0)) + '</strong></div></div>' +
+      '<div class="upa-fcat-top"><div><div class="upa-fcat-eyebrow">Financial review groups</div><div class="upa-fcat-title">Major charge questions first. Full CPT/HCPCS table below.</div><p>These groups organize real extracted charge rows while preserving the full itemized CPT/HCPCS and benchmark table underneath.</p></div><div class="upa-fcat-total"><span>Extracted rows</span><strong>' + h(String(lineCount || 0)) + '</strong></div></div>' +
       '<div class="upa-fcat-grid">' + categories.map(reviewCategoryCardHtml).join('') + '</div>';
   }
 
@@ -2724,6 +2727,8 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       setText('.fvs-val', c.generatedLetterCount ? c.generatedLetterCount + ' letters' : 'From your review', fvs[3]);
       setText('.fvs-sub', c.generatedLetterCount ? 'Generated from this case review' : 'Letters appear when generated from your review', fvs[3]);
     }
+
+    renderFinancialReviewGroups(c);
 
     all('.intel-card').slice(0,2).forEach(function(card, idx){
       var issue = issueAt(c, idx);
@@ -3035,7 +3040,6 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     setText('.nb-title', hasItemizedEvidence(c) ? 'Use the detected itemized charges for written review' : (c.uploaded ? 'Use your uploaded bill to press for line-item answers' : 'Ask the provider for a fully itemized statement before you pay'));
     setText('.nb-desc', hasItemizedEvidence(c) ? 'Your uploaded bill already shows itemized CPT/HCPCS-style charge rows. The next step is to compare them against the EOB, provider records, payer adjustments, and any unclear or repeated lines.' : (c.uploaded ? 'We’ll work from your uploaded bill alongside the drafted letters to push for written explanations, EOB reconciliation, and corrections wherever the records support it.' : 'Your intake didn’t include a complete itemized bill yet. Letter 1 is drafted to ask the provider for the codes, units, charges, adjustments, and records we need to make the rest of the review specific.'));
 
-    renderReviewCategoryLayer(c);
     all('#tab-findings .finding-card').slice(0,3).forEach(function(card, idx){ applyIssueCard(card, c.issues[idx], c, idx); });
     var actionTitles = hasItemizedEvidence(c)
       ? ['Review detected itemized charges', 'Press on the ' + c.issues[0].short + ' question', 'Clarify coverage, EOB, or rates', 'Follow up : and escalate if no written reply']

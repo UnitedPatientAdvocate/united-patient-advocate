@@ -808,7 +808,10 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
 
   function renderClfsBenchmarks(){
     var vm = clfsViewModel(readDossierState());
-    var standbyMessage = 'Lab benchmark comparison applies only to itemized lab line items with CMS codes and dollar amounts. Your bill does not show itemized lab lines yet, so this one comparison is on standby. The rest of your review below is complete and ready to use.';
+    var noMatchedClfsLines = vm.totalCount > 0 && !vm.matchedCount;
+    var standbyMessage = noMatchedClfsLines
+      ? 'No CLFS lab lines to benchmark on this bill. Review is based on flagged charges and the full itemized CPT/HCPCS table below.'
+      : 'Lab benchmark comparison applies only to itemized lab line items with CMS codes and dollar amounts. Your bill does not show itemized lab lines yet, so this one comparison is on standby. The rest of your review below is complete and ready to use.';
     var packet = one('[data-upa-clfs="packet"]');
     if(packet){
       packet.classList.toggle('clfs-standby', !vm.totalCount);
@@ -845,7 +848,13 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var dashboardCard = one('[data-upa-clfs-dashboard-card]');
     if(dashboardCard) dashboardCard.classList.toggle('clfs-standby', !vm.totalCount);
     var financialCard = one('[data-upa-clfs-financial-card]');
-    if(financialCard) financialCard.classList.toggle('clfs-standby', !vm.totalCount);
+    if(financialCard) financialCard.classList.toggle('clfs-standby', !vm.matchedCount);
+    var financialStandby = one('[data-upa-clfs-financial-standby]');
+    if(financialStandby){
+      financialStandby.innerHTML = noMatchedClfsLines
+        ? '<strong>No CLFS lab lines to benchmark on this bill.</strong> Review is based on flagged charges and the full itemized CPT/HCPCS table below.'
+        : '<strong>Lab comparison on standby.</strong> ' + h(standbyMessage);
+    }
     var secondarySection = one('[data-upa-clfs-secondary-section]');
     if(secondarySection){
       var secondaryBars = one('[data-upa-clfs-static-bars]', secondarySection);
@@ -882,11 +891,17 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
         : '<div class="legend-i"><div class="legend-dot ld-conf"></div><span class="legend-text">Lab comparison on standby. The rest of your review is ready.</span></div>';
     }
 
-    setBenchmarkFill(one('[data-upa-clfs-waterfall-total]'), 'Matched Billed Total', 'Verified CLFS lines only', 'Matched billed total', formatMoneyFull(vm.billedMatched), vm.billedMatched ? 100 : 0);
-    setBenchmarkFill(one('[data-upa-clfs-waterfall-benchmark]'), 'CMS CLFS Benchmark', 'Verified lab rates', 'CMS CLFS benchmark total', formatMoneyFull(vm.benchmarkTotal), vm.billedMatched ? (vm.benchmarkTotal / Math.max(vm.billedMatched, vm.benchmarkTotal, 1)) * 100 : 0);
-    setBenchmarkFill(one('[data-upa-clfs-waterfall-overcharge]'), 'Verified Difference', 'Matched CLFS lines only', 'Matched-line difference', formatMoneyFull(vm.overchargeTotal), vm.billedMatched ? (vm.overchargeTotal / Math.max(vm.billedMatched, 1)) * 100 : 0);
-    setText('[data-upa-clfs-match-count]', vm.totalCount ? (vm.matchedCount + ' of ' + vm.totalCount) : 'On standby');
-    setText('[data-upa-clfs-coverage-short]', vm.totalCount ? vm.coverageText : 'No itemized lab lines yet');
+    if(noMatchedClfsLines){
+      setBenchmarkFill(one('[data-upa-clfs-waterfall-total]'), 'Matched Billed Total', 'Verified CLFS lines only', 'No CLFS lab lines', 'Standby', 0);
+      setBenchmarkFill(one('[data-upa-clfs-waterfall-benchmark]'), 'CMS CLFS Benchmark', 'No verified lab rates', 'No CLFS benchmark', 'Standby', 0);
+      setBenchmarkFill(one('[data-upa-clfs-waterfall-overcharge]'), 'Verified Difference', 'Non-lab charges excluded', 'Review flagged charges', 'Standby', 0);
+    }else{
+      setBenchmarkFill(one('[data-upa-clfs-waterfall-total]'), 'Matched Billed Total', 'Verified CLFS lines only', 'Matched billed total', formatMoneyFull(vm.billedMatched), vm.billedMatched ? 100 : 0);
+      setBenchmarkFill(one('[data-upa-clfs-waterfall-benchmark]'), 'CMS CLFS Benchmark', 'Verified lab rates', 'CMS CLFS benchmark total', formatMoneyFull(vm.benchmarkTotal), vm.billedMatched ? (vm.benchmarkTotal / Math.max(vm.billedMatched, vm.benchmarkTotal, 1)) * 100 : 0);
+      setBenchmarkFill(one('[data-upa-clfs-waterfall-overcharge]'), 'Verified Difference', 'Matched CLFS lines only', 'Matched-line difference', formatMoneyFull(vm.overchargeTotal), vm.billedMatched ? (vm.overchargeTotal / Math.max(vm.billedMatched, 1)) * 100 : 0);
+    }
+    setText('[data-upa-clfs-match-count]', vm.totalCount ? (vm.matchedCount ? (vm.matchedCount + ' of ' + vm.totalCount) : 'No CLFS matches') : 'On standby');
+    setText('[data-upa-clfs-coverage-short]', vm.totalCount ? (vm.matchedCount ? vm.coverageText : 'No CLFS lab lines to benchmark') : 'No itemized lab lines yet');
     window.__UPA_CLFS_VIEW_MODEL__ = vm;
   }
 

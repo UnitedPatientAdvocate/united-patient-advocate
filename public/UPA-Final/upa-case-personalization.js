@@ -2195,6 +2195,43 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       '.upa-p3-title{font-size:.58rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#6E8898;margin-bottom:5px}' +
       '.upa-p3-item{font-size:.72rem;line-height:1.55;color:#42546B;padding:6px 0;border-top:1px solid rgba(28,43,72,.06)}' +
       '.upa-p3-notice{font-size:.62rem;line-height:1.55;color:#7A8AA0;margin-top:10px;border-top:1px solid rgba(28,43,72,.08);padding-top:8px}' +
+      '.upa-fcat-panel{margin:0 0 18px;display:block}' +
+      '.upa-fcat-top{display:grid;grid-template-columns:minmax(0,1fr) 118px;gap:14px;align-items:stretch;padding:18px;border:1px solid rgba(28,43,72,.10);border-radius:10px;background:#fff;box-shadow:0 8px 24px rgba(17,28,46,.05);margin-bottom:12px}' +
+      '.upa-fcat-eyebrow{font-size:.5rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#1D9E75;margin-bottom:5px}' +
+      '.upa-fcat-title{font-family:Georgia,serif;font-size:1.18rem;font-weight:800;color:#162033;line-height:1.15;margin-bottom:6px}' +
+      '.upa-fcat-top p{margin:0;font-size:.74rem;line-height:1.58;color:#52677C}' +
+      '.upa-fcat-total{border:1px solid rgba(29,158,117,.18);border-radius:8px;background:#F5FAF8;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px}' +
+      '.upa-fcat-total span{font-size:.48rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#6B7688;margin-bottom:5px}' +
+      '.upa-fcat-total strong{font-family:Georgia,serif;font-size:1.5rem;color:#162033;line-height:1}' +
+      '.upa-fcat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px}' +
+      '.upa-fcat-card{border:1px solid rgba(28,43,72,.10);border-left:5px solid #1D9E75;border-radius:10px;background:#fff;box-shadow:0 8px 22px rgba(17,28,46,.045);overflow:hidden}' +
+      '.upa-fcat-card-head{min-height:74px;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:14px 15px 10px;border-bottom:1px solid rgba(28,43,72,.07)}' +
+      '.upa-fcat-card-head span{display:block;font-size:.48rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#6B7688;margin-bottom:5px}' +
+      '.upa-fcat-card h3{margin:0;font-size:.9rem;line-height:1.24;color:#162033}' +
+      '.upa-fcat-card-head strong{font-family:Georgia,serif;font-size:1rem;color:#1D9E75;white-space:nowrap;text-align:right}' +
+      '.upa-fcat-card p{margin:0;padding:12px 15px 8px;font-size:.72rem;line-height:1.55;color:#3A4658}' +
+      '.upa-fcat-meta{display:flex;gap:8px;flex-wrap:wrap;padding:0 15px 12px}' +
+      '.upa-fcat-meta span{font-size:.58rem;font-weight:800;color:#52677C;background:#F6F8FB;border:1px solid rgba(28,43,72,.08);border-radius:999px;padding:5px 8px}' +
+      '.upa-fcat-evidence{border-top:1px solid rgba(28,43,72,.08);background:#FAFCFD}' +
+      '.upa-fcat-evidence summary{cursor:pointer;list-style:none;padding:11px 15px;font-size:.62rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#1D9E75;display:flex;align-items:center;justify-content:space-between;gap:10px}' +
+      '.upa-fcat-evidence summary::-webkit-details-marker{display:none}' +
+      '.upa-fcat-evidence summary:after{content:"+";font-size:.9rem;color:#6B7688}' +
+      '.upa-fcat-evidence[open] summary:after{content:"-"}' +
+      '.upa-fcat-lines{display:flex;flex-direction:column;gap:7px;padding:0 12px 12px}' +
+      '.upa-fcat-line{display:grid;grid-template-columns:minmax(0,1fr) minmax(92px,max-content);gap:12px;align-items:start;padding:9px 10px;border:1px solid rgba(28,43,72,.08);border-radius:8px;background:#fff}' +
+      '.upa-fcat-line strong{display:block;font-family:var(--mono,monospace);font-size:.66rem;color:#162033;margin-bottom:2px}' +
+      '.upa-fcat-line span{display:block;font-size:.66rem;line-height:1.38;color:#3A4658}' +
+      '.upa-fcat-line em{display:block;font-style:normal;font-size:.56rem;line-height:1.35;color:#6B7688;margin-top:3px}' +
+      '.upa-fcat-line-amt{text-align:right}' +
+      '.upa-fcat-line-amt span{font-family:var(--mono,monospace);font-weight:800;color:#162033}' +
+      '.upa-fcat-line-amt small{display:block;font-size:.55rem;line-height:1.35;color:#6B7688;margin-top:3px}' +
+      '.upa-fcat-empty{padding:10px 12px;border:1px dashed rgba(28,43,72,.16);border-radius:8px;background:#fff;font-size:.66rem;line-height:1.5;color:#6B7688}' +
+      '.upa-fcat-benchmark{border-left-color:#C83232}.upa-fcat-benchmark .upa-fcat-card-head strong{color:#C83232}' +
+      '.upa-fcat-duplicate{border-left-color:#B8862E}.upa-fcat-duplicate .upa-fcat-card-head strong{color:#B8862E}' +
+      '.upa-fcat-coding{border-left-color:#2850C0}.upa-fcat-coding .upa-fcat-card-head strong{color:#2850C0}' +
+      '.upa-fcat-insurance{border-left-color:#1A7F64}.upa-fcat-insurance .upa-fcat-card-head strong{color:#1A7F64}' +
+      '.upa-fcat-missing-docs{border-left-color:#6B7688}.upa-fcat-missing-docs .upa-fcat-card-head strong{color:#6B7688}' +
+      '@media(max-width:720px){.upa-fcat-top{grid-template-columns:1fr}.upa-fcat-total{align-items:flex-start;text-align:left}.upa-fcat-grid{grid-template-columns:1fr}.upa-fcat-line{grid-template-columns:1fr}.upa-fcat-line-amt{text-align:left}}' +
       '.upa-trigger-panel{margin:14px;padding:18px;border:1px solid rgba(29,158,117,.20);border-radius:12px;background:#fff;box-shadow:0 8px 24px rgba(17,28,46,.06);color:#1C2B48}' +
       '.upa-trigger-panel.packet{margin:0 36px 18px;background:#F9FBFD;box-shadow:none}' +
       '.upa-trigger-eyebrow{font-size:.48rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#1D9E75;margin-bottom:5px}' +
@@ -2443,6 +2480,218 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   function billEvidenceSub(c){
     if(hasItemizedEvidence(c)) return itemizedEvidenceLabel(c);
     return c.uploaded ? c.uploadedBill : 'Request first';
+  }
+
+  function categoryFindingText(item){
+    item = item && typeof item === 'object' ? item : {};
+    return [
+      item.key,
+      item.type,
+      item.title,
+      item.short,
+      item.headline,
+      item.detail,
+      item.desc,
+      item.action,
+      item.lineItem
+    ].map(clean).join(' ').toLowerCase();
+  }
+
+  function categoryLineText(line){
+    line = line && typeof line === 'object' ? line : {};
+    return [
+      line.code,
+      line.shortDescription,
+      line.reason,
+      line.source
+    ].map(clean).join(' ').toLowerCase();
+  }
+
+  function reviewCategoryLines(c){
+    var vm = clfsViewModel(readDossierState());
+    var lines = vm.lines.slice();
+    if(!lines.length && c && c.itemizedEvidence && Array.isArray(c.itemizedEvidence.rows)){
+      lines = c.itemizedEvidence.rows.map(function(row){
+        return {
+          code: row.code,
+          shortDescription: row.description || 'Extracted itemized charge',
+          billedAmount: row.amount,
+          benchmarkRate: null,
+          benchmarkAvailable: false,
+          percentAboveBenchmark: null,
+          source: '',
+          reason: 'Benchmark unavailable for this extracted line',
+          date: row.date,
+          units: row.units
+        };
+      });
+    }
+    return lines;
+  }
+
+  function duplicateCodeMap(lines, c){
+    var counts = {};
+    lines.forEach(function(line){
+      var code = clean(line.code).toUpperCase();
+      if(code) counts[code] = (counts[code] || 0) + 1;
+    });
+    var duplicateCodes = {};
+    Object.keys(counts).forEach(function(code){
+      if(counts[code] > 1) duplicateCodes[code] = true;
+    });
+    var raw = c && c.raw || {};
+    var listed = raw.duplicateCodes || raw.duplicate_codes || raw.duplicateCptCodes || [];
+    if(!Array.isArray(listed)) listed = clean(listed).split(',');
+    listed.forEach(function(code){
+      code = clean(code).toUpperCase();
+      if(code) duplicateCodes[code] = true;
+    });
+    return duplicateCodes;
+  }
+
+  function categoryAmount(lines, findings, fallbackAmount){
+    var total = lines.reduce(function(sum, line){
+      return sum + (numberOrNull(line.billedAmount) || 0);
+    }, 0);
+    if(total > 0) return { value: total, display: formatMoneyFull(total) };
+    for(var i = 0; i < findings.length; i += 1){
+      var amount = numberOrNull(findings[i] && findings[i].amountText);
+      if(amount != null) return { value: amount, display: formatMoneyFull(amount) };
+    }
+    if(fallbackAmount && fallbackAmount.calcValue) return { value: fallbackAmount.calcValue, display: formatMoneyFull(fallbackAmount.calcValue) };
+    return { value: null, display: 'To confirm' };
+  }
+
+  function categoryLineHtml(line){
+    var benchmark = line.benchmarkAvailable
+      ? 'Benchmark ' + formatMoneyFull(line.benchmarkRate) + (line.percentAboveBenchmark != null ? ' · ' + line.percentAboveBenchmark + '% above' : '')
+      : (line.reason || 'Benchmark unavailable');
+    var meta = [];
+    if(line.date) meta.push('DOS ' + line.date);
+    if(line.units) meta.push('Units ' + line.units);
+    if(line.source) meta.push(line.source);
+    return '<div class="upa-fcat-line">' +
+      '<div><strong>' + h(line.code || 'Line item') + '</strong><span>' + h(line.shortDescription || 'Extracted charge row') + '</span>' + (meta.length ? '<em>' + h(meta.join(' · ')) + '</em>' : '') + '</div>' +
+      '<div class="upa-fcat-line-amt"><span>' + h(formatMoneyFull(line.billedAmount)) + '</span><small>' + h(benchmark) + '</small></div>' +
+      '</div>';
+  }
+
+  function categoryEvidenceHtml(lines){
+    if(!lines.length){
+      return '<div class="upa-fcat-empty">No extracted CPT/HCPCS line is directly tied to this category yet. The existing finding cards and documentation notes remain below.</div>';
+    }
+    return lines.map(categoryLineHtml).join('');
+  }
+
+  function buildReviewCategories(c){
+    var lines = reviewCategoryLines(c);
+    var duplicateCodes = duplicateCodeMap(lines, c);
+    var findings = [];
+    if(c && Array.isArray(c.dossierFindings)) findings = findings.concat(c.dossierFindings);
+    if(c && Array.isArray(c.issues)) findings = findings.concat(c.issues);
+    if(!findings.length && c && c.primary) findings.push(c.primary);
+
+    var definitions = [
+      {
+        key:'benchmark',
+        title:'High Charges vs Medicare Benchmark',
+        summary:'Matched lab or procedure rows are compared against available Medicare benchmark data so unusually high charge differences can be reviewed first.',
+        matchFinding:function(text){ return /medicare|benchmark|clfs|rate|allowable|overcharge|above/.test(text); },
+        matchLine:function(line){ return line.benchmarkAvailable === true; }
+      },
+      {
+        key:'duplicate',
+        title:'Possible Duplicate Billing',
+        summary:'Repeated-looking codes, duplicate charge patterns, or same-service concerns are grouped here for written confirmation.',
+        matchFinding:function(text){ return /duplicate|twice|repeated|same line|same service|charged twice/.test(text); },
+        matchLine:function(line){ return !!duplicateCodes[clean(line.code).toUpperCase()]; }
+      },
+      {
+        key:'coding',
+        title:'Coding Review',
+        summary:'CPT, HCPCS, revenue-code, modifier, or service-level questions are grouped here so code support can be requested clearly.',
+        matchFinding:function(text){ return /coding|code|cpt|hcpcs|revenue|modifier|upcode|procedure|service-level|service level/.test(text); },
+        matchLine:function(line){ return !!clean(line.code); }
+      },
+      {
+        key:'documentation',
+        title:'Documentation Review',
+        summary:'Provider records, orders, notes, dates, units, and service descriptions are grouped here for supporting-record review.',
+        matchFinding:function(text){ return /documentation|records|support|provider record|medical record|service verification|unrecognized|not received/.test(text); },
+        matchLine:function(line){ return !line.benchmarkAvailable && /record|documentation|unavailable|not a lab|service|line item|benchmark/.test(categoryLineText(line)); }
+      },
+      {
+        key:'insurance',
+        title:'Insurance/Patient Responsibility Review',
+        summary:'EOB, denial, payer adjustment, coverage, balance, and patient-responsibility questions are grouped here for reconciliation.',
+        matchFinding:function(text){ return /eob|insurance|payer|coverage|patient responsibility|balance|adjustment|denial|claim|allowed amount/.test(text); },
+        matchLine:function(){ return false; },
+        useFallbackAmount:true
+      },
+      {
+        key:'missing-docs',
+        title:'Missing Supporting Documents',
+        summary:'Any missing EOB, provider record, payer note, itemized detail, or written explanation needed to confirm the bill is grouped here.',
+        matchFinding:function(text){ return /missing|needed|request|itemized|supporting document|records needed|documentation needed|need documentation/.test(text); },
+        matchLine:function(line){ return !line.benchmarkAvailable && /unavailable|no benchmark|not a lab|missing|needed/.test(categoryLineText(line)); }
+      }
+    ];
+
+    var categories = definitions.map(function(def){
+      var relatedFindings = findings.filter(function(item){
+        return def.matchFinding(categoryFindingText(item));
+      });
+      var relatedLines = lines.filter(def.matchLine);
+      if(def.key === 'coding' && !relatedLines.length && lines.length) relatedLines = lines.slice();
+      if(def.key === 'documentation' && !relatedLines.length && lines.length && relatedFindings.length) relatedLines = lines.slice();
+      var amount = categoryAmount(relatedLines, relatedFindings, def.useFallbackAmount ? c.amount : null);
+      return Object.assign({}, def, {
+        findings: relatedFindings,
+        lines: relatedLines,
+        relatedCount: Math.max(relatedFindings.length, relatedLines.length),
+        amount: amount
+      });
+    }).filter(function(category){
+      return category.relatedCount > 0 || category.key === 'insurance' || category.key === 'missing-docs';
+    });
+
+    if(!categories.some(function(category){ return category.relatedCount > 0; }) && findings.length){
+      categories[0].findings = findings.slice();
+      categories[0].relatedCount = findings.length;
+      categories[0].amount = categoryAmount([], findings, c.amount);
+    }
+    return categories;
+  }
+
+  function reviewCategoryCardHtml(category){
+    var relatedLabel = category.relatedCount + ' related finding' + (category.relatedCount === 1 ? '' : 's');
+    var lineCount = category.lines.length;
+    return '<section class="upa-fcat-card upa-fcat-' + h(category.key) + '">' +
+      '<div class="upa-fcat-card-head"><div><span>' + h(relatedLabel) + '</span><h3>' + h(category.title) + '</h3></div><strong>' + h(category.amount.display) + '</strong></div>' +
+      '<p>' + h(category.summary) + '</p>' +
+      '<div class="upa-fcat-meta"><span>Related findings: ' + h(String(category.relatedCount)) + '</span><span>Estimated amount: ' + h(category.amount.display) + '</span></div>' +
+      '<details class="upa-fcat-evidence"><summary>Show related CPT/HCPCS lines' + (lineCount ? ' (' + lineCount + ')' : '') + '</summary><div class="upa-fcat-lines">' + categoryEvidenceHtml(category.lines) + '</div></details>' +
+      '</section>';
+  }
+
+  function renderReviewCategoryLayer(c){
+    var findingsTab = one('#tab-findings');
+    if(!findingsTab) return;
+    var panel = one('#upa-review-category-panel', findingsTab);
+    if(!panel){
+      panel = document.createElement('div');
+      panel.id = 'upa-review-category-panel';
+      panel.className = 'upa-fcat-panel';
+      var anchor = one('.findings-grid', findingsTab) || findingsTab.firstChild;
+      if(anchor && anchor.parentNode) anchor.parentNode.insertBefore(panel, anchor);
+      else findingsTab.appendChild(panel);
+    }
+    var categories = buildReviewCategories(c);
+    var lineCount = reviewCategoryLines(c).length;
+    var findingCount = c && c.issueCount ? c.issueCount : categories.reduce(function(sum, cat){ return sum + cat.relatedCount; }, 0);
+    panel.innerHTML =
+      '<div class="upa-fcat-top"><div><div class="upa-fcat-eyebrow">Grouped review categories</div><div class="upa-fcat-title">Major issues first. CPT/HCPCS evidence underneath.</div><p>These categories organize ' + h(String(findingCount || categories.length)) + ' review area' + ((findingCount || categories.length) === 1 ? '' : 's') + (lineCount ? ' and ' + h(String(lineCount)) + ' extracted charge row' + (lineCount === 1 ? '' : 's') : '') + ' without removing the detailed evidence below.</p></div><div class="upa-fcat-total"><span>Evidence rows</span><strong>' + h(String(lineCount || 0)) + '</strong></div></div>' +
+      '<div class="upa-fcat-grid">' + categories.map(reviewCategoryCardHtml).join('') + '</div>';
   }
 
   function hydrateFinancials(c){
@@ -2786,6 +3035,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     setText('.nb-title', hasItemizedEvidence(c) ? 'Use the detected itemized charges for written review' : (c.uploaded ? 'Use your uploaded bill to press for line-item answers' : 'Ask the provider for a fully itemized statement before you pay'));
     setText('.nb-desc', hasItemizedEvidence(c) ? 'Your uploaded bill already shows itemized CPT/HCPCS-style charge rows. The next step is to compare them against the EOB, provider records, payer adjustments, and any unclear or repeated lines.' : (c.uploaded ? 'We’ll work from your uploaded bill alongside the drafted letters to push for written explanations, EOB reconciliation, and corrections wherever the records support it.' : 'Your intake didn’t include a complete itemized bill yet. Letter 1 is drafted to ask the provider for the codes, units, charges, adjustments, and records we need to make the rest of the review specific.'));
 
+    renderReviewCategoryLayer(c);
     all('#tab-findings .finding-card').slice(0,3).forEach(function(card, idx){ applyIssueCard(card, c.issues[idx], c, idx); });
     var actionTitles = hasItemizedEvidence(c)
       ? ['Review detected itemized charges', 'Press on the ' + c.issues[0].short + ' question', 'Clarify coverage, EOB, or rates', 'Follow up : and escalate if no written reply']

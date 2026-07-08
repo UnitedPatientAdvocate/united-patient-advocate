@@ -643,6 +643,93 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     return [];
   }
 
+  function itemizedCode(value){
+    var raw = clean(value).toUpperCase();
+    if(!raw) return '';
+    var match = raw.match(/\b(?:[A-Z]\d{4}|\d{5}|\d{4}[A-Z])\b/);
+    return match ? match[0] : '';
+  }
+
+  function itemizedChargeValue(row){
+    row = row || {};
+    return numberOrNull(row.billedAmount != null ? row.billedAmount : (row.amount != null ? row.amount : (row.charge != null ? row.charge : (row.charges != null ? row.charges : row.total))));
+  }
+
+  function normalizeItemizedEvidenceRow(row, context){
+    row = row && typeof row === 'object' ? row : {};
+    context = context || {};
+    var code = itemizedCode(row.code || row.hcpcs || row.cptCode || row.procedureCode || row.revenueCode || row.revCode);
+    var amount = itemizedChargeValue(row);
+    var description = clean(row.shortDescription || row.benchmarkDescription || row.description || row.serviceDescription || row.lineItem || row.name);
+    var date = clean(row.dateOfService || row.serviceDate || row.dos || row.date || context.serviceDate || context.dateOfService || context.extracted_date_of_service);
+    var units = clean(row.units || row.quantity || row.qty || row.unitCount);
+    if(!code || amount == null) return null;
+    if(!description && !date && !units) return null;
+    return {
+      code:code,
+      amount:amount,
+      description:description,
+      date:date,
+      units:units
+    };
+  }
+
+  function pushItemizedRows(rows, source, context){
+    if(!Array.isArray(source)) return;
+    source.forEach(function(row){
+      var normalized = normalizeItemizedEvidenceRow(row, context);
+      if(normalized) rows.push(normalized);
+    });
+  }
+
+  function itemizedEvidenceFromData(data){
+    data = data && typeof data === 'object' ? data : {};
+    var dossier = readDossierState();
+    var paid = dossier.paidDossier && typeof dossier.paidDossier === 'object' ? dossier.paidDossier : {};
+    var summary = dossier.summary && typeof dossier.summary === 'object' ? dossier.summary : {};
+    var scan = data.scanData && typeof data.scanData === 'object' ? data.scanData : {};
+    var aiIntake = data._aiIntake && typeof data._aiIntake === 'object' ? data._aiIntake : {};
+    var context = {
+      serviceDate:data.date_of_service || data.dos || data.extracted_date_of_service || scan.serviceDate || scan.dateOfService,
+      dateOfService:data.dateOfService || dossier.dateOfService || paid.dateOfService
+    };
+    var rows = [];
+    pushItemizedRows(rows, dossier.codeAnalysis, context);
+    pushItemizedRows(rows, dossier.lineItems, context);
+    pushItemizedRows(rows, paid.codeAnalysis, context);
+    pushItemizedRows(rows, paid.lineItems, context);
+    pushItemizedRows(rows, summary.codeAnalysis, context);
+    pushItemizedRows(rows, summary.lineItems, context);
+    pushItemizedRows(rows, data.codeAnalysis, context);
+    pushItemizedRows(rows, data.lineItems, context);
+    pushItemizedRows(rows, data._code_analysis, context);
+    pushItemizedRows(rows, aiIntake.codeAnalysis, context);
+    pushItemizedRows(rows, aiIntake.lineItems, context);
+    pushItemizedRows(rows, scan.codeAnalysis, context);
+    pushItemizedRows(rows, scan.lineItems, context);
+
+    var seen = {};
+    rows = rows.filter(function(row){
+      var key = [row.code, row.amount, row.description, row.date, row.units].join('|').toLowerCase();
+      if(seen[key]) return false;
+      seen[key] = true;
+      return true;
+    });
+
+    var itemizedTotal = rows.reduce(function(sum, row){ return sum + (row.amount || 0); }, 0);
+
+    return {
+      detected: rows.length > 0,
+      rows: rows,
+      count: rows.length,
+      total: itemizedTotal,
+      label: rows.length ? rows.length + ' itemized charge' + (rows.length === 1 ? '' : 's') + ' detected' : 'No itemized charge rows detected',
+      shortStatus: rows.length ? 'Itemized charges detected' : 'Needs itemized bill',
+      billStatus: rows.length ? 'Itemized bill received' : 'Needs itemized bill',
+      detail: rows.length ? 'CPT/HCPCS-style rows with charges were detected in the uploaded bill.' : 'No CPT/HCPCS-style charge rows were detected yet.'
+    };
+  }
+
   function normalizeBenchmarkLines(dossier){
     dossier = dossier || {};
     var paid = dossier.paidDossier || {};
@@ -1226,7 +1313,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     ];
   }
 
-  function fallbackIssueCandidates(data, amount, uploaded){
+  function fallbackIssueCandidates(data, amount, uploaded, itemizedEvidence){
     var provider = safeProperNoun(clean(data.provider), '') || safeProperNoun(clean(data.extracted_provider), '');
     var billType = clean(data.bill_type_other || data.bill_type, 'medical bill');
     var coverage = safeProperNoun(clean(data.insurance_other || data.insurance), '') || safeProperNoun(clean(data.extracted_insurance), '');
@@ -1236,7 +1323,16 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var extractedParts = [];
     var list = [];
 
-    if(uploaded){
+    if(itemizedEvidence && itemizedEvidence.detected){
+      list.push({
+        key:'itemized-charges-detected',
+        type:'Itemized charge review',
+        title:'Itemized charges detected for formal review',
+        short:'itemized charge review',
+        desc:'The uploaded bill already includes itemized CPT/HCPCS-style charge rows. The next step is reconciling those rows against the EOB, payer adjustments, provider records, and any unclear or repeated line items.',
+        action:'Use the detected itemized rows as the working record and request written EOB reconciliation, provider-record support, coding clarification, or correction where the records support it.'
+      });
+    }else if(uploaded){
       list.push({
         key:'uploaded-review',
         type:'Uploaded bill review',
@@ -1279,12 +1375,14 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     list.push({
       key:amount.unknown ? 'amount-confirmation' : 'amount-match',
       type:'Amount verification',
-      title:amount.unknown ? 'Bill amount still needs confirmation' : 'Entered amount should match the itemized statement',
+      title:amount.unknown ? 'Bill amount still needs confirmation' : (itemizedEvidence && itemizedEvidence.detected ? 'Detected itemized charges should reconcile to the EOB' : 'Entered amount should match the itemized statement'),
       short:amount.unknown ? 'amount confirmation' : 'amount-to-statement match',
       desc:amount.unknown
         ? 'The intake did not include an exact bill amount. The first written request should confirm the full balance, itemized charges, adjustments, and remaining patient responsibility.'
-        : 'The intake amount is ' + amount.display + '. That amount should be reconciled against the itemized total, insurance payments, provider adjustments, and remaining patient responsibility.',
-      action:'Use the itemized statement and EOB to confirm whether the stated balance is accurate before accepting or paying it.'
+        : (itemizedEvidence && itemizedEvidence.detected
+          ? 'The detected charges should reconcile against the EOB, insurance payments, provider adjustments, and remaining patient responsibility.'
+          : 'The intake amount is ' + amount.display + '. That amount should be reconciled against the itemized total, insurance payments, provider adjustments, and remaining patient responsibility.'),
+      action:itemizedEvidence && itemizedEvidence.detected ? 'Compare the detected charge rows against the EOB and ask for written clarification or correction for any mismatch.' : 'Use the itemized statement and EOB to confirm whether the stated balance is accurate before accepting or paying it.'
     });
 
     if(payment){
@@ -1331,7 +1429,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     return list;
   }
 
-  function buildIssues(data, amount, uploaded){
+  function buildIssues(data, amount, uploaded, itemizedEvidence){
     var raw = splitList(data.concerns_raw);
     var labels = splitList(data.concerns);
     var other = safeUserText(data.concern_other || '', 120);
@@ -1365,12 +1463,13 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     }
 
     issueDefs().forEach(function(def){
+      if(itemizedEvidence && itemizedEvidence.detected && def.key === 'no-itemized') return;
       for(var i=0;i<def.triggers.length;i++){
         if(hay.indexOf(def.triggers[i]) > -1){ add(def); break; }
       }
     });
 
-    if(!uploaded) add(issueDefs()[0]);
+    if(!uploaded && !(itemizedEvidence && itemizedEvidence.detected)) add(issueDefs()[0]);
     if(/paid in full|paid|payment plan|partial/i.test(clean(data.payment_status))) add({
       key:'refund-review',
       type:'Payment review',
@@ -1380,38 +1479,45 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       action:'Ask for written correction, updated patient responsibility, and refund or payment-plan adjustment instructions if the review changes the balance.'
     });
 
-    var fallback = fallbackIssueCandidates(data, amount, uploaded);
+    var fallback = fallbackIssueCandidates(data, amount, uploaded, itemizedEvidence);
     for(var f=0; found.length < 3 && f<fallback.length; f++){
       add(fallback[f]);
     }
 
     return found.slice(0,3).map(function(issue, idx){
       var copy = Object.assign({},issue);
-      copy.confidence = uploaded ? 'Use uploaded bill' : 'Needs documentation';
-      copy.amountText = amount.exact ? amount.display : 'Pending itemized bill';
+      copy.confidence = itemizedEvidence && itemizedEvidence.detected ? 'Itemized charges detected' : (uploaded ? 'Use uploaded bill' : 'Needs documentation');
+      copy.amountText = amount.exact ? amount.display : (itemizedEvidence && itemizedEvidence.detected ? 'Itemized charges detected' : 'Pending itemized bill');
       copy.letterName = idx === 0 ? 'Itemized statement request' : (idx === 1 ? 'Billing review request' : 'Insurance and rate review');
       return copy;
     });
   }
 
-  function paymentCopy(status){
+  function paymentCopy(status, itemizedEvidence){
     var s = clean(status).toLowerCase();
+    var hasItemized = !!(itemizedEvidence && itemizedEvidence.detected);
     if(s.indexOf('collections') > -1){
       return {
         title:'This bill may already be in collections. Build the written trail now.',
-        sub:'Use the packet to document the dispute, request validation where applicable, and keep proof of delivery for every letter.'
+        sub:hasItemized ? 'Use the detected itemized charge rows to document the dispute, request validation where applicable, and keep proof of delivery for every letter.' : 'Use the packet to document the dispute, request validation where applicable, and keep proof of delivery for every letter.'
       };
     }
     if(s.indexOf('paid') > -1 && s.indexOf('not paid') === -1){
       return {
         title:'Already paid your bill? A review may still uncover overcharges.',
-        sub:'Your packet helps you review billing records for potential errors, duplicate charges, or insurance issues and includes prepared dispute documents, scripts, and guidance based on your case.'
+        sub:hasItemized ? 'Your packet works from the detected itemized charges to support EOB reconciliation, provider-record review, and written correction requests where the records support them.' : 'Your packet helps you review billing records for potential errors, duplicate charges, or insurance issues and includes prepared dispute documents, scripts, and guidance based on your case.'
       };
     }
     if(s.indexOf('payment plan') > -1 || s.indexOf('partial') > -1){
       return {
         title:'You have already started paying. Protect the review before sending more.',
-        sub:'Keep the payment status documented, request the itemized statement, and ask for written confirmation before making additional payments on disputed portions.'
+        sub:hasItemized ? 'Keep the payment status documented, compare the detected itemized charges against the EOB, and ask for written confirmation before making additional payments on disputed portions.' : 'Keep the payment status documented, request the itemized statement, and ask for written confirmation before making additional payments on disputed portions.'
+      };
+    }
+    if(hasItemized){
+      return {
+        title:'Itemized charges were detected. Use them for formal written review.',
+        sub:'The next step is to reconcile the detected charge rows against your EOB, provider records, payer adjustments, and any unclear or repeated line items before accepting the balance.'
       };
     }
     return {
@@ -1742,9 +1848,27 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       }
       // Fully covered by concern labels → suppress.
     })();
+    var itemizedEvidence = itemizedEvidenceFromData(data);
+    if(itemizedEvidence.detected && amount.unknown){
+      if(itemizedEvidence.total > 0){
+        amount.display = formatMoneyFull(itemizedEvidence.total);
+        amount.reviewText = formatMoneyFull(itemizedEvidence.total) + ' in detected charge rows';
+        amount.calcValue = itemizedEvidence.total;
+        amount.itemizedSubtotal = true;
+      }else{
+        amount.display = 'Itemized charges detected';
+        amount.reviewText = 'Itemized charges detected';
+      }
+      amount.unknown = false;
+      amount.itemizedDetected = true;
+    }
     var uploadedBill = clean(data.uploaded_bill || data.scan_file_name);
     var uploaded = !!(uploadedBill && !/^not uploaded/i.test(uploadedBill));
-    var issues = buildIssues(data, amount, uploaded);
+    if(!uploaded && itemizedEvidence.detected){
+      uploaded = true;
+      uploadedBill = itemizedEvidence.label;
+    }
+    var issues = buildIssues(data, amount, uploaded, itemizedEvidence);
     var dossierFindings = currentDossierFindings();
     var generatedLetterCount = currentDossierLetterCount();
     var detailScore = 28;
@@ -1754,23 +1878,26 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     if(clean(data.concerns)) detailScore += 12;
     if(description.length > 20) detailScore += 14;
     if(uploaded) detailScore += 20;
+    if(itemizedEvidence.detected) detailScore += 10;
     detailScore = Math.min(94, detailScore);
     var notes = [];
     if(!uploaded || description.length < 20 || amount.unknown){
-      notes.push('This review is based on the intake details provided so far. Adding an itemized bill, EOB, procedure codes, and exact charges will make the results more specific.');
+      notes.push(itemizedEvidence.detected
+        ? 'This review is based on the detected itemized charge rows. Adding the EOB, provider records, payer notes, or denial details will make the next written review more specific.'
+        : 'This review is based on the intake details provided so far. Adding an itemized bill, EOB, procedure codes, and exact charges will make the results more specific.');
     }
     if(amount.low){
       notes.push('The stated amount is on the lower end for billing disputes. That does not mean it should go unchecked : confirming the charges now is the fastest path to resolution.');
     }
     var primary = issues[0];
-    var status = paymentCopy(paymentStatus);
+    var status = paymentCopy(paymentStatus, itemizedEvidence);
     var letterPlan = buildLetterPlan(data, issues);
     var ref = clean(data.account_number || data.accountNumber || data.account || data.billing_reference || data.billingReference || data.extracted_account_number, 'in your case folder');
     var basis = [
-      'itemized statement request',
+      itemizedEvidence.detected ? 'itemized charges detected' : 'itemized statement request',
       'EOB and payer-responsibility comparison',
       uploaded ? 'uploaded bill review' : 'bill upload still needed',
-      'CPT/HCPCS/revenue-code review when line items are available'
+      itemizedEvidence.detected ? 'CPT/HCPCS/revenue-code review from detected line items' : 'CPT/HCPCS/revenue-code review when line items are available'
     ];
     if(issues.some(function(i){return i.key === 'network';})) basis.push('network and surprise-billing screening when the facts support it');
     var sanitizedRaw = Object.assign({}, data, {
@@ -1810,6 +1937,8 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       primaryInline:lowerFirst(primary.short || primary.title),
       uploaded:uploaded,
       uploadedBill:uploaded ? uploadedBill : 'Not uploaded',
+      itemizedEvidence:itemizedEvidence,
+      hasItemizedEvidence:itemizedEvidence.detected,
       description:description,
       concernSummary:concernSummary,
       userDetail:userDetail,
@@ -1914,7 +2043,8 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
   }
 
   function commonReplacements(c){
-    var confirmedText = c.amount.exact ? 'Confirms once your itemized bill is added' : 'Pending itemized bill';
+    var pendingAmountText = hasItemizedEvidence(c) ? 'Itemized charges detected' : 'Pending itemized bill';
+    var confirmedText = c.amount.exact ? (hasItemizedEvidence(c) ? 'Confirm against EOB and provider records' : 'Confirms once your itemized bill is added') : pendingAmountText;
     return [
       ['the same billing line item appears twice on date of service', 'the same line item appears twice on the same date of service'],
       ['a billing line item may appear more than once for the same date of service', 'a line item may appear more than once for the same date of service'],
@@ -1936,11 +2066,11 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       ['three letters', c.letterCount + ' letters'],
       ['Review Areas', c.issueCount + ' review areas'],
       ['2 Found', c.issueCount + ' found'],
-      ['$17,589.00', 'Pending itemized bill'],
-      ['$5,863.00', 'Pending itemized bill'],
-      ['$11,726.00', 'Pending itemized bill'],
-      ['$651.44', 'Pending itemized bill'],
-      ['To confirm8.58', 'Pending itemized bill'],
+      ['$17,589.00', pendingAmountText],
+      ['$5,863.00', pendingAmountText],
+      ['$11,726.00', pendingAmountText],
+      ['$651.44', pendingAmountText],
+      ['To confirm8.58', pendingAmountText],
       ['Medicare Beneficiary', c.coverage],
       ['Medicare Primary', c.coverage],
       ['Medicare primary', c.coverage.toLowerCase()],
@@ -2215,15 +2345,15 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     setHTML('.fi-desc', h(issueDesc(c, issue)) + ' <strong>Use written documentation before accepting the balance.</strong>', card);
     setText('.fi-code', issueCodeLine(c, issue), card);
     setText('.fi-amount', issue.amountText, card);
-    setText('.fi-amount-lbl', c.amount.exact ? 'Amount you shared at intake' : 'Confirms with your itemized bill', card);
+    setText('.fi-amount-lbl', c.amount.exact ? 'Amount you shared at intake' : (hasItemizedEvidence(c) ? 'Confirm against EOB and provider records' : 'Confirms with your itemized bill'), card);
     setText('.fi-res', idx === 0 ? 'Press on this first' : (idx === 1 ? 'Next up' : 'Also worth a look'), card);
     var meta = all('.fc-meta-item', card);
     if(meta[0]) setIconText(meta[0], serviceDateLabel(c));
-    if(meta[1]) setIconText(meta[1], c.uploaded ? 'Using your uploaded bill: ' + c.uploadedBill : 'Add your itemized bill to unlock specifics');
+    if(meta[1]) setIconText(meta[1], hasItemizedEvidence(c) ? itemizedEvidenceLabel(c) : (c.uploaded ? 'Using your uploaded bill: ' + c.uploadedBill : 'Add your itemized bill to unlock specifics'));
     if(meta[2]) setIconText(meta[2], 'Letter ' + (idx + 1) + ' drafted for you');
     var ev = all('.ev-item-val', card);
     if(ev[0]) ev[0].textContent = issue.type;
-    if(ev[1]) ev[1].textContent = c.uploaded ? 'Uploaded bill' : 'Need itemized bill';
+    if(ev[1]) ev[1].textContent = billEvidenceStatus(c);
     if(ev[2]) ev[2].textContent = issue.amountText;
     if(ev[3]) ev[3].textContent = issue.confidence;
   }
@@ -2255,12 +2385,14 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     setAllText('.dt-ks-lbl', ['Needs confirmation','From your intake','Ready to send']);
     setText('.dt-lock-txt', 'Unlock to access your complete billing review workspace, packet, calculator, call scripts, and action plan for this case.');
 
-    setText('.lt-doc-label', 'Letter preview - Request for itemized statement and case-specific review');
+    setText('.lt-doc-label', hasItemizedEvidence(c) ? 'Letter preview - Formal itemized-charge review and EOB reconciliation' : 'Letter preview - Request for itemized statement and case-specific review');
     setText('.lt-from-name', c.patientName);
     setText('.lt-from-sub', c.patientLabel);
     setHTML('.lt-to', h(c.provider) + ' - Billing Department<br>Account number/reference: ' + h(c.accountRef) + ' - Date of Service: ' + h(c.dateOfService));
-    setText('.lt-re', 'RE: Formal Request - Itemized Bill Review - ' + c.primary.short);
-    setHTML('.lt-body-vis', 'Dear Billing Department,<br><br>I am requesting a detailed, itemized review of the billing statement for services on <strong>' + h(c.dateOfService) + '</strong> at ' + h(c.provider) + '. My intake identifies <span class="lt-highlight">' + h(c.concernSummary) + '</span>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' Please provide the itemized statement, codes, units, adjustments, and any records needed to confirm the patient responsibility.');
+    setText('.lt-re', 'RE: Formal Request - ' + (hasItemizedEvidence(c) ? 'Itemized Charge Review' : 'Itemized Bill Review') + ' - ' + c.primary.short);
+    setHTML('.lt-body-vis', hasItemizedEvidence(c)
+      ? 'Dear Billing Department,<br><br>I am requesting a formal written review of the itemized charge rows shown on my uploaded billing statement for services on <strong>' + h(c.dateOfService) + '</strong> at ' + h(c.provider) + '. My intake identifies <span class="lt-highlight">' + h(c.concernSummary) + '</span>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' Please provide EOB reconciliation, provider-record support, code documentation, payer adjustments, and any correction needed to confirm the patient responsibility.'
+      : 'Dear Billing Department,<br><br>I am requesting a detailed, itemized review of the billing statement for services on <strong>' + h(c.dateOfService) + '</strong> at ' + h(c.provider) + '. My intake identifies <span class="lt-highlight">' + h(c.concernSummary) + '</span>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' Please provide the itemized statement, codes, units, adjustments, and any records needed to confirm the patient responsibility.');
     setHTML('.lt-unlock-txt', '<strong>Your full letter set is being prepared:</strong> ' + h(c.letterSetLabel) + ', with more added when the bill complexity requires it.<br>Each letter uses the patient, provider, amount, coverage, and issue details from this intake.');
 
     setText('.ub-title', c.statusCopy.title);
@@ -2295,11 +2427,29 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     return c.issues[idx] || c.issues[0] || c.primary || {title:'Billing documentation review', short:'billing review', type:'Billing review', amountText:'To confirm', action:'Request written documentation before accepting the balance.'};
   }
 
+  function hasItemizedEvidence(c){
+    return !!(c && (c.hasItemizedEvidence || (c.itemizedEvidence && c.itemizedEvidence.detected)));
+  }
+
+  function itemizedEvidenceLabel(c){
+    return hasItemizedEvidence(c) && c.itemizedEvidence && c.itemizedEvidence.label ? c.itemizedEvidence.label : 'Itemized charges detected';
+  }
+
+  function billEvidenceStatus(c){
+    if(hasItemizedEvidence(c)) return 'Itemized charges detected';
+    return c.uploaded ? 'Uploaded bill' : 'Needs itemized bill';
+  }
+
+  function billEvidenceSub(c){
+    if(hasItemizedEvidence(c)) return itemizedEvidenceLabel(c);
+    return c.uploaded ? c.uploadedBill : 'Request first';
+  }
+
   function hydrateFinancials(c){
     if(!one('#tab-financials')) return;
     var amountNote = c.amount.exact ? 'Amount entered at intake' : 'Amount from intake or awaiting exact bill';
     setText('.fc-sub', providerLabel(c) + ' - ' + c.amount.reviewText + ' - ' + coverageLabel(c) + ' - ' + serviceDateLabel(c));
-    setText('.fc-badge-g', c.uploaded ? 'Detailed review - uploaded bill on file' : 'Preliminary review - itemized bill needed');
+    setText('.fc-badge-g', hasItemizedEvidence(c) ? 'Detailed review - itemized charges detected' : (c.uploaded ? 'Detailed review - uploaded bill on file' : 'Preliminary review - itemized bill needed'));
     var fvRows = all('.fv-row');
     var fvData = [
       ['Total Billed', 'All charges from intake', c.amount.display, 'Total', c.amount.display + ' - 100%'],
@@ -2318,7 +2468,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     });
     var fvs = all('.fvs-item');
     if(fvs[0]){ setText('.fvs-val', c.amount.display, fvs[0]); setText('.fvs-sub', amountNote, fvs[0]); }
-    if(fvs[1]){ setText('.fvs-val', c.uploaded ? 'Uploaded bill' : 'Needs itemized bill', fvs[1]); setText('.fvs-sub', c.uploaded ? c.uploadedBill : 'Request first', fvs[1]); }
+    if(fvs[1]){ setText('.fvs-val', billEvidenceStatus(c), fvs[1]); setText('.fvs-sub', billEvidenceSub(c), fvs[1]); }
     if(fvs[2]){ setText('.fvs-val', c.amount.reviewText, fvs[2]); setText('.fvs-sub', c.issueCount + ' review areas', fvs[2]); }
     if(fvs[3]){
       setText('.fvs-label', 'Packet Status', fvs[3]);
@@ -2334,7 +2484,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       if(labels[0]) labels[0].textContent = 'Review area';
       if(values[0]) values[0].textContent = issue.short;
       if(labels[1]) labels[1].textContent = 'Case basis';
-      if(values[1]) values[1].textContent = c.uploaded ? 'Uploaded bill' : 'Itemized bill needed';
+      if(values[1]) values[1].textContent = billEvidenceStatus(c);
       if(labels[2]) labels[2].textContent = 'Amount status';
       if(values[2]) values[2].textContent = issue.amountText;
       if(labels[3]) labels[3].textContent = 'Provider / payer';
@@ -2411,7 +2561,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       return el.textContent;
     });
     var dsb = all('.dsb-node');
-    if(dsb[0]){ setText('.dsb-name', 'Request itemized bill', dsb[0]); setText('.dsb-sub', 'Letter drafted for ' + providerLabel(c), dsb[0]); }
+    if(dsb[0]){ setText('.dsb-name', hasItemizedEvidence(c) ? 'Review detected itemized charges' : 'Request itemized bill', dsb[0]); setText('.dsb-sub', hasItemizedEvidence(c) ? itemizedEvidenceLabel(c) : 'Letter drafted for ' + providerLabel(c), dsb[0]); }
     if(dsb[1]){ setText('.dsb-name', 'Review ' + issueAt(c,0).short, dsb[1]); setText('.dsb-sub', 'Primary review area', dsb[1]); }
     if(dsb[2]){ setText('.dsb-name', 'Clarify EOB / coverage', dsb[2]); setText('.dsb-sub', 'Next supporting request', dsb[2]); }
     setText('.dph-title', 'Your Letter Packet');
@@ -2422,12 +2572,12 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     all('.doc-preview-card').slice(0,3).forEach(function(card, idx){
       var issue = issueAt(c, idx);
       var titles = [
-        'Request for fully itemized statement',
+        hasItemizedEvidence(c) ? 'Formal review of itemized charges' : 'Request for fully itemized statement',
         'Billing review request - ' + issueAt(c,0).short,
         'Insurance, EOB, and rate clarification request'
       ];
       var types = [
-        'Line-by-line itemization request for ' + providerLabel(c),
+        hasItemizedEvidence(c) ? 'Provider records and EOB reconciliation for detected charge rows' : 'Line-by-line itemization request for ' + providerLabel(c),
         issueAt(c,0).type + ' for this case',
         coverageLabel(c) + ' responsibility review'
       ];
@@ -2475,9 +2625,9 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     }
     var timeline = [
       [c.openedShort, 'Today', 'Initial review complete', 'The restored intake for ' + providerLabel(c) + ' was organized around ' + c.issueCount + ' review areas and ' + c.letterCount + ' prepared letters.', 'Done'],
-      [c.openedShort, 'Today', 'Send your itemized statement request', 'Send Letter 1 to ' + providerLabel(c) + '. Keep a copy and ask for a written response tied to account ' + c.accountRef + '.', 'When ready'],
+      [c.openedShort, 'Today', hasItemizedEvidence(c) ? 'Send the formal written review request' : 'Send your itemized statement request', hasItemizedEvidence(c) ? 'Send Letter 1 to ' + providerLabel(c) + ' asking for EOB reconciliation, provider-record support, and written clarification tied to account ' + c.accountRef + '.' : 'Send Letter 1 to ' + providerLabel(c) + '. Keep a copy and ask for a written response tied to account ' + c.accountRef + '.', 'When ready'],
       [c.deadline30, '+30 days', 'Follow up if you have not heard back', 'Follow up in writing around the 30-day mark. Ask for status, a reference number, and the expected response date.', 'Soft deadline'],
-      [c.deadline30, '+30 days', 'Send review letters when documentation arrives', 'Use the prepared review letters for ' + issueAt(c,0).short + ' and EOB, coverage, or rate clarification once the itemized bill is available.', 'Next step'],
+      [c.deadline30, '+30 days', hasItemizedEvidence(c) ? 'Send supporting EOB or provider-record clarification' : 'Send review letters when documentation arrives', hasItemizedEvidence(c) ? 'Use the prepared review letters for ' + issueAt(c,0).short + ', EOB reconciliation, provider records, coverage, or rate clarification.' : 'Use the prepared review letters for ' + issueAt(c,0).short + ' and EOB, coverage, or rate clarification once the itemized bill is available.', 'Next step'],
       [c.deadline60, '+60 days', 'Escalate if no written response arrives', 'If there is still no written answer, use the escalation guide with copies of your letters, account details, and proof of delivery.', 'Escalate if needed']
     ];
     rows.forEach(function(row, idx){
@@ -2579,7 +2729,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     setText('.sb-hospital', c.provider);
     setText('.sb-sub', c.billType + ' - ' + c.dateShort);
     setAllText('.sb-kpi-val', [c.amount.display, c.amount.reviewText]);
-    setAllText('.sb-kpi-sub', [hasKnown(c.coverage, 'Your coverage') ? c.coverage : 'Insurance you listed at intake', c.uploaded ? 'Your itemized bill is in this case' : 'Add your itemized bill to unlock the full review']);
+    setAllText('.sb-kpi-sub', [hasKnown(c.coverage, 'Your coverage') ? c.coverage : 'Insurance you listed at intake', hasItemizedEvidence(c) ? itemizedEvidenceLabel(c) : (c.uploaded ? 'Your bill is in this case' : 'Add your itemized bill to unlock the full review')]);
     setText('.sb-readiness-text', 'Your review tools are ready to use');
 
     setText('.ch-ref', c.accountRef);
@@ -2604,7 +2754,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     if(pills[0]) setIconText(pills[0], c.patientName ? 'Prepared for ' + c.patientName : 'Prepared for your case');
     if(pills[1]) setIconText(pills[1], 'Prepared: ' + c.prepDate);
     // FIX 2: replace billing jargon with plain English the patient can act on.
-    setText('.ch-pill.amber-pill', c.uploaded ? 'Review ready · Your bill is in this case' : 'Action needed · Request your itemized bill');
+    setText('.ch-pill.amber-pill', hasItemizedEvidence(c) ? 'Review ready - itemized charges detected' : (c.uploaded ? 'Review ready - your bill is in this case' : 'Action needed - request your itemized bill'));
     setAllText('.ch-meta-val', [c.provider, c.dateOfService, c.coverage, c.amount.display]);
 
     setAllText('.kpi-val', [c.amount.reviewText, c.issueCount ? c.issueCount + (c.issueCount === 1 ? ' area' : ' areas') : 'Pending your bill', c.generatedLetterCount ? c.generatedLetterCount + ' prepared' : 'From your review']);
@@ -2629,24 +2779,28 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
       c.issues[2].short + ' - ' + c.issues[2].amountText
     ]);
     setAllText('.bench-name', c.issues.map(function(i){return i.title;}));
-    setAllText('.bench-delta', ['Needs itemized detail','Needs EOB/code detail']);
-    setAllText('.bench-bar-val', ['Pending itemized bill','Benchmark unlocks once you upload your itemized bill with codes','Pending itemized bill','Benchmark unlocks once you upload your itemized bill with codes']);
-    setText('.nb-title', c.uploaded ? 'Use your uploaded bill to press for line-item answers' : 'Ask the provider for a fully itemized statement before you pay');
-    setText('.nb-desc', c.uploaded ? 'We’ll work from your uploaded bill alongside the drafted letters to push for written explanations, EOB reconciliation, and corrections wherever the records support it.' : 'Your intake didn’t include a complete itemized bill yet. Letter 1 is drafted to ask the provider for the codes, units, charges, adjustments, and records we need to make the rest of the review specific.');
+    setAllText('.bench-delta', hasItemizedEvidence(c) ? ['Itemized charges detected','Needs EOB/code detail'] : ['Needs itemized detail','Needs EOB/code detail']);
+    setAllText('.bench-bar-val', hasItemizedEvidence(c)
+      ? ['Detected itemized rows from your bill','Reconcile against EOB, records, and payer adjustments','Detected itemized rows from your bill','Formal review can use the detected codes and charges']
+      : ['Pending itemized bill','Benchmark unlocks once you upload your itemized bill with codes','Pending itemized bill','Benchmark unlocks once you upload your itemized bill with codes']);
+    setText('.nb-title', hasItemizedEvidence(c) ? 'Use the detected itemized charges for written review' : (c.uploaded ? 'Use your uploaded bill to press for line-item answers' : 'Ask the provider for a fully itemized statement before you pay'));
+    setText('.nb-desc', hasItemizedEvidence(c) ? 'Your uploaded bill already shows itemized CPT/HCPCS-style charge rows. The next step is to compare them against the EOB, provider records, payer adjustments, and any unclear or repeated lines.' : (c.uploaded ? 'We’ll work from your uploaded bill alongside the drafted letters to push for written explanations, EOB reconciliation, and corrections wherever the records support it.' : 'Your intake didn’t include a complete itemized bill yet. Letter 1 is drafted to ask the provider for the codes, units, charges, adjustments, and records we need to make the rest of the review specific.'));
 
     all('#tab-findings .finding-card').slice(0,3).forEach(function(card, idx){ applyIssueCard(card, c.issues[idx], c, idx); });
-    var actionTitles = ['Ask for a fully itemized statement', 'Press on the ' + c.issues[0].short + ' question', 'Clarify coverage, EOB, or rates', 'Follow up : and escalate if no written reply'];
+    var actionTitles = hasItemizedEvidence(c)
+      ? ['Review detected itemized charges', 'Press on the ' + c.issues[0].short + ' question', 'Clarify coverage, EOB, or rates', 'Follow up : and escalate if no written reply']
+      : ['Ask for a fully itemized statement', 'Press on the ' + c.issues[0].short + ' question', 'Clarify coverage, EOB, or rates', 'Follow up : and escalate if no written reply'];
     var actionDescs = [
-      'Send Letter 1 to ' + providerLabel(c) + ' asking for the full line-by-line statement, codes, units, adjustments, and payer responsibility for the concerns you entered: ' + c.concernSummary + '. About five minutes of your time.',
-      'Once your itemized statement arrives, use Letter 2 to ask billing to answer this question directly: ' + c.issues[0].title + '.',
+      hasItemizedEvidence(c) ? 'Use Letter 1 to ask ' + providerLabel(c) + ' for a written review of the detected CPT/HCPCS-style rows, payer adjustments, EOB reconciliation, and provider records tied to the unclear charges.' : 'Send Letter 1 to ' + providerLabel(c) + ' asking for the full line-by-line statement, codes, units, adjustments, and payer responsibility for the concerns you entered: ' + c.concernSummary + '. About five minutes of your time.',
+      hasItemizedEvidence(c) ? 'Use Letter 2 to ask billing to answer this question directly against the detected charge rows: ' + c.issues[0].title + '.' : 'Once your itemized statement arrives, use Letter 2 to ask billing to answer this question directly: ' + c.issues[0].title + '.',
       'Use Letter 3 to sort out coverage, EOB, network status, payer adjustments, and any rate question tied to ' + c.coverage + '. ' + (c.contactLine === 'Contact details can be added before sending' ? c.contactLine + '.' : 'Your contact on file for the packet is ' + c.contactLine + '.'),
       'If there is no written reply within 30 days, follow up with billing, then escalate with copies of your letters and proof of delivery.'
     ];
     var providerHint = c.provider === 'Your provider' ? 'the provider' : c.provider;
     var coverageHint = c.coverage === 'Your coverage' ? 'insurance or payer' : c.coverage;
     var actionHints = [
-      'Open Letter 1 in Documents, then sign and send it to ' + providerHint + '.',
-      'Open Letter 2 in Documents after the itemized statement is available.',
+      hasItemizedEvidence(c) ? 'Open Letter 1 in Documents for the formal itemized-charge review request.' : 'Open Letter 1 in Documents, then sign and send it to ' + providerHint + '.',
+      hasItemizedEvidence(c) ? 'Open Letter 2 in Documents and reference the detected charge rows.' : 'Open Letter 2 in Documents after the itemized statement is available.',
       'Open Letter 3 in Documents for ' + coverageHint + ' EOB, rate, or network clarification.',
       'Open the Escalation guide if ' + providerHint + ' has not responded in writing after 30 days.'
     ];
@@ -2659,10 +2813,10 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     });
 
     setText('.rpc-amount', c.amount.reviewText);
-    setText('.rpc-sub', c.amount.exact ? 'From the amount you shared at intake' : 'Confirms with your itemized bill');
+    setText('.rpc-sub', c.amount.exact ? 'From the amount you shared at intake' : (hasItemizedEvidence(c) ? 'Confirm against EOB and provider records' : 'Confirms with your itemized bill'));
     setAllText('.rpc-row-val', [c.amount.unknown ? 'Pending your bill' : c.amount.display, c.issueCount ? String(c.issueCount) : 'Pending your bill', c.generatedLetterCount ? c.generatedLetterCount + ' drafted' : 'From your review']);
     var rpsPayment = c.paymentStatus || 'Review timing depends on your situation';
-    setAllText('.rps-row-val', [c.issueCount ? c.issueCount + (c.issueCount === 1 ? ' review area' : ' review areas') : 'From your review', c.dossierFindings.length ? findingSummaryTitle(c.dossierFindings[0]) : 'From your review', rpsPayment, c.uploaded ? 'Working from your uploaded bill' : 'Ask for an itemized statement first']);
+    setAllText('.rps-row-val', [c.issueCount ? c.issueCount + (c.issueCount === 1 ? ' review area' : ' review areas') : 'From your review', c.dossierFindings.length ? findingSummaryTitle(c.dossierFindings[0]) : 'From your review', rpsPayment, hasItemizedEvidence(c) ? 'Working from detected itemized charges' : (c.uploaded ? 'Working from your uploaded bill' : 'Ask for an itemized statement first')]);
     setText('.rp-readiness-text', 'Your review tools are ready to use');
     all('.rp-flag').slice(0,3).forEach(function(flag, idx){
       setText('.rp-flag-title', c.issues[idx].title, flag);
@@ -2670,7 +2824,7 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     });
     setText('.rp-next-title', c.statusCopy.title);
     setText('.rp-next-desc', c.statusCopy.sub);
-    setText('.btn-rp-cta', c.uploaded ? 'Use My Review Packet' : 'Request Itemized Bill');
+    setText('.btn-rp-cta', hasItemizedEvidence(c) ? 'Review Detected Charges' : (c.uploaded ? 'Use My Review Packet' : 'Request Itemized Bill'));
 
     hydrateFinancials(c);
     hydrateDocuments(c);
@@ -2715,16 +2869,18 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
     var sigName = packetBuyerName;
     setAllText('.lbs-sub', [sigName ? sigName + ' / ' + c.coverage : c.coverage, packetAccountRef].filter(Boolean).join(' - '));
     setAllText('.ltb-title', [
-      'Request for fully itemized statement - send this first',
+      hasItemizedEvidence(c) ? 'Formal itemized-charge review - send this first' : 'Request for fully itemized statement - send this first',
       'Billing review request - ' + c.issues[0].short,
       'Insurance, EOB, and rate clarification request'
     ]);
     if(bodies[0]){
       setHTML('.lb-to-addr', h(c.provider) + ' - Billing & Accounts<br>Billing address : see statement', bodies[0]);
-      setText('.lb-re-txt', 'Request for Fully Itemized Statement' + (packetAccountRef ? ' - ' + packetAccountRef : '') + ' - Date of Service: ' + c.dateOfService, bodies[0]);
-      setHTML('.lb-para', 'I am writing to request a complete, fully itemized statement for medical services rendered on <strong>' + h(c.dateOfService) + '</strong>' + accountPhrase + ', at ' + h(c.provider) + '. My current intake lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, payment timing as <strong>' + h(c.paymentStatus) + '</strong>, and concerns including <strong>' + h(c.concernSummary) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' I am reviewing this statement before accepting the patient responsibility.', bodies[0]);
-      setText('.lb-hl', 'Please provide every line item, CPT/HCPCS code, revenue code, units, dates of service, provider adjustments, insurer payments or denials, and the patient-responsibility amount for each individual item.', bodies[0]);
-      setText('.lb-sm', 'This request is made so I can reconcile the statement against my EOB, coverage, and records. Please pause collection activity on any disputed portion while this written review is pending and provide a reference number for this request.', bodies[0]);
+      setText('.lb-re-txt', (hasItemizedEvidence(c) ? 'Formal Review of Itemized Charges' : 'Request for Fully Itemized Statement') + (packetAccountRef ? ' - ' + packetAccountRef : '') + ' - Date of Service: ' + c.dateOfService, bodies[0]);
+      setHTML('.lb-para', hasItemizedEvidence(c)
+        ? 'I am writing to request a formal written review of the itemized charges shown on my uploaded billing statement for services rendered on <strong>' + h(c.dateOfService) + '</strong>' + accountPhrase + ', at ' + h(c.provider) + '. The statement already includes itemized CPT/HCPCS-style charge rows. My current review lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, payment timing as <strong>' + h(c.paymentStatus) + '</strong>, and concerns including <strong>' + h(c.concernSummary) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' I am requesting written clarification before accepting the patient responsibility.'
+        : 'I am writing to request a complete, fully itemized statement for medical services rendered on <strong>' + h(c.dateOfService) + '</strong>' + accountPhrase + ', at ' + h(c.provider) + '. My current intake lists total charges as <strong>' + h(c.amount.display) + '</strong>, coverage as <strong>' + h(c.coverage) + '</strong>, payment timing as <strong>' + h(c.paymentStatus) + '</strong>, and concerns including <strong>' + h(c.concernSummary) + '</strong>.' + (c.userDetail ? ' Additional billing context: ' + h(c.userDetail) : '') + ' I am reviewing this statement before accepting the patient responsibility.', bodies[0]);
+      setText('.lb-hl', hasItemizedEvidence(c) ? 'Please provide the EOB reconciliation, provider records, code documentation, payer adjustments, insurer payments or denials, and patient-responsibility calculation supporting each itemized charge under review.' : 'Please provide every line item, CPT/HCPCS code, revenue code, units, dates of service, provider adjustments, insurer payments or denials, and the patient-responsibility amount for each individual item.', bodies[0]);
+      setText('.lb-sm', hasItemizedEvidence(c) ? 'This request is made so I can reconcile the itemized charge rows against my EOB, coverage, and provider records. Please pause collection activity on any disputed portion while this written review is pending and provide a reference number for this request.' : 'This request is made so I can reconcile the statement against my EOB, coverage, and records. Please pause collection activity on any disputed portion while this written review is pending and provide a reference number for this request.', bodies[0]);
     }
     if(bodies[1]){
       var issue = c.issues[0];
@@ -3057,11 +3213,15 @@ try{ console.warn('[UPA HYDRATION] All paths exhausted : URL had no ?r= param AN
           replaceTextNodes(root, guideReplacements(c, name));
           ensureGuideContext(root, name);
           var texts = all('.gd-card-text', root);
-          if(texts[0] && name === 'starthere') texts[0].innerHTML = 'Start with the <strong>Documents tab</strong>. Letter 1 is tailored to ' + h(c.provider) + ', ' + h(c.dateOfService) + ', ' + h(c.amount.display) + ', ' + h(c.coverage) + ', and the concerns you entered: "' + h(c.concernSummary) + '".' + (c.userDetail ? ' Your intake note is also included: ' + h(c.userDetail) + '.' : '');
+          if(texts[0] && name === 'starthere') texts[0].innerHTML = hasItemizedEvidence(c)
+            ? 'Start with the <strong>Documents tab</strong>. Letter 1 is tailored to the detected itemized charge rows for ' + h(c.provider) + ', ' + h(c.dateOfService) + ', ' + h(c.amount.display) + ', ' + h(c.coverage) + ', and the concerns you entered: "' + h(c.concernSummary) + '".' + (c.userDetail ? ' Your intake note is also included: ' + h(c.userDetail) + '.' : '')
+            : 'Start with the <strong>Documents tab</strong>. Letter 1 is tailored to ' + h(c.provider) + ', ' + h(c.dateOfService) + ', ' + h(c.amount.display) + ', ' + h(c.coverage) + ', and the concerns you entered: "' + h(c.concernSummary) + '".' + (c.userDetail ? ' Your intake note is also included: ' + h(c.userDetail) + '.' : '');
           if(name === 'checklist'){
             var checks = all('.gdc-text', root);
             if(checks[0]) checks[0].innerHTML = '<strong>Bill review prepared.</strong> Your review organized ' + h(c.amount.display) + ' around ' + h(c.issueCount) + ' review areas from this intake: ' + h(c.concernSummary) + '.';
-            if(checks[1]) checks[1].innerHTML = '<strong>Send the itemized statement request.</strong> Download Letter 1' + (c.patientName ? ', sign it as ' + h(c.patientName) : '') + ', and send it to ' + h(c.provider) + ' Patient Financial Services.';
+            if(checks[1]) checks[1].innerHTML = hasItemizedEvidence(c)
+              ? '<strong>Send the formal itemized-charge review request.</strong> Download Letter 1' + (c.patientName ? ', sign it as ' + h(c.patientName) : '') + ', and send it to ' + h(c.provider) + ' Patient Financial Services.'
+              : '<strong>Send the itemized statement request.</strong> Download Letter 1' + (c.patientName ? ', sign it as ' + h(c.patientName) : '') + ', and send it to ' + h(c.provider) + ' Patient Financial Services.';
           }
           cleanCustomerTextNodes(root);
         }

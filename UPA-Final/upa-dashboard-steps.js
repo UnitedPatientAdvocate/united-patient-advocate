@@ -11,6 +11,41 @@
     return Array.isArray(value) ? value : [];
   }
 
+  function numberOrNull(value){
+    if(typeof value === 'number' && isFinite(value)) return value;
+    var match = String(value || '').match(/\d[\d,]*(?:\.\d+)?/);
+    if(!match) return null;
+    var parsed = parseFloat(match[0].replace(/,/g, ''));
+    return isFinite(parsed) ? parsed : null;
+  }
+
+  function hasItemizedChargeRows(dossier){
+    var source = dossier && typeof dossier === 'object' ? dossier : {};
+    var paid = source.paidDossier && typeof source.paidDossier === 'object' ? source.paidDossier : {};
+    var summary = source.summary && typeof source.summary === 'object' ? source.summary : {};
+    var scan = source.scanData && typeof source.scanData === 'object' ? source.scanData : {};
+    var lists = [
+      source.codeAnalysis,
+      source.lineItems,
+      paid.codeAnalysis,
+      paid.lineItems,
+      summary.codeAnalysis,
+      summary.lineItems,
+      scan.codeAnalysis,
+      scan.lineItems
+    ];
+    return lists.some(function(list){
+      return asArray(list).some(function(row){
+        row = row && typeof row === 'object' ? row : {};
+        var code = String(row.code || row.hcpcs || row.cptCode || row.procedureCode || row.revenueCode || row.revCode || '').toUpperCase();
+        var hasCode = /\b(?:[A-Z]\d{4}|\d{5}|\d{4}[A-Z])\b/.test(code);
+        var hasCharge = numberOrNull(row.billedAmount != null ? row.billedAmount : (row.amount != null ? row.amount : (row.charge != null ? row.charge : row.total))) != null;
+        var hasDetail = !!String(row.shortDescription || row.benchmarkDescription || row.description || row.serviceDescription || row.lineItem || row.units || row.quantity || row.dateOfService || row.serviceDate || '').trim();
+        return hasCode && hasCharge && hasDetail;
+      });
+    });
+  }
+
   function readDossier(){
     var stores = [];
     if(typeof localStorage !== 'undefined') stores.push(localStorage);
@@ -57,7 +92,7 @@
     }
 
     if(hasScript('script-itemized-bill-request')){
-      addStep('itemized-bill-request', 'Request an itemized bill', 'itemized_bill', false);
+      addStep('itemized-bill-request', hasItemizedChargeRows(source) ? 'Review itemized charges' : 'Request an itemized bill', 'itemized_bill', false);
     }
 
     if(hasTrigger(['charity_care_eligible'])){

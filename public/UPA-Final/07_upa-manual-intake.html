@@ -13,8 +13,8 @@ body{min-height:100vh;background:radial-gradient(800px 440px at 92% -8%,rgba(29,
 button,input,select{font:inherit}
 .topbar{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 28px;background:#fff;border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:11px;color:var(--navy);text-decoration:none}
-.mark{width:38px;height:42px;border-radius:12px;background:linear-gradient(155deg,var(--navy),#2A3B59);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(22,32,51,.16)}
-.mark svg{width:22px;height:26px;stroke:#fff;stroke-width:2;fill:none}
+.mark{width:38px;height:42px;display:grid;place-items:center}
+.mark img{width:100%;height:100%;object-fit:contain;display:block}
 .brand-name{font-family:var(--serif);font-size:1.05rem;font-weight:700;line-height:1}
 .brand-sub{display:block;color:var(--muted);font-size:.66rem;font-weight:500;margin-top:4px}
 .back-link{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1px solid var(--line);border-radius:12px;color:var(--body);background:#fff;text-decoration:none;font-size:.9rem;font-weight:500}
@@ -90,7 +90,7 @@ h1{font-family:var(--serif);font-size:clamp(2.15rem,6vw,3.8rem);line-height:1.03
 <body>
 <header class="topbar">
   <a class="brand" href="/UPA-Final/01_upa-landing.html" aria-label="United Patient Advocate home">
-    <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 28"><path d="M12 2 4 5.5v7.2c0 5.6 3.2 10.3 8 12.3 4.8-2 8-6.7 8-12.3V5.5L12 2Z"/><path d="m8.2 14 2.4 2.5 5.4-6"/></svg></span>
+    <span class="mark" aria-hidden="true"><img src="/UPA-Final/Transparent.png" alt=""></span>
     <span><span class="brand-name">United Patient Advocate</span><span class="brand-sub">Independent. On your side.</span></span>
   </a>
   <a class="back-link" href="/UPA-Final/00_upa-scan.html">Back to bill scan</a>
